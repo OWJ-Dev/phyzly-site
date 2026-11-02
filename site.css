@@ -14,17 +14,17 @@ main{flex:1;display:flex;flex-direction:column;align-items:center;justify-conten
 .wm span{color:var(--coral)}
 .bar{display:grid;grid-template-columns:3fr 1fr 5fr 2fr 2fr;gap:6px;width:clamp(220px,26vw,300px);margin:30px auto 0}
 .bar span{display:block;height:5px;border-radius:3px;background:rgba(255,255,255,.18);overflow:hidden}
-.bar i{display:block;height:100%;width:102%;background:#fff;border-radius:3px;transform:translateX(-101%);will-change:transform,opacity}
+.bar i{display:block;height:100%;width:102%;background:#fff;border-radius:3px;transform:translateX(-101%);will-change:transform}
 .bar span:nth-child(1) i{animation:f0 6.5s linear infinite}
 .bar span:nth-child(2) i{animation:f1 6.5s linear infinite}
 .bar span:nth-child(3) i{animation:f2 6.5s linear infinite}
 .bar span:nth-child(4) i{animation:f3 6.5s linear infinite}
 .bar span:nth-child(5) i{animation:f4 6.5s linear infinite}
-@keyframes f0{0%{transform:translateX(-101%);opacity:1}15.0%{transform:translateX(0)}82%{transform:translateX(0);opacity:1}94%{transform:translateX(0);opacity:0}96%{transform:translateX(-101%);opacity:0}100%{transform:translateX(-101%);opacity:1}}
-@keyframes f1{0%{transform:translateX(-101%);opacity:1}15.0%{transform:translateX(-101%)}20.0%{transform:translateX(0)}82%{transform:translateX(0);opacity:1}94%{transform:translateX(0);opacity:0}96%{transform:translateX(-101%);opacity:0}100%{transform:translateX(-101%);opacity:1}}
-@keyframes f2{0%{transform:translateX(-101%);opacity:1}20.0%{transform:translateX(-101%)}45.0%{transform:translateX(0)}82%{transform:translateX(0);opacity:1}94%{transform:translateX(0);opacity:0}96%{transform:translateX(-101%);opacity:0}100%{transform:translateX(-101%);opacity:1}}
-@keyframes f3{0%{transform:translateX(-101%);opacity:1}45.0%{transform:translateX(-101%)}55.0%{transform:translateX(0)}82%{transform:translateX(0);opacity:1}94%{transform:translateX(0);opacity:0}96%{transform:translateX(-101%);opacity:0}100%{transform:translateX(-101%);opacity:1}}
-@keyframes f4{0%{transform:translateX(-101%);opacity:1}55.0%{transform:translateX(-101%)}65.0%{transform:translateX(0)}82%{transform:translateX(0);opacity:1}94%{transform:translateX(0);opacity:0}96%{transform:translateX(-101%);opacity:0}100%{transform:translateX(-101%);opacity:1}}
+@keyframes f0{0%{transform:translateX(-101%);opacity:1}15.0%{transform:translateX(0)}82%{transform:translateX(0);opacity:1}92%{transform:translateX(0);opacity:0;animation-timing-function:step-end}97%{transform:translateX(-101%);opacity:0;animation-timing-function:step-end}100%{transform:translateX(-101%);opacity:1}}
+@keyframes f1{0%{transform:translateX(-101%);opacity:1}15.0%{transform:translateX(-101%)}20.0%{transform:translateX(0)}82%{transform:translateX(0);opacity:1}92%{transform:translateX(0);opacity:0;animation-timing-function:step-end}97%{transform:translateX(-101%);opacity:0;animation-timing-function:step-end}100%{transform:translateX(-101%);opacity:1}}
+@keyframes f2{0%{transform:translateX(-101%);opacity:1}20.0%{transform:translateX(-101%)}45.0%{transform:translateX(0)}82%{transform:translateX(0);opacity:1}92%{transform:translateX(0);opacity:0;animation-timing-function:step-end}97%{transform:translateX(-101%);opacity:0;animation-timing-function:step-end}100%{transform:translateX(-101%);opacity:1}}
+@keyframes f3{0%{transform:translateX(-101%);opacity:1}45.0%{transform:translateX(-101%)}55.0%{transform:translateX(0)}82%{transform:translateX(0);opacity:1}92%{transform:translateX(0);opacity:0;animation-timing-function:step-end}97%{transform:translateX(-101%);opacity:0;animation-timing-function:step-end}100%{transform:translateX(-101%);opacity:1}}
+@keyframes f4{0%{transform:translateX(-101%);opacity:1}55.0%{transform:translateX(-101%)}65.0%{transform:translateX(0)}82%{transform:translateX(0);opacity:1}92%{transform:translateX(0);opacity:0;animation-timing-function:step-end}97%{transform:translateX(-101%);opacity:0;animation-timing-function:step-end}100%{transform:translateX(-101%);opacity:1}}
 @media (prefers-reduced-motion:reduce){.bar span i,.glow{animation:none!important}.bar span:nth-child(-n+2) i{transform:none}}
 .line{margin:24px 0 0;font-size:clamp(21px,2.4vw,26px);font-weight:600;letter-spacing:-.02em;line-height:1.3;max-width:20ch}
 .form{display:flex;gap:8px;width:100%;max-width:440px;margin:30px auto 0}
