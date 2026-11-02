@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Phyzly · Coming soon</title>
+<meta name="description" content="Something new for physios. Coming soon.">
+<meta name="theme-color" content="#0A1F3D">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="canonical" href="https://phyzly.app/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://phyzly.app/">
+<meta property="og:title" content="Phyzly · Coming soon">
+<meta property="og:description" content="Something new for physios. Coming soon.">
+<meta property="og:image" content="https://phyzly.app/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="/site.css">
+</head>
+<body>
+<div class="glow" aria-hidden="true"></div>
+<main>
+  <h1 class="wm">Phy<span>z</span>ly</h1>
+  <div class="bar" aria-hidden="true"><span><i></i></span><span><i></i></span><span><i></i></span><span><i></i></span><span><i></i></span></div>
+  <p class="line">Something new for physios is loading.</p>
+
+  <form id="f" class="form" novalidate>
+    <label class="sr" for="em">Your email</label>
+    <input id="em" name="email" type="email" inputmode="email" autocomplete="email" placeholder="Your email" required>
+    <input class="hp" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <button type="submit">Notify me</button>
+  </form>
+  <p id="msg" class="small" role="status" aria-live="polite">One email when we launch. Nothing else. <a href="/privacy.html">Privacy notice</a></p>
+</main>
+<footer>© 2026 Phyzly · <a href="/privacy.html">Privacy</a></footer>
+
+<script>
+/* Sign-up form. Set ACTION to the form address from the email service once it is set up,
+   and FIELD to the name that service expects for the email address. */
+const FORM = { ACTION: "", FIELD: "fields[email]" };
+
+(function(){
+  const f = document.getElementById("f"), em = document.getElementById("em"), msg = document.getElementById("msg"), btn = f.querySelector("button");
+  const ok = v => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
+  const say = (t, cls) => { msg.textContent = t; msg.className = "small " + (cls || ""); };
+  f.addEventListener("submit", async e => {
+    e.preventDefault();
+    const v = em.value.trim();
+    if (!ok(v)) { say("Please enter a valid email address.", "err"); em.focus(); return; }
+    if (f._gotcha && f._gotcha.value) return;
+    if (!FORM.ACTION) { say("Sign-up opens very soon. Please check back.", "err"); return; }
+    btn.disabled = true; btn.textContent = "Sending…";
+    try {
+      const d = new FormData(); d.append(FORM.FIELD, v);
+      await fetch(FORM.ACTION, { method: "POST", body: d, mode: "no-cors" });
+      f.classList.add("done"); f.setAttribute("aria-hidden", "true");
+      say("You're on the list. We'll email you once, when Phyzly launches.", "okm");
+    } catch (_) {
+      btn.disabled = false; btn.textContent = "Notify me";
+      say("That didn't go through. Please check your connection and try again.", "err");
+    }
+  });
+})();
+</script>
+</body>
+</html>
