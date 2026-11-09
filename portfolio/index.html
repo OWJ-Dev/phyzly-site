@@ -11794,9 +11794,14 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
    const h0=home;home=function(){const r=h0.apply(this,arguments);try{if(S.pzAsk&&PZ.user&&!document.getElementById("pzask")){const d=document.createElement("div");d.className="twov";d.id="pzask";d.setAttribute("role","dialog");d.setAttribute("aria-modal","true");
      d.innerHTML=`<div class="twbx"><h2>Add this phone's entries to your account?</h2><p>This phone has ${S.pzAsk} CPD ${S.pzAsk===1?"entry":"entries"} made before you signed in. Add ${S.pzAsk===1?"it":"them"} to your account so ${S.pzAsk===1?"it's":"they're"} backed up?</p><button class="go" onclick="document.getElementById('pzask').remove();PZ.keepLocal(true)">Add to my account</button><button class="opt" style="text-align:center;margin-top:8px" onclick="document.getElementById('pzask').remove();PZ.keepLocal(false)">Keep on this phone only</button></div>`;document.body.appendChild(d)}}catch(e){}return r};
    /* already signed in, or back from Apple or Google */
-   PZ.sb.auth.onAuthStateChange((ev,ses)=>{if(ev==="SIGNED_IN"&&ses&&ses.user&&!au.busy&&(!PZ.user||PZ.user.id!==ses.user.id)){const back=!PZ.user;PZ.adopt(ses.user).then(()=>{if(back&&location.hash.includes("access_token"))history.replaceState(null,"",location.pathname);if(S.role)home();else welcome()})}
+   /* v450: a session that arrives from Apple or Google (or is already stored) is adopted whichever of these fires first;
+      before, getSession could set PZ.user first, the SIGNED_IN handler then skipped adopt, and the device kept the
+      signed-out flag, so Profile sent the person back to the sign-in screen */
+   let adopting=null;const need=u=>!PZ.user||PZ.user.id!==u.id||!S.acct||S.acct.uid!==u.id||S.signedOut;
+   const take=u=>{if(adopting||au.busy)return;adopting=PZ.adopt(u).then(()=>{if(location.hash.includes("access_token")||location.search.includes("code="))history.replaceState(null,"",location.pathname);if(S.role)home();else welcome()}).catch(e=>console.error("adopt",e)).finally(()=>{adopting=null})};
+   PZ.sb.auth.onAuthStateChange((ev,ses)=>{if((ev==="SIGNED_IN"||ev==="INITIAL_SESSION")&&ses&&ses.user&&need(ses.user))take(ses.user);
     if(ev==="SIGNED_OUT"){PZ.user=null}});
-   PZ.sb.auth.getSession().then(({data})=>{const ses=data&&data.session;if(ses&&ses.user&&!PZ.user){PZ.user=ses.user;PZ.sync()}});
+   PZ.sb.auth.getSession().then(({data})=>{const ses=data&&data.session;if(!ses||!ses.user)return;if(need(ses.user))take(ses.user);else PZ.sync()});
   }
 
  }catch(e){console.error("v446",e)}
