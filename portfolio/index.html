@@ -11652,158 +11652,254 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
  try{
   /* ---------- Real accounts and sync (Supabase). Off unless the page loads supabase-js and PZ_CFG. ---------- */
   const CFG=window.PZ_CFG||null,LIB=window.supabase&&window.supabase.createClient;
-  const PZ=window.PZ={on:!!(CFG&&LIB),sb:null,user:null,busy:false,last:0,err:"",pending:0};
-  if(PZ.on){try{PZ.sb=LIB(CFG.url,CFG.key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:"phz-auth"}})}catch(e){PZ.on=false;console.error("PZ init",e)}}
+  const PZ=window.PZ={on:!!(CFG&&LIB),sb:null,user:null,busy:false,last:0,err:"",pending:0,cur:null};
+  /* v454: PKCE sign-in. A link carrying someone else's tokens (#access_token=...) is refused, so no one can be signed
+     into another person's account by tapping a link (repeat check R3). Apple and email codes work as before. */
+  /* v456: once a session is signed out here, the sign-in library's own requests for it are stopped. A token refresh
+     still in flight (or retried) for it fails as if offline, so the library can't put that session back, and can't
+     clear the storage either (which would also throw away the next person's Apple sign-in on its way). */
+  const DEAD=new Set(),LIVE=new Set();let fence=null,gone=null;
+  const refused=()=>new Response(JSON.stringify({code:400,error_code:"refresh_token_not_found",msg:"Invalid Refresh Token: Refresh Token Not Found"}),{status:400,headers:{"content-type":"application/json"}});
+  const pzFetch=function(input,init){init=init||{};let rt=null;
+   try{const u=String((input&&input.url)||input);if(/grant_type=refresh_token/.test(u)&&typeof init.body==="string")rt=JSON.parse(init.body).refresh_token||null}catch(e){}
+   if(rt&&DEAD.has(rt))return Promise.resolve(refused());
+   const ac=new AbortController(),sg=init.signal;if(sg){if(sg.aborted)ac.abort();else sg.addEventListener("abort",()=>ac.abort())}
+   const rec={ac,rt};LIVE.add(rec);
+   return fetch(input,Object.assign({},init,{signal:ac.signal})).then(async r=>{if(!rt)return r;const tx=await r.text();if(DEAD.has(rt))return refused();
+    return new Response(tx,{status:r.status,statusText:r.statusText,headers:r.headers})}).finally(()=>LIVE.delete(rec))};
+  /* for 30 s after a sign-out the library can't store that account's session again (unless a sign-in starts here),
+     and when it gives up on the old session it can't remove someone else's session or a sign-in on its way */
+  const soon=()=>{if(!gone){try{const g=JSON.parse(localStorage.getItem("phz-gone")||"null");if(g&&g.until>Date.now()&&g.until<Date.now()+60000)gone=g}catch(e){}}return gone&&Date.now()<gone.until};
+  const pzStore={getItem:k=>{try{return localStorage.getItem(k)}catch(e){return null}},
+   setItem:(k,v)=>{if(k==="phz-auth"&&fence&&Date.now()<fence.until){try{const o=JSON.parse(v);if(o&&o.user&&o.user.id===fence.uid)return}catch(e){}}try{localStorage.setItem(k,v)}catch(e){}},
+   removeItem:k=>{if(soon()){if(k!=="phz-auth")return;let u=null;try{const o=JSON.parse(localStorage.getItem(k)||"null");u=o&&o.user&&o.user.id||null}catch(e){}if(u&&u!==gone.uid)return}try{localStorage.removeItem(k)}catch(e){}}};
+  const unfence=()=>{fence=null};
+  if(PZ.on){try{PZ.sb=LIB(CFG.url,CFG.key,{global:{fetch:pzFetch},auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"pkce",storageKey:"phz-auth",storage:pzStore}})}catch(e){PZ.on=false;console.error("PZ init",e)}}
   const nice=e=>{const m=(e&&(e.message||e.error_description))||String(e||"");if(/rate limit|too many/i.test(m))return "Too many tries. Wait a minute, then try again.";if(/expired|invalid/i.test(m)&&/otp|token|code/i.test(m))return "That code didn't work or has expired. Check it, or send a new one.";if(/network|fetch|Failed to fetch|Load failed/i.test(m))return "No connection. Check your signal and try again.";return m||"Something went wrong. Try again."};
   PZ.nice=nice;
   const hsh=o=>{const t=JSON.stringify(o)||"";let h=5381;for(let i=0;i<t.length;i++)h=((h<<5)+h+t.charCodeAt(i))|0;return (h>>>0).toString(36)+":"+t.length};
-  const SY=()=>{S.sy=S.sy||{uid:null,ent:{},st:{},ph:{},pull:null,prof:null,lo:[]};return S.sy};
+  const SY=()=>{S.sy=S.sy||{uid:null,ent:{},st:{},ph:{},pull:null,pullS:null,prof:null,lo:[]};return S.sy};
 
   /* v452: anything pulled from the account is checked before the app uses it. Ids are the app's own format
      (letters, digits, _ and -), numbers are numbers, and only the app's own keys are copied into its state,
-     so a tampered row can't carry script into a screen (security pass 10 Nov 2026, finding 5) */
-  const ID=/^[A-Za-z0-9_-]{1,40}$/;
-  const sid=x=>{const s=String(x==null?"":x);return ID.test(s)?s:(s.replace(/[^A-Za-z0-9_-]/g,"").slice(0,40)||("x"+Math.random().toString(36).slice(2,10)))};
-  const BADK=new Set(["__proto__","constructor","prototype"]);
+     so a tampered row can't carry script into a screen (security pass 10 Nov 2026, finding 5).
+     v454: fields that screens show without escaping (session times and minutes, monthly targets, preceptorship
+     length) are type-checked too, and "__proto__"-style names are never ids (repeat check R6, R9). */
+  const ID=/^[A-Za-z0-9_-]{1,40}$/,BADK=new Set(["__proto__","constructor","prototype"]);
+  const okId=s=>ID.test(s)&&!BADK.has(s)&&!(s in Object.prototype);
+  const sid=x=>{const s=String(x==null?"":x);if(okId(s))return s;const t=s.replace(/[^A-Za-z0-9_-]/g,"").slice(0,40);return okId(t)?t:("x"+Math.random().toString(36).slice(2,10))};
   const clean=v=>{if(Array.isArray(v))return v.map(clean);if(v&&typeof v==="object"){const o={};Object.keys(v).forEach(k=>{if(!BADK.has(k))o[k]=clean(v[k])});if("id" in o)o.id=sid(o.id);return o}return v};
   const okSet=v=>typeof v==="boolean"||(typeof v==="number"&&isFinite(v))||(typeof v==="string"&&/^[A-Za-z0-9_ -]{0,30}$/.test(v));
+  const HM=/^\d{2}:\d{2}$/,DAY=/^\d{4}-\d{2}-\d{2}$/;
+  const mins=x=>Math.max(0,Math.min(1440,Math.round(+x||0)));
 
   /* entries <-> rows */
   const E_KEYS=["id","d","t","ty","m","fw","r","tm","otj","ks"];
-  const toRow=e=>{const x={};Object.keys(e).forEach(k=>{if(!E_KEYS.includes(k))x[k]=e[k]});return {id:String(e.id),entry_date:e.d,title:String(e.t||"Untitled").slice(0,120)||"Untitled",type:String(e.ty||"other").slice(0,30),minutes:Math.max(0,Math.min(1440,Math.round(+e.m||0))),start_time:/^\d{2}:\d{2}$/.test(e.tm||"")?e.tm:"",model:String(e.fw||"std").slice(0,20),reflection:e.r||{},off_the_job:!!e.otj,links:e.ks||[],extra:x,deleted_at:null}};
+  const toRow=e=>{const x={};Object.keys(e).forEach(k=>{if(!E_KEYS.includes(k))x[k]=e[k]});return {id:String(e.id),entry_date:e.d,title:String(e.t||"Untitled").slice(0,120)||"Untitled",type:String(e.ty||"other").slice(0,30),minutes:mins(e.m),start_time:HM.test(e.tm||"")?e.tm:"",model:String(e.fw||"std").slice(0,20),reflection:e.r||{},off_the_job:!!e.otj,links:e.ks||[],extra:x,deleted_at:null}};
   const toEntry=r=>{const x=clean(r.extra&&typeof r.extra==="object"?r.extra:{});delete x.id;
-   const e=Object.assign({},x,{id:sid(r.id),d:/^\d{4}-\d{2}-\d{2}$/.test(String(r.entry_date||""))?r.entry_date:"1970-01-01",t:String(r.title==null?"":r.title),ty:String(r.type==null?"other":r.type),m:Math.max(0,Math.min(1440,Math.round(+r.minutes||0))),fw:/^[A-Za-z0-9_-]{1,20}$/.test(String(r.model||""))?r.model:"std",r:clean(r.reflection&&typeof r.reflection==="object"?r.reflection:{}),tm:/^\d{2}:\d{2}$/.test(String(r.start_time||""))?r.start_time:"",otj:!!r.off_the_job,ks:Array.isArray(r.links)?clean(r.links):[]});
-   if(e.ph!==undefined)e.ph=Array.isArray(e.ph)?e.ph.map(sid):[];return e};
+   const e=Object.assign({},x,{id:sid(r.id),d:DAY.test(String(r.entry_date||""))?r.entry_date:"1970-01-01",t:String(r.title==null?"":r.title),ty:String(r.type==null?"other":r.type),m:mins(r.minutes),fw:/^[A-Za-z0-9_-]{1,20}$/.test(String(r.model||""))?r.model:"std",r:clean(r.reflection&&typeof r.reflection==="object"?r.reflection:{}),tm:HM.test(String(r.start_time||""))?r.start_time:"",otj:!!r.off_the_job,ks:Array.isArray(r.links)?clean(r.links):[]});
+   if(e.ph!==undefined)e.ph=Array.isArray(e.ph)?e.ph.map(sid):[];
+   if(e.ss!==undefined)e.ss=Array.isArray(e.ss)?e.ss.filter(s=>s&&typeof s==="object").slice(-50).map(s=>({tm:HM.test(String(s.tm||""))?s.tm:"",m:mins(s.m)})):[];
+   return e};
 
   /* saved groups (user_state) */
   const GROUPS={
-   settings:()=>({style:S.style,goal:S.goal,appTools:S.appTools,preTools:S.preTools,hcTools:S.hcTools,ivTools:S.ivTools,plcTools:S.plcTools,tourDone:S.tourDone,lnView:S.lnView}),
+   settings:()=>({style:S.style,goal:S.goal,appTools:S.appTools,preTools:S.preTools,hcTools:S.hcTools,ivTools:S.ivTools,plcTools:S.plcTools,tourDone:S.tourDone,lnView:S.lnView,qualAt:S.qualAt,prevRole:S.prevRole,rot:S.rot,rotDate:S.rotDate,cpdX:S.cpdX}),
    placements:()=>({plc:S.plc||[]}),
    audit:()=>({hc:S.hc||null}),
    apprenticeship:()=>({otj:S.otj||[],otjT:S.otjT||{},ksb:S.ksb||{}}),
    preceptorship:()=>({pre:S.pre||null}),
    competencies:()=>({cm:S.cm||null}),
    interview:()=>({iv:S.iv||null})};
+  /* per-group checks for values screens use as numbers */
+  const FIX={
+   apprenticeship:v=>{const T=v.otjT,o={};if(T&&typeof T==="object"&&!Array.isArray(T))Object.keys(T).forEach(k=>{const n=+T[k];if(/^\d{4}-\d{2}$/.test(k)&&isFinite(n)&&n>0)o[k]=Math.min(300,n)});if("otjT" in v)v.otjT=o},
+   preceptorship:v=>{const P=v.pre;if(P&&typeof P==="object"&&!Array.isArray(P)){const n=Math.round(+P.len);P.len=n>=1&&n<=36?n:12;if(P.start!=null&&!DAY.test(String(P.start)))P.start=""}}};
+  /* the Portfolio keeps these tools off whatever an account says */
+  const FORCED=window.PZ_ONLY==="portfolio"?new Set(["preTools","ivTools"]):new Set();
   /* only each group's own keys are taken from the account; settings must be plain values */
   const applyGroup=(k,v)=>{const G=GROUPS[k];if(!G||!v||typeof v!=="object"||Array.isArray(v))return;const allow=Object.keys(G());
-   if(k==="settings"){allow.forEach(f=>{const x=v[f];if(x!==undefined&&x!==null&&okSet(x))S[f]=x})}else allow.forEach(f=>{if(Object.prototype.hasOwnProperty.call(v,f))S[f]=clean(v[f])})};
+   if(k==="settings"){allow.forEach(f=>{const x=v[f];if(!FORCED.has(f)&&x!==undefined&&x!==null&&okSet(x))S[f]=x});return}
+   const o={};allow.forEach(f=>{if(Object.prototype.hasOwnProperty.call(v,f))o[f]=clean(v[f])});if(FIX[k])FIX[k](o);Object.keys(o).forEach(f=>{S[f]=o[f]})};
 
   /* v452: what belongs to an account on this device. Removed when you sign out, and before a different
      account is used here, so one person's Portfolio can never be read by, or copied into, another's
-     (security pass 10 Nov 2026, findings 1 and 3) */
-  const ACCT_K=["cpd","plc","hc","otj","otjT","ksb","pre","cm","iv","pfp","role","band","nq","oth","crs","yr","pzAsk"];
+     (security pass 10 Nov 2026, findings 1 and 3). v454: rotation, qualification and export dates added (R9). */
+  const ACCT_K=["cpd","plc","hc","otj","otjT","ksb","pre","cm","iv","pfp","role","band","nq","oth","crs","yr","pzAsk","pzAskIds","qualAt","prevRole","rot","rotDate","cpdX"];
   const dropAcct=()=>{ACCT_K.forEach(k=>delete S[k]);delete S.sy};
+  const photosIn=o=>{const out=new Set();(JSON.stringify(o||null).match(/"(?:ph|pd)[a-z0-9]{8,}"/g)||[]).forEach(x=>out.add(x.slice(1,-1)));return out};
   const wipePhotos=async()=>{try{const ks=await phKeys();for(const k of ks)await phDel(k)}catch(e){}};
 
   /* profile */
   const profRow=()=>({first_name:((S.acct&&S.acct.name)||"").slice(0,40)||null,role:S.role||null,band:S.band!=null?String(S.band):null,newly_qualified:!!S.nq,other_role:S.oth||null,course:S.crs||null,course_year:S.yr||null,marketing_opt_in:!!(S.acct&&S.acct.news),marketing_opt_in_at:S.acct&&S.acct.news?(S.acct.newsAt||new Date().toISOString()):null});
   const applyProf=p=>{if(!p)return;if(!S.role&&p.role){S.role=p.role;if(p.band)S.band=p.band==="nb"?"nb":+p.band;S.nq=!!p.newly_qualified;if(p.other_role)S.oth=p.other_role;if(p.course)S.crs=p.course;if(p.course_year)S.yr=p.course_year}if(S.acct&&!S.acct.name&&p.first_name)S.acct.name=p.first_name};
 
-  const photoIds=()=>{const out=new Set(),t=JSON.stringify([S.cpd||[],S.cm||null,S.plc||[],S.hc||null,S.pre||null]);(t.match(/"(?:ph|pd)[a-z0-9]{8,}"/g)||[]).forEach(x=>out.add(x.slice(1,-1)));return out};
+  /* v455: photos of entries kept on this phone only, or still waiting for "Add to my account?", stay on the phone */
+  const askSet=sy=>S.pzAsk?new Set(S.pzAskIds||(S.cpd||[]).filter(e=>e&&!sy.ent[e.id]).map(e=>e.id)):null;
+  const photoIds=()=>{const sy=S.sy||{ent:{},lo:[]},lo=new Set(sy.lo||[]),ask=askSet(sy);return photosIn([(S.cpd||[]).filter(e=>e&&!lo.has(e.id)&&!(ask&&ask.has(e.id))),S.cm||null,S.plc||[],S.hc||null,S.pre||null])};
   const phPath=id=>`${PZ.user.id}/${id}.${id.startsWith("pd")?"pdf":"jpg"}`;
 
   /* ---------- sync ---------- */
-  PZ.sync=async function(why){if(!PZ.on||!PZ.user||PZ.busy)return;if(navigator.onLine===false){PZ.err="offline";return}
-   PZ.busy=true;const sy=SY(),sb=PZ.sb,uid=PZ.user.id;let changed=false;
+  /* v454: each backup belongs to one account and one "generation". Signing in, signing out or being signed out
+     starts a new generation; a backup from an earlier one stops at its next step and changes nothing on this
+     device, so it can't put a Portfolio back after sign-out or into someone else's account (repeat check R2). */
+  let gen=0;const STALE={stale:1};
+  let tmr=null;
+  const run=async function(why){const g=gen,sy=SY(),sb=PZ.sb,uid=PZ.user.id;let changed=false;
+   const live=()=>{if(g!==gen||!PZ.user||PZ.user.id!==uid)throw STALE};
    try{
-    if(sy.uid&&sy.uid!==uid){sy.ent={};sy.st={};sy.ph={};sy.pull=null;sy.prof=null}sy.uid=uid;
+    if(sy.uid&&sy.uid!==uid){sy.ent={};sy.st={};sy.ph={};sy.pull=null;sy.pullS=null;sy.prof=null}sy.uid=uid;
     /* 0. first sync for this account on this device: the account's saved profile and Portfolio items come first */
-    if(!sy.pull){const p=await sb.from("profiles").select("*").eq("id",uid).maybeSingle();if(p.error)throw p.error;if(p.data){const had=!!S.role;applyProf(p.data);if(!had&&S.role)changed=true;if(p.data.role)sy.prof=hsh(profRow())}
-     const g=await sb.from("user_state").select("key,value,updated_at");if(g.error)throw g.error;
-     (g.data||[]).forEach(r=>{const G=GROUPS[r.key];if(!G)return;const v=r.value||{},empty=Object.values(v).every(x=>x==null||(Array.isArray(x)&&!x.length)||(typeof x==="object"&&!Array.isArray(x)&&!Object.keys(x).length));if(empty)return;applyGroup(r.key,v);sy.st[r.key]=hsh(G());changed=true})}
-    /* 1. push entries that changed, and deletions */
-    const lo=new Set(sy.lo||[]),now=Date.now(),list=(S.cpd||[]).filter(e=>e&&e.id&&!lo.has(e.id)&&!(S.pzAsk&&!sy.ent[e.id]));
+    if(!sy.pull){const p=await sb.from("profiles").select("*").eq("id",uid).maybeSingle();live();if(p.error)throw p.error;if(p.data){const had=!!S.role;applyProf(p.data);if(!had&&S.role)changed=true;if(p.data.role)sy.prof=hsh(profRow())}
+     const gs=await sb.from("user_state").select("key,value,updated_at").eq("user_id",uid);live();if(gs.error)throw gs.error;
+     (gs.data||[]).forEach(r=>{if(r.user_id&&r.user_id!==uid)return;const G=GROUPS[r.key];if(!G)return;const v=r.value||{},empty=Object.values(v).every(x=>x==null||(Array.isArray(x)&&!x.length)||(typeof x==="object"&&!Array.isArray(x)&&!Object.keys(x).length));if(empty)return;applyGroup(r.key,v);sy.st[r.key]=hsh(G());changed=true})}
+    /* 1. push entries that changed, and deletions (entries still waiting for "Add to my account?" stay put) */
+    const ask=askSet(sy);
+    const lo=new Set(sy.lo||[]),now=Date.now(),list=(S.cpd||[]).filter(e=>e&&e.id&&!lo.has(e.id)&&!(ask&&ask.has(e.id)));
     const up=list.filter(e=>sy.ent[e.id]!==hsh(e));
-    for(let i=0;i<up.length;i+=50){const chunk=up.slice(i,i+50).map(e=>{const r=toRow(e);r.extra=Object.assign({},r.extra,{u:now});return r});
-     const {error}=await sb.from("cpd_entries").upsert(chunk,{onConflict:"user_id,id"});if(error)throw error;up.slice(i,i+50).forEach(e=>{sy.ent[e.id]=hsh(e)})}
-    const ids=new Set((S.cpd||[]).map(e=>e.id)),gone=Object.keys(sy.ent).filter(id=>!ids.has(id));
-    if(gone.length){const {error}=await sb.from("cpd_entries").update({deleted_at:new Date().toISOString()}).in("id",gone);if(error)throw error;gone.forEach(id=>delete sy.ent[id])}
+    for(let i=0;i<up.length;i+=50){const part=up.slice(i,i+50),chunk=part.map(e=>{const r=toRow(e);r.user_id=uid;r.extra=Object.assign({},r.extra,{u:now});return r});
+     const {error}=await sb.from("cpd_entries").upsert(chunk,{onConflict:"user_id,id"});live();if(error)throw error;part.forEach(e=>{sy.ent[e.id]=hsh(e)})}
+    const ids=new Set((S.cpd||[]).map(e=>e&&e.id)),gone=Object.keys(sy.ent).filter(id=>!ids.has(id));
+    if(gone.length){const {error}=await sb.from("cpd_entries").update({deleted_at:new Date().toISOString()}).eq("user_id",uid).in("id",gone);live();if(error)throw error;gone.forEach(id=>delete sy.ent[id])}
     /* 2. push saved groups and profile */
-    for(const k of Object.keys(GROUPS)){const v=GROUPS[k](),h=hsh(v);if(sy.st[k]!==h){const {error}=await sb.from("user_state").upsert({key:k,value:v},{onConflict:"user_id,key"});if(error)throw error;sy.st[k]=h}}
-    const pr=profRow(),ph=hsh(pr);if(sy.prof!==ph&&S.role){const {error}=await sb.from("profiles").update(pr).eq("id",uid);if(error)throw error;sy.prof=ph}
+    for(const k of Object.keys(GROUPS)){const v=GROUPS[k](),h=hsh(v);if(sy.st[k]!==h){const {error}=await sb.from("user_state").upsert({user_id:uid,key:k,value:v},{onConflict:"user_id,key"});live();if(error)throw error;sy.st[k]=h}}
+    const pr=profRow(),ph=hsh(pr);if(sy.prof!==ph&&S.role){const {error}=await sb.from("profiles").update(pr).eq("id",uid);live();if(error)throw error;sy.prof=ph}
     /* 3. photos: upload new, remove ones no longer used */
     const want=photoIds();
-    for(const id of want){if(sy.ph[id])continue;let b=null;try{b=await phGet(id)}catch(e){}if(!b)continue;
+    /* a photo that isn't on this device (made on another one, not yet viewed here) has nothing to upload */
+    for(const id of want){if(sy.ph[id])continue;let b=null;try{b=await phGet(id)}catch(e){}live();if(!b){sy.ph[id]=1;continue}
      const path=phPath(id),mime=id.startsWith("pd")?"application/pdf":"image/jpeg";
-     const u=await sb.storage.from("evidence").upload(path,b,{contentType:mime,upsert:true});if(u.error)throw u.error;
-     const r=await sb.from("evidence").upsert({id,entry_id:null,path,mime,bytes:Math.max(1,b.size||1),deleted_at:null},{onConflict:"user_id,id"});if(r.error)throw r.error;sy.ph[id]=1}
+     const u=await sb.storage.from("evidence").upload(path,b,{contentType:mime,upsert:true});live();if(u.error)throw u.error;
+     const r=await sb.from("evidence").upsert({user_id:uid,id,entry_id:null,path,mime,bytes:Math.max(1,b.size||1),deleted_at:null},{onConflict:"user_id,id"});live();if(r.error)throw r.error;sy.ph[id]=1}
     const drop=Object.keys(sy.ph).filter(id=>!want.has(id));
-    if(drop.length){const rm=await sb.storage.from("evidence").remove(drop.map(phPath));if(rm&&rm.error)throw rm.error;const mk=await sb.from("evidence").update({deleted_at:new Date().toISOString()}).in("id",drop);if(mk&&mk.error)throw mk.error;drop.forEach(id=>delete sy.ph[id])}
-    /* 4. pull what changed elsewhere */
+    if(drop.length){const rm=await sb.storage.from("evidence").remove(drop.map(phPath));live();if(rm&&rm.error)throw rm.error;const mk=await sb.from("evidence").update({deleted_at:new Date().toISOString()}).eq("user_id",uid).in("id",drop);live();if(mk&&mk.error)throw mk.error;drop.forEach(id=>delete sy.ph[id])}
+    /* 4. pull what changed elsewhere: entries in pages of 1,000 with their own bookmark, saved items with theirs (R10) */
     const since=sy.pull||"1970-01-01T00:00:00Z";let maxAt=since;
-    const r1=await sb.from("cpd_entries").select("*").gt("updated_at",since).order("updated_at",{ascending:true}).limit(1000);if(r1.error)throw r1.error;
-    (r1.data||[]).forEach(r=>{if(r.updated_at>maxAt)maxAt=r.updated_at;if(!r||!ID.test(String(r.id)))return;S.cpd=S.cpd||[];const i=S.cpd.findIndex(e=>e.id===r.id);
-     if(r.deleted_at){if(i>=0){S.cpd.splice(i,1);changed=true}delete sy.ent[r.id];return}
-     const e=toEntry(r);delete e.u;const h=hsh(e);if(i>=0){if(hsh(S.cpd[i])===h){sy.ent[r.id]=h;return}if(sy.ent[r.id]!==hsh(S.cpd[i])){return}S.cpd[i]=e}else S.cpd.unshift(e);sy.ent[r.id]=h;changed=true});
-    const r2=await sb.from("user_state").select("key,value,updated_at").gt("updated_at",since);if(r2.error)throw r2.error;
-    (r2.data||[]).forEach(r=>{if(r.updated_at>maxAt)maxAt=r.updated_at;const G=GROUPS[r.key];if(!G)return;const h=hsh(r.value);if(hsh(G())===h){sy.st[r.key]=h;return}if(sy.st[r.key]&&sy.st[r.key]!==hsh(G()))return;applyGroup(r.key,r.value);sy.st[r.key]=hsh(GROUPS[r.key]());changed=true});
+    for(let from=0;from<100000;from+=1000){
+     const r1=await sb.from("cpd_entries").select("*").eq("user_id",uid).gt("updated_at",since).order("updated_at",{ascending:true}).order("id",{ascending:true}).range(from,from+999);live();if(r1.error)throw r1.error;const rows=r1.data||[];
+     rows.forEach(r=>{if(!r)return;if(r.updated_at>maxAt)maxAt=r.updated_at;if(!okId(String(r.id))||(r.user_id&&r.user_id!==uid))return;S.cpd=S.cpd||[];const i=S.cpd.findIndex(e=>e.id===r.id);
+      if(r.deleted_at){if(i>=0){S.cpd.splice(i,1);changed=true}delete sy.ent[r.id];return}
+      const e=toEntry(r);delete e.u;const h=hsh(e);if(i>=0){if(hsh(S.cpd[i])===h){sy.ent[r.id]=h;return}if(sy.ent[r.id]!==hsh(S.cpd[i])){return}S.cpd[i]=e}else S.cpd.unshift(e);sy.ent[r.id]=h;changed=true});
+     if(rows.length<1000)break}
+    const sinceS=sy.pullS||sy.pull||"1970-01-01T00:00:00Z";let maxS=sinceS;
+    const r2=await sb.from("user_state").select("key,value,updated_at").eq("user_id",uid).gt("updated_at",sinceS);live();if(r2.error)throw r2.error;
+    (r2.data||[]).forEach(r=>{if(r.updated_at>maxS)maxS=r.updated_at;if(r.user_id&&r.user_id!==uid)return;const G=GROUPS[r.key];if(!G)return;const h=hsh(r.value);if(hsh(G())===h){sy.st[r.key]=h;return}if(sy.st[r.key]&&sy.st[r.key]!==hsh(G()))return;applyGroup(r.key,r.value);sy.st[r.key]=hsh(GROUPS[r.key]());changed=true});
     if(changed)(S.cpd||[]).sort((a,b)=>String(b.d).localeCompare(String(a.d)));
-    sy.pull=maxAt;PZ.last=Date.now();PZ.err="";PZ.pending=0;
-   }catch(e){PZ.err=nice(e);console.error("PZ sync",e)}
-   PZ.busy=false;try{localStorage.setItem("shoulder-v2",JSON.stringify(S))}catch(e){}
+    sy.pull=maxAt;sy.pullS=maxS;PZ.last=Date.now();PZ.err="";PZ.pending=0;
+   }catch(e){if(e===STALE||g!==gen){PZ.busy=false;return false}PZ.err=nice(e);console.error("PZ sync",e)}
+   PZ.busy=false;if(g!==gen)return false;try{localStorage.setItem("shoulder-v2",JSON.stringify(S))}catch(e){}
    if(changed&&why!=="quiet"){try{const y=window.scrollY;if(typeof LES==="undefined"||!LES){if(document.getElementById("obtr")==null&&!document.querySelector(".cin:focus"))home();window.scrollTo(0,y)}}catch(e){}}
    return changed};
-  let tmr=null;window.pzDirty=function(){if(!PZ.on||!PZ.user)return;PZ.pending=1;clearTimeout(tmr);tmr=setTimeout(()=>PZ.sync("quiet"),2500)};
+  PZ.sync=function(why){if(!PZ.on||!PZ.user)return Promise.resolve(false);if(PZ.busy)return PZ.cur||Promise.resolve(false);if(navigator.onLine===false){PZ.err="offline";return Promise.resolve(false)}
+   PZ.busy=true;const p=run(why);PZ.cur=p;p.then(()=>{if(PZ.cur===p)PZ.cur=null},()=>{if(PZ.cur===p)PZ.cur=null});return p};
+  const settle=async()=>{const p=PZ.cur;if(p){try{await p}catch(e){}}};
+  window.pzDirty=function(){if(!PZ.on||!PZ.user)return;PZ.pending=1;clearTimeout(tmr);tmr=setTimeout(()=>PZ.sync("quiet"),2500)};
   document.addEventListener("visibilitychange",()=>{if(!PZ.user)return;if(document.visibilityState==="visible")PZ.sync();else{clearTimeout(tmr);PZ.sync("quiet")}});
-  window.addEventListener("online",()=>{if(PZ.user)PZ.sync()});
   setInterval(()=>{if(PZ.user&&document.visibilityState==="visible")PZ.sync()},120000);
 
-  /* photos made on another device: fetch on first view */
-  const phUrl0=phUrl;phUrl=async function(id){const u=await phUrl0(id);if(u||!PZ.user)return u;try{const d=await PZ.sb.storage.from("evidence").download(phPath(id));if(d.error||!d.data)return null;await phPut(id,d.data);SY().ph[id]=1;return await phUrl0(id)}catch(e){return null}};
+  /* photos made on another device: fetch on first view (v454: never written if the account changed meanwhile) */
+  const phUrl0=phUrl;phUrl=async function(id){const u=await phUrl0(id);if(u||!PZ.user)return u;const g=gen,uid=PZ.user.id,same=()=>g===gen&&PZ.user&&PZ.user.id===uid;
+   try{const d=await PZ.sb.storage.from("evidence").download(phPath(id));if(!same()||d.error||!d.data)return null;await phPut(id,d.data);if(!same()){try{await phDel(id)}catch(e){}return null}SY().ph[id]=1;return await phUrl0(id)}catch(e){return null}};
 
   /* ---------- sign in ---------- */
-  PZ.sendCode=async function(email,name){const {error}=await PZ.sb.auth.signInWithOtp({email,options:{shouldCreateUser:true,data:{first_name:(name||"").slice(0,40)}}});if(error)throw error};
-  PZ.verify=async function(email,code){const {data,error}=await PZ.sb.auth.verifyOtp({email,token:code,type:"email"});if(error)throw error;return data.user};
+  PZ.sendCode=async function(email,name){unfence();const {error}=await PZ.sb.auth.signInWithOtp({email,options:{shouldCreateUser:true,data:{first_name:(name||"").slice(0,40)}}});if(error)throw error};
+  PZ.verify=async function(email,code){unfence();const {data,error}=await PZ.sb.auth.verifyOtp({email,token:code,type:"email"});if(error)throw error;return data.user};
   PZ.oauth=async function(p){const {error}=await PZ.sb.auth.signInWithOAuth({provider:p,options:{redirectTo:location.origin+location.pathname}});if(error)throw error};
   const method=u=>{const p=(u.app_metadata&&u.app_metadata.provider)||"email";return p==="apple"||p==="google"?p:"email"};
-  /* v452: a device that held someone else's Portfolio is cleared before this account is used here.
-     If that Portfolio was held back after an unexpected sign-out (changes not yet backed up), it comes back
-     only for the same account; anyone else gets a clean device. */
-  PZ.adopt=async function(u,extra){
-   const owner=(S.sy&&S.sy.uid)||(S.acct&&!S.acct.guest&&S.acct.uid)||null;
-   if(S.pzHold){const H=S.pzHold;delete S.pzHold;if(H.uid===u.id&&H.d){dropAcct();Object.keys(H.d).forEach(k=>{S[k]=H.d[k]})}else{dropAcct();await wipePhotos()}}
-   else if(owner&&owner!==u.id){dropAcct();await wipePhotos()}
-   try{window.meSub=null}catch(e){}  /* v453: Profile opens at its top page for whoever signs in */
-   PZ.user=u;const prev=S.acct||{},sy=SY();
-   S.acct=Object.assign({},prev.uid===u.id?prev:{},{uid:u.id,method:method(u),email:u.email||"",name:(extra&&extra.name)||prev.name||((u.user_metadata||{}).first_name)||((u.user_metadata||{}).given_name)||((u.user_metadata||{}).full_name||"").split(" ")[0]||"",at:prev.at||Date.now()},extra&&extra.news!=null?{news:!!extra.news,newsAt:extra.news?new Date().toISOString():null}:{});
-   delete S.signedOut;delete S.acct.guest;
-   if(sy.uid&&sy.uid!==u.id){sy.ent={};sy.st={};sy.ph={};sy.pull=null;sy.prof=null;sy.lo=[]}
-   const localOnly=(S.cpd||[]).filter(e=>!sy.ent[e.id]&&!(sy.lo||[]).includes(e.id));
-   if(!sy.uid&&localOnly.length){S.pzAsk=localOnly.length}
-   save();await PZ.sync("quiet");return u};
-  PZ.keepLocal=function(add){const sy=SY();if(!add){sy.lo=(S.cpd||[]).filter(e=>!sy.ent[e.id]).map(e=>e.id)}delete S.pzAsk;save();PZ.sync()};
-  /* v452: signing out ends this device's session only (it used to end every session, which left other
-     devices holding a Portfolio with no one signed in), and removes everything of the account from here */
-  let outing=false;
-  PZ.signOut=async function(force){if(PZ.user&&!force){await PZ.sync("quiet");if(PZ.err&&PZ.pending)return "pending"}
-   outing=true;try{await PZ.sb.auth.signOut({scope:"local"})}catch(e){}outing=false;PZ.user=null;
-   dropAcct();delete S.pzHold;await wipePhotos();try{window.meSub=null}catch(e){}
-   return "ok"};
-  /* v452: every photo is removed before the account, page by page; if the store can't be listed or a
-     remove fails, the account is kept so nothing is left behind (finding 4) */
-  PZ.deleteAccount=async function(){const uid=PZ.user.id,st=PZ.sb.storage.from("evidence"),kept=new Error("Your photos couldn't be removed, so nothing was deleted. Try again in a moment.");let empty=false;
-   for(let pass=0;pass<50&&!empty;pass++){const ls=await st.list(uid,{limit:1000});if(ls.error){console.error("PZ delete list",ls.error);throw kept}const f=(ls.data||[]).filter(x=>x&&x.name);
-    if(!f.length){empty=true;break}const rm=await st.remove(f.map(x=>uid+"/"+x.name));if(rm&&rm.error){console.error("PZ delete remove",rm.error);throw kept}}
-   if(!empty)throw kept;
-   const d=await PZ.sb.rpc("delete_my_account");if(d.error)throw d.error;await PZ.signOut(true)};
-  /* v452: the session ended without Sign out on this device (signed out or deleted elsewhere, or it expired).
-     If everything is backed up, the Portfolio is removed from here. If not, it's held out of sight until the
-     same person signs in again, so nothing is lost and no one else can see it. */
-  let losing=false;
+  /* is anything on this device not yet in the account? */
   const unsynced=()=>{const sy=S.sy;if(!sy||!sy.uid)return (S.cpd||[]).length>0;
    if((S.cpd||[]).some(e=>e&&e.id&&sy.ent[e.id]!==hsh(e)))return true;
    const ids=new Set((S.cpd||[]).map(e=>e&&e.id));if(Object.keys(sy.ent||{}).some(id=>!ids.has(id)))return true;
    if(Object.keys(GROUPS).some(k=>sy.st[k]!==hsh(GROUPS[k]())))return true;
+   if(S.role&&sy.prof!==hsh(profRow()))return true;
    for(const id of photoIds())if(!sy.ph[id])return true;return false};
-  PZ.lost=async function(){const a=S.acct;if(losing||outing||!a||a.guest||!a.uid)return;losing=true;
-   try{const email=a.email||"";if(unsynced()){const H={uid:a.uid,email,at:Date.now(),d:{}};ACCT_K.concat(["sy"]).forEach(k=>{if(S[k]!==undefined)H.d[k]=S[k]});S.pzHold=H}else{delete S.pzHold;await wipePhotos()}
-    dropAcct();delete S.acct;S.signedOut=1;PZ.user=null;save();try{window.meSub=null}catch(e){}
-    try{au.v="form";au.mode="in";au.email=a.method==="email"?email:"";au.err="";tab="found";welcome();window.scrollTo(0,0)}catch(e){}
-    try{toast("You've been signed out. Sign in again to see your Portfolio.")}catch(e){}}
+  /* entries the person chose to keep on this phone only, or hasn't yet decided about */
+  const localOnlyN=()=>{const lo=new Set((S.sy&&S.sy.lo)||[]),ask=new Set(S.pzAsk?(S.pzAskIds||[]):[]);return (S.cpd||[]).filter(e=>e&&(lo.has(e.id)||ask.has(e.id))).length||(S.pzAsk&&!S.pzAskIds?S.pzAsk:0)};
+  const storedSession=()=>{try{const v=JSON.parse(localStorage.getItem("phz-auth")||"null");return v&&v.access_token?v:null}catch(e){return null}};
+  const storedUid=()=>{const v=storedSession();return v&&v.user&&v.user.id||null};
+  const forgetSession=()=>{try{Object.keys(localStorage).filter(k=>k==="phz-auth"||k.indexOf("phz-auth-")===0).forEach(k=>localStorage.removeItem(k))}catch(e){}};
+  /* v452: a device that held someone else's Portfolio is cleared before this account is used here.
+     v455: always cleared (the v454 "held Portfolio" is gone: Oliver chose a clean device over keeping changes that
+     couldn't be backed up). Entries made on this device before anyone signed in are offered with "Add to my account?". */
+  PZ.adopt=async function(u,extra){gen++;clearTimeout(tmr);await capped(settle(),3000);
+   const owner=(S.sy&&S.sy.uid)||(S.acct&&!S.acct.guest&&S.acct.uid)||null;delete S.pzHold;
+   if(owner&&owner!==u.id){dropAcct();await wipePhotos()}
+   try{window.meSub=null}catch(e){}  /* v453: Profile opens at its top page for whoever signs in */
+   PZ.user=u;const prev=(S.acct&&(S.acct.uid===u.id||S.acct.guest))?S.acct:{},sy=SY();
+   S.acct=Object.assign({},prev.uid===u.id?prev:{},{uid:u.id,method:method(u),email:u.email||"",name:(extra&&extra.name)||prev.name||((u.user_metadata||{}).first_name)||((u.user_metadata||{}).given_name)||((u.user_metadata||{}).full_name||"").split(" ")[0]||"",at:prev.at||Date.now()},extra&&extra.news!=null?{news:!!extra.news,newsAt:extra.news?new Date().toISOString():null}:{});
+   delete S.signedOut;delete S.acct.guest;
+   if(sy.uid&&sy.uid!==u.id){sy.ent={};sy.st={};sy.ph={};sy.pull=null;sy.pullS=null;sy.prof=null;sy.lo=[]}
+   const localOnly=(S.cpd||[]).filter(e=>e&&!sy.ent[e.id]&&!(sy.lo||[]).includes(e.id));if(!sy.uid&&localOnly.length&&!S.pzAsk){S.pzAsk=localOnly.length;S.pzAskIds=localOnly.map(e=>e.id)}
+   save();await PZ.sync("quiet");return u};
+  PZ.keepLocal=function(add){const sy=SY();if(!add){const ids=S.pzAskIds||(S.cpd||[]).filter(e=>e&&!sy.ent[e.id]).map(e=>e.id);sy.lo=Array.from(new Set((sy.lo||[]).concat(ids)))}delete S.pzAsk;delete S.pzAskIds;save();PZ.sync()};
+  /* v452: signing out ends this device's session only, and removes everything of the account from here.
+     v454: it waits for a backup already running, backs up once more, and warns first if anything would be lost:
+     changes not backed up, or entries kept on this phone only.
+     v456: the last backup is capped at a few seconds (then the "not backed up" warning shows). After that the device
+     is cleared in one step and the server is told directly with the session's own token; the sign-in library isn't
+     asked to sign out at all, because it can sit for up to 25 s on a retrying token refresh and then sign out
+     whoever is signed in by then. Other tabs see the stored session disappear and clear themselves. */
+  let outing=false;
+  const capped=(p,ms)=>Promise.race([p,new Promise(r=>setTimeout(r,ms))]);
+  const out1=tok=>fetch(CFG.url+"/auth/v1/logout?scope=local",{method:"POST",keepalive:true,headers:{apikey:CFG.key,Authorization:"Bearer "+tok}}).catch(()=>{});
+  const tellServer=ses=>{if(!ses||!ses.access_token)return;try{
+   if(ses.refresh_token&&(ses.expires_at||0)*1000<Date.now()+60000)fetch(CFG.url+"/auth/v1/token?grant_type=refresh_token",{method:"POST",keepalive:true,headers:{apikey:CFG.key,"content-type":"application/json"},body:JSON.stringify({refresh_token:ses.refresh_token})})
+    .then(r=>r.ok?r.json():null).then(j=>out1(j&&j.access_token||ses.access_token)).catch(()=>out1(ses.access_token));
+   else out1(ses.access_token)}catch(e){}};
+  /* v456: with everything already backed up (the usual case) the device is cleared at once. Only when something is
+     waiting is there one last short backup (at most about 4 s); the sign-out is noted on the device first, so if the
+     tab is closed meanwhile it finishes the next time Phyzly opens (or says it didn't, if something still isn't backed up). */
+  PZ.signOut=async function(force){
+   {const su=storedUid(),mine=tabUid();if(su&&mine&&su!==mine){PZ.lost();return "other"}}
+   if(!force){let n=localOnlyN();if(n)return "local:"+n;
+    if(PZ.user&&unsynced()){S.pzOut=PZ.user.id;try{save()}catch(e){}await capped(settle(),1500);await capped(PZ.sync("quiet"),2500)}
+    if(S.pzOut){delete S.pzOut;try{save()}catch(e){}}
+    n=localOnlyN();if(n)return "local:"+n;if(unsynced())return "pending"}
+   outing=true;gen++;clearTimeout(tmr);const ses=storedSession();PZ.user=null;
+   if(ses){if(ses.refresh_token)DEAD.add(ses.refresh_token);if(ses.user){fence={uid:ses.user.id,until:Date.now()+30000};gone={uid:ses.user.id,until:fence.until};try{localStorage.setItem("phz-gone",JSON.stringify(gone))}catch(e){}}}LIVE.forEach(r=>r.ac.abort())
+   forgetSession();dropAcct();delete S.pzHold;delete S.pzOut;delete S.acct;S.signedOut=1;try{save()}catch(e){}try{window.meSub=null}catch(e){}
+   tellServer(ses);
+   await wipePhotos();outing=false;
+   return "ok"};
+  /* v452: every photo is removed before the account, page by page; if the store can't be listed or a
+     remove fails, the account is kept so nothing is left behind (finding 4).
+     v454: if the account itself then can't be deleted, the photos on this device are uploaded again at the next
+     backup (photos that were only in the account can't be). v455: waits for a running backup first. */
+  PZ.deleteAccount=async function(){gen++;clearTimeout(tmr);await settle();if(!PZ.user||storedUid()!==PZ.user.id)throw new Error("This page is out of date, so nothing was deleted. Close it and open Phyzly again.");const uid=PZ.user.id,st=PZ.sb.storage.from("evidence"),kept=new Error("Your photos couldn't be removed, so nothing was deleted. Try again in a moment.");let empty=false,removed=false;
+   for(let pass=0;pass<50&&!empty;pass++){const ls=await st.list(uid,{limit:1000});if(ls.error){console.error("PZ delete list",ls.error);if(removed)SY().ph={};throw kept}const f=(ls.data||[]).filter(x=>x&&x.name);
+    if(!f.length){empty=true;break}const rm=await st.remove(f.map(x=>uid+"/"+x.name));if(rm&&rm.error){console.error("PZ delete remove",rm.error);SY().ph={};throw kept}removed=true}
+   if(!empty){SY().ph={};throw kept}
+   if(storedUid()!==uid){SY().ph={};throw new Error("This page is out of date, so nothing was deleted. Close it and open Phyzly again.")}
+   const d=await PZ.sb.rpc("delete_my_account");if(d.error){SY().ph={};save();throw d.error}await PZ.signOut(true)};
+  /* v452: the session ended without Sign out on this device (signed out or deleted elsewhere, or it expired).
+     v455: the Portfolio is always removed from this device. Anything it couldn't back up yet is lost, which is rare
+     (entries back up within seconds when there's a connection). */
+  let losing=false;
+  PZ.lost=async function(){const a=S.acct;if(losing||outing||!a||a.guest||!a.uid)return;losing=true;gen++;clearTimeout(tmr);LIVE.forEach(r=>r.ac.abort());
+   const su=storedUid();if(su&&su!==a.uid){PZ.user=null;try{document.getElementById("app").innerHTML=""}catch(e){}location.reload();return}
+   try{PZ.user=null;dropAcct();delete S.pzHold;delete S.acct;S.signedOut=1;save();try{window.meSub=null}catch(e){}
+    try{au.v="form";au.mode="in";au.email="";au.err="";tab="found";welcome();window.scrollTo(0,0)}catch(e){}
+    try{toast("You've been signed out. Sign in again to see your Portfolio.")}catch(e){}
+    await wipePhotos();await capped(settle(),3000)}
    finally{losing=false}};
+  /* v456: a tab coming back to the front (or out of the back/forward cache) checks the device still has its sign-in */
+  const tabUid=()=>(PZ.user&&PZ.user.id)||(S.acct&&!S.acct.guest&&S.acct.uid)||null;
+  const lookAgain=()=>{if(outing||losing||document.visibilityState==="hidden")return;const mine=tabUid();if(!mine)return;let su=null,raw=null;
+   try{raw=localStorage.getItem("phz-auth")}catch(e){return}su=storedUid();
+   if(su!==mine&&(su||!raw))PZ.lost()};
+  if(PZ.on){window.addEventListener("pageshow",lookAgain);document.addEventListener("visibilitychange",lookAgain);window.addEventListener("focus",lookAgain)}
 
   /* ---------- the app's sign-in screens, now real ---------- */
   if(PZ.on){
+   /* v454/v455: a device signed out under an older version can still hold that person's role, band, interview answers,
+      profile photo, or even their Portfolio, with nobody signed in. No account here (and not a guest) means nobody's
+      using them: clear them once. */
+   delete S.pzHold;try{localStorage.removeItem("phz-out");const g=JSON.parse(localStorage.getItem("phz-gone")||"null");if(!g||!(g.until>Date.now()))localStorage.removeItem("phz-gone")}catch(e){}
+   /* v456: a sign-out that was still on its last backup when the tab closed */
+   if(S.pzOut){const u=S.pzOut;delete S.pzOut;try{save()}catch(e){}
+    if(S.acct&&!S.acct.guest&&S.acct.uid===u){if(!localOnlyN()&&!unsynced())PZ.signOut(true);
+     else setTimeout(()=>{try{toast("Sign-out didn't finish because some changes aren't backed up yet. Go to Profile, then Account, to try again.")}catch(e){}},1500)}}
+   if(!S.acct&&(S.signedOut||(S.sy&&S.sy.uid))){const had=ACCT_K.some(k=>S[k]!==undefined)||!!S.sy;if(had){dropAcct();try{save()}catch(e){}wipePhotos()}}
    auSend=async function(){au.err="";if(au.mode==="up"&&!au.name.trim())au.err="Add your first name.";else if(!auEmailOk(au.email))au.err="Enter a valid email address.";else if(au.mode==="up"&&!au.agree)au.err="Please agree to the Terms and Privacy policy.";
     if(au.err){welcome();return}au.busy=true;welcome();
     try{await PZ.sendCode(au.email.trim().toLowerCase(),au.mode==="up"?au.name.trim():"")}catch(e){au.busy=false;au.err=nice(e);welcome();return}
@@ -11813,18 +11909,24 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
     try{const u=await PZ.verify(au.email.trim().toLowerCase(),au.code);const wasUp=au.mode==="up";await PZ.adopt(u,{name:wasUp?au.name.trim():"",news:wasUp?!!au.news:null});au.busy=false;au.v="land";au.code="";
      if(S.role){celebrate(wasUp?"Account created":"Welcome back"+(S.acct.name?", "+S.acct.name:""));home()}else{welcome();if(wasUp)setTimeout(()=>celebrate("Account created"),100)}window.scrollTo(0,0)}
     catch(e){au.busy=false;au.err=nice(e);au.code="";welcome();setTimeout(()=>{const i=document.getElementById("au-c");if(i)i.focus()},60)}};
-   auSso=async function(m){const P=(CFG.providers||{});if(!P[m]){au.err=(m==="apple"?"Sign in with Apple":"Google sign-in")+" is coming soon. Use your email for now.";welcome();return}
+   auSso=async function(m){unfence();const P=(CFG.providers||{});if(!P[m]){au.err=(m==="apple"?"Sign in with Apple":"Google sign-in")+" is coming soon. Use your email for now.";welcome();return}
     try{await PZ.oauth(m)}catch(e){au.err=nice(e);welcome()}};
    const resendClick=()=>{au.t=Date.now();PZ.sendCode(au.email.trim().toLowerCase(),"").then(()=>toast("Code sent again")).catch(e=>toast(nice(e)));welcome()};window.pzResend=resendClick;
-   auOut=async function(){if(!au.oc){au.oc=1;meScreen();return}au.oc=0;const r=await PZ.signOut(false);
-    if(r==="pending"){if(!au.oc2){au.oc2=1;toast("Some changes aren't backed up yet. Tap Sign out again to sign out anyway.");meScreen();return}au.oc2=0;await PZ.signOut(true)}
-    delete S.acct;S.signedOut=1;save();au.v="land";tab="found";welcome();window.scrollTo(0,0)};
-   const me0=auMe;auMe=function(){const a=S.acct;if(a&&!a.guest&&!PZ.user)return `<div class="sec">Account</div><div class="note"><b>You're signed out on this device.</b> Sign in again to back up your Portfolio and use it on your other devices.</div><button class="go" style="margin-top:0" onclick="pzSignInAgain()">Sign in</button>`;if(!a||a.guest)return me0.apply(this,arguments);
+   auOut=async function(){if(au.ob)return;const fp=()=>hsh([S.cpd,localOnlyN(),S.sy&&S.sy.ent,S.plc,S.iv]);const anyway=au.oc2&&au.oc2.fp===fp()&&Date.now()-au.oc2.at<120000;
+    if(!anyway&&!au.oc){au.oc2=0;au.oc=1;meScreen();return}au.oc=0;au.ob=1;meScreen();let r;
+    if(anyway){au.oc2=0;try{await PZ.signOut(true)}finally{au.ob=0}r="ok"}
+    else{au.oc2=0;try{r=await PZ.signOut(false)}finally{au.ob=0}}
+    if(r==="other")return;
+    if(r!=="ok"){if(!au.oc2){au.oc2={fp:fp(),at:Date.now()};const n=/^local:(\d+)$/.exec(r);toast(n?(n[1]==="1"?"1 entry is":n[1]+" entries are")+" kept on this phone only and will be deleted. Export first, or tap Sign out again to sign out anyway.":"Some changes aren't backed up yet. Tap Sign out again to sign out anyway.");meScreen();return}au.oc2=0;await PZ.signOut(true)}
+    au.oc2=0;delete S.acct;S.signedOut=1;save();au.v="land";tab="found";welcome();window.scrollTo(0,0)};
+   /* v454: no session confirmed yet on this device (usually no connection): say so plainly and keep Sign out (R1b) */
+   const me0=auMe;auMe=function(){const a=S.acct;if(a&&!a.guest&&!PZ.user)return `<div class="sec">Account</div><div class="note"><b>Not connected.</b> Your Portfolio is on this device and will back up when you're connected again.</div>`+
+     `<button class="opt" style="text-align:center;margin-top:8px;${au.oc?"border-color:var(--bad);color:var(--bad)":""}" onclick="auOut()"${au.ob?" disabled":""}>${au.ob?"Signing out…":au.oc?"Tap again to sign out":"Sign out"}</button><p class="tag">Signing out removes your Portfolio from this device.</p>`;if(!a||a.guest)return me0.apply(this,arguments);
     const how=a.method==="apple"?"Signed in with Apple":a.method==="google"?"Signed in with Google":"Signed in with email";
     const st=PZ.err==="offline"?"Offline. Changes will back up when you're connected.":PZ.err?"Backup problem: "+esc(PZ.err):PZ.last?"Backed up "+new Date(PZ.last).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}):"Backing up…";
     return `<div class="sec">Account</div><div class="lr me"><span class="av">${esc((a.name||"🙂").slice(0,1).toUpperCase())}</span><div class="nm">${esc(a.name||"Your account")}<small>${esc(a.email||how)}${a.email?" · "+how.replace("Signed in with ","via "):""}</small></div></div>`+
      `<p class="tag pzst">${st}</p><button class="opt" style="text-align:center;margin-top:8px" onclick="PZ.sync().then(()=>meScreen())">Back up now</button>`+
-     `<button class="opt" style="text-align:center;margin-top:8px;${au.oc?"border-color:var(--bad);color:var(--bad)":""}" onclick="auOut()">${au.oc?"Tap again to sign out":"Sign out"}</button>`+
+     `<button class="opt" style="text-align:center;margin-top:8px;${au.oc?"border-color:var(--bad);color:var(--bad)":""}" onclick="auOut()"${au.ob?" disabled":""}>${au.ob?"Signing out…":au.oc?"Tap again to sign out":"Sign out"}</button>`+
      `<p class="tag">Signing out removes your Portfolio from this device. It stays safe in your account.</p>`+
      `<button class="opt" style="text-align:center;margin-top:8px;border-color:var(--bad);color:var(--bad)" onclick="pzDel()">${au.del?"Tap again to delete your account and everything in it":"Delete my account"}</button>`};
    window.pzSignInAgain=function(){au.v='form';au.mode='in';au.email=(S.acct&&S.acct.email)||'';delete S.acct;save();welcome()};
@@ -11834,6 +11936,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
   /* v448: feedback from the speech-bubble button is saved to the feedback table (backend/003_feedback.sql) */
   if(PZ.on)setTimeout(function(){const rs0=window.rpSend;window.rpSend=async function(){
    if(!PZ.user)return rs0&&rs0.apply(this,arguments);
+   if(storedUid()!==PZ.user.id){const m=document.querySelector("#rpmsg");if(m)m.textContent="This page is out of date. Close it and open Phyzly again.";return}
    const q=x=>document.querySelector(x),tx=((q("#rptx")||{}).value||"").trim(),msg=q("#rpmsg"),go=q("#rpgo");
    const cat=((q('#rpov .rpch button[aria-pressed="true"]')||{}).textContent||"").trim();
    if(!tx&&!cat){msg.textContent="Pick a type or write a note first.";return}
@@ -11850,14 +11953,26 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
       before, getSession could set PZ.user first, the SIGNED_IN handler then skipped adopt, and the device kept the
       signed-out flag, so Profile sent the person back to the sign-in screen */
    let adopting=null;const need=u=>!PZ.user||PZ.user.id!==u.id||!S.acct||S.acct.uid!==u.id||S.signedOut;
-   const take=u=>{if(adopting||au.busy)return;adopting=PZ.adopt(u).then(()=>{if(location.hash.includes("access_token")||location.search.includes("code="))history.replaceState(null,"",location.pathname);if(S.role)home();else welcome()}).catch(e=>console.error("adopt",e)).finally(()=>{adopting=null})};
-   PZ.sb.auth.onAuthStateChange((ev,ses)=>{if((ev==="SIGNED_IN"||ev==="INITIAL_SESSION")&&ses&&ses.user&&need(ses.user))take(ses.user);
-    if(ev==="SIGNED_OUT"){PZ.user=null;if(!outing)PZ.lost()}});
-   /* a stored session that has gone (and not just a dropped connection, which keeps it stored) counts as signed out */
-   PZ.sb.auth.getSession().then(({data,error})=>{const ses=data&&data.session;
+   const take=u=>{if(adopting||au.busy)return;
+    /* v456: another tab has already brought this account onto the device; this tab's copy is out of date, so it reloads
+       rather than clearing the device (which would delete photos that tab hasn't backed up yet) */
+    try{const d=JSON.parse(localStorage.getItem("shoulder-v2")||"null");if(d&&d.acct&&!d.acct.guest&&d.acct.uid===u.id&&!(S.acct&&S.acct.uid===u.id)){PZ.user=null;gen++;location.reload();return}}catch(e){}adopting=PZ.adopt(u).then(()=>{if(location.hash.includes("access_token")||location.search.includes("code="))history.replaceState(null,"",location.pathname);if(S.role)home();else welcome()}).catch(e=>console.error("adopt",e)).finally(()=>{adopting=null})};
+   /* v454: a session confirmed later (connection back, token refreshed) is picked up without a reload (R1b) */
+   PZ.sb.auth.onAuthStateChange((ev,ses)=>{if((ev==="SIGNED_IN"||ev==="INITIAL_SESSION"||ev==="TOKEN_REFRESHED")&&ses&&ses.user&&need(ses.user))take(ses.user);
+    if(ev==="SIGNED_OUT"){if(storedUid())return;PZ.user=null;if(!outing)PZ.lost()}});
+   /* v456: every tab watches the stored sign-in. If it disappears, or turns into a different account, the account this
+      tab was showing has signed out here, so the tab clears itself (works in every browser, unlike tab notices) */
+   window.addEventListener("storage",e=>{if(e.key!=="phz-auth"||outing)return;const mine=(PZ.user&&PZ.user.id)||(S.acct&&!S.acct.guest&&S.acct.uid)||null;if(!mine)return;
+    let other=null;try{const v=JSON.parse(e.newValue||"null");other=v&&v.user&&v.user.id||null}catch(x){}
+    if(other!==mine)PZ.lost()});
+   const recheck=()=>PZ.sb.auth.getSession().then(({data,error})=>{const ses=data&&data.session;
     if(!ses||!ses.user){let kept=null;try{kept=localStorage.getItem("phz-auth")}catch(e){}if(!error&&!kept)PZ.lost();return}
-    if(need(ses.user))take(ses.user);else PZ.sync()});
+    if(need(ses.user))take(ses.user);else PZ.sync()}).catch(()=>{});
+   /* a stored session that has gone (and not just a dropped connection, which keeps it stored) counts as signed out */
+   recheck();
+   window.addEventListener("online",()=>{if(PZ.user)PZ.sync();else if(S.acct&&S.acct.uid&&!S.signedOut)recheck()});
   }
+  if(!PZ.on)window.addEventListener("online",()=>{if(PZ.user)PZ.sync()});
 
  }catch(e){console.error("v446",e)}
 
