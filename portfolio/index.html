@@ -2,6 +2,7 @@
 <html lang="en-GB">
 <head>
 <meta name="robots" content="noindex, nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Phyzly"><meta name="theme-color" content="#0A1F3D">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Phyzly</title>
@@ -2879,10 +2880,31 @@ function cpdSave(){
  if(!cf.t.trim()){cf.err="Add a title.";return home()}
  const m=Math.max(0,Math.min(1440,Math.round(+cf.m||0)));if(!/^\d{4}-\d{2}-\d{2}$/.test(cf.d)){cf.err="Pick a date.";return home()}
  S.cpd=S.cpd||[];const r={};Object.keys(FW).forEach(k=>FW[k].f.forEach(x=>{const v=cf.r[x[0]];if(v&&String(v).trim())r[x[0]]=String(v).slice(0,6000)}));
- const e={id:cf.id||cpId(),d:cf.d,t:cf.t.trim().slice(0,120),ty:cf.ty,m,fw:FW[cf.fw]?cf.fw:"std",r,tm:/^\d{2}:\d{2}$/.test(cf.tm||"")?cf.tm:"",otj:!!cf.otj,ks:(cf.ks||[]).slice(0,60)};if((cf.ph||[]).length)e.ph=cf.ph.slice(0,12);if(cf.auto)e.auto=1;if((cf.ss||[]).length)e.ss=cf.ss.slice(0,50);if(cf.pre)e.pre=1;if(cf.ns)e.ns=1;
+ const e={id:cf.id||cpId(),d:cf.d,t:cf.t.trim().slice(0,120),ty:cf.ty,m,fw:FW[cf.fw]?cf.fw:"std",r,tm:/^\d{2}:\d{2}$/.test(cf.tm||"")?cf.tm:"",otj:!!cf.otj,ks:(cf.ks||[]).slice(0,60)};if((cf.ph||[]).length)e.ph=cf.ph.slice(0,12);if(cf.auto)e.auto=1;if((cf.ss||[]).length)e.ss=cf.ss.slice(0,50);if(cf.pre)e.pre=1;if(cf.ns)e.ns=1;{const tg=tgClean(cf.tg);if(tg.length)e.tg=tg}
  const i=S.cpd.findIndex(x=>x.id===e.id),old=i>=0?S.cpd[i]:null;if(i>=0)S.cpd[i]=e;else S.cpd.unshift(e);try{if(!old&&!e.auto&&!e.ns)fdPost("📒","Logged CPD: "+cptn(e.ty)+" · "+fmtH(e.m||0),"cpd:"+e.id)}catch(er){}try{const ci=cpdXpCalc(old,e);if(ci){S.xpT=(S.xpT||0)+ci.xp;S.xpW=(S.xpW||0)+ci.xp;save();setTimeout(()=>cpdCelebrate(ci),60)}}catch(er){}const fr=cf.from;if(fr==="cm"){const nid=e.id;S.cpd=S.cpd||[];const i2=S.cpd.findIndex(x=>x.id===e.id);if(i2>=0)S.cpd[i2]=e;else S.cpd.unshift(e);save();cf=null;return cmBack(nid)}if(fr==="hc"){pf="hc";hc.v="ev"}if(fr==="pre"){tab="cpd";pf="pre";pe=null}(cf.phGone||[]).forEach(id=>phDel(id).catch(()=>{}));if(e.otj)om=String(e.d).slice(0,7);save();cf=null;cp.v="list";if(fr==="otj")pf="otj";if(fr==="hc"){tab="cpd";pf="hc";hc.v="ev"}if(fr==="pre"){tab="cpd";pf="pre";pe=null}home();window.scrollTo(0,0)}
 function cpdDel(){if(!cf.del){cf.del=true;return home()}(cf.ph||[]).concat(cf.phGone||[]).forEach(id=>phDel(id).catch(()=>{}));S.cpd=(S.cpd||[]).filter(x=>x.id!==cf.id);save();cf=null;cp.v="list";home();window.scrollTo(0,0)}
 function cpdCancel(){const f=cf&&cf.from;cf=null;cp.v="list";if(f==="onc")return oncBack();if(f==="cm")return cmBack(null);if(f==="hc")return openHc("ev");if(f==="pre"){tab="cpd";pf="pre";pe=null;home();return window.scrollTo(0,0)}if(f==="otj")pf="otj";home();window.scrollTo(0,0)}
+
+/* ---------- v457: tags on CPD entries ---------- */
+const TGP=["MSK","Neuro","Respiratory","Cardiac","Critical care","Paediatrics","Older people","Pelvic health","Mental health","Community","Leadership","Teaching","Research"];
+const TGMAX=8;
+function tgClean(a){const o=[],seen={};(Array.isArray(a)?a:[]).forEach(x=>{if(typeof x!=="string")return;const t=x.replace(/[^\p{L}\p{N} &'()\/+.-]/gu,"").replace(/\s+/g," ").trim().slice(0,30);const k=t.toLowerCase();if(t&&!seen[k]&&o.length<TGMAX){seen[k]=1;o.push(t)}});return o}
+function tgUsed(){const c={};(S.cpd||[]).forEach(e=>(e.tg||[]).forEach(t=>{c[t]=(c[t]||0)+1}));return c}
+function tgBlock(){cf.tg=tgClean(cf.tg);const on=new Set(cf.tg.map(t=>t.toLowerCase())),used=tgUsed();
+ const own=Object.keys(used).filter(t=>!TGP.some(p=>p.toLowerCase()===t.toLowerCase())).sort((a,b)=>used[b]-used[a]||a.localeCompare(b));
+ const extra=cf.tg.filter(t=>!TGP.concat(own).some(p=>p.toLowerCase()===t.toLowerCase()));
+ const list=TGP.concat(own,extra);
+ return `<div class="cfl">Tags <span style="font-weight:500;color:var(--mute)">(optional)</span></div><div class="chipw tgw" role="group" aria-label="Tags">${list.map(t=>`<button class="chipb${on.has(t.toLowerCase())?" on":""}" aria-pressed="${on.has(t.toLowerCase())}" data-t="${esc(t)}" onclick="tgTog(this.dataset.t)">${esc(t)}</button>`).join("")}</div>`+
+  `<div class="tgadd"><input id="cf-tg" class="cin" maxlength="30" placeholder="Add your own, e.g. Amputee rehab" aria-label="Add your own tag" onkeydown="if(event.key==='Enter'){event.preventDefault();tgAdd()}"><button class="opt" onclick="tgAdd()">Add</button></div>`+
+  (cf.tg.length>=TGMAX?`<p class="tag" style="margin:4px 0 0">That's the most tags for one entry (${TGMAX}).</p>`:"")}
+function tgTog(t){cf.tg=tgClean(cf.tg);const i=cf.tg.findIndex(x=>x.toLowerCase()===String(t).toLowerCase());if(i>=0)cf.tg.splice(i,1);else if(cf.tg.length<TGMAX)cf.tg.push(t);cf.tg=tgClean(cf.tg);cfRe()}
+function tgAdd(){const el=document.getElementById("cf-tg");const v=tgClean([el?el.value:""])[0];if(!v)return;cf.tg=tgClean(cf.tg);if(!cf.tg.some(x=>x.toLowerCase()===v.toLowerCase())&&cf.tg.length<TGMAX)cf.tg.push(v);cf.tg=tgClean(cf.tg);cfRe()}
+function tgFilter(){const used=tgUsed(),ks=Object.keys(used).sort((a,b)=>used[b]-used[a]||a.localeCompare(b));if(!ks.length){cp.tf=null;return ""}if(cp.tf&&!used[cp.tf])cp.tf=null;
+ return `<div class="cfl" style="margin-top:14px">Filter by tag</div><div class="chipw tgf" role="group" aria-label="Filter by tag"><button class="chipb${!cp.tf?" on":""}" aria-pressed="${!cp.tf}" onclick="cp.tf=null;home()">All</button>${ks.map(t=>`<button class="chipb${cp.tf===t?" on":""}" aria-pressed="${cp.tf===t}" data-t="${esc(t)}" onclick="cp.tf=this.dataset.t;home()">${esc(t)} <span style="opacity:.6">${used[t]}</span></button>`).join("")}</div>`}
+const tgPills=e=>(e.tg||[]).length?`<span class="tgps">${e.tg.map(t=>`<span class="tgp">${esc(t)}</span>`).join("")}</span>`:"";
+(function(){const st=document.createElement("style");st.textContent=`.tgadd{display:flex;gap:8px;margin-top:8px}.tgadd .cin{flex:1;margin:0}.tgadd .opt{width:auto;margin:0;padding:0 18px;white-space:nowrap}
+.tgps{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}.tgp{display:inline-block;font-size:12px;font-weight:600;line-height:1;padding:4px 8px;border-radius:999px;background:var(--tint,#E8F0FF);color:var(--ink)}
+.tgf .chipb span{font-weight:500}`;document.head.appendChild(st)})();
 function cpdForm(){
  const F=fwOf(cf);
  app.innerHTML=head()+`<button class="lnk" onclick="cpdCancel()">‹ ${cf.from==="onc"?"Skip for now":cf.from==="cm"?"Competency":cf.from==="hc"?"Evidence":cf.from==="pre"?"Preceptorship":"CPD log"}</button><h1 style="font-size:1.5rem;margin:6px 0 2px">${cf.id?"Edit entry":"New entry"}</h1>`+
@@ -2892,7 +2914,7 @@ function cpdForm(){
  `<label class="cfl" for="cf-t">Title</label><input id="cf-t" class="cin" maxlength="120" value="${esc(cf.t)}" oninput="cf.t=this.value" placeholder="e.g. Respiratory study day">`+
  `<div class="cr"><div><label class="cfl" for="cf-d">Date</label><input id="cf-d" class="cin" type="date" value="${esc(cf.d)}" oninput="cf.d=this.value" onchange="cf.d=this.value;if(showPre()&&!!S.pre&&!!S.pre.start)cfRe()"></div><div><label class="cfl" for="cf-m">Minutes</label><input id="cf-m" class="cin" type="number" inputmode="numeric" min="0" max="1440" value="${esc(cf.m)}" oninput="cf.m=this.value;document.getElementById('cf-mh').textContent='= '+fmtH(Math.max(0,Math.round(+this.value||0)))"><div class="tag" id="cf-mh" style="margin:2px 0 0">= ${fmtH(Math.max(0,Math.round(+cf.m||0)))}</div></div></div>`+
  `<div class="cr"><div><label class="cfl" for="cf-tm">${(cf.ss||[]).length?"First start time":"Start time (optional)"}</label><input id="cf-tm" class="cin" type="time" value="${esc(cf.tm||"")}" oninput="cf.tm=this.value"></div>${showApp()?`<div><div class="cfl">Off-the-job</div><div class="chipw"><button class="chipb${cf.otj?" on":""}" onclick="cf.otj=true;cfRe()">Yes</button><button class="chipb${!cf.otj?" on":""}" onclick="cf.otj=false;cfRe()">No</button></div></div>`:""}</div>`+ssBlock()+phBlock()+
- (S.feedOn&&!cf.auto?`<div class="cfl">Activity feed</div><button class="ock${cf.ns?" on":""}" role="checkbox" aria-checked="${!!cf.ns}" onclick="cf.ns=!cf.ns;cfRe()"><i>${cf.ns?"✓":""}</i><span>Don't share this one<br><small style="color:var(--mute)">Friends only ever see the type and time, never the title or reflection.</small></span></button>`:"")+(showPre()&&(cf.pre||preIn(cf.d))?`<div class="cfl">Part of your preceptorship programme?</div><div class="chipw"><button class="chipb${cf.pre?" on":""}" onclick="cf.pre=true;cfRe()">Yes</button><button class="chipb${!cf.pre?" on":""}" onclick="cf.pre=false;cfRe()">No</button></div>`:"")+`<div class="cfl">Type</div><div class="chipw">${CPT.map(x=>`<button class="chipb${cf.ty===x[0]?" on":""}" onclick="cf.ty='${x[0]}';cfRe()">${esc(x[1])}</button>`).join("")}</div>`+
+ (S.feedOn&&!cf.auto?`<div class="cfl">Activity feed</div><button class="ock${cf.ns?" on":""}" role="checkbox" aria-checked="${!!cf.ns}" onclick="cf.ns=!cf.ns;cfRe()"><i>${cf.ns?"✓":""}</i><span>Don't share this one<br><small style="color:var(--mute)">Friends only ever see the type and time, never the title or reflection.</small></span></button>`:"")+(showPre()&&(cf.pre||preIn(cf.d))?`<div class="cfl">Part of your preceptorship programme?</div><div class="chipw"><button class="chipb${cf.pre?" on":""}" onclick="cf.pre=true;cfRe()">Yes</button><button class="chipb${!cf.pre?" on":""}" onclick="cf.pre=false;cfRe()">No</button></div>`:"")+`<div class="cfl">Type</div><div class="chipw">${CPT.map(x=>`<button class="chipb${cf.ty===x[0]?" on":""}" onclick="cf.ty='${x[0]}';cfRe()">${esc(x[1])}</button>`).join("")}</div>`+tgBlock()+
  (showApp()?ksbPick():"")+
  `<div class="cfl">Reflection model</div><div class="chipw">${Object.keys(FW).filter(k=>k!=="otj"||showApp()||cf.fw==="otj").map(k=>`<button class="chipb${(cf.fw||"std")===k?" on":""}" onclick="cf.fw='${k}';cfRe()">${esc(FW[k].n)}</button>`).join("")}</div><p class="tag" style="margin:6px 0 0">${esc(F.d)}</p>`+
  F.f.map(x=>`<label class="cfl" for="cf-${x[0]}">${esc(x[1])}</label>${x[2]?`<div class="tag" style="margin:0 0 4px">${esc(x[2])}</div>`:""}<textarea id="cf-${x[0]}" class="cin" rows="4" maxlength="6000" oninput="cf.r.${x[0]}=this.value;cpWc(this)">${esc(cf.r[x[0]]||"")}</textarea><small class="cfwc" data-wc="cf-${x[0]}">${cpWn(cf.r[x[0]]||"")}</small>`).join("")+
@@ -2907,9 +2929,9 @@ function cpdScreen(){
  `<button class="go" onclick="cpdNew()">+ Add entry</button><label class="opt phb" style="margin-top:10px">📷 Add a photo<small>Notes, a certificate or other evidence. Write it up later</small><input type="file" accept="image/*" capture="environment" onchange="cpdSnap(this.files)"></label><button class="opt" style="text-align:center;margin-top:10px" onclick="cp.x='cpd';cp.v='export';home()" ${all.length?"":"disabled"}>Export my log</button>`;
  if(todo)h+=`<div class="note">${todo} ${todo===1?"entry needs":"entries need"} a reflection. HCPC asks how your CPD benefited your practice and your service users, so a couple of lines each helps. <button class="lnk" style="padding:0;text-decoration:underline" onclick="cp.nf=!cp.nf;home()">${cp.nf?"Show all entries":"Show only these"}</button></div>`;
  if(!all.length)h+=`<div class="note">Nothing here yet. Finish a quiz or a bleep guide and an entry appears. Add courses, reading and shadowing yourself.</div>`;
- if(all.length)h+=`<p class="tag" style="margin:8px 0 0">Swipe left on an entry to delete it.</p>`;
- const lst=cp.nf?all.filter(e=>!cpHas(e)):all,ad={};lst.forEach(e=>{if(e.auto)ad[e.d]=(ad[e.d]||[]).concat([e])});cp.og=cp.og||{};
- const rowH=e=>`<div class="swp" data-id="${esc(e.id)}"><button class="swd" onclick="swAsk('${esc(e.id)}')" aria-label="Delete entry">Delete</button><button class="opt swr" onclick="swTap(event,'${esc(e.id)}','')"><div class="row"><b>${esc(e.t)}</b>${cpHas(e)?`<span class="bd t">Reflected</span>`:`<span class="bd s">Add reflection</span>`}</div><small style="color:var(--mute)">${esc(new Date(e.d+"T12:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"short"}))}${(e.ss||[]).length>1?" · "+e.ss.length+" sessions from "+esc(ssSort(e.ss)[0].tm):e.tm?" "+esc(e.tm):""} · ${esc(cptn(e.ty))} · ${e.m||0} min${e.otj?" · Off-the-job":""}${e.pre?" · Preceptorship":""}${e.auto?" · auto-logged":""}${(e.ph||[]).length?" · 📷 "+e.ph.length:""}</small></button></div>`;
+ if(all.length)h+=tgFilter();if(all.length)h+=`<p class="tag" style="margin:8px 0 0">Swipe left on an entry to delete it.</p>`;
+ const lst=(cp.nf?all.filter(e=>!cpHas(e)):all).filter(e=>!cp.tf||(e.tg||[]).includes(cp.tf)),ad={};lst.forEach(e=>{if(e.auto)ad[e.d]=(ad[e.d]||[]).concat([e])});cp.og=cp.og||{};
+ const rowH=e=>`<div class="swp" data-id="${esc(e.id)}"><button class="swd" onclick="swAsk('${esc(e.id)}')" aria-label="Delete entry">Delete</button><button class="opt swr" onclick="swTap(event,'${esc(e.id)}','')"><div class="row"><b>${esc(e.t)}</b>${cpHas(e)?`<span class="bd t">Reflected</span>`:`<span class="bd s">Add reflection</span>`}</div><small style="color:var(--mute)">${esc(new Date(e.d+"T12:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"short"}))}${(e.ss||[]).length>1?" · "+e.ss.length+" sessions from "+esc(ssSort(e.ss)[0].tm):e.tm?" "+esc(e.tm):""} · ${esc(cptn(e.ty))} · ${e.m||0} min${e.otj?" · Off-the-job":""}${e.pre?" · Preceptorship":""}${e.auto?" · auto-logged":""}${(e.ph||[]).length?" · 📷 "+e.ph.length:""}</small>${tgPills(e)}</button></div>`;
  let mo="",gd={};lst.forEach(e=>{const m=new Date(e.d+"T12:00:00").toLocaleDateString("en-GB",{month:"long",year:"numeric"});if(m!==mo){mo=m;h+=`<div class="sec">${esc(m)}</div>`}
   const g=e.auto?ad[e.d]:null;if(!g||g.length<2){h+=rowH(e);return}if(gd[e.d])return;gd[e.d]=1;const op=!!cp.og[e.d],mn=g.reduce((a,x)=>a+(x.m||0),0),nr=g.filter(x=>!cpHas(x)).length;
   h+=`<button class="opt cpg" aria-expanded="${op}" onclick="cp.og['${e.d}']=!cp.og['${e.d}'];cfRe()"><div class="row"><b>🎓 Phyzly learning</b><span>${op?"Hide ▴":"Show ▾"}</span></div><small style="color:var(--mute)">${esc(dFmt(e.d,{day:"numeric",month:"short"}))} · ${g.length} activities · ${fmtH(mn)}${nr?" · "+nr+" to reflect on":""}</small></button>`+(op?`<div class="cpgi">${g.map(rowH).join("")}</div>`:"")});
@@ -2917,8 +2939,8 @@ function cpdScreen(){
 }
 const cpdRows=()=>(S.cpd||[]).slice().sort((a,b)=>a.d.localeCompare(b.d));
 const cpdRef=e=>{const F=fwOf(e);return F.f.map(x=>x[1]+": "+(((e.r||{})[x[0]])||"-"))};
-function cpdText(){return ("CPD record\nExported "+isoD(new Date())+"\n\n"+cpdRows().map(e=>[e.d+"  "+e.t,"Type: "+cptn(e.ty)+" · "+(e.m||0)+" minutes"+(e.tm?" · started "+e.tm:"")].concat((e.ss||[]).length>1?["Sessions: "+ssStr(e)]:[],["Reflection model: "+fwOf(e).n]).concat(e.otj?["Off-the-job training: yes"]:[],(e.ks&&e.ks.length)?["KSBs: "+ksbCodes(e.ks)]:[]).concat(cpdRef(e)).join("\n")).join("\n\n")+(cp.x==="all"?"\n\n"+pfText():"")).replace(/\n{3,}/g,"\n\n")}
-function cpdCsv(){const q=v=>{v=String(v==null?"":v);if(/^[=+\-@\t\r]/.test(v))v="'"+v;return '"'+v.replace(/"/g,'""')+'"'};return ["Date,Start time,Sessions,Title,Type,Minutes,Reflection model,Reflection"].concat(cpdRows().map(e=>[e.d,e.tm||"",ssStr(e),e.t,cptn(e.ty),e.m||0,fwOf(e).n,cpdRef(e).join("\n")].map(q).join(","))).join("\r\n")}
+function cpdText(){return ("CPD record\nExported "+isoD(new Date())+"\n\n"+cpdRows().map(e=>[e.d+"  "+e.t,"Type: "+cptn(e.ty)+" · "+(e.m||0)+" minutes"+(e.tm?" · started "+e.tm:"")].concat((e.ss||[]).length>1?["Sessions: "+ssStr(e)]:[],["Reflection model: "+fwOf(e).n]).concat((e.tg&&e.tg.length)?["Tags: "+e.tg.join(", ")]:[]).concat(e.otj?["Off-the-job training: yes"]:[],(e.ks&&e.ks.length)?["KSBs: "+ksbCodes(e.ks)]:[]).concat(cpdRef(e)).join("\n")).join("\n\n")+(cp.x==="all"?"\n\n"+pfText():"")).replace(/\n{3,}/g,"\n\n")}
+function cpdCsv(){const q=v=>{v=String(v==null?"":v);if(/^[=+\-@\t\r]/.test(v))v="'"+v;return '"'+v.replace(/"/g,'""')+'"'};return ["Date,Start time,Sessions,Title,Type,Tags,Minutes,Reflection model,Reflection"].concat(cpdRows().map(e=>[e.d,e.tm||"",ssStr(e),e.t,cptn(e.ty),(e.tg||[]).join("; "),e.m||0,fwOf(e).n,cpdRef(e).join("\n")].map(q).join(","))).join("\r\n")}
 async function cpdFile(kind){try{const dl=await claude.use("downloads");if(!dl)return cpdMsg("Saving a file is not available here. Use Copy instead.");const csv=kind==="csv";await dl.save({filename:"phyzly-"+(cp.x==="rev"?"content-review-":"cpd-")+isoD(new Date())+(csv?".csv":".txt"),data:csv?cpdCsv():cpdText()});S.cpdX=isoD(new Date());save();cpdMsg("Saved.")}catch(e){cpdMsg(e&&e.code==="declined"?"Not saved.":"Saving a file is not available here. Use Copy instead.")}}
 function cpdCopy(){const t=document.getElementById("cpx");let ok=false;try{t.focus();t.select();ok=document.execCommand("copy")}catch(e){}if(!ok){try{navigator.clipboard.writeText(t.value).then(()=>cpdMsg("Copied."),()=>cpdMsg("Select the text and copy it."));return}catch(e){}}cpdMsg(ok?"Copied.":"Select the text and copy it.");if(ok){S.cpdX=isoD(new Date());save()}}
 function cpdMsg(m){const e=document.getElementById("cpm");if(e)e.textContent=m}
@@ -2977,7 +2999,7 @@ setTimeout(phGc,4000);
 async function cpdHtmlFile(){try{const dl=await claude.use("downloads");if(!dl)return cpdMsg("Saving a file is not available here.");cpdMsg("Preparing…");
  const b64=b=>new Promise(r=>{const fr=new FileReader();fr.onload=()=>r(fr.result);fr.readAsDataURL(b)});
  let body="";for(const e of cpdRows()){let imgs="";for(const id of e.ph||[]){const b=await phGet(id).catch(()=>null);if(b)imgs+=isPdf(id)?`<p>📄 PDF attached: ${esc(b.name||"document")} (saved separately)</p>`:`<img src="${await b64(b)}" alt="Attached photo">`}
-  body+=`<section><h2>${esc(e.t)}</h2><p class="m">${esc(e.d)} · ${esc(cptn(e.ty))} · ${e.m||0} minutes${e.tm?" · started "+esc(e.tm):""}${e.otj?" · Off-the-job":""}</p>${(e.ss||[]).length>1?`<p class="m">Sessions: ${esc(ssStr(e))}</p>`:""}${cpdRef(e).map(l=>`<p>${esc(l).replace(/\n/g,"<br>")}</p>`).join("")}${imgs}</section>`}
+  body+=`<section><h2>${esc(e.t)}</h2><p class="m">${esc(e.d)} · ${esc(cptn(e.ty))} · ${e.m||0} minutes${e.tm?" · started "+esc(e.tm):""}${e.otj?" · Off-the-job":""}</p>${(e.tg||[]).length?`<p class="m">Tags: ${esc(e.tg.join(", "))}</p>`:""}${(e.ss||[]).length>1?`<p class="m">Sessions: ${esc(ssStr(e))}</p>`:""}${cpdRef(e).map(l=>`<p>${esc(l).replace(/\n/g,"<br>")}</p>`).join("")}${imgs}</section>`}
  const html=`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CPD record</title><style>body{font:16px/1.5 system-ui,sans-serif;max-width:760px;margin:0 auto;padding:16px;color:#0B2E6B}section{border-top:2px solid #ddd;padding:12px 0}h2{margin:0 0 4px;font-size:1.15rem}.m{color:#556;margin:0 0 8px}img{max-width:100%;border:1px solid #ccc;border-radius:8px;margin:6px 0}</style></head><body><h1>CPD record</h1><p>Exported ${esc(isoD(new Date()))} from Phyzly</p>${body}</body></html>`;
  await dl.save({filename:"phyzly-cpd-with-photos-"+isoD(new Date())+".html",data:new Blob([html],{type:"text/html"})});S.cpdX=isoD(new Date());save();cpdMsg("Saved.")}catch(e){cpdMsg(e&&e.code==="declined"?"Not saved.":"Saving a file is not available here.")}}
 
@@ -11699,6 +11721,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
   const toEntry=r=>{const x=clean(r.extra&&typeof r.extra==="object"?r.extra:{});delete x.id;
    const e=Object.assign({},x,{id:sid(r.id),d:DAY.test(String(r.entry_date||""))?r.entry_date:"1970-01-01",t:String(r.title==null?"":r.title),ty:String(r.type==null?"other":r.type),m:mins(r.minutes),fw:/^[A-Za-z0-9_-]{1,20}$/.test(String(r.model||""))?r.model:"std",r:clean(r.reflection&&typeof r.reflection==="object"?r.reflection:{}),tm:HM.test(String(r.start_time||""))?r.start_time:"",otj:!!r.off_the_job,ks:Array.isArray(r.links)?clean(r.links):[]});
    if(e.ph!==undefined)e.ph=Array.isArray(e.ph)?e.ph.map(sid):[];
+   if(e.tg!==undefined){const o=[],seen={};(Array.isArray(e.tg)?e.tg:[]).forEach(t=>{if(typeof t!=="string")return;t=t.replace(/[^\p{L}\p{N} &'()\/+.-]/gu,"").replace(/\s+/g," ").trim().slice(0,30);const k=t.toLowerCase();if(t&&!seen[k]&&o.length<8){seen[k]=1;o.push(t)}});if(o.length)e.tg=o;else delete e.tg}
    if(e.ss!==undefined)e.ss=Array.isArray(e.ss)?e.ss.filter(s=>s&&typeof s==="object").slice(-50).map(s=>({tm:HM.test(String(s.tm||""))?s.tm:"",m:mins(s.m)})):[];
    return e};
 
@@ -11716,7 +11739,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
    apprenticeship:v=>{const T=v.otjT,o={};if(T&&typeof T==="object"&&!Array.isArray(T))Object.keys(T).forEach(k=>{const n=+T[k];if(/^\d{4}-\d{2}$/.test(k)&&isFinite(n)&&n>0)o[k]=Math.min(300,n)});if("otjT" in v)v.otjT=o},
    preceptorship:v=>{const P=v.pre;if(P&&typeof P==="object"&&!Array.isArray(P)){const n=Math.round(+P.len);P.len=n>=1&&n<=36?n:12;if(P.start!=null&&!DAY.test(String(P.start)))P.start=""}}};
   /* the Portfolio keeps these tools off whatever an account says */
-  const FORCED=window.PZ_ONLY==="portfolio"?new Set(["preTools","ivTools"]):new Set();
+  const FORCED=window.PZ_ONLY==="portfolio"?new Set(["preTools","ivTools","plcTools","appTools"]):new Set();
   /* only each group's own keys are taken from the account; settings must be plain values */
   const applyGroup=(k,v)=>{const G=GROUPS[k];if(!G||!v||typeof v!=="object"||Array.isArray(v))return;const allow=Object.keys(G());
    if(k==="settings"){allow.forEach(f=>{const x=v[f];if(!FORCED.has(f)&&x!==undefined&&x!==null&&okSet(x))S[f]=x});return}
@@ -12602,7 +12625,7 @@ home();
 try{(function(){
  if(window.PZ_ONLY!=="portfolio")return;
  document.documentElement.classList.add("pzo");
- S.tw2=1;S.tw3=1;S.preTools=false;S.ivTools=false;
+ S.tw2=1;S.tw3=1;S.preTools=false;S.ivTools=false;S.plcTools=false;S.appTools=false;
  /* bottom bar: Portfolio and Me */
  [typeof NAVI!=="undefined"?NAVI:null,typeof NAVI2!=="undefined"?NAVI2:null].forEach(N=>{if(!N)return;for(let i=N.length-1;i>=0;i--)if(!["cpd","me"].includes(N[i][0]))N.splice(i,1)});
  const nv=document.getElementById("nav");if(nv)nv.remove();
@@ -12612,8 +12635,13 @@ try{(function(){
   html.pzo .pzea{margin:10px 0 0;color:#B8C4D6;font-size:13px;font-weight:500}
   html.pzo .top .brand::after{content:"Early access";margin-left:8px;font:600 11px Inter,-apple-system,system-ui,sans-serif;letter-spacing:.04em;text-transform:uppercase;padding:3px 8px;border-radius:999px;background:rgba(255,255,255,.14);color:#fff;align-self:center}
   html.pzo:not(.clin) .top .brand::after{background:var(--bg);color:var(--mute)}
-  html.pzo #nav .row{justify-content:space-around}`;document.head.appendChild(st);
- const NOPE=/^(Competencies|Preceptorship|Interview prep|Phyzly learning)/;
+  html.pzo #nav .row{justify-content:space-around}
+  html.pzo body::before{content:"";position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,0px);background:#0A1F3D;z-index:300;pointer-events:none}
+  html.pzo body .auh .hero{padding:56px 20px 40px}
+  html.pzo .auf .pzmini{margin:0 0 18px}
+  html.pzo .auf .pzmini .hero{padding:22px 20px 20px;text-align:center}
+  html.pzo .auf .pzmini .hero .wm{font-size:40px;line-height:1}`;document.head.appendChild(st);
+ const NOPE=/^(Competencies|Preceptorship|Interview prep|Phyzly learning|Placements|Apprenticeship tools|Off-the-job)/;
  /* start in the Portfolio */
  const goPf=()=>{tab="cpd";pf="home";cp.v="list";curPack=null;window.spV=null};
  const hm0=home;home=function(){if(tab!=="cpd"&&tab!=="me"&&tab!=="friends"&&S.role)goPf();if(tab==="friends")goPf();const r=hm0.apply(this,arguments);
@@ -12624,6 +12652,7 @@ try{(function(){
  window.navGo&&(()=>{const n0=navGo;navGo=function(k,el){if(k!=="cpd"&&k!=="me")k="cpd";return n0.call(this,k,el)}})();
  /* sign-in pages speak about the Portfolio */
  const as1=auScreen;auScreen=function(){let h=as1.apply(this,arguments);
+  h=h.replace(/<div class="auf"><div style="text-align:center[^"]*">[\s\S]*?<\/div><h1>/,'<div class="auf"><div class="auh pzmini"><div class="hero"><div class="wm">Phy<i>z</i>ly</div></div></div><h1>');
   return h.replace(/(<div class="pzsg"[^>]*>(?:<span><i><\/i><\/span>){5}<\/div>)/,'$1<p class="pzea">Phyzly Portfolio · early access</p>')
    .replace("Five-minute lessons, from anatomy to on call","Log CPD in seconds, with photos as evidence")
    .replace("Daily review that brings things back before you forget","Backed up, and on every device you use")};
@@ -12638,10 +12667,10 @@ try{(function(){
    if(step==="course"){const sk=[...document.querySelectorAll("#app .lnk")].find(b=>/Skip this/.test(b.textContent));if(sk)sk.setAttribute("onclick","S.crs=null;S.yr=null;save();welcome('tools')")}}catch(e){}
   return r};
  const pyP=pickYr;pickYr=function(y){S.yr=y;save();welcome("tools")};
- if(window.obTgo){const t0=obTgo;window.obTgo=function(){t0.apply(this,arguments);S.preTools=false;S.ivTools=false;save()}}
+ if(window.obTgo){const t0=obTgo;window.obTgo=function(){t0.apply(this,arguments);S.preTools=false;S.ivTools=false;S.plcTools=false;S.appTools=false;save()}}
  /* Me: account, Portfolio tools, look, sound, help */
  const me1=meScreen;meScreen=function(){const r=me1.apply(this,arguments);
-  try{const drop=/^(Vee's kit bag|Stars|Annual leave days|Knowledge freshness|My plan|Daily goal|Focus|Phyzly Plus|Friends profile|Share activity with friends|Content review|Image credits|Tell us what you think|Reset progress|Preceptorship|Interview prep)/;
+  try{const drop=/^(Vee's kit bag|Stars|Annual leave days|Knowledge freshness|My plan|Daily goal|Focus|Phyzly Plus|Friends profile|Share activity with friends|Content review|Image credits|Tell us what you think|Reset progress|Preceptorship|Interview prep|Apprenticeship tools|Placements)/;
    document.querySelectorAll("#app .mrow").forEach(b=>{const t=(b.querySelector(".mlb")||b).textContent.trim();if(drop.test(t))b.remove()});
    document.querySelectorAll("#app .mgrp").forEach(g=>{if(!g.querySelector(".mrow")){const h=g.previousElementSibling;if(h&&h.classList.contains("mgh"))h.remove();g.remove()}});
    document.querySelectorAll("#app .mgh").forEach(h=>{if(h.textContent.trim()==="Learning")h.textContent="Display"});
@@ -12662,6 +12691,8 @@ try{(function(){
    else if(/The bar at the bottom takes you between Portfolio and Profile\./.test(t)&&isDesk())p.innerHTML=p.innerHTML.replace("The bar at the bottom takes you","The menu on the left takes you");
    else if(/^Your photo stays on this device\. It isn't shared with friends or uploaded anywhere\.$/.test(t))p.textContent="Your photo stays on this device and isn't uploaded anywhere. It's removed when you sign out.";
    else if(/It stays on this device\./.test(t)&&window.PZ&&PZ.user)p.innerHTML=p.innerHTML.replace("It stays on this device.","It's backed up to your account.")});
+  document.querySelectorAll("#app .note").forEach(n=>{if(/^Your own tracker\. Your trust's records are the official ones/.test(n.textContent.trim()))n.remove()});
+  document.querySelectorAll("#app .sec").forEach(h=>{if(/^Pre-registration record$/.test(h.textContent.trim())){const nx=h.nextElementSibling;if(!nx||!nx.classList.contains("opt"))h.remove()}});
   document.querySelectorAll(".qrnote").forEach(p=>{if(/They will be taught when/.test(p.textContent))p.remove()});
   document.querySelectorAll(".cfoot,#nav .nf").forEach(f=>{if(/Confidential/.test(f.textContent))f.textContent="© Oliver Jones 2026 · Phyzly Portfolio early access"})}catch(e){}};
  /* after-save card: no XP in the Portfolio */
