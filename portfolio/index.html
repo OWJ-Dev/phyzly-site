@@ -11659,10 +11659,21 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
   const hsh=o=>{const t=JSON.stringify(o)||"";let h=5381;for(let i=0;i<t.length;i++)h=((h<<5)+h+t.charCodeAt(i))|0;return (h>>>0).toString(36)+":"+t.length};
   const SY=()=>{S.sy=S.sy||{uid:null,ent:{},st:{},ph:{},pull:null,prof:null,lo:[]};return S.sy};
 
+  /* v452: anything pulled from the account is checked before the app uses it. Ids are the app's own format
+     (letters, digits, _ and -), numbers are numbers, and only the app's own keys are copied into its state,
+     so a tampered row can't carry script into a screen (security pass 10 Nov 2026, finding 5) */
+  const ID=/^[A-Za-z0-9_-]{1,40}$/;
+  const sid=x=>{const s=String(x==null?"":x);return ID.test(s)?s:(s.replace(/[^A-Za-z0-9_-]/g,"").slice(0,40)||("x"+Math.random().toString(36).slice(2,10)))};
+  const BADK=new Set(["__proto__","constructor","prototype"]);
+  const clean=v=>{if(Array.isArray(v))return v.map(clean);if(v&&typeof v==="object"){const o={};Object.keys(v).forEach(k=>{if(!BADK.has(k))o[k]=clean(v[k])});if("id" in o)o.id=sid(o.id);return o}return v};
+  const okSet=v=>typeof v==="boolean"||(typeof v==="number"&&isFinite(v))||(typeof v==="string"&&/^[A-Za-z0-9_ -]{0,30}$/.test(v));
+
   /* entries <-> rows */
   const E_KEYS=["id","d","t","ty","m","fw","r","tm","otj","ks"];
   const toRow=e=>{const x={};Object.keys(e).forEach(k=>{if(!E_KEYS.includes(k))x[k]=e[k]});return {id:String(e.id),entry_date:e.d,title:String(e.t||"Untitled").slice(0,120)||"Untitled",type:String(e.ty||"other").slice(0,30),minutes:Math.max(0,Math.min(1440,Math.round(+e.m||0))),start_time:/^\d{2}:\d{2}$/.test(e.tm||"")?e.tm:"",model:String(e.fw||"std").slice(0,20),reflection:e.r||{},off_the_job:!!e.otj,links:e.ks||[],extra:x,deleted_at:null}};
-  const toEntry=r=>{const e=Object.assign({},r.extra||{},{id:r.id,d:r.entry_date,t:r.title,ty:r.type,m:r.minutes,fw:r.model||"std",r:r.reflection||{},tm:r.start_time||"",otj:!!r.off_the_job,ks:r.links||[]});return e};
+  const toEntry=r=>{const x=clean(r.extra&&typeof r.extra==="object"?r.extra:{});delete x.id;
+   const e=Object.assign({},x,{id:sid(r.id),d:/^\d{4}-\d{2}-\d{2}$/.test(String(r.entry_date||""))?r.entry_date:"1970-01-01",t:String(r.title==null?"":r.title),ty:String(r.type==null?"other":r.type),m:Math.max(0,Math.min(1440,Math.round(+r.minutes||0))),fw:/^[A-Za-z0-9_-]{1,20}$/.test(String(r.model||""))?r.model:"std",r:clean(r.reflection&&typeof r.reflection==="object"?r.reflection:{}),tm:/^\d{2}:\d{2}$/.test(String(r.start_time||""))?r.start_time:"",otj:!!r.off_the_job,ks:Array.isArray(r.links)?clean(r.links):[]});
+   if(e.ph!==undefined)e.ph=Array.isArray(e.ph)?e.ph.map(sid):[];return e};
 
   /* saved groups (user_state) */
   const GROUPS={
@@ -11671,8 +11682,18 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
    audit:()=>({hc:S.hc||null}),
    apprenticeship:()=>({otj:S.otj||[],otjT:S.otjT||{},ksb:S.ksb||{}}),
    preceptorship:()=>({pre:S.pre||null}),
-   competencies:()=>({cm:S.cm||null})};
-  const applyGroup=(k,v)=>{if(!v)return;if(k==="settings"){Object.keys(v).forEach(f=>{if(v[f]!==undefined&&v[f]!==null)S[f]=v[f]})}else Object.keys(v).forEach(f=>{S[f]=v[f]})};
+   competencies:()=>({cm:S.cm||null}),
+   interview:()=>({iv:S.iv||null})};
+  /* only each group's own keys are taken from the account; settings must be plain values */
+  const applyGroup=(k,v)=>{const G=GROUPS[k];if(!G||!v||typeof v!=="object"||Array.isArray(v))return;const allow=Object.keys(G());
+   if(k==="settings"){allow.forEach(f=>{const x=v[f];if(x!==undefined&&x!==null&&okSet(x))S[f]=x})}else allow.forEach(f=>{if(Object.prototype.hasOwnProperty.call(v,f))S[f]=clean(v[f])})};
+
+  /* v452: what belongs to an account on this device. Removed when you sign out, and before a different
+     account is used here, so one person's Portfolio can never be read by, or copied into, another's
+     (security pass 10 Nov 2026, findings 1 and 3) */
+  const ACCT_K=["cpd","plc","hc","otj","otjT","ksb","pre","cm","iv","pfp","role","band","nq","oth","crs","yr","pzAsk"];
+  const dropAcct=()=>{ACCT_K.forEach(k=>delete S[k]);delete S.sy};
+  const wipePhotos=async()=>{try{const ks=await phKeys();for(const k of ks)await phDel(k)}catch(e){}};
 
   /* profile */
   const profRow=()=>({first_name:((S.acct&&S.acct.name)||"").slice(0,40)||null,role:S.role||null,band:S.band!=null?String(S.band):null,newly_qualified:!!S.nq,other_role:S.oth||null,course:S.crs||null,course_year:S.yr||null,marketing_opt_in:!!(S.acct&&S.acct.news),marketing_opt_in_at:S.acct&&S.acct.news?(S.acct.newsAt||new Date().toISOString()):null});
@@ -11707,11 +11728,11 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
      const u=await sb.storage.from("evidence").upload(path,b,{contentType:mime,upsert:true});if(u.error)throw u.error;
      const r=await sb.from("evidence").upsert({id,entry_id:null,path,mime,bytes:Math.max(1,b.size||1),deleted_at:null},{onConflict:"user_id,id"});if(r.error)throw r.error;sy.ph[id]=1}
     const drop=Object.keys(sy.ph).filter(id=>!want.has(id));
-    if(drop.length){await sb.storage.from("evidence").remove(drop.map(phPath));await sb.from("evidence").update({deleted_at:new Date().toISOString()}).in("id",drop);drop.forEach(id=>delete sy.ph[id])}
+    if(drop.length){const rm=await sb.storage.from("evidence").remove(drop.map(phPath));if(rm&&rm.error)throw rm.error;const mk=await sb.from("evidence").update({deleted_at:new Date().toISOString()}).in("id",drop);if(mk&&mk.error)throw mk.error;drop.forEach(id=>delete sy.ph[id])}
     /* 4. pull what changed elsewhere */
     const since=sy.pull||"1970-01-01T00:00:00Z";let maxAt=since;
     const r1=await sb.from("cpd_entries").select("*").gt("updated_at",since).order("updated_at",{ascending:true}).limit(1000);if(r1.error)throw r1.error;
-    (r1.data||[]).forEach(r=>{if(r.updated_at>maxAt)maxAt=r.updated_at;S.cpd=S.cpd||[];const i=S.cpd.findIndex(e=>e.id===r.id);
+    (r1.data||[]).forEach(r=>{if(r.updated_at>maxAt)maxAt=r.updated_at;if(!r||!ID.test(String(r.id)))return;S.cpd=S.cpd||[];const i=S.cpd.findIndex(e=>e.id===r.id);
      if(r.deleted_at){if(i>=0){S.cpd.splice(i,1);changed=true}delete sy.ent[r.id];return}
      const e=toEntry(r);delete e.u;const h=hsh(e);if(i>=0){if(hsh(S.cpd[i])===h){sy.ent[r.id]=h;return}if(sy.ent[r.id]!==hsh(S.cpd[i])){return}S.cpd[i]=e}else S.cpd.unshift(e);sy.ent[r.id]=h;changed=true});
     const r2=await sb.from("user_state").select("key,value,updated_at").gt("updated_at",since);if(r2.error)throw r2.error;
@@ -11735,7 +11756,14 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
   PZ.verify=async function(email,code){const {data,error}=await PZ.sb.auth.verifyOtp({email,token:code,type:"email"});if(error)throw error;return data.user};
   PZ.oauth=async function(p){const {error}=await PZ.sb.auth.signInWithOAuth({provider:p,options:{redirectTo:location.origin+location.pathname}});if(error)throw error};
   const method=u=>{const p=(u.app_metadata&&u.app_metadata.provider)||"email";return p==="apple"||p==="google"?p:"email"};
-  PZ.adopt=async function(u,extra){PZ.user=u;const prev=S.acct||{},sy=SY();
+  /* v452: a device that held someone else's Portfolio is cleared before this account is used here.
+     If that Portfolio was held back after an unexpected sign-out (changes not yet backed up), it comes back
+     only for the same account; anyone else gets a clean device. */
+  PZ.adopt=async function(u,extra){
+   const owner=(S.sy&&S.sy.uid)||(S.acct&&!S.acct.guest&&S.acct.uid)||null;
+   if(S.pzHold){const H=S.pzHold;delete S.pzHold;if(H.uid===u.id&&H.d){dropAcct();Object.keys(H.d).forEach(k=>{S[k]=H.d[k]})}else{dropAcct();await wipePhotos()}}
+   else if(owner&&owner!==u.id){dropAcct();await wipePhotos()}
+   PZ.user=u;const prev=S.acct||{},sy=SY();
    S.acct=Object.assign({},prev.uid===u.id?prev:{},{uid:u.id,method:method(u),email:u.email||"",name:(extra&&extra.name)||prev.name||((u.user_metadata||{}).first_name)||((u.user_metadata||{}).given_name)||((u.user_metadata||{}).full_name||"").split(" ")[0]||"",at:prev.at||Date.now()},extra&&extra.news!=null?{news:!!extra.news,newsAt:extra.news?new Date().toISOString():null}:{});
    delete S.signedOut;delete S.acct.guest;
    if(sy.uid&&sy.uid!==u.id){sy.ent={};sy.st={};sy.ph={};sy.pull=null;sy.prof=null;sy.lo=[]}
@@ -11743,12 +11771,35 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
    if(!sy.uid&&localOnly.length){S.pzAsk=localOnly.length}
    save();await PZ.sync("quiet");return u};
   PZ.keepLocal=function(add){const sy=SY();if(!add){sy.lo=(S.cpd||[]).filter(e=>!sy.ent[e.id]).map(e=>e.id)}delete S.pzAsk;save();PZ.sync()};
+  /* v452: signing out ends this device's session only (it used to end every session, which left other
+     devices holding a Portfolio with no one signed in), and removes everything of the account from here */
+  let outing=false;
   PZ.signOut=async function(force){if(PZ.user&&!force){await PZ.sync("quiet");if(PZ.err&&PZ.pending)return "pending"}
-   try{await PZ.sb.auth.signOut()}catch(e){}PZ.user=null;
-   ["cpd","plc","hc","otj","otjT","ksb","pre","cm","sy","pzAsk"].forEach(k=>delete S[k]);try{const ks=await phKeys();for(const k of ks)await phDel(k)}catch(e){}
+   outing=true;try{await PZ.sb.auth.signOut({scope:"local"})}catch(e){}outing=false;PZ.user=null;
+   dropAcct();delete S.pzHold;await wipePhotos();
    return "ok"};
-  PZ.deleteAccount=async function(){const uid=PZ.user.id;const ls=await PZ.sb.storage.from("evidence").list(uid,{limit:1000});if(!ls.error&&ls.data&&ls.data.length){const rm=await PZ.sb.storage.from("evidence").remove(ls.data.map(f=>uid+"/"+f.name));if(rm.error)throw rm.error}
+  /* v452: every photo is removed before the account, page by page; if the store can't be listed or a
+     remove fails, the account is kept so nothing is left behind (finding 4) */
+  PZ.deleteAccount=async function(){const uid=PZ.user.id,st=PZ.sb.storage.from("evidence"),kept=new Error("Your photos couldn't be removed, so nothing was deleted. Try again in a moment.");let empty=false;
+   for(let pass=0;pass<50&&!empty;pass++){const ls=await st.list(uid,{limit:1000});if(ls.error){console.error("PZ delete list",ls.error);throw kept}const f=(ls.data||[]).filter(x=>x&&x.name);
+    if(!f.length){empty=true;break}const rm=await st.remove(f.map(x=>uid+"/"+x.name));if(rm&&rm.error){console.error("PZ delete remove",rm.error);throw kept}}
+   if(!empty)throw kept;
    const d=await PZ.sb.rpc("delete_my_account");if(d.error)throw d.error;await PZ.signOut(true)};
+  /* v452: the session ended without Sign out on this device (signed out or deleted elsewhere, or it expired).
+     If everything is backed up, the Portfolio is removed from here. If not, it's held out of sight until the
+     same person signs in again, so nothing is lost and no one else can see it. */
+  let losing=false;
+  const unsynced=()=>{const sy=S.sy;if(!sy||!sy.uid)return (S.cpd||[]).length>0;
+   if((S.cpd||[]).some(e=>e&&e.id&&sy.ent[e.id]!==hsh(e)))return true;
+   const ids=new Set((S.cpd||[]).map(e=>e&&e.id));if(Object.keys(sy.ent||{}).some(id=>!ids.has(id)))return true;
+   if(Object.keys(GROUPS).some(k=>sy.st[k]!==hsh(GROUPS[k]())))return true;
+   for(const id of photoIds())if(!sy.ph[id])return true;return false};
+  PZ.lost=async function(){const a=S.acct;if(losing||outing||!a||a.guest||!a.uid)return;losing=true;
+   try{const email=a.email||"";if(unsynced()){const H={uid:a.uid,email,at:Date.now(),d:{}};ACCT_K.concat(["sy"]).forEach(k=>{if(S[k]!==undefined)H.d[k]=S[k]});S.pzHold=H}else{delete S.pzHold;await wipePhotos()}
+    dropAcct();delete S.acct;S.signedOut=1;PZ.user=null;save();
+    try{au.v="form";au.mode="in";au.email=a.method==="email"?email:"";au.err="";tab="found";welcome();window.scrollTo(0,0)}catch(e){}
+    try{toast("You've been signed out. Sign in again to see your Portfolio.")}catch(e){}}
+   finally{losing=false}};
 
   /* ---------- the app's sign-in screens, now real ---------- */
   if(PZ.on){
@@ -11776,7 +11827,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
      `<p class="tag">Signing out removes your Portfolio from this device. It stays safe in your account.</p>`+
      `<button class="opt" style="text-align:center;margin-top:8px;border-color:var(--bad);color:var(--bad)" onclick="pzDel()">${au.del?"Tap again to delete your account and everything in it":"Delete my account"}</button>`};
    window.pzSignInAgain=function(){au.v='form';au.mode='in';au.email=(S.acct&&S.acct.email)||'';delete S.acct;save();welcome()};
-   window.pzDel=async function(){if(!au.del){au.del=1;meScreen();return}au.del=0;try{toast("Deleting…");await PZ.deleteAccount();delete S.acct;S.signedOut=1;save();au.v="land";tab="found";welcome();window.scrollTo(0,0);toast("Your account and everything in it have been deleted")}catch(e){toast("Couldn't delete: "+nice(e));meScreen()}};
+   window.pzDel=async function(){if(!au.del){au.del=1;meScreen();return}au.del=0;try{toast("Deleting…");await PZ.deleteAccount();delete S.acct;S.signedOut=1;save();au.v="land";tab="found";welcome();window.scrollTo(0,0);toast("Your account and everything in it have been deleted")}catch(e){toast(/nothing was deleted/.test(String(e&&e.message))?e.message:"Couldn't delete: "+nice(e));meScreen()}};
    /* remove the 'prototype' notes and route Resend to the real service */
    const as0=auScreen;auScreen=function(){let h=as0.apply(this,arguments);h=h.replace(/<p class="tag aupr">[\s\S]*?<\/p>/g,"").replace(/onclick="au\.t=Date\.now\(\);toast\('Code sent again'\);welcome\(\)"/,'onclick="pzResend()"');if(au.busy&&au.v==="form")h=h.replace('<button class="go" onclick="auSend()">Email me a sign-in code</button>','<button class="go" disabled>Sending…</button>');return h};
   /* v448: feedback from the speech-bubble button is saved to the feedback table (backend/003_feedback.sql) */
@@ -11800,8 +11851,11 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
    let adopting=null;const need=u=>!PZ.user||PZ.user.id!==u.id||!S.acct||S.acct.uid!==u.id||S.signedOut;
    const take=u=>{if(adopting||au.busy)return;adopting=PZ.adopt(u).then(()=>{if(location.hash.includes("access_token")||location.search.includes("code="))history.replaceState(null,"",location.pathname);if(S.role)home();else welcome()}).catch(e=>console.error("adopt",e)).finally(()=>{adopting=null})};
    PZ.sb.auth.onAuthStateChange((ev,ses)=>{if((ev==="SIGNED_IN"||ev==="INITIAL_SESSION")&&ses&&ses.user&&need(ses.user))take(ses.user);
-    if(ev==="SIGNED_OUT"){PZ.user=null}});
-   PZ.sb.auth.getSession().then(({data})=>{const ses=data&&data.session;if(!ses||!ses.user)return;if(need(ses.user))take(ses.user);else PZ.sync()});
+    if(ev==="SIGNED_OUT"){PZ.user=null;if(!outing)PZ.lost()}});
+   /* a stored session that has gone (and not just a dropped connection, which keeps it stored) counts as signed out */
+   PZ.sb.auth.getSession().then(({data,error})=>{const ses=data&&data.session;
+    if(!ses||!ses.user){let kept=null;try{kept=localStorage.getItem("phz-auth")}catch(e){}if(!error&&!kept)PZ.lost();return}
+    if(need(ses.user))take(ses.user);else PZ.sync()});
   }
 
  }catch(e){console.error("v446",e)}
@@ -12490,6 +12544,7 @@ try{(function(){
    else if(/^Saved on this device only\. Check there are no patient details/.test(t)&&window.PZ&&PZ.user)p.textContent="Backed up to your account. Check there are no patient details in the picture.";
    else if(/^Swipe left on an entry to delete it\./.test(t)&&isDesk())p.textContent="Open an entry to edit or delete it.";
    else if(/The bar at the bottom takes you between Portfolio and Profile\./.test(t)&&isDesk())p.innerHTML=p.innerHTML.replace("The bar at the bottom takes you","The menu on the left takes you");
+   else if(/^Your photo stays on this device\. It isn't shared with friends or uploaded anywhere\.$/.test(t))p.textContent="Your photo stays on this device and isn't uploaded anywhere. It's removed when you sign out.";
    else if(/It stays on this device\./.test(t)&&window.PZ&&PZ.user)p.innerHTML=p.innerHTML.replace("It stays on this device.","It's backed up to your account.")});
   document.querySelectorAll(".qrnote").forEach(p=>{if(/They will be taught when/.test(p.textContent))p.remove()});
   document.querySelectorAll(".cfoot,#nav .nf").forEach(f=>{if(/Confidential/.test(f.textContent))f.textContent="© Oliver Jones 2026 · Phyzly Portfolio early access"})}catch(e){}};
