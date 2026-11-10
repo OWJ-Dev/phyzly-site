@@ -2273,7 +2273,7 @@ function leaveInfo(){const al=S.al||0,x=S.xpT||0,to=500-(x%500),used=(S.alUsed||
 function lvCard(){const L=lvInfo();return `<div class="lvk"><div class="lvkv">${mascot(78,"cheer")}</div><div class="lvkt"><small>Level ${L.n}</small><b>${esc(L.t)}</b><div class="track mini" style="margin:6px 0 2px"><div class="fill" style="width:${Math.round(L.f*100)}%"></div></div><small>${L.nx?(L.nx-L.x).toLocaleString("en-GB")+" XP to level "+(L.n+1):"Top level reached"}</small></div></div><div class="tabs" style="margin-top:8px"><button class="opt" style="text-align:center;margin:0" onclick="meV='kit';meScreen();window.scrollTo(0,0)">🎒 Vee's kit bag</button><button class="opt" style="text-align:center;margin:0" onclick="starsInfo()">⭐ ${bbTot()} star${bbTot()===1?"":"s"}</button><button class="opt" style="text-align:center;margin:0" onclick="leaveInfo()">🏖️ ${S.al||0} leave day${(S.al||0)===1?"":"s"}</button></div>`}
 let meV=null,kitSl="top";
 function kitScreen(){kitAchSync();const L=lvInfo(),kit=S.kit||{};
- return head()+`<button class="lnk" onclick="meV=null;meScreen()">‹ Me</button><h1 style="font-size:1.6rem;margin:6px 0 2px">Vee's kit bag</h1><p class="tag" style="margin:0 0 6px">Level up and finish sections to unlock physio kit. Tap to wear it.</p>`+
+ return head()+`<button class="lnk" onclick="meV=null;meScreen()">‹ Profile</button><h1 style="font-size:1.6rem;margin:6px 0 2px">Vee's kit bag</h1><p class="tag" style="margin:0 0 6px">Level up and finish sections to unlock physio kit. Tap to wear it.</p>`+
  `<div class="kitv">${mascot(150,"cheer")}</div><p style="text-align:center;margin:0 0 10px"><b>Level ${L.n}</b> · ${esc(L.t)}</p>`+
  `<div class="chipw" role="tablist">${KSLOT.map(([k,l])=>`<button class="chipb${kitSl===k?" on":""}" role="tab" aria-selected="${kitSl===k}" onclick="kitSl='${k}';cfRe()">${l}</button>`).join("")}</div>`+
  `<div class="kitg">${KIT.filter(k=>k.s===kitSl).map(k=>{const has=kitHas(k),on=kit[k.s]===k.id,need=k.bag?"Find it in a kit bag":k.lv?"Level "+k.lv:ACH[k.ach].d;return `<button class="kiti${on?" on":""}" ${has?"":"disabled"} onclick="kitTog('${k.id}')" aria-pressed="${on}"><span class="kitp">${kitPrev(k)}</span><b>${esc(k.n)}</b><small>${has?(on?"Wearing":"Tap to wear"):"🔒 "+esc(need)}</small></button>`}).join("")}</div>`+
@@ -10774,7 +10774,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
    /* sub-page */
    if(meSub&&ch[meSub]){const nodes=ch[meSub];K.forEach(e=>{if(e!==band&&!nodes.includes(e))e.remove()});
     if(band){[...band.children].forEach(e=>{if(!e.matches(".top"))e.remove()});band.classList.remove("nvtab","nvme");band.classList.add("nvsubpg");
-     band.insertAdjacentHTML("beforeend",`<button class="lnk" onclick="meSub=null;meScreen();window.scrollTo(0,0)">‹ Me</button><h1>${esc(meSub)}</h1>`)}
+     band.insertAdjacentHTML("beforeend",`<button class="lnk" onclick="meSub=null;meScreen();window.scrollTo(0,0)">‹ Profile</button><h1>${esc(meSub)}</h1>`)}
     const c=document.createElement("div");c.className="mcard";(band||A.firstChild).after(c);nodes.forEach(n=>c.appendChild(n));return}
    if(meSub){meSub=null}
    /* header: picture, role, level */
@@ -11591,7 +11591,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
    if(document.querySelector(".ifbg")){await closeQR(tk,c);if(tk!==tok)return;await wait(200)}
    const first=!navSeen;c.innerHTML=`<div class="obtn">${first?"Getting around":"Next stop"}</div><h3 id="obtt">${NM[k]}</h3><p id="obtd"></p><div class="obtb"><button class="lnk" onclick="obTourEnd()">Skip tour</button><span class="obtbr"><button class="obprev" onclick="obTour(${TI-1})"${TI<1?" disabled":""} aria-label="Previous step">‹ Back</button><button class="go" onclick="obNavGo()">Next</button></span></div>`;const p=c.querySelector("#obtd");
    {const hid=!!document.querySelector("#nav.hid")||document.body.classList.contains("navhid");try{if(window.navReveal)navReveal()}catch(e){}await wait(hid?560:60)}
-   p.innerHTML=first?`${window.PZ_ONLY==="portfolio"?"The bar at the bottom takes you between Portfolio and Profile.":"The bar at the bottom takes you round the app: Learn, Friends, On call, Portfolio and Me."} Tap <b>${NM[k]}</b> to go there.`:`Tap <b>${NM[k]}</b> in the bar below, or press Next.`;
+   p.innerHTML=first?`${window.PZ_ONLY==="portfolio"?"The bar at the bottom takes you between Portfolio and Profile.":"The bar at the bottom takes you round the app: Learn, Friends, On call, Portfolio and Profile."} Tap <b>${NM[k]}</b> to go there.`:`Tap <b>${NM[k]}</b> in the bar below, or press Next.`;
    if(HC&&!HC.z){TS=null;place();await wait(300);if(tk!==tok)return}
    CSd=null;BAR=true;TS=["#nav .row","#nav .oc i"];place();await barOn();if(tk!==tok){BAR=false;return}c.style.visibility="";place();{const g=c.querySelector(".go");if(g)g.focus()}
    {const b=document.querySelector(`#nav [data-k=${k}]`);if(b){const r0=b.getBoundingClientRect(),ct=document.createElement("button");ct.className="obcatch";ct.setAttribute("aria-label","Go to "+NM[k]);ct.style.cssText=`left:${r0.left}px;top:${r0.top}px;width:${r0.width}px;height:${r0.height}px`;ct.onclick=()=>obNavGo();document.getElementById("obtr").appendChild(ct)}}
@@ -11617,7 +11617,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
    if(!ov){ov=document.createElement("div");ov.id="obtr";ov.className="obtr";ov.innerHTML=`<div class="obhl"></div><div class="obtc" role="dialog" aria-modal="true" aria-labelledby="obtt" aria-describedby="obtd" aria-live="polite"></div>`;document.body.appendChild(ov);
     document.addEventListener("keydown",obKey);window.addEventListener("resize",place);window.addEventListener("scroll",place,{passive:true})}
    TI=i;const c=ov.querySelector(".obtc");
-   if(i<0){TS=null;c.innerHTML=`<div class="obtn">Step 3 of 3 · Quick tour</div><h3 id="obtt">You're set up</h3><p id="obtd">${window.PZ_ONLY==="portfolio"?"A quick look round your Portfolio and Me, including how to add a CPD entry. About a minute; skip any time.":"A guided look round Learn, Quick ref, On call, Portfolio, Friends and Me, with a few short demos. About two minutes; skip any time."}</p><div class="obtb"><button class="lnk" onclick="obTourEnd()">Skip</button><button class="go" onclick="obTour(0)">Show me</button></div>`;requestAnimationFrame(()=>{place();c.querySelector(".go").focus()});return}
+   if(i<0){TS=null;c.innerHTML=`<div class="obtn">Step 3 of 3 · Quick tour</div><h3 id="obtt">You're set up</h3><p id="obtd">${window.PZ_ONLY==="portfolio"?"A quick look round your Portfolio and Profile, including how to add a CPD entry. About a minute; skip any time.":"A guided look round Learn, Quick ref, On call, Portfolio, Friends and Me, with a few short demos. About two minutes; skip any time."}</p><div class="obtb"><button class="lnk" onclick="obTourEnd()">Skip</button><button class="go" onclick="obTour(0)">Show me</button></div>`;requestAnimationFrame(()=>{place();c.querySelector(".go").focus()});return}
    const x=TOUR[i];NAVRES=null;document.querySelectorAll(".obcatch").forEach(e=>e.remove());c.style.visibility="hidden";if(BAR){BAR=false;const sv=ov.querySelector(".obsv");if(sv)sv.style.display="none";ov.querySelector(".obhl").style.visibility=""}if(!x.fix&&!x.frz)FR=null;document.body.classList.toggle("obpad",!!(x.fix||x.frz||x.pad));
    if(x.g!=="cpd")CPDRESET();if(x.g!=="onc")ONCRESET();
    const moved=x.g!==cur;
@@ -11763,6 +11763,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
    const owner=(S.sy&&S.sy.uid)||(S.acct&&!S.acct.guest&&S.acct.uid)||null;
    if(S.pzHold){const H=S.pzHold;delete S.pzHold;if(H.uid===u.id&&H.d){dropAcct();Object.keys(H.d).forEach(k=>{S[k]=H.d[k]})}else{dropAcct();await wipePhotos()}}
    else if(owner&&owner!==u.id){dropAcct();await wipePhotos()}
+   try{window.meSub=null}catch(e){}  /* v453: Profile opens at its top page for whoever signs in */
    PZ.user=u;const prev=S.acct||{},sy=SY();
    S.acct=Object.assign({},prev.uid===u.id?prev:{},{uid:u.id,method:method(u),email:u.email||"",name:(extra&&extra.name)||prev.name||((u.user_metadata||{}).first_name)||((u.user_metadata||{}).given_name)||((u.user_metadata||{}).full_name||"").split(" ")[0]||"",at:prev.at||Date.now()},extra&&extra.news!=null?{news:!!extra.news,newsAt:extra.news?new Date().toISOString():null}:{});
    delete S.signedOut;delete S.acct.guest;
@@ -11776,7 +11777,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
   let outing=false;
   PZ.signOut=async function(force){if(PZ.user&&!force){await PZ.sync("quiet");if(PZ.err&&PZ.pending)return "pending"}
    outing=true;try{await PZ.sb.auth.signOut({scope:"local"})}catch(e){}outing=false;PZ.user=null;
-   dropAcct();delete S.pzHold;await wipePhotos();
+   dropAcct();delete S.pzHold;await wipePhotos();try{window.meSub=null}catch(e){}
    return "ok"};
   /* v452: every photo is removed before the account, page by page; if the store can't be listed or a
      remove fails, the account is kept so nothing is left behind (finding 4) */
@@ -11796,7 +11797,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
    for(const id of photoIds())if(!sy.ph[id])return true;return false};
   PZ.lost=async function(){const a=S.acct;if(losing||outing||!a||a.guest||!a.uid)return;losing=true;
    try{const email=a.email||"";if(unsynced()){const H={uid:a.uid,email,at:Date.now(),d:{}};ACCT_K.concat(["sy"]).forEach(k=>{if(S[k]!==undefined)H.d[k]=S[k]});S.pzHold=H}else{delete S.pzHold;await wipePhotos()}
-    dropAcct();delete S.acct;S.signedOut=1;PZ.user=null;save();
+    dropAcct();delete S.acct;S.signedOut=1;PZ.user=null;save();try{window.meSub=null}catch(e){}
     try{au.v="form";au.mode="in";au.email=a.method==="email"?email:"";au.err="";tab="found";welcome();window.scrollTo(0,0)}catch(e){}
     try{toast("You've been signed out. Sign in again to see your Portfolio.")}catch(e){}}
    finally{losing=false}};
