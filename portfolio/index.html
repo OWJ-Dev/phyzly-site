@@ -13224,15 +13224,15 @@ function imTm(v,k){IM.tmap[String(v).toLowerCase()]=k;home()}
 
 /* ---------- screens ---------- */
 const imDay=d=>new Date(d+"T12:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"});
-function imScreen(){if(!IM)IM={step:"pick"};const back=`<button class="lnk" onclick="imClose()">‹ CPD log</button>`;let h=head()+`<div class="imw">`;
+function imScreen(){if(!IM)IM={step:"pick"};const back=`<button class="lnk" onclick="imClose()">‹ CPD log</button>`;let h=head();
  if(IM.step==="done"){const un=IM.undo===IM.bid;
   h+=`<h1 style="font-size:1.5rem;margin:14px 0 4px">✓ ${IM.n} ${IM.n===1?"entry":"entries"} imported</h1>`+
    `<p class="tag" style="margin:0 0 10px">They're in your log with your other entries.${IM.sk?" "+IM.sk+(IM.sk===1?" row was":" rows were")+" skipped.":""}${IM.nr?` ${IM.nr} ${IM.nr===1?"needs":"need"} a reflection: open ${IM.nr===1?"it":"each one"} when you have time to add how it changed your practice.`:""}</p>`+
-   `<button class="go" onclick="imClose()">View my log</button>`+
+   `<div class="imw"><button class="go" onclick="imClose()">View my log</button>`+
    `<button class="opt" style="text-align:center;margin-top:10px;${un?"border-color:var(--bad);color:var(--bad)":""}" onclick="imUndo('${IM.bid}')">${un?"Tap again to remove all "+IM.n:"Undo this import"}</button>`;
   app.innerHTML=h+`</div>`;return}
  if(IM.step==="pick"){const bs=imBatches();
-  h+=back+`<h1 style="font-size:1.5rem;margin:6px 0 2px">Import CPD</h1><p class="tag" style="margin:0 0 10px">Bring in learning you've logged somewhere else. Each row becomes an entry in your log.</p>`+
+  h+=back+`<h1 style="font-size:1.5rem;margin:6px 0 2px">Import CPD</h1><p class="tag" style="margin:0 0 10px">Bring in learning you've logged somewhere else. Each row becomes an entry in your log.</p><div class="imw">`+
    (IM.err?`<div class="fb bad" role="alert"><b>${esc(IM.err)}</b></div>`:"")+(IM.msg?`<div class="note" role="status">${esc(IM.msg)}</div>`:"")+
    (IM.busy?`<div class="note" role="status">${esc(IM.busy)}</div>`:
    `<label class="go phb" style="margin-top:6px">Choose a file<small style="color:inherit;opacity:.85">Excel (.xlsx) or CSV</small><input type="file" accept=".xlsx,.xlsm,.csv,.tsv,.txt,text/csv,text/plain,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" onchange="imFile(this.files)"></label>`+
@@ -13247,7 +13247,7 @@ function imScreen(){if(!IM)IM={step:"pick"};const back=`<button class="lnk" oncl
     Array.from({length:W},(_,c)=>{const s=imCol(R,IM.hdr,c)[0]||"";return `<option value="${c}"${v===c?" selected":""}>${esc(imL(c)+" · "+imHn(c)+(s&&IM.hdr>=0?" (e.g. "+(s.length>22?s.slice(0,21)+"…":s)+")":""))}</option>`}).join("")}</select>`};
  const chip=(on,lab,go)=>`<button class="chipb${on?" on":""}" aria-pressed="${on}" onclick="${go}">${lab}</button>`;
  const tys=CPT.filter(x=>x[0]!=="app"),tySel=(id,cur,on,lab)=>`<select ${id?`id="${id}" `:""}class="cin"${lab?` aria-label="${esc(lab)}"`:""} ${on}>${tys.map(x=>`<option value="${x[0]}"${cur===x[0]?" selected":""}>${esc(x[1])}</option>`).join("")}</select>`;
- h+=`<button class="lnk" onclick="IM={step:'pick'};home()">‹ Choose a different file</button><h1 style="font-size:1.5rem;margin:6px 0 2px">Match your columns</h1><p class="tag" style="margin:0 0 6px">${esc(IM.name)}${sh.n?" · "+esc(sh.n):""}. Tell Phyzly which column holds what. Phyzly has made a first guess.</p>`;
+ h+=`<button class="lnk" onclick="IM={step:'pick'};home()">‹ Choose a different file</button><h1 style="font-size:1.5rem;margin:6px 0 2px">Match your columns</h1><p class="tag" style="margin:0 0 6px">${esc(IM.name)}${sh.n?" · "+esc(sh.n):""}. Tell Phyzly which column holds what. Phyzly has made a first guess.</p><div class="imw">`;
  if(IM.sheets.length>1)h+=`<div class="cfl">Sheet</div><div class="chipw" role="group" aria-label="Sheet">${IM.sheets.map((s,i)=>chip(i===IM.si,esc(s.n),`imSheetSet(${i})`)).join("")}</div>`;
  h+=`<label class="cfl" for="im-h">Heading row</label><select id="im-h" class="cin" onchange="imHdrSet(this.value)"><option value="-1"${IM.hdr<0?" selected":""}>No heading row</option>${R.slice(0,15).map((r,i)=>{const t=r.filter(Boolean).join(" · ");return t?`<option value="${i}"${IM.hdr===i?" selected":""}>${esc("Row "+(i+1)+": "+(t.length>48?t.slice(0,47)+"…":t))}</option>`:""}).join("")}</select>`;
  h+=sel("im-d","d","Date",1);
@@ -13302,7 +13302,18 @@ try{(function(){
   html.pzo body .auh .hero{padding:56px 20px 40px}
   html.pzo .auf .pzmini{margin:0 0 18px}
   html.pzo .auf .pzmini .hero{padding:22px 20px 20px;text-align:center}
-  html.pzo .auf .pzmini .hero .wm{font-size:40px;line-height:1}`;document.head.appendChild(st);
+  html.pzo .auf .pzmini .hero .wm{font-size:40px;line-height:1}
+  /* v469: headers fit their content, with the same spacing on every page (they were a fixed 300px with the title pushed down) */
+  html.pzo.clin #app>.nvtab{padding-bottom:28px}
+  html.pzo.clin #app>.nvtab:has(+.nvfl){padding-bottom:70px}
+  @media (max-width:1023px){
+   html.pzo.clin #app>.nvtab{min-height:0}
+   html.pzo.clin #app>.nvtab>.top{margin-bottom:0}
+   html.pzo.clin #app>.nvtab>.lnk{margin:16px 0 0}
+   html.pzo.clin #app>.nvtab>h1{margin:14px 2px 6px}
+   html.pzo.clin #app>.nvtab>.lnk+h1{margin-top:6px}
+   html.pzo.clin #app>.nvtab>p.tag{margin:0 2px 0}
+  }`;document.head.appendChild(st);
  const NOPE=/^(Competencies|Interview prep|Phyzly learning|Placements|Apprenticeship tools|Off-the-job)/;
  /* start in the Portfolio */
  const goPf=()=>{tab="cpd";pf="home";cp.v="list";curPack=null;window.spV=null};
