@@ -12652,7 +12652,8 @@ const xpLong=d=>dFmt(d,{day:"numeric",month:"long",year:"numeric"});
 const xpH=min=>{const h=Math.round((min||0)/6)/10;return (Number.isInteger(h)?h:h.toFixed(1))+(h===1?" hour":" hours")};
 
 /* what to include */
-function xpSel(){cp.xp=cp.xp||{per:"all",tg:null,ty:null,df:"",dt:"",ph:true};return cp.xp}
+function xpSel(){cp.xp=cp.xp||{per:"all",tg:null,ty:null,df:"",dt:"",ph:true,hc:false,fmt:"pdf"};if(!cp.xp.fmt)cp.xp.fmt="pdf";return cp.xp}
+const xpHcOk=()=>typeof showHc==="function"&&showHc()&&!!S.hc;
 const xpDay=v=>/^\d{4}-\d{2}-\d{2}$/.test(String(v||""))?v:"";
 function xpTo(){const P=xpSel();return P.per==="custom"&&xpDay(P.dt)||null}
 function xpFrom(){const P=xpSel();if(P.per==="12m")return isoD(new Date(Date.now()-365*864e5));if(P.per==="2y"){const d=new Date();d.setFullYear(d.getFullYear()-2);return isoD(d)}if(P.per==="custom")return xpDay(P.df)||null;return null}
@@ -12746,7 +12747,7 @@ function xpExcel(rows,all){const W=xpWho(),st=xpStats(rows),H=v=>({v,s:"h"});
  const tgs=Object.keys(st.tg).sort((a,b)=>st.tg[b].m-st.tg[a].m);if(tgs.length){sum.push([],[H("Tag"),H("Activities"),H("Hours")]);tgs.forEach(k=>sum.push([k,st.tg[k].n,{v:Math.round(st.tg[k].m/6)/10,s:"n1"}]))}
  const mos=Object.keys(st.mo).sort();if(mos.length){sum.push([],[H("Month"),H("Activities"),H("Hours")]);mos.forEach(k=>sum.push([hcMo(k),st.mo[k].n,{v:Math.round(st.mo[k].m/6)/10,s:"n1"}]))}
  const out=[{name:"Summary",cols:[34,14,12,18],grid:false,rows:sum},log];
- if(all&&typeof showHc==="function"&&showHc()&&S.hc){const C=hcChecks();out.push({name:"HCPC audit pack",cols:[46,14,60],freeze:1,rows:[[H("Check"),H("Status"),H("Detail")]].concat(C.map(c=>[{v:c[1],s:"w"},c[0]?"Done":"To do",{v:String(c[2]).replace(/<[^>]+>/g,"").replace(/&amp;/g,"&").replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&lt;/g,"<").replace(/&gt;/g,">"),s:"w"}]))})}
+ if(xpSel().hc&&xpHcOk()){const C=hcChecks();out.push({name:"HCPC audit pack",cols:[46,14,60],freeze:1,rows:[[H("Check"),H("Status"),H("Detail")]].concat(C.map(c=>[{v:c[1],s:"w"},c[0]?"Done":"To do",{v:String(c[2]).replace(/<[^>]+>/g,"").replace(/&amp;/g,"&").replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&lt;/g,"<").replace(/&gt;/g,">"),s:"w"}]))})}
  return xpXlsx(out)}
 
 /* ---------- PDF ---------- */
@@ -12806,7 +12807,7 @@ async function xpCpdPdf(rows,all){const W=xpWho(),st=xpStats(rows),inc=xpSel().p
     if(!inc&&(e.ph||[]).length)L.text("Evidence attached in the app: "+xpEvStr(e),{sz:9.5,c:L.mute,gap:4});
     L.y+=6;L.rule();L.y+=16}}
   else L.text("No entries match what you chose to include.",{c:L.mute});
-  if(all&&typeof showHc==="function"&&showHc()&&S.hc){const Hc=S.hc,C=hcChecks();L.page();L.text("HCPC audit pack",{sz:13.5,w:"bold",lh:1.25,gap:2});L.rule();L.y+=12;
+  if(xpSel().hc&&xpHcOk()){const Hc=S.hc,C=hcChecks();L.page();L.text("HCPC audit pack",{sz:13.5,w:"bold",lh:1.25,gap:2});L.rule();L.y+=12;
    L.table([{t:"Check",w:.5},{t:"Status",w:.14},{t:"Detail",w:.36}],C.map(c=>[c[1],c[0]?"Done":"To do",String(c[2]).replace(/<[^>]+>/g,"").replace(/&amp;/g,"&").replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&lt;/g,"<").replace(/&gt;/g,">")]));
    if(String(Hc.hist||"").trim()){L.h2("Summary of recent work or practice");L.text(Hc.hist,{gap:6})}if(String(Hc.stmt||"").trim()){L.h2("Personal statement");L.text(Hc.stmt,{gap:6})}}
   if(all&&!xpLocal()&&typeof pfText==="function"){const t=pfText();if(t.trim()){L.page();L.text("Other records",{sz:13.5,w:"bold",gap:2});L.rule();L.y+=12;L.text(t,{sz:9.5})}}
@@ -12833,15 +12834,19 @@ async function xpHcPdf(){const H=hcS(),ev=hcEv(),Lst=hcList(),g=hcGaps().filter(
 /* ---------- the export screen ---------- */
 function xpScreen(){const P=xpSel(),rows=xpRows(),st=xpStats(rows),all=cp.x==="all",used={};(S.cpd||[]).forEach(e=>(e.tg||[]).forEach(t=>used[t]=1));const tags=Object.keys(used).sort();if(P.tg&&!used[P.tg])P.tg=null;const tyu=[...new Set((S.cpd||[]).filter(e=>e).map(e=>cptn(e.ty)))],ord=CPT.map(x=>x[1]),tys=tyu.sort((a,b)=>(ord.indexOf(a)<0?99:ord.indexOf(a))-(ord.indexOf(b)<0?99:ord.indexOf(b)));if(P.ty&&!tys.includes(P.ty))P.ty=null;const bad=P.per==="custom"&&xpDay(P.df)&&xpDay(P.dt)&&P.df>P.dt;
  const chip=(on,lab,go)=>`<button class="chipb${on?" on":""}" aria-pressed="${on}" onclick="${go}">${lab}</button>`,none=!rows.length;
- const card=(k,t,s)=>`<button class="opt xpf" ${none||XP.busy?"disabled":""} onclick="xpGo('${k}')"><div class="row"><b>${t}</b><span aria-hidden="true">›</span></div><small>${s}</small></button>`;
+ const card=(k,t,s)=>{const on=P.fmt===k;return `<button class="opt xpf${on?" on":""}" role="radio" aria-checked="${on}" onclick="cp.xp.fmt='${k}';XP.ready=null;home()"><span class="xpt"><b>${t}</b><small>${s}</small></span><i class="xpk" aria-hidden="true">${on?"✓":""}</i></button>`};
+ const GO={pdf:"Create PDF",xlsx:"Create spreadsheet",csv:"Create CSV file",txt:"Copy text"};
  app.innerHTML=head()+`<button class="lnk" onclick="cp.v='list';XP.ready=null;${all?"pf='home';":""}home()">‹ ${all?"Portfolio":"CPD log"}</button><h1 style="font-size:1.5rem;margin:6px 0 2px">${all?"Export everything":"Export"}</h1><p class="tag" style="margin:0 0 6px">Choose what to include, then a format. Check the file before you share it.</p>`+
   `<div class="cfl">Period</div><div class="chipw" role="group" aria-label="Period">${chip(P.per==="all","All entries","cp.xp.per='all';XP.ready=null;home()")}${chip(P.per==="2y","Last 2 years","cp.xp.per='2y';XP.ready=null;home()")}${chip(P.per==="12m","Last 12 months","cp.xp.per='12m';XP.ready=null;home()")}${chip(P.per==="custom","Custom dates","cp.xp.per='custom';XP.ready=null;home()")}</div>`+
   (P.per==="custom"?`<div class="cr"><div><label class="cfl" for="xp-df">From</label><input id="xp-df" class="cin" type="date" value="${esc(xpDay(P.df))}" onchange="cp.xp.df=this.value;XP.ready=null;home()"></div><div><label class="cfl" for="xp-dt">To</label><input id="xp-dt" class="cin" type="date" value="${esc(xpDay(P.dt))}" onchange="cp.xp.dt=this.value;XP.ready=null;home()"></div></div>${bad?`<p class="tag" style="color:var(--bad);margin:6px 0 0">The From date is after the To date.</p>`:`<p class="tag" style="margin:6px 0 0">Leave either date empty to include everything before or after.</p>`}`:"")+
   (tys.length>1?`<div class="cfl">Type of CPD</div><div class="chipw" role="group" aria-label="Type of CPD">${chip(!P.ty,"Any type","cp.xp.ty=null;XP.ready=null;home()")}${tys.map(k=>`<button class="chipb${P.ty===k?" on":""}" aria-pressed="${P.ty===k}" data-k="${esc(k)}" onclick="cp.xp.ty=this.dataset.k;XP.ready=null;home()">${esc(k)}</button>`).join("")}</div>`:"")+
   (tags.length?`<div class="cfl">Tag</div><div class="chipw" role="group" aria-label="Tag">${chip(!P.tg,"Any tag","cp.xp.tg=null;XP.ready=null;home()")}${tags.map(t=>`<button class="chipb${P.tg===t?" on":""}" aria-pressed="${P.tg===t}" data-t="${esc(t)}" onclick="cp.xp.tg=this.dataset.t;XP.ready=null;home()">${esc(t)}</button>`).join("")}</div>`:"")+
   `<p class="xpsum" role="status">${none?"No entries match. Try a different period, type or tag.":`<b>${st.n} ${st.n===1?"entry":"entries"}</b> · ${esc(fmtH(st.min))} · ${st.refl} reflected${st.ph||st.pd?" · "+xpEvStr({ph:Array(st.ph).fill("x").concat(Array(st.pd).fill("pd"))}):""}`}</p>`+
-  (st.ph||st.pd?`<button class="ock${P.ph!==false?" on":""}" role="checkbox" aria-checked="${P.ph!==false}" onclick="cp.xp.ph=cp.xp.ph===false;XP.ready=null;home()"><i>${P.ph!==false?"✓":""}</i><span>Include photos and attached PDFs<br><small style="color:var(--mute)">PDF only. Photos go with each entry; PDFs are added at the end.</small></span></button>`:"")+
-  `<div class="xpfs">`+card("pdf","PDF document","A clean document to read, print or send"+(st.ph||st.pd?", with your evidence":"")+".")+card("xlsx","Excel spreadsheet","One row per entry, with a summary sheet.")+card("csv","CSV file","A plain spreadsheet file that opens in anything.")+card("txt","Copy as text","To paste into an email or another document.")+`</div>`+
+  
+  `<div class="cfl">Format</div><div class="xpfs" role="radiogroup" aria-label="Format">`+card("pdf","PDF document","A clean document to read, print or send"+(st.ph||st.pd?", with your evidence":"")+".")+card("xlsx","Excel spreadsheet","One row per entry, with a summary sheet.")+card("csv","CSV file","A plain spreadsheet file that opens in anything.")+card("txt","Copy as text","To paste into an email or another document.")+`</div>`+
+((st.ph||st.pd)&&P.fmt==="pdf"?`<button class="ock${P.ph!==false?" on":""}" role="checkbox" aria-checked="${P.ph!==false}" onclick="cp.xp.ph=cp.xp.ph===false;XP.ready=null;home()" style="margin-top:12px"><i>${P.ph!==false?"✓":""}</i><span>Include photos and attached PDFs<br><small style="color:var(--mute)">Photos go with each entry. Attached PDFs, like certificates, are added at the end.</small></span></button>`:"")+
+  (xpHcOk()&&(P.fmt==="pdf"||P.fmt==="xlsx")?`<button class="ock${P.hc?" on":""}" role="checkbox" aria-checked="${!!P.hc}" onclick="cp.xp.hc=!cp.xp.hc;XP.ready=null;home()" style="margin-top:12px"><i>${P.hc?"✓":""}</i><span>Include my HCPC audit pack<br><small style="color:var(--mute)">Adds your audit pack checks, summary of recent work and personal statement at the end.</small></span></button>`:"")+
+  `<button class="go xpgo" ${none||XP.busy?"disabled":""} onclick="xpGo(cp.xp.fmt)">${GO[P.fmt]||"Create PDF"}</button>`+
   `<p id="cpm" class="tag" role="status">${esc(XP.msg||"")}</p><div id="xprw">${xpReadyHtml("cpd")}</div><div class="note">Saved files leave Phyzly. Check them for patient details before you send them anywhere.</div>`;
 }
 function xpGo(k){const rows=xpRows(),all=cp.x==="all",d=isoD(new Date());if(!rows.length)return;
@@ -12858,8 +12863,13 @@ function hcGoPdfs(){const P=hcEv().filter(x=>x.f&&isPdf(x.f));if(!P.length)retur
  xpRun("files",async()=>{const out=[];for(const x of P){const b=await phGet(x.f).catch(()=>null);if(b)out.push({name:"evidence-"+x.n+"-"+String(b.name||"document.pdf").replace(/[^\w.\-]+/g,"-"),blob:b})}if(!out.length)xpSay("Files not found on this device.");return out},"hc")}
 (function(){const st=document.createElement("style");st.textContent=`
 .xpfs{display:flex;flex-direction:column;gap:10px;margin-top:14px}
-.xpfs .xpf{margin:0;text-align:left}.xpfs .xpf small{display:block;color:var(--mute);margin-top:2px;font-weight:500}
-.xpfs .xpf .row span{color:var(--mute);font-size:1.2em}
+.xpfs{margin-top:6px}
+.xpfs .xpf{margin:0;text-align:left;display:flex;align-items:center;gap:12px;border:2px solid transparent}
+.xpfs .xpf .xpt{flex:1;min-width:0}.xpfs .xpf b{display:block}.xpfs .xpf small{display:block;color:var(--mute);margin-top:2px;font-weight:500}
+.xpfs .xpf .xpk{flex:none;width:24px;height:24px;border-radius:50%;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-style:normal;font-size:13px;font-weight:800;color:#fff}
+.xpfs .xpf.on{background:var(--tint);border-color:var(--pri)}
+.xpfs .xpf.on .xpk{background:var(--pri);border-color:var(--pri)}
+.xpgo{margin-top:16px}
 .xpsum{margin:14px 0 6px;color:var(--mute)}.xpsum b{color:var(--ink)}
 .xprd{margin:12px 0;padding:14px;border-radius:16px;background:var(--card);border:1px solid var(--line);display:flex;flex-direction:column;gap:10px}
 .xprd .xprt b{display:block;word-break:break-all}.xprd .xprt small{color:var(--mute)}
