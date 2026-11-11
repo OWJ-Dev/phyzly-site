@@ -12677,13 +12677,29 @@ async function xpDeliver(files){
  if(!xpTouch())xpDl()}
 function xpReadyHtml(ctx){const R=XP.ready;if(!R||(ctx&&R.ctx!==ctx))return "";const one=R.files.length===1,sh=!!(navigator.canShare&&(()=>{try{return navigator.canShare({files:R.files.map(f=>new File([f.blob],f.name,{type:f.blob.type}))})}catch(e){return false}})());
  return `<div class="xprd" role="region" aria-label="Your file is ready"><div class="xprt"><b>${one?esc(R.files[0].name):R.files.length+" files"}</b><small>${one?xpSize(R.files[0].blob.size):R.files.map(f=>esc(f.name)).join(", ")}</small></div>`+
-  (sh&&xpTouch()?`<button class="go" onclick="xpShare()">Save or share</button><button class="opt" onclick="xpDl()">Download</button>`:`<button class="go" onclick="xpDl()">Download${one?"":" all"}</button>${sh?`<button class="opt" onclick="xpShare()">Share</button>`:""}`)+`</div>`}
+  (()=>{const pv=R.files.some(f=>/\.pdf$/i.test(f.name))?`<button class="opt" onclick="xpPreview()">Preview</button>`:"";
+   return sh&&xpTouch()?`<button class="go" onclick="xpShare()">Save or share</button><div class="xprr">${pv}<button class="opt" onclick="xpDl()">Download</button></div>`:`<button class="go" onclick="xpDl()">Download${one?"":" all"}</button>${pv||sh?`<div class="xprr">${pv}${sh?`<button class="opt" onclick="xpShare()">Share</button>`:""}</div>`:""}`})()+`</div>`}
+async function xpPdfJs(){if(window.__pdfjs)return window.__pdfjs;const base=xpLocal()?"/vendor/pdfjs-5.4.624/":"https://cdn.jsdelivr.net/npm/pdfjs-dist@5.4.624/legacy/build/";const m=await import(base+"pdf.min.mjs");m.GlobalWorkerOptions.workerSrc=base+"pdf.worker.min.mjs";return window.__pdfjs=m}
+async function xpPreview(){const R=XP.ready;if(!R)return;const f=R.files.find(x=>/\.pdf$/i.test(x.name));if(!f)return;xpPrevClose();
+ const ov=document.createElement("div");ov.className="xpv";ov.setAttribute("role","dialog");ov.setAttribute("aria-modal","true");ov.setAttribute("aria-label","Preview of "+f.name);
+ ov.innerHTML=`<div class="xpvh"><div class="xpvt"><b>Preview</b><small class="xpvn">Loading…</small></div><button class="xpvx" onclick="xpPrevClose()">Done</button></div><div class="xpvb" tabindex="-1"></div>`;
+ document.body.appendChild(ov);document.documentElement.classList.add("xpvon");try{ov.querySelector(".xpvx").focus()}catch(e){}
+ const body=ov.querySelector(".xpvb"),say=t=>{const n=ov.querySelector(".xpvn");if(n)n.textContent=t};
+ try{const pj=await xpPdfJs(),doc=await pj.getDocument({data:new Uint8Array(await f.blob.arrayBuffer())}).promise;if(!document.body.contains(ov))return;
+  say(doc.numPages+(doc.numPages===1?" page":" pages"));const W=Math.min(body.clientWidth-24,820),dpr=Math.min(2,window.devicePixelRatio||1),done={};
+  const first=await doc.getPage(1),v1=first.getViewport({scale:1}),H=Math.round(W*v1.height/v1.width);
+  const draw=async(i,box)=>{if(done[i])return;done[i]=1;try{const pg=await doc.getPage(i),vb=pg.getViewport({scale:1}),v=pg.getViewport({scale:W/vb.width*dpr}),c=document.createElement("canvas");c.width=Math.round(v.width);c.height=Math.round(v.height);c.style.width=W+"px";c.style.height=Math.round(v.height/dpr)+"px";await pg.render({canvasContext:c.getContext("2d"),canvas:c,viewport:v}).promise;box.style.height="";box.appendChild(c)}catch(e){box.textContent="Page "+i+" couldn't be shown."}};
+  const io="IntersectionObserver" in window?new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting){io.unobserve(en.target);draw(+en.target.dataset.p,en.target)}}),{root:body,rootMargin:"600px 0px"}):null;
+  for(let i=1;i<=doc.numPages;i++){const box=document.createElement("div");box.className="xpvp";box.dataset.p=i;box.style.width=W+"px";box.style.height=H+"px";box.setAttribute("aria-label","Page "+i+" of "+doc.numPages);body.appendChild(box);if(io)io.observe(box);else draw(i,box)}
+ }catch(e){console.error("preview",e);say("");body.innerHTML=`<p class="xpve">The preview couldn't open here. Use Save or Download to open the file.</p>`}}
+function xpPrevClose(){document.querySelectorAll(".xpv").forEach(x=>x.remove());document.documentElement.classList.remove("xpvon")}
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&document.querySelector(".xpv"))xpPrevClose()});
 function xpReadyDraw(){const w=document.getElementById("xprw");if(w)w.innerHTML=xpReadyHtml(XP.ctx)}
 async function xpShare(){const R=XP.ready;if(!R)return;const fs=R.files.map(f=>new File([f.blob],f.name,{type:f.blob.type}));
  try{await navigator.share({files:fs});xpSay("")}catch(e){if(!e||e.name!=="AbortError")xpSay("The share sheet didn't open. Use Download instead.")}}
 function xpDl(){const R=XP.ready;if(!R)return;R.files.forEach((f,i)=>setTimeout(()=>{const a=document.createElement("a");a.href=f.url;a.download=f.name;a.rel="noopener";document.body.appendChild(a);a.click();a.remove()},i*400))}
-async function xpRun(kind,fn,ctx){if(XP.busy)return;XP.busy=true;XP.ctx=ctx||"cpd";XP.ready=null;xpReadyDraw();xpSay(kind==="pdf"?"Making your PDF…":"Preparing…");
- try{const files=await fn();if(files&&files.length)await xpDeliver(files)}catch(e){console.error("export",e);xpSay(navigator.onLine===false&&kind==="pdf"?"Making a PDF needs a connection the first time. Try again when you're online.":"Something went wrong making the file. Please try again, or use Copy as text.")}finally{XP.busy=false}}
+async function xpRun(kind,fn,ctx){if(XP.busy)return;XP.busy=true;XP.ctx=ctx||"cpd";XP.ready=null;XP.miss=0;xpReadyDraw();xpSay(kind==="pdf"?"Making your PDF…":"Preparing…");
+ try{const files=await fn();if(files&&files.length){await xpDeliver(files);if(XP.miss)xpSay(XP.miss+(XP.miss===1?" photo or file":" photos or files")+" couldn't be added. If you're offline, connect and try again. If it still happens, open the entry to check the photo shows.")}}catch(e){console.error("export",e);xpSay(navigator.onLine===false&&kind==="pdf"?"Making a PDF needs a connection the first time. Try again when you're online.":"Something went wrong making the file. Please try again, or use Copy as text.")}finally{XP.busy=false}}
 
 /* ---------- text and CSV ---------- */
 function xpText(rows){const W=xpWho(),st=xpStats(rows);let t="CPD record"+(W.name?"\n"+W.name:"")+(W.prof?" · "+W.prof:"")+"\n"+xpPeriod(rows)+" · Exported "+xpLong(isoD(new Date()))+"\n"+st.n+" "+(st.n===1?"activity":"activities")+" · "+xpH(st.min)+" · "+st.refl+" reflected\n";
@@ -12773,7 +12789,7 @@ async function xpPdf(build,footer){const J=await xpJsPDF(),doc=new J({unit:"pt",
   const hdr=()=>{const hl=cols.map((c,i)=>L.lines(c.t,8.5,"bold",ws[i]-2*pad)),hh=Math.max(...hl.map(l=>l.length))*8.5*1.3+2*pad;L.need(hh+lh+2*pad);doc.setFillColor(...fill);doc.rect(M,L.y,CW,hh,"F");let x=M;hl.forEach((l,i)=>{L.font("bold",8.5,mute);l.forEach((ln,k)=>doc.text(ln,cols[i].a==="r"?x+ws[i]-pad:x+pad,L.y+pad+8.5*0.8+k*8.5*1.3,cols[i].a==="r"?{align:"right"}:undefined));x+=ws[i]});L.y+=hh};
   hdr();rows.forEach(r=>{const cl=r.map((v,i)=>L.lines(v,sz,i===0&&o.firstBold?"bold":"normal",ws[i]-2*pad)),h=Math.max(1,...cl.map(l=>l.length))*lh+2*pad;if(L.y+h>BOT){L.page();hdr()}
    let x=M;cl.forEach((l,i)=>{L.font(i===0&&o.firstBold?"bold":"normal",sz,ink);l.forEach((ln,k)=>doc.text(ln,cols[i].a==="r"?x+ws[i]-pad:x+pad,L.y+pad+sz*0.8+k*lh,cols[i].a==="r"?{align:"right"}:undefined));x+=ws[i]});L.y+=h;doc.setDrawColor(...rule);doc.setLineWidth(0.5);doc.line(M,L.y,M+CW,L.y)});L.y+=12};
- L.images=async(blobs,cap)=>{const g=12,w=(CW-g)/2,maxH=230;let col=0,rowH=0;for(let i=0;i<blobs.length;i++){let im;try{im=await xpImg(blobs[i])}catch(e){continue}
+ L.images=async(blobs,cap)=>{const g=12,w=(CW-g)/2,maxH=230;let col=0,rowH=0;for(let i=0;i<blobs.length;i++){let im;try{im=await xpImg(blobs[i])}catch(e){XP.miss=(XP.miss||0)+1;continue}
    let iw=w,ih=im.h*w/im.w;if(ih>maxH){ih=maxH;iw=im.w*maxH/im.h}if(col===0){L.need(ih+18)}else if(L.y+ih+18>BOT){L.page();col=0;rowH=0}
    const x=M+col*(w+g);doc.addImage(im.d,"JPEG",x,L.y,iw,ih,undefined,"FAST");doc.setDrawColor(...rule);doc.setLineWidth(0.5);doc.rect(x,L.y,iw,ih);L.font("normal",8,soft);doc.text(T(cap(i)),x,L.y+ih+11);
    rowH=Math.max(rowH,ih+18);col++;if(col===2){L.y+=rowH+6;col=0;rowH=0}}if(col)L.y+=rowH+6};
@@ -12787,7 +12803,9 @@ async function xpPdf(build,footer){const J=await xpJsPDF(),doc=new J({unit:"pt",
  let out=doc.output("arraybuffer");
  if(L.ins.length){const D=await PL.PDFDocument.load(out);let added=0;for(let i=0;i<L.ins.length;i++){const it=L.ins[i];if(!it.src)continue;const pages=await D.copyPages(it.src,it.src.getPageIndices());pages.forEach((pg,k)=>D.insertPage(it.after+added+k,pg));added+=pages.length}out=await D.save()}
  return new Blob([out],{type:"application/pdf"})}
-async function xpEvidence(e,inc){const img=[],pdf=[];if(!inc)return {img,pdf};for(const f of e.ph||[]){const b=await phGet(f).catch(()=>null);if(!b)continue;if(isPdf(f))pdf.push({b,name:b.name||"document.pdf"});else img.push(b)}return {img,pdf}}
+/* v462: a photo may only be in the account (another device, or after signing in again): fetch it like the entry screen does */
+async function xpBlob(id){let b=await phGet(id).catch(()=>null);if(!b&&window.PZ&&PZ.user&&typeof phUrl==="function"){try{await phUrl(id)}catch(e){}b=await phGet(id).catch(()=>null)}if(!b)XP.miss=(XP.miss||0)+1;return b||null}
+async function xpEvidence(e,inc){const img=[],pdf=[];if(!inc)return {img,pdf};for(const f of e.ph||[]){const b=await xpBlob(f);if(!b)continue;if(isPdf(f))pdf.push({b,name:b.name||"document.pdf"});else img.push(b)}return {img,pdf}}
 function xpLetter(i){let s="";i++;while(i){const m=(i-1)%26;s=String.fromCharCode(65+m)+s;i=Math.floor((i-1)/26)}return s}
 async function xpCpdPdf(rows,all){const W=xpWho(),st=xpStats(rows),inc=xpSel().ph!==false,apps=[];
  return xpPdf(async L=>{const {doc}=L;
@@ -12824,10 +12842,10 @@ async function xpHcPdf(){const H=hcS(),ev=hcEv(),Lst=hcList(),g=hcGaps().filter(
   L.h2("Evidence 1: dated list of all CPD activities");L.table([{t:"Date CPD activity completed",w:.26},{t:"Brief description of CPD activity",w:.74}],Lst.length?Lst.map(r=>[r.d,r.t]):[["-","-"]]);
   if(g.length){L.text("Gaps of three months or more",{sz:11,w:"bold",gap:4});L.table([{t:"Period",w:.4},{t:"Explanation",w:.6}],g.map(x=>[hcMo(x.a)+" to "+hcMo(x.b),H.gap[x.k]]))}
   for(const x of ev.slice(1)){const e=x.e;
-   if(x.f&&isPdf(x.f)){const b=await phGet(x.f).catch(()=>null);if(b){const bytes=await b.arrayBuffer();L.insert(bytes,()=>{L.text("Evidence "+x.n+": "+x.d,{sz:13.5,w:"bold",gap:6});L.text("PDF document"+(b.name?": "+b.name:"")+". It follows on the next page.",{sz:10,c:L.mute})});continue}}
+   if(x.f&&isPdf(x.f)){const b=await xpBlob(x.f);if(b){const bytes=await b.arrayBuffer();L.insert(bytes,()=>{L.text("Evidence "+x.n+": "+x.d,{sz:13.5,w:"bold",gap:6});L.text("PDF document"+(b.name?": "+b.name:"")+". It follows on the next page.",{sz:10,c:L.mute})});continue}}
    L.page();L.text("Evidence "+x.n+": "+x.d,{sz:13.5,w:"bold",gap:8});
    if(x.k.startsWith("r:")){L.text(e.t,{sz:11.5,w:"bold",gap:1});L.text(xpLong(e.d)+" · "+cptn(e.ty)+" · "+fmtH(e.m||0),{sz:9.5,c:L.mute,gap:10});fwOf(e).f.forEach(f=>{L.text(f[1],{sz:9,w:"bold",c:L.mute,gap:1});L.text(String(((e.r||{})[f[0]])||"-").trim()||"-",{gap:7})})}
-   else if(x.f){const b=await phGet(x.f).catch(()=>null);if(b)await L.images([b],()=>"");else L.text("Image not found on this device.",{c:L.mute})}
+   else if(x.f){const b=await xpBlob(x.f);if(b)await L.images([b],()=>"");else L.text("Image not found on this device.",{c:L.mute})}
    else if(x.k==="prior")L.text("Submitted as a separate file.",{c:L.mute})}
  },(H.name?H.name+" · ":"")+"CPD profile")}
 
@@ -12860,7 +12878,7 @@ function xpCopyBox(t){const w=document.getElementById("xprw");if(!w)return;w.inn
 function hcGoPdf(){xpRun("pdf",async()=>[{name:xpFileBase("hc")+".pdf",blob:await xpHcPdf()}],"hc")}
 function hcGoDoc(){xpRun("doc",async()=>[{name:xpFileBase("hc")+".doc",blob:new Blob(["﻿"+hcHtml(false,{})],{type:"application/msword"})}],"hc")}
 function hcGoPdfs(){const P=hcEv().filter(x=>x.f&&isPdf(x.f));if(!P.length)return xpSay("None of your chosen activities has a PDF attached.");
- xpRun("files",async()=>{const out=[];for(const x of P){const b=await phGet(x.f).catch(()=>null);if(b)out.push({name:"evidence-"+x.n+"-"+String(b.name||"document.pdf").replace(/[^\w.\-]+/g,"-"),blob:b})}if(!out.length)xpSay("Files not found on this device.");return out},"hc")}
+ xpRun("files",async()=>{const out=[];for(const x of P){const b=await xpBlob(x.f);if(b)out.push({name:"evidence-"+x.n+"-"+String(b.name||"document.pdf").replace(/[^\w.\-]+/g,"-"),blob:b})}if(!out.length)xpSay("Files not found on this device.");return out},"hc")}
 (function(){const st=document.createElement("style");st.textContent=`
 .xpfs{display:flex;flex-direction:column;gap:10px;margin-top:14px}
 .xpfs{margin-top:6px}
@@ -12873,7 +12891,17 @@ function hcGoPdfs(){const P=hcEv().filter(x=>x.f&&isPdf(x.f));if(!P.length)retur
 .xpsum{margin:14px 0 6px;color:var(--mute)}.xpsum b{color:var(--ink)}
 .xprd{margin:12px 0;padding:14px;border-radius:16px;background:var(--card);border:1px solid var(--line);display:flex;flex-direction:column;gap:10px}
 .xprd .xprt b{display:block;word-break:break-all}.xprd .xprt small{color:var(--mute)}
-.xprd .go,.xprd .opt{margin:0;text-align:center}`;document.head.appendChild(st)})();
+.xprd .go,.xprd .opt{margin:0;text-align:center}
+.xprr{display:flex;gap:10px}.xprr .opt{flex:1}
+html.xpvon,html.xpvon body{overflow:hidden}
+.xpv{position:fixed;inset:0;z-index:400;background:#3B4048;display:flex;flex-direction:column}
+.xpvh{display:flex;align-items:center;gap:12px;padding:calc(10px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));background:#20252C;color:#fff}
+.xpvt{flex:1;min-width:0}.xpvt b{display:block;font-size:17px}.xpvt small{color:#B8C0CC;font-size:13px}
+.xpvx{border:0;border-radius:999px;background:#fff;color:#0A1F3D;font:inherit;font-weight:700;padding:9px 18px;cursor:pointer}
+.xpvx:focus-visible{outline:2px solid #8FB4FF;outline-offset:2px}
+.xpvb{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;padding:12px 12px calc(24px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;align-items:center;gap:12px}
+.xpvp{background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.35);flex:none}.xpvp canvas{display:block}
+.xpve{color:#fff;text-align:center;margin:40px 16px}`;document.head.appendChild(st)})();
 
 
 /* ---------- Phyzly Portfolio (early access): Portfolio and Profile only, plus Quick ref and feedback ---------- */
