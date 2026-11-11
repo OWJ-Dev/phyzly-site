@@ -3048,22 +3048,61 @@ function portHome(){
 }
 /* preceptorship */
 const preReviewPts=L=>{const a=[["w1","Induction",0],["m1","4-week review",1],["m3","3-month review",3],["m6","6-month review",6],["m9","9-month review",9]].filter(x=>x[2]<L);a.push(["fin","Final review",L]);return a};
+/* v468: preceptors are a list, so a change of preceptor (for example a new trust) keeps the earlier one on the record */
+const DAYRX=/^\d{4}-\d{2}-\d{2}$/;
+function preL(){const P=S.pre||{};if(Array.isArray(P.pr))return P.pr.filter(x=>x&&typeof x==="object"&&String(x.n||"").trim());return P.who?[{id:"w0",n:String(P.who).slice(0,60),r:"",o:"",f:P.start||"",t:""}]:[]}
+const preCur=()=>preL().filter(x=>!x.t).sort((a,b)=>String(b.f).localeCompare(String(a.f)))[0]||null;
+const prePrev=()=>{const c=preCur();return preL().filter(x=>!c||x.id!==c.id).sort((a,b)=>String(b.f).localeCompare(String(a.f)))};
+const prTxt=x=>[x.n,x.r,x.o].map(v=>String(v||"").trim()).filter(Boolean).join(", ");
+function preWho(){const c=preCur();S.pre.who=c?String(c.n).slice(0,60):""}
+function prePut(L){S.pre.pr=L.map(x=>({id:x.id&&x.id!=="w0"?x.id:cpId(),n:String(x.n||"").trim().slice(0,60),r:String(x.r||"").trim().slice(0,80),o:String(x.o||"").trim().slice(0,80),f:DAYRX.test(x.f||"")?x.f:"",t:DAYRX.test(x.t||"")?x.t:""})).filter(x=>x.n).slice(0,12);preWho()}
+const prFld=(f,pre)=>`<label class="cfl" for="${pre}-n">Name</label><input id="${pre}-n" class="cin" maxlength="60" value="${esc(f.n||"")}" oninput="pe.f.n=this.value" placeholder="For example, Sam Jones" autocomplete="off">`+
+ `<label class="cfl" for="${pre}-r">Role <span style="font-weight:500;color:var(--mute)">(optional)</span></label><input id="${pre}-r" class="cin" maxlength="80" value="${esc(f.r||"")}" oninput="pe.f.r=this.value" placeholder="For example, Band 6 physiotherapist, MSK" autocomplete="off">`+
+ `<label class="cfl" for="${pre}-o">Trust or organisation <span style="font-weight:500;color:var(--mute)">(optional)</span></label><input id="${pre}-o" class="cin" maxlength="80" value="${esc(f.o||"")}" oninput="pe.f.o=this.value" placeholder="For example, Cardiff and Vale UHB" autocomplete="off">`;
+const prRead=(f,pre)=>{["n","r","o"].forEach(k=>{const el=document.getElementById(pre+"-"+k);if(el)f[k]=el.value})};
 function preSetup(){
- if(!pe||pe.v!=="setup"||!pe.f)pe={v:"setup",f:{d:(S.pre&&S.pre.start)||isoD(new Date()),len:(S.pre&&S.pre.len)||12,who:(S.pre&&S.pre.who)||""}};
- const f=pe.f;
- app.innerHTML=head()+tabs()+bk("pe=null;"+(S.pre&&S.pre.start?"":"pf='home';")+"home()",S.pre&&S.pre.start?"Preceptorship":"Portfolio")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">Preceptorship setup</h1><p class="tag" style="margin:0 0 6px">Set your start date and length. Use the dates your trust gives you if they differ.</p>`+(f.err?`<div class="fb bad"><b>${esc(f.err)}</b></div>`:"")+
- `<label class="cfl" for="ps-d">Start date</label><input id="ps-d" class="cin" type="date" value="${esc(f.d)}" oninput="pe.f.d=this.value" onchange="pe.f.d=this.value"><div class="cfl">Length in months</div><div class="chipw">${[6,9,12,18].map(n=>`<button class="chipb${f.len===n?" on":""}" onclick="pe.f.len=${n};home()">${n}</button>`).join("")}</div>`+
- `<label class="cfl" for="ps-w">Preceptor (optional)</label><input id="ps-w" class="cin" maxlength="60" value="${esc(f.who)}" oninput="pe.f.who=this.value" placeholder="A first name or role"><button class="go" onclick="preSave()">Save</button>`;
+ const P=S.pre&&S.pre.start?S.pre:null;
+ if(!pe||pe.v!=="setup"||!pe.f)pe={v:"setup",f:{d:(P&&P.start)||isoD(new Date()),len:(P&&P.len)||12,n:"",r:"",o:""}};
+ const f=pe.f,cur=preCur(),prev=prePrev(),sh=d=>esc(dFmt(d));
+ let h=head()+tabs()+bk("pe=null;"+(P?"":"pf='home';")+"home()",P?"Preceptorship":"Portfolio")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">${P?"Preceptorship details":"Preceptorship setup"}</h1><p class="tag" style="margin:0 0 6px">Set your start date and length. Use the dates your trust gives you if they differ.</p>`+(f.err?`<div class="fb bad"><b>${esc(f.err)}</b></div>`:"")+
+ `<label class="cfl" for="ps-d">Start date</label><input id="ps-d" class="cin" type="date" value="${esc(f.d)}" oninput="pe.f.d=this.value" onchange="pe.f.d=this.value"><div class="cfl">Length in months</div><div class="chipw">${[6,9,12,18].map(n=>`<button class="chipb${f.len===n?" on":""}" onclick="pe.f.len=${n};cfRe()">${n}</button>`).join("")}</div>`;
+ if(!P)h+=`<div class="sec">Preceptor <span style="font-weight:500;font-size:.9rem;color:var(--mute)">(optional)</span></div>`+prFld(f,"ps");
+ h+=`<button class="go" onclick="preSave()">Save</button>`;
+ if(P){h+=`<div class="sec">Preceptors</div>`+(cur||prev.length?[cur].concat(prev).filter(Boolean).map(x=>`<button class="opt" onclick="preprEdit('${esc(x.id)}')"><div class="row"><b>${esc(x.n)}</b>${cur&&x.id===cur.id?`<span class="bd t">Current</span>`:`<span class="bd s">Previous</span>`}</div><small style="color:var(--mute)">${esc([x.r,x.o].filter(Boolean).join(", "))}${x.r||x.o?"<br>":""}${x.f?(x.t?sh(x.f)+" to "+sh(x.t):"From "+sh(x.f)):x.t?"Until "+sh(x.t):""}</small></button>`).join(""):`<p class="tag" style="margin:0 0 6px">No preceptor added yet.</p>`)+
+  `<button class="opt" style="text-align:center" onclick="preprNew()">${cur?"+ New preceptor":"+ Add your preceptor"}<small style="display:block;color:var(--mute);font-size:.8rem;font-weight:500">${cur?"If yours changes, for example after moving trusts. "+esc(cur.n)+" stays on your record.":"Name, role and trust"}</small></button>`}
+ app.innerHTML=h;
 }
-function preSave(){const f=pe.f;{const el=document.getElementById("ps-d");if(el&&/^\d{4}-\d{2}-\d{2}$/.test(el.value))f.d=el.value}if(!/^\d{4}-\d{2}-\d{2}$/.test(f.d)){f.err="Pick a start date.";return home()}S.pre=Object.assign({ms:{},mt:[],gl:[]},S.pre||{},{start:f.d,len:f.len,who:(f.who||"").trim().slice(0,60)});save();pe=null;home()}
+function preSave(){const f=pe.f;{const el=document.getElementById("ps-d");if(el&&DAYRX.test(el.value))f.d=el.value}prRead(f,"ps");if(!DAYRX.test(f.d)){f.err="Pick a start date.";return home()}
+ const was=S.pre&&S.pre.start,L0=preL();S.pre=Object.assign({ms:{},mt:[],gl:[]},S.pre||{},{start:f.d,len:f.len});
+ let L=L0.map(x=>Object.assign({},x));if(!was&&String(f.n||"").trim())L=[{n:f.n,r:f.r,o:f.o,f:f.d,t:""}];
+ if(was&&was!==f.d)L.forEach(x=>{if(x.f===was)x.f=f.d});prePut(L);save();pe=null;home()}
+function preprNew(){const c=preCur();pe={v:"pr",f:{id:null,n:"",r:"",o:c&&c.o||"",f:isoD(new Date()),t:""}};home();window.scrollTo(0,0)}
+function preprEdit(id){const x=preL().find(p=>p.id===id);if(!x)return;pe={v:"pr",f:Object.assign({},x,{cur:!!preCur()&&preCur().id===x.id})};home();window.scrollTo(0,0)}
+function preprForm(){const f=pe.f,c=preCur(),nw=!f.id;
+ app.innerHTML=head()+tabs()+bk("pe={v:'setup'};home()","Preceptorship details")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">${nw?(c?"New preceptor":"Add your preceptor"):"Edit preceptor"}</h1>`+
+  (nw&&c?`<p class="tag" style="margin:0 0 6px">${esc(c.n)} will be kept on your record as your previous preceptor, until the date below.</p>`:"")+(f.err?`<div class="fb bad"><b>${esc(f.err)}</b></div>`:"")+prFld(f,"pp")+
+  `<div class="cr"><div><label class="cfl" for="pp-f">${nw?"Your preceptor from":"From"}</label><input id="pp-f" class="cin" type="date" value="${esc(f.f||"")}" oninput="pe.f.f=this.value" onchange="pe.f.f=this.value"></div>`+
+  (!nw&&!f.cur?`<div><label class="cfl" for="pp-t">Until</label><input id="pp-t" class="cin" type="date" value="${esc(f.t||"")}" oninput="pe.f.t=this.value" onchange="pe.f.t=this.value"></div>`:"")+`</div>`+
+  `<button class="go" onclick="preprSave()">Save</button>`+(nw?"":`<button class="opt" style="text-align:center;margin-top:10px;${f.del?"border-color:var(--bad);color:var(--bad)":""}" onclick="preprDel()">${f.del?"Tap again to remove":"Remove preceptor"}</button>`)}
+function preprSave(){const f=pe.f;prRead(f,"pp");["f","t"].forEach(k=>{const el=document.getElementById("pp-"+k);if(el)f[k]=el.value});
+ if(!String(f.n||"").trim()){f.err="Add a name.";return home()}if(!DAYRX.test(f.f||"")){f.err="Pick the date they became your preceptor.";return home()}if(f.t&&f.t<f.f){f.err="The Until date is before the From date.";return home()}
+ let L=preL().map(x=>Object.assign({},x));
+ if(!f.id){const c=preCur();if(c){const k=L.find(x=>x.id===c.id);if(k&&!k.t)k.t=f.f}L.push({n:f.n,r:f.r,o:f.o,f:f.f,t:""})}
+ else{const k=L.find(x=>x.id===f.id);if(k)Object.assign(k,{n:f.n,r:f.r,o:f.o,f:f.f,t:f.cur?"":f.t||""})}
+ prePut(L);save();pe={v:"setup"};home();window.scrollTo(0,0)}
+function preprDel(){const f=pe.f;if(!f.del){f.del=true;if(armTap(/^Remove preceptor$/,"Tap again to remove"))return;return home()}prePut(preL().filter(x=>x.id!==f.id));save();pe={v:"setup"};home();window.scrollTo(0,0)}
+function preIndUse(){const h=(S.pre.ms||{}).w1;if(!DAYRX.test(h||""))return;const was=S.pre.start,L=preL().map(x=>Object.assign({},x));S.pre.start=h;L.forEach(x=>{if(x.f===was)x.f=h});prePut(L);delete S.pre.indNo;save();cfRe()}
+function preIndKeep(){S.pre.indNo=(S.pre.ms||{}).w1;save();cfRe()}
 function preScreen(){
- const P=S.pre;if(!P||!P.start||(pe&&pe.v==="setup"))return preSetup();if(pe&&pe.v==="mt")return preMtForm();
+ const P=S.pre;if(!P||!P.start||(pe&&pe.v==="setup"))return preSetup();if(pe&&pe.v==="mt")return preMtForm();if(pe&&pe.v==="pr"&&pe.f)return preprForm();
  const d=daysTo(P.start),tot=P.len*30.44,el=Math.max(0,Math.min(tot,-d)),pct=Math.round(100*el/tot),mo=d>0?0:Math.min(P.len,Math.floor(-d/30.44)+1);
  const pts=preReviewPts(P.len),ms=P.ms||{},mt=(P.mt||[]).slice().sort((a,b)=>b.d.localeCompare(a.d)),open=[];mt.forEach(m=>(m.ac||[]).forEach(a=>{if(!a.done)open.push([m,a])}));
- let h=head()+tabs()+bk("pf='home';home()","Portfolio")+`<h1 style="font-size:1.6rem;margin:6px 0 2px">Preceptorship</h1><p class="tag" style="margin:0 0 8px">${d>0?"Starts "+esc(dFmt(P.start)):"Month "+mo+" of "+P.len}${P.who?" · Preceptor: "+esc(P.who):""} · <button class="lnk" style="padding:0;font-size:inherit;text-decoration:underline" onclick="pe={v:'setup'};home()">Change</button></p>`+
+ let h=head()+tabs()+bk("pf='home';home()","Portfolio")+`<h1 style="font-size:1.6rem;margin:6px 0 2px">Preceptorship</h1><p class="tag" style="margin:0 0 8px">${d>0?"Starts "+esc(dFmt(P.start)):"Started "+esc(dFmt(P.start))+" · Month "+mo+" of "+P.len} · <button class="lnk" style="padding:0;font-size:inherit;text-decoration:underline" onclick="pe={v:'setup'};home()">Change</button>`+
+ (()=>{const c=preCur(),pv=prePrev();return (c?`<br>Preceptor: ${esc(prTxt(c))}`:`<br><button class="lnk" style="padding:0;font-size:inherit;text-decoration:underline" onclick="pe={v:'setup'};home()">Add your preceptor</button>`)+(pv.length?`<br>Previously: ${pv.map(x=>esc(x.n)+(x.t?" (to "+esc(dFmt(x.t))+")":"")).join(", ")}`:"")})()+`</p>`+
+ (()=>{const h=(P.ms||{}).w1;return DAYRX.test(h||"")&&h<P.start&&P.indNo!==h?`<div class="note" role="status"><b>Start date check.</b> Your induction is marked as held on ${esc(dFmt(h))}, before your start date of ${esc(dFmt(P.start))}. Use ${esc(dFmt(h))} as your start date?<div class="tabs" style="margin-top:8px"><button class="opt" style="text-align:center;margin:0" onclick="preIndKeep()">Keep ${esc(dFmt(P.start,{day:"numeric",month:"short"}))}</button><button class="go" style="margin:0" onclick="preIndUse()">Use ${esc(dFmt(h,{day:"numeric",month:"short"}))}</button></div></div>`:""})()+
  `<div style="height:10px;border-radius:99px;background:var(--line);overflow:hidden" role="img" aria-label="${pct}% of preceptorship elapsed"><div style="height:100%;width:${pct}%;background:var(--pri)"></div></div>`+
  `<div class="sec">Review points</div><p class="tag" style="margin:0 0 6px">Suggested points. Use your trust's dates.</p>`+
- pts.map(x=>{const due=addM(P.start,x[2]),dd=daysTo(due),done=!!ms[x[0]],bg=done?`<span class="bd t">Done</span>`:dd<0?`<span class="bd s">Past date</span>`:dd<=14?`<span class="bd s">Due soon</span>`:"";const hd=typeof ms[x[0]]==="string"?ms[x[0]]:"",ed=preEd===x[0];return `<button class="ock${done?" on":""}" role="checkbox" aria-checked="${done}" aria-expanded="${ed}" onclick="preMs('${x[0]}')"><i>${done?"✓":""}</i><span><b>${esc(x[1])}</b><br><small style="color:var(--mute)">${done&&hd?"Held "+esc(dFmt(hd))+(hd!==due?" · due "+esc(dFmt(due,{day:"numeric",month:"short"})):""):(done?"Done · due ":"Due ")+esc(dFmt(due))}</small></span><span style="margin-left:auto">${bg}</span></button>`+(ed?`<div class="pmd"><label class="cfl" for="pm-d" style="margin-top:0">When was it held?</label><input id="pm-d" class="cin" type="date" max="${isoD(new Date())}" value="${esc(hd||(dd<=0?isoD(new Date()):due>isoD(new Date())?isoD(new Date()):due))}"><div class="tabs" style="margin-top:8px">${done?`<button class="opt" style="text-align:center;margin:0;color:var(--bad)" onclick="preMsSet('${x[0]}',null)">Not done</button>`:`<button class="opt" style="text-align:center;margin:0" onclick="preEd=null;home()">Cancel</button>`}<button class="go" style="margin:0" onclick="preMsSet('${x[0]}',document.getElementById('pm-d').value)">${done?"Save date":"Mark as done"}</button></div></div>`:"")}).join("")+
+ pts.map(x=>{const due=addM(P.start,x[2]),dd=daysTo(due),done=!!ms[x[0]],bg=done?`<span class="bd t">Done</span>`:dd<0?`<span class="bd s">Past date</span>`:dd<=14?`<span class="bd s">Due soon</span>`:"";const hd=typeof ms[x[0]]==="string"?ms[x[0]]:"",ed=preEd===x[0];return `<button class="ock${done?" on":""}" role="checkbox" aria-checked="${done}" aria-expanded="${ed}" onclick="preMs('${x[0]}')"><i>${done?"✓":""}</i><span><b>${esc(x[1])}</b><br><small style="color:var(--mute)">${done&&hd?"Held "+esc(dFmt(hd))+(hd!==due?" · suggested "+esc(dFmt(due,{day:"numeric",month:"short"})):""):(done?"Done · due ":"Due ")+esc(dFmt(due))}</small></span><span style="margin-left:auto">${bg}</span></button>`+(ed?`<div class="pmd"><label class="cfl" for="pm-d" style="margin-top:0">When was it held?</label><input id="pm-d" class="cin" type="date" max="${isoD(new Date())}" value="${esc(hd||(dd<=0?isoD(new Date()):due>isoD(new Date())?isoD(new Date()):due))}"><div class="tabs" style="margin-top:8px">${done?`<button class="opt" style="text-align:center;margin:0;color:var(--bad)" onclick="preMsSet('${x[0]}',null)">Not done</button>`:`<button class="opt" style="text-align:center;margin:0" onclick="preEd=null;home()">Cancel</button>`}<button class="go" style="margin:0" onclick="preMsSet('${x[0]}',document.getElementById('pm-d').value)">${done?"Save date":"Mark as done"}</button></div></div>`:"")}).join("")+
  preSessH()+
  `<div class="sec">Open actions</div>`+(open.length?open.map(x=>`<button class="ock" role="checkbox" aria-checked="false" onclick="preAct('${x[0].id}','${x[1].id}')"><i></i><span>${esc(x[1].t)}<br><small style="color:var(--mute)">From ${esc(dFmt(x[0].d,{day:"numeric",month:"short"}))}</small></span></button>`).join(""):`<p class="tag">${(P.mt||[]).some(m=>(m.ac||[]).length)?"Nothing open.":"Nothing open. Actions from your meetings appear here."}</p>`)+
  (()=>{const dn=[];(P.mt||[]).forEach(m=>(m.ac||[]).forEach(a=>{if(a.done)dn.push([m,a])}));if(!dn.length)return "";dn.sort((x,y)=>String(y[1].dn||y[0].d).localeCompare(String(x[1].dn||x[0].d)));
@@ -12667,12 +12706,15 @@ function xpSel(){cp.xp=cp.xp||{per:"all",tg:null,ty:null,df:"",dt:"",ph:true,hc:
 const xpHcOk=()=>typeof showHc==="function"&&showHc()&&!!S.hc;
 /* v466: the preceptorship record (review points, sessions, meetings and actions, goals) can go at the end of a PDF or Excel export */
 const xpPreOk=()=>typeof showPre==="function"&&showPre()&&!!(S.pre&&S.pre.start);
+/* v468: every preceptor, current first, with role, trust and dates */
+function xpPreWho(){if(typeof preCur!=="function"){const P=S.pre||{};return P.who?[["Preceptor",P.who]]:[]}const c=preCur(),pv=prePrev(),dt=x=>x.f?(x.t?" ("+xpNice(x.f)+" to "+xpNice(x.t)+")":" (from "+xpNice(x.f)+")"):x.t?" (until "+xpNice(x.t)+")":"";
+ return (c?[["Preceptor",prTxt(c)+dt(c)]]:[]).concat(pv.map(x=>["Previous preceptor",prTxt(x)+dt(x)]))}
 function xpPreData(){const P=S.pre,ms=P.ms||{},td=isoD(new Date()),len=P.len||12;
  const pts=preReviewPts(len).map(x=>{const due=addM(P.start,x[2]),h=ms[x[0]];return [x[1],xpNice(due),h?(typeof h==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(h)?"Held "+xpNice(h):"Done"):(due<td?"Not marked as held":"Not yet due")]});
  const ses=(S.cpd||[]).filter(e=>e&&e.pre).sort((a,b)=>a.d.localeCompare(b.d));
  return {P,len,end:addM(P.start,len),pts,ses,mt:(P.mt||[]).slice().sort((a,b)=>String(a.d).localeCompare(String(b.d))),gl:P.gl||[]}}
 function xpPrePdf(L){const D=xpPreData(),P=D.P;L.page();L.text("Preceptorship record",{sz:13.5,w:"bold",lh:1.25,gap:2});L.rule();L.y+=12;
- L.table([{t:"",w:.3},{t:"",w:.7}],[["Programme",xpNice(P.start)+" to "+xpNice(D.end)+" ("+D.len+" months)"]].concat(P.who?[["Preceptor",P.who]]:[]),{noHead:true});
+ L.table([{t:"",w:.3},{t:"",w:.7}],[["Programme",xpNice(P.start)+" to "+xpNice(D.end)+" ("+D.len+" months)"]].concat(xpPreWho()),{noHead:true});
  L.need(110);L.h2("Review points");L.table([{t:"Review",w:.4},{t:"Suggested date",w:.26},{t:"Status",w:.34}],D.pts);
  L.need(110);L.h2("Programme sessions");if(D.ses.length)L.table([{t:"Date",w:.18},{t:"Session",w:.5},{t:"Hours",w:.12,a:"r"},{t:"Reflection",w:.2}],D.ses.map(e=>[xpNice(e.d),e.t,((e.m||0)/60).toFixed(1),cpHas(e)?"Written":"Not yet"]));else L.text("None logged yet.",{c:L.mute,gap:6});
  L.need(110);L.h2("Meetings");if(D.mt.length)D.mt.forEach(m=>{L.need(48);L.text(xpLong(m.d),{sz:11,w:"bold",gap:2});if(String(m.n||"").trim())L.text(m.n,{gap:4});
@@ -12680,7 +12722,7 @@ function xpPrePdf(L){const D=xpPreData(),P=D.P;L.page();L.text("Preceptorship re
  L.need(110);L.h2("Goals");if(D.gl.length)L.table([{t:"Goal",w:.8},{t:"Status",w:.2}],D.gl.map(g=>[g.t,g.done?"Done":"Open"]));else L.text("None added yet.",{c:L.mute,gap:6});
  L.text("Review dates are suggestions unless they were changed to match the trust's. The trust's preceptorship paperwork is the official record.",{sz:9,c:L.mute})}
 function xpPreSheet(){const D=xpPreData(),P=D.P,H=v=>({v,s:"h"}),w=v=>({v:String(v==null?"":v),s:"w"});
- const r=[[{v:"Preceptorship record",s:"t"}],[{v:xpNice(P.start)+" to "+xpNice(D.end)+" · "+D.len+" months"+(P.who?" · Preceptor: "+P.who:""),s:"m"}],[],[H("Review point"),H("Suggested date"),H("Status")]].concat(D.pts.map(x=>[w(x[0]),x[1],w(x[2])]));
+ const r=[[{v:"Preceptorship record",s:"t"}],[{v:xpNice(P.start)+" to "+xpNice(D.end)+" · "+D.len+" months",s:"m"}]].concat(xpPreWho().map(x=>[{v:x[0],s:"b"},w(x[1])]),[[]]).concat([[H("Review point"),H("Suggested date"),H("Status")]]).concat(D.pts.map(x=>[w(x[0]),x[1],w(x[2])]));
  r.push([],[H("Programme session"),H("Date"),H("Hours"),H("Reflection")]);D.ses.forEach(e=>r.push([w(e.t),{v:e.d,s:"d"},{v:Math.round((e.m||0)/6)/10,s:"n1"},cpHas(e)?"Written":"Not yet"]));
  r.push([],[H("Meeting"),H("What was discussed"),H("Actions agreed")]);D.mt.forEach(m=>r.push([{v:m.d,s:"d"},w(m.n||""),w((m.ac||[]).map(a=>(a.done?"Done: ":"Open: ")+a.t).join("\n"))]));
  r.push([],[H("Goal"),H("Status")]);D.gl.forEach(g=>r.push([w(g.t),g.done?"Done":"Open"]));
