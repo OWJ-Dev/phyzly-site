@@ -2805,57 +2805,61 @@ function pathRestore(){if(!PRET||!document.querySelector(".path"))return;const R
  if(pc&&!red&&!el.classList.contains("ndseg")&&R0.f>=0){try{pc.animate([{strokeDasharray:(R0.f*C).toFixed(1)+" "+C.toFixed(1)},{strokeDasharray:(nf*C).toFixed(1)+" "+C.toFixed(1)}],{duration:900,delay:250,easing:"cubic-bezier(.3,.7,.3,1)",fill:"backwards"})}catch(e){}}
  if(nd&&!R0.d){const ck=el.querySelector(".ck");if(ck){if(red)return;ck.style.opacity=0;setTimeout(()=>{ck.style.opacity="";ck.classList.add("ckspin");el.classList.add("ndpop");try{hap("ok");sfx("ok",3)}catch(e){}const sec=el.closest(".lay");if(layDoneCheck(sec))setTimeout(()=>layCeleb(sec),1100)},red?0:1150)}else{const sec=el.closest(".lay");if(layDoneCheck(sec))setTimeout(()=>layCeleb(sec),400)}}}
 let oc={sc:null,p:0,ck:{},prev:"found"};
-const ONC_RF=["Airway at risk: stridor, gurgling, unable to speak","Very fast, very slow or exhausted breathing","Sats falling despite high-flow oxygen","New drowsiness, confusion or not responding","Low blood pressure, very fast heart rate or new arrhythmia","Silent chest, blue lips, or one side not moving or sounding different with the trachea shifting"];
-const ONC_GEN=["Who and where: name, age, ward, bed","Why now: what has changed, and when","Latest NEWS2 and the trend","Is the medical team aware? Has anyone reviewed?","Ceiling of care: escalation plan, ReSPECT or TEP","Known lung disease? Oxygen target and any CO2 retention alert?"];
+const ONC_RF=["Airway at risk: stridor, gurgling, unable to speak","Breathing rate 25 or more, 8 or less, or tiring","Sats below target despite oxygen, or oxygen need rising fast","New drowsiness, confusion or not responding","Low blood pressure, very fast heart rate or new arrhythmia","Silent chest, blue lips, or one side not moving or quiet in someone getting worse. Do not wait for the trachea to shift","New chest pain or coughing up blood","NEWS2 of 7 or more"];
+const ONC_GEN=["Who and where: name, age, ward, bed","Why now: what has changed, and when","Latest NEWS2 and the trend","Is the medical team aware? Has anyone reviewed?","Treatment escalation plan: ReSPECT, TEP or DNACPR. A DNACPR does not mean do not treat","Known lung disease? Oxygen target and any CO2 retention alert?"];
+const ONC_FIT="Decide: can physio help with this tonight? If not, say so, advise medical review and document the call";
+const ONC_SNR="Phone your senior on-call physio if you are unsure, it is beyond what you are signed off to do, or the patient is getting worse";
+const ONC_SENIOR=["You are not sure whether to treat, or whether the call is one for physio","The treatment needed is outside what you are signed off to do","The patient is getting worse or not responding to treatment","The call is from critical care, paediatrics or another area you do not cover","You are being asked to do something you think is unsafe"];
+const oncAsk=x=>ONC_GEN.concat(x,[ONC_FIT]);
 const ONC=[
 {id:"sob",ic:"😮‍💨",n:"Breathless patient",d:"",ph:[
- ["Ask the caller",ONC_GEN.concat(["Sudden or gradual onset?","","",""])],
+ ["Ask the caller",oncAsk(["Sudden or gradual onset?","","",""])],
  ["Check before you go",["","","","",""]],
  ["At the bedside",["","","","","",""]],
- ["What you can do",["","","","",""]],
- ["Escalate and document",["","","",""]]]},
+ ["What you can do",["","","","","",""]],
+ ["Escalate and document",["","",ONC_SNR,"",""]]]},
 {id:"sat",ic:"📉",n:"",d:"",ph:[
- ["Ask the caller",ONC_GEN.concat(["","","",""])],
+ ["Ask the caller",oncAsk(["","","",""])],
  ["Check before you go",["","","",""]],
  ["At the bedside",["","","","",""]],
  ["What you can do",["","","",""]],
- ["Escalate and document",["","","",""]]]},
+ ["Escalate and document",["","",ONC_SNR,"",""]]]},
 {id:"spu",ic:"💧",n:"",d:"",ph:[
- ["Ask the caller",ONC_GEN.concat(["","","",""])],
- ["Check before you go",["","","","",""]],
+ ["Ask the caller",oncAsk(["","","",""])],
+ ["Check before you go",["","","","","",""]],
  ["At the bedside",["","","","",""]],
- ["What you can do",["","","","","","",""]],
- ["Escalate and document",["","","",""]]]},
+ ["What you can do",["","","","","","","",""]],
+ ["Escalate and document",["","",ONC_SNR,"",""]]]},
 {id:"post",ic:"🏥",n:"Post-op chest",d:"",ph:[
- ["Ask the caller",ONC_GEN.concat(["","","",""])],
- ["Check before you go",["","","",""]],
- ["At the bedside",["","","","",""]],
+ ["Ask the caller",oncAsk(["","","",""])],
+ ["Check before you go",["","","","",""]],
+ ["At the bedside",["","","","","",""]],
  ["What you can do",["","Upright positioning","","",""]],
- ["Escalate and document",["","","",""]]]},
+ ["Escalate and document",["","",ONC_SNR,"",""]]]},
 {id:"wheeze",ic:"🌬️",n:"Wheeze or COPD flare",d:"",ph:[
- ["Ask the caller",ONC_GEN.concat(["","Peak flow if asthma","","Blood gas: pH and CO2?"])],
+ ["Ask the caller",oncAsk(["","","","Blood gas: pH and CO2?"])],
  ["Check before you go",["","","",""]],
  ["At the bedside",["","","","",""]],
  ["What you can do",["","","","",""]],
- ["Escalate and document",["","","",""]]]},
+ ["Escalate and document",["","","",ONC_SNR,"",""]]]},
 {id:"drain",ic:"🫁",n:"",d:"",ph:[
- ["Ask the caller",ONC_GEN.concat(["","","New surgical emphysema?",""])],
+ ["Ask the caller",oncAsk(["","","New surgical emphysema?",""])],
  ["Check before you go",["","",""]],
- ["At the bedside",["","","","",""]],
- ["What you can do",["","","","",""]],
- ["Escalate and document",["","","",""]]]}
+ ["At the bedside",["","","","","",""]],
+ ["What you can do",["","","","","",""]],
+ ["Escalate and document",["","",ONC_SNR,"",""]]]}
 ];
-const ONC_SBAR=[["S","Situation","I'm the on-call physio. I'm calling about [name], [bed]. They are [problem]."],["B","Background","Admitted with [reason]. Known [lung disease]. On [oxygen]. Target [range]."],["A","Assessment","NEWS2 [score]. RR [x], sats [x]% on [x], HR, BP. Chest: [findings]. I think this is [cause]."],["R","Recommendation","I'd like you to [review now / gas / CXR / consider NIV]. I will [treat / reassess in x min]."]];
+const ONC_SBAR=[["S","Situation","I'm the on-call physio. I'm calling about [name], [bed]. They are [problem]."],["B","Background","Admitted with [reason]. Known [lung disease]. On [oxygen]. Target [range]."],["A","Assessment","NEWS2 [score]. RR [x], sats [x]% on [x], HR, BP. Chest: [findings]. I think this is [cause]."],["R","Recommendation","I'd like you to [review now / gas / CXR / consider NIV]. When can you get here? I will [treat / reassess in x min]."],["✓","Close the loop","Read the plan back. Note who you spoke to and the time. If the review does not happen, call again or go higher."]];
 function openOnc(){oc.prev=tab==="onc"?oc.prev:tab;tab="onc";oc.sc=null;oc.p=0;home();window.scrollTo(0,0)}
 function oncBack(){oc.sc=null;oc.p=0;tab=oc.prev||"found";home();window.scrollTo(0,0)}
 function oncPick(id){oc.sc=id;oc.p=0;oc.ck={};home();window.scrollTo(0,0)}
 function oncGo(p){oc.p=p;home();window.scrollTo(0,0)}
 function oncTick(k){oc.ck[k]=!oc.ck[k];home()}
 function oncScreen(){
- const s=ONC.find(x=>x.id===oc.sc),rf=`<div class="orf"><b>Red flags: call for help first</b><ul>${ONC_RF.map(x=>`<li>${esc(x)}</li>`).join("")}</ul><p>Call the medical team or outreach. Use 2222 for a cardiac or respiratory arrest. Do not wait for physio.</p></div>`;
+ const s=ONC.find(x=>x.id===oc.sc),rf=`<div class="orf"><b>Red flags: call for help first</b><ul>${ONC_RF.map(x=>`<li>${esc(x)}</li>`).join("")}</ul><p>Call 2222 (or your trust's emergency number) for an arrest, or a patient who looks about to arrest. For anything else on this list, call the medical team or outreach now. Do not start physio first.</p><p>NEWS2 of 7 or more needs an emergency response. A score of 5 or 6, or a 3 in any one measure, needs urgent review.</p></div>`;
  const dis=`<div class="note">Draft content. Check it against your trust's on-call criteria and local policy. It supports your judgement and does not replace it.</div>`;
  const top=`<div class="top"><button class="lnk" onclick="${s?"oc.sc=null;home()":"oncBack()"}">‹ ${s?"All bleeps":"Back"}</button><b class="ont">🚨 On call · Respiratory</b></div>`;
- if(!s){app.innerHTML=top+`<details class="orfd" style="margin-top:10px"><summary>⚠️ Red flags: call for help first</summary>${rf}</details><details class="orfd" style="margin-top:8px"><summary>🪜 Treatment ladders</summary><p class="tag" style="margin:6px 0 0">Start at the bottom of the ladder for the main problem, reassess after each step, and skip rungs if the patient is deteriorating.</p>${window.RLAD?RLAD.vol+RLAD.sput+RLAD.wob:""}</details><h1 style="font-size:1.5rem;margin:14px 0 8px">What is the bleep about?</h1>`+ONC.map(x=>`<button class="opt onl" onclick="oncPick('${x.id}')"><span class="oi">${x.ic}</span><span><b>${esc(x.n)}</b><small>${esc(x.d)}</small></span></button>`).join("")+abgCard()+dis;return}
+ if(!s){app.innerHTML=top+`<details class="orfd" style="margin-top:10px"><summary>⚠️ Red flags: call for help first</summary>${rf}</details><details class="orfd" style="margin-top:8px"><summary>🪜 Treatment ladders</summary><p class="tag" style="margin:6px 0 0">Start at the bottom of the ladder for the main problem, reassess after each step, and skip rungs if the patient is deteriorating.</p>${window.RLAD?RLAD.vol+RLAD.sput+RLAD.wob:""}</details><details class="orfd" style="margin-top:8px"><summary>📞 When to phone your senior</summary><div class="orf" style="border:0;padding-top:4px"><ul>${ONC_SENIOR.map(x=>`<li>${esc(x)}</li>`).join("")}</ul><p>You can decline to treat and still advise medical review. Document the call and your advice.</p></div></details><h1 style="font-size:1.5rem;margin:14px 0 8px">What is the bleep about?</h1>`+ONC.map(x=>`<button class="opt onl" onclick="oncPick('${x.id}')"><span class="oi">${x.ic}</span><span><b>${esc(x.n)}</b><small>${esc(x.d)}</small></span></button>`).join("")+abgCard()+dis;return}
  const p=oc.p,ph=s.ph[p],last=p===s.ph.length-1;
  app.innerHTML=top+`<div class="odots" role="img" aria-label="Step ${p+1} of ${s.ph.length}">${s.ph.map((_,i)=>`<button class="od${i===p?" on":""}${i<p?" dn":""}" onclick="oncGo(${i})" aria-label="Step ${i+1}"></button>`).join("")}</div><div class="tag" style="margin:6px 0 0">${esc(s.n)} · step ${p+1} of ${s.ph.length}</div><h1 style="font-size:1.5rem;margin:2px 0 10px">${esc(ph[0])}</h1>`+
  `<details class="orfd"><summary>Red flags</summary>${rf}</details>`+
