@@ -2896,7 +2896,8 @@ function cpdSave(){
  S.cpd=S.cpd||[];const r={};Object.keys(FW).forEach(k=>FW[k].f.forEach(x=>{const v=cf.r[x[0]];if(v&&String(v).trim())r[x[0]]=String(v).slice(0,6000)}));
  const e={id:cf.id||cpId(),d:cf.d,t:cf.t.trim().slice(0,120),ty:cf.ty,m,fw:FW[cf.fw]?cf.fw:"std",r,tm:/^\d{2}:\d{2}$/.test(cf.tm||"")?cf.tm:"",otj:!!cf.otj,ks:(cf.ks||[]).slice(0,60)};if((cf.ph||[]).length)e.ph=cf.ph.slice(0,12);if(cf.auto)e.auto=1;if((cf.ss||[]).length)e.ss=cf.ss.slice(0,50);if(cf.pre)e.pre=1;if(cf.ns)e.ns=1;{const tg=tgClean(cf.tg);if(tg.length)e.tg=tg}
  const i=S.cpd.findIndex(x=>x.id===e.id),old=i>=0?S.cpd[i]:null;if(i>=0)S.cpd[i]=e;else S.cpd.unshift(e);try{if(!old&&!e.auto&&!e.ns)fdPost("📒","Logged CPD: "+cptn(e.ty)+" · "+fmtH(e.m||0),"cpd:"+e.id)}catch(er){}try{const ci=cpdXpCalc(old,e);if(ci){S.xpT=(S.xpT||0)+ci.xp;S.xpW=(S.xpW||0)+ci.xp;save();setTimeout(()=>cpdCelebrate(ci),60)}}catch(er){}const fr=cf.from;if(fr==="cm"){const nid=e.id;S.cpd=S.cpd||[];const i2=S.cpd.findIndex(x=>x.id===e.id);if(i2>=0)S.cpd[i2]=e;else S.cpd.unshift(e);save();cf=null;return cmBack(nid)}if(fr==="hc"){pf="hc";hc.v="ev"}if(fr==="pre"){tab="cpd";pf="pre";pe=null}(cf.phGone||[]).forEach(id=>phDel(id).catch(()=>{}));if(e.otj)om=String(e.d).slice(0,7);save();cf=null;cp.v="list";if(fr==="otj")pf="otj";if(fr==="hc"){tab="cpd";pf="hc";hc.v="ev"}if(fr==="pre"){tab="cpd";pf="pre";pe=null}home();window.scrollTo(0,0)}
-function cpdDel(){if(!cf.del){cf.del=true;return home()}(cf.ph||[]).concat(cf.phGone||[]).forEach(id=>phDel(id).catch(()=>{}));S.cpd=(S.cpd||[]).filter(x=>x.id!==cf.id);save();cf=null;cp.v="list";home();window.scrollTo(0,0)}
+function armTap(re,lab){const b=[...document.querySelectorAll("#app button")].find(x=>re.test(x.textContent.trim()));if(!b)return false;b.textContent=lab;b.style.borderColor="var(--bad)";b.style.color="var(--bad)";return true}
+function cpdDel(){if(!cf.del){cf.del=true;if(armTap(/^Delete entry$/,"Tap again to delete"))return;return home()}(cf.ph||[]).concat(cf.phGone||[]).forEach(id=>phDel(id).catch(()=>{}));S.cpd=(S.cpd||[]).filter(x=>x.id!==cf.id);save();cf=null;cp.v="list";home();window.scrollTo(0,0)}
 function cpdCancel(){const f=cf&&cf.from;cf=null;cp.v="list";if(f==="onc")return oncBack();if(f==="cm")return cmBack(null);if(f==="hc")return openHc("ev");if(f==="pre"){tab="cpd";pf="pre";pe=null;home();return window.scrollTo(0,0)}if(f==="otj")pf="otj";home();window.scrollTo(0,0)}
 
 /* ---------- v457: tags on CPD entries ---------- */
@@ -3069,7 +3070,7 @@ function preScreen(){
  mt.map(m=>{const no=(m.ac||[]).filter(a=>!a.done).length;return `<button class="opt" onclick="preMtEdit('${m.id}')"><div class="row"><b>${esc(dFmt(m.d))}</b>${no?`<span class="bd s">${no} open</span>`:""}</div><small style="color:var(--mute)">${esc((m.n||"No notes").slice(0,90))}</small></button>`}).join("")+
  preCmH()+`<div class="sec">My goals</div>`+(P.gl||[]).map(g=>`<div class="grow"><button class="ock${g.done?" on":""}" role="checkbox" aria-checked="${!!g.done}" onclick="preGoalT('${g.id}')"><i>${g.done?"✓":""}</i><span>${esc(g.t)}</span></button><button class="gx" aria-label="Remove goal" onclick="preGoalX('${g.id}')">✕</button></div>`).join("")+
  `<div class="grow"><input id="pg-t" class="cin" maxlength="160" placeholder="Add a goal" aria-label="New goal"><button class="gx" style="width:auto;padding:0 14px;color:var(--pri-ink);background:var(--pri);border-color:var(--pri);font-weight:700" onclick="preGoalAdd()">Add</button></div>`;
- app.innerHTML=h+`<p class="tag">Not an official record. Keep your trust's preceptorship paperwork up to date too.</p>`;
+ app.innerHTML=h+`<div class="sec">Export</div><button class="opt" style="text-align:center" onclick="cp.x='all';cp.v='export';pf='cpd';tab='cpd';pe=null;cp.xp=Object.assign(xpSel(),{pr:true,fmt:cp.xp&&cp.xp.fmt==='xlsx'?'xlsx':'pdf'});XP.ready=null;home();window.scrollTo(0,0)">Export my preceptorship record<small style="display:block;color:var(--mute);font-size:.8rem;font-weight:500">PDF or Excel, with your CPD log</small></button><p class="tag">Not an official record. Keep your trust's preceptorship paperwork up to date too.</p>`;
 }
 const preIn=d=>{const P=S.pre;return !!(P&&P.start&&d&&d>=P.start&&d<=addM(P.start,P.len||12))};
 const PRES=["End of life care","Leadership","Quality improvement","Safeguarding","Wellbeing and resilience","Delegation and supervision","Research and evidence-based practice","Reflective practice"];
@@ -3099,7 +3100,7 @@ function preMtSave(){
  S.pre.mt=S.pre.mt||[];const old=S.pre.mt.find(x=>x.id===f.id),prev=(old&&old.ac)||[];
  const ac=f.ac.split("\n").map(s=>s.trim()).filter(Boolean).slice(0,12).map(t=>{const p=prev.find(a=>a.t===t.slice(0,200));return {id:p?p.id:cpId(),t:t.slice(0,200),done:p?!!p.done:false}});
  const m={id:f.id||cpId(),d:f.d,n:f.n.trim().slice(0,2000),ac};const i=S.pre.mt.findIndex(x=>x.id===m.id);if(i>=0)S.pre.mt[i]=m;else S.pre.mt.push(m);save();pe=null;home();window.scrollTo(0,0)}
-function preMtDel(){if(!pe.f.del){pe.f.del=true;return home()}S.pre.mt=(S.pre.mt||[]).filter(x=>x.id!==pe.f.id);save();pe=null;home();window.scrollTo(0,0)}
+function preMtDel(){if(!pe.f.del){pe.f.del=true;if(armTap(/^Delete meeting$/,"Tap again to delete"))return;return home()}S.pre.mt=(S.pre.mt||[]).filter(x=>x.id!==pe.f.id);save();pe=null;home();window.scrollTo(0,0)}
 /* competencies */
 function compScreen(){
  if(cmf)return compForm();
@@ -11741,7 +11742,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
 
   /* saved groups (user_state) */
   const GROUPS={
-   settings:()=>({style:S.style,goal:S.goal,appTools:S.appTools,preTools:S.preTools,hcTools:S.hcTools,ivTools:S.ivTools,plcTools:S.plcTools,tourDone:S.tourDone,lnView:S.lnView,qualAt:S.qualAt,prevRole:S.prevRole,rot:S.rot,rotDate:S.rotDate,cpdX:S.cpdX}),
+   settings:()=>({style:S.style,goal:S.goal,appTools:S.appTools,preTools:S.preTools,pre466:S.pre466,hcTools:S.hcTools,ivTools:S.ivTools,plcTools:S.plcTools,tourDone:S.tourDone,lnView:S.lnView,qualAt:S.qualAt,prevRole:S.prevRole,rot:S.rot,rotDate:S.rotDate,cpdX:S.cpdX}),
    placements:()=>({plc:S.plc||[]}),
    audit:()=>({hc:S.hc||null}),
    apprenticeship:()=>({otj:S.otj||[],otjT:S.otjT||{},ksb:S.ksb||{}}),
@@ -11752,11 +11753,14 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
   const FIX={
    apprenticeship:v=>{const T=v.otjT,o={};if(T&&typeof T==="object"&&!Array.isArray(T))Object.keys(T).forEach(k=>{const n=+T[k];if(/^\d{4}-\d{2}$/.test(k)&&isFinite(n)&&n>0)o[k]=Math.min(300,n)});if("otjT" in v)v.otjT=o},
    preceptorship:v=>{const P=v.pre;if(P&&typeof P==="object"&&!Array.isArray(P)){const n=Math.round(+P.len);P.len=n>=1&&n<=36?n:12;if(P.start!=null&&!DAY.test(String(P.start)))P.start=""}}};
-  /* the Portfolio keeps these tools off whatever an account says */
-  const FORCED=window.PZ_ONLY==="portfolio"?new Set(["preTools","ivTools","plcTools","appTools"]):new Set();
+  /* the Portfolio keeps these tools off whatever an account says. v466: preceptorship is back in the Portfolio. Accounts
+     saved before then hold preTools false only because the Portfolio forced it, so that value is ignored until the account
+     has been saved by v466 or later (pre466). */
+  const FORCED=window.PZ_ONLY==="portfolio"?new Set(["ivTools","plcTools","appTools"]):new Set();
+  const stalePre=(f,v)=>f==="preTools"&&window.PZ_ONLY==="portfolio"&&!v.pre466;
   /* only each group's own keys are taken from the account; settings must be plain values */
   const applyGroup=(k,v)=>{const G=GROUPS[k];if(!G||!v||typeof v!=="object"||Array.isArray(v))return;const allow=Object.keys(G());
-   if(k==="settings"){allow.forEach(f=>{const x=v[f];if(!FORCED.has(f)&&x!==undefined&&x!==null&&okSet(x))S[f]=x});return}
+   if(k==="settings"){allow.forEach(f=>{const x=v[f];if(!FORCED.has(f)&&!stalePre(f,v)&&x!==undefined&&x!==null&&okSet(x))S[f]=x});return}
    const o={};allow.forEach(f=>{if(Object.prototype.hasOwnProperty.call(v,f))o[f]=clean(v[f])});if(FIX[k])FIX[k](o);Object.keys(o).forEach(f=>{S[f]=o[f]})};
 
   /* v452: what belongs to an account on this device. Removed when you sign out, and before a different
@@ -12658,6 +12662,26 @@ const xpH=min=>{const h=Math.round((min||0)/6)/10;return (Number.isInteger(h)?h:
 /* what to include */
 function xpSel(){cp.xp=cp.xp||{per:"all",tg:null,ty:null,df:"",dt:"",ph:true,hc:false,fmt:"pdf"};if(!cp.xp.fmt)cp.xp.fmt="pdf";return cp.xp}
 const xpHcOk=()=>typeof showHc==="function"&&showHc()&&!!S.hc;
+/* v466: the preceptorship record (review points, sessions, meetings and actions, goals) can go at the end of a PDF or Excel export */
+const xpPreOk=()=>typeof showPre==="function"&&showPre()&&!!(S.pre&&S.pre.start);
+function xpPreData(){const P=S.pre,ms=P.ms||{},td=isoD(new Date()),len=P.len||12;
+ const pts=preReviewPts(len).map(x=>{const due=addM(P.start,x[2]),h=ms[x[0]];return [x[1],xpNice(due),h?(typeof h==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(h)?"Held "+xpNice(h):"Done"):(due<td?"Not marked as held":"Not yet due")]});
+ const ses=(S.cpd||[]).filter(e=>e&&e.pre).sort((a,b)=>a.d.localeCompare(b.d));
+ return {P,len,end:addM(P.start,len),pts,ses,mt:(P.mt||[]).slice().sort((a,b)=>String(a.d).localeCompare(String(b.d))),gl:P.gl||[]}}
+function xpPrePdf(L){const D=xpPreData(),P=D.P;L.page();L.text("Preceptorship record",{sz:13.5,w:"bold",lh:1.25,gap:2});L.rule();L.y+=12;
+ L.table([{t:"",w:.3},{t:"",w:.7}],[["Programme",xpNice(P.start)+" to "+xpNice(D.end)+" ("+D.len+" months)"]].concat(P.who?[["Preceptor",P.who]]:[]),{noHead:true});
+ L.need(110);L.h2("Review points");L.table([{t:"Review",w:.4},{t:"Suggested date",w:.26},{t:"Status",w:.34}],D.pts);
+ L.need(110);L.h2("Programme sessions");if(D.ses.length)L.table([{t:"Date",w:.18},{t:"Session",w:.5},{t:"Hours",w:.12,a:"r"},{t:"Reflection",w:.2}],D.ses.map(e=>[xpNice(e.d),e.t,((e.m||0)/60).toFixed(1),cpHas(e)?"Written":"Not yet"]));else L.text("None logged yet.",{c:L.mute,gap:6});
+ L.need(110);L.h2("Meetings");if(D.mt.length)D.mt.forEach(m=>{L.need(48);L.text(xpLong(m.d),{sz:11,w:"bold",gap:2});if(String(m.n||"").trim())L.text(m.n,{gap:4});
+   if((m.ac||[]).length){L.text("Actions agreed",{sz:9,w:"bold",c:L.mute,gap:1});m.ac.forEach(a=>L.text((a.done?"Done: ":"Open: ")+a.t,{sz:10,x:L.M+10,gap:1}))}L.y+=10});else L.text("None logged yet.",{c:L.mute,gap:6});
+ L.need(110);L.h2("Goals");if(D.gl.length)L.table([{t:"Goal",w:.8},{t:"Status",w:.2}],D.gl.map(g=>[g.t,g.done?"Done":"Open"]));else L.text("None added yet.",{c:L.mute,gap:6});
+ L.text("Review dates are suggestions unless they were changed to match the trust's. The trust's preceptorship paperwork is the official record.",{sz:9,c:L.mute})}
+function xpPreSheet(){const D=xpPreData(),P=D.P,H=v=>({v,s:"h"}),w=v=>({v:String(v==null?"":v),s:"w"});
+ const r=[[{v:"Preceptorship record",s:"t"}],[{v:xpNice(P.start)+" to "+xpNice(D.end)+" · "+D.len+" months"+(P.who?" · Preceptor: "+P.who:""),s:"m"}],[],[H("Review point"),H("Suggested date"),H("Status")]].concat(D.pts.map(x=>[w(x[0]),x[1],w(x[2])]));
+ r.push([],[H("Programme session"),H("Date"),H("Hours"),H("Reflection")]);D.ses.forEach(e=>r.push([w(e.t),{v:e.d,s:"d"},{v:Math.round((e.m||0)/6)/10,s:"n1"},cpHas(e)?"Written":"Not yet"]));
+ r.push([],[H("Meeting"),H("What was discussed"),H("Actions agreed")]);D.mt.forEach(m=>r.push([{v:m.d,s:"d"},w(m.n||""),w((m.ac||[]).map(a=>(a.done?"Done: ":"Open: ")+a.t).join("\n"))]));
+ r.push([],[H("Goal"),H("Status")]);D.gl.forEach(g=>r.push([w(g.t),g.done?"Done":"Open"]));
+ return {name:"Preceptorship",cols:[30,44,52,12],grid:false,rows:r}}
 const hcMoLong=m=>new Date(m+"-01T12:00:00").toLocaleDateString("en-GB",{month:"long",year:"numeric"});
 const xpDay=v=>/^\d{4}-\d{2}-\d{2}$/.test(String(v||""))?v:"";
 const xpMoDef=()=>{const d=new Date();d.setDate(1);d.setMonth(d.getMonth()-1);return isoD(d).slice(0,7)};
@@ -12772,6 +12796,7 @@ function xpExcel(rows,all){const W=xpWho(),st=xpStats(rows),H=v=>({v,s:"h"});
  const mos=Object.keys(st.mo).sort();if(mos.length){sum.push([],[H("Month"),H("Activities"),H("Hours")]);mos.forEach(k=>sum.push([hcMo(k),st.mo[k].n,{v:Math.round(st.mo[k].m/6)/10,s:"n1"}]))}
  const out=[{name:"Summary",cols:[34,14,12,18],grid:false,rows:sum},log];
  if(xpSel().hc&&xpHcOk()){const C=hcChecks();out.push({name:"HCPC audit pack",cols:[46,14,60],freeze:1,rows:[[H("Check"),H("Status"),H("Detail")]].concat(C.map(c=>[{v:c[1],s:"w"},c[0]?"Done":"To do",{v:String(c[2]).replace(/<[^>]+>/g,"").replace(/&amp;/g,"&").replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&lt;/g,"<").replace(/&gt;/g,">"),s:"w"}]))})}
+ if(xpSel().pr&&xpPreOk())out.push(xpPreSheet());
  return xpXlsx(out)}
 
 /* ---------- PDF ---------- */
@@ -12836,7 +12861,8 @@ async function xpCpdPdf(rows,all){const W=xpWho(),st=xpStats(rows),inc=xpSel().p
   if(xpSel().hc&&xpHcOk()){const Hc=S.hc,C=hcChecks();L.page();L.text("HCPC audit pack",{sz:13.5,w:"bold",lh:1.25,gap:2});L.rule();L.y+=12;
    L.table([{t:"Check",w:.5},{t:"Status",w:.14},{t:"Detail",w:.36}],C.map(c=>[c[1],c[0]?"Done":"To do",String(c[2]).replace(/<[^>]+>/g,"").replace(/&amp;/g,"&").replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&lt;/g,"<").replace(/&gt;/g,">")]));
    if(String(Hc.hist||"").trim()){L.h2("Summary of recent work or practice");L.text(Hc.hist,{gap:6})}if(String(Hc.stmt||"").trim()){L.h2("Personal statement");L.text(Hc.stmt,{gap:6})}}
-  if(all&&!xpLocal()&&typeof pfText==="function"){const t=pfText();if(t.trim()){L.page();L.text("Other records",{sz:13.5,w:"bold",gap:2});L.rule();L.y+=12;L.text(t,{sz:9.5})}}
+  if(xpSel().pr&&xpPreOk())xpPrePdf(L);
+  if(all&&!xpLocal()&&typeof pfText==="function"){let t=pfText();if(xpSel().pr&&xpPreOk()&&t.indexOf("COMPETENCIES")>=0)t=t.slice(t.indexOf("COMPETENCIES"));if(t.trim()){L.page();L.text("Other records",{sz:13.5,w:"bold",gap:2});L.rule();L.y+=12;L.text(t,{sz:9.5})}}
   for(const x of apps){const bytes=await x.p.b.arrayBuffer();L.insert(bytes,()=>{L.y=L.PH/2-60;L.text("Appendix "+x.a,{sz:22,w:"bold",gap:6});L.text(x.p.name,{sz:12,gap:4});L.text("Attached to: "+x.e.t+", "+xpLong(x.e.d),{sz:10,c:L.mute})})}
  },(W.name?W.name+" · ":"")+"CPD record")}
 /* the HCPC profile, laid out like the HCPC template, evidence after it */
@@ -12875,6 +12901,7 @@ function xpScreen(){const P=xpSel(),rows=xpRows(),st=xpStats(rows),all=cp.x==="a
   `<div class="cfl">Format</div><div class="xpfs" role="radiogroup" aria-label="Format">`+card("pdf","PDF document","A clean document to read, print or send"+(st.ph||st.pd?", with your evidence":"")+".")+card("xlsx","Excel spreadsheet","One row per entry, with a summary sheet.")+card("csv","CSV file","A plain spreadsheet file that opens in anything.")+card("txt","Copy as text","To paste into an email or another document.")+`</div>`+
 ((st.ph||st.pd)&&P.fmt==="pdf"?`<button class="ock${P.ph!==false?" on":""}" role="checkbox" aria-checked="${P.ph!==false}" onclick="cp.xp.ph=cp.xp.ph===false;XP.ready=null;home()" style="margin-top:12px"><i>${P.ph!==false?"✓":""}</i><span>Include photos and attached PDFs<br><small style="color:var(--mute)">Photos go with each entry. Attached PDFs, like certificates, are added at the end.</small></span></button>`:"")+
   (xpHcOk()&&(P.fmt==="pdf"||P.fmt==="xlsx")?`<button class="ock${P.hc?" on":""}" role="checkbox" aria-checked="${!!P.hc}" onclick="cp.xp.hc=!cp.xp.hc;XP.ready=null;home()" style="margin-top:12px"><i>${P.hc?"✓":""}</i><span>Include my HCPC audit pack<br><small style="color:var(--mute)">Adds your audit pack checks, summary of recent work and personal statement at the end.</small></span></button>`:"")+
+  (xpPreOk()&&(P.fmt==="pdf"||P.fmt==="xlsx")?`<button class="ock${P.pr?" on":""}" role="checkbox" aria-checked="${!!P.pr}" onclick="cp.xp.pr=!cp.xp.pr;XP.ready=null;home()" style="margin-top:12px"><i>${P.pr?"✓":""}</i><span>Include my preceptorship record<br><small style="color:var(--mute)">Adds your review points, programme sessions, meetings and actions, and goals at the end.</small></span></button>`:"")+
   `<button class="go xpgo" ${none||XP.busy?"disabled":""} onclick="xpGo(cp.xp.fmt)">${GO[P.fmt]||"Create PDF"}</button>`+
   `<p id="cpm" class="tag" role="status">${esc(XP.msg||"")}</p><div id="xprw">${xpReadyHtml("cpd")}</div><div class="note">Saved files leave Phyzly. Check them for patient details before you send them anywhere.</div>`;
 }
@@ -13216,7 +13243,7 @@ function imScreen(){if(!IM)IM={step:"pick"};const back=`<button class="lnk" oncl
 try{(function(){
  if(window.PZ_ONLY!=="portfolio")return;
  document.documentElement.classList.add("pzo");
- S.tw2=1;S.tw3=1;S.preTools=false;S.ivTools=false;S.plcTools=false;S.appTools=false;
+ S.tw2=1;S.tw3=1;if(!S.pre466){S.pre466=1;if(S.preTools===false)delete S.preTools}S.ivTools=false;S.plcTools=false;S.appTools=false;
  /* bottom bar: Portfolio and Me */
  [typeof NAVI!=="undefined"?NAVI:null,typeof NAVI2!=="undefined"?NAVI2:null].forEach(N=>{if(!N)return;for(let i=N.length-1;i>=0;i--)if(!["cpd","me"].includes(N[i][0]))N.splice(i,1)});
  const nv=document.getElementById("nav");if(nv)nv.remove();
@@ -13231,14 +13258,17 @@ try{(function(){
   html.pzo .auf .pzmini{margin:0 0 18px}
   html.pzo .auf .pzmini .hero{padding:22px 20px 20px;text-align:center}
   html.pzo .auf .pzmini .hero .wm{font-size:40px;line-height:1}`;document.head.appendChild(st);
- const NOPE=/^(Competencies|Preceptorship|Interview prep|Phyzly learning|Placements|Apprenticeship tools|Off-the-job)/;
+ const NOPE=/^(Competencies|Interview prep|Phyzly learning|Placements|Apprenticeship tools|Off-the-job)/;
  /* start in the Portfolio */
  const goPf=()=>{tab="cpd";pf="home";cp.v="list";curPack=null;window.spV=null};
  const hm0=home;home=function(){if(tab!=="cpd"&&tab!=="me"&&tab!=="friends"&&S.role)goPf();if(tab==="friends")goPf();const r=hm0.apply(this,arguments);
   try{document.querySelectorAll("#nav [data-k]").forEach(b=>{if(b.dataset.k!=="cpd"&&b.dataset.k!=="me")b.remove()});
    document.querySelectorAll("#app .nvlist > *,#app .opt,#app .chipw button").forEach(b=>{if(NOPE.test(b.textContent.trim()))b.remove()});
    document.querySelectorAll("#app .nvband p,#app .nvband .tag").forEach(p=>{if(/learning, competencies and career/.test(p.textContent))p.textContent="Your CPD, evidence and HCPC audit pack in one place."});
-   document.querySelectorAll("#app p.tag").forEach(p=>{if(/off-the-job log or preceptorship/.test(p.textContent))p.remove()})}catch(e){}return r};
+   document.querySelectorAll("#app p.tag").forEach(p=>{const t=p.textContent;if(/^Looking for .*Turn it on in Profile/.test(t)){if(/preceptorship/.test(t))p.textContent="Looking for preceptorship? Turn it on in Profile, Settings.";else p.remove()}})}catch(e){}return r};
+ /* v466: preceptorship is in the Portfolio, but competencies wait for their specialist review, so the preceptorship
+    page leaves out its Competencies section here */
+ if(typeof window.preCmH==="function")window.preCmH=function(){return ""};
  window.navGo&&(()=>{const n0=navGo;navGo=function(k,el){if(k!=="cpd"&&k!=="me")k="cpd";return n0.call(this,k,el)}})();
  /* sign-in pages speak about the Portfolio */
  const as1=auScreen;auScreen=function(){let h=as1.apply(this,arguments);
@@ -13251,16 +13281,16 @@ try{(function(){
   if(step==="cov"||step==="start"||step==="prot")step="tools";
   if(step==="goal"){if(!S.goal)S.goal=15;save();goPf();home();window.scrollTo(0,0);try{obFinish()}catch(e){}return}
   const r=wP.call(this,step);
-  try{if(step==="tools"){document.querySelectorAll("#app .ock").forEach(b=>{if(NOPE.test((b.querySelector("b")||b).textContent.trim()))b.remove()});
+  try{if(step==="tools"){document.querySelectorAll("#app .ock").forEach(b=>{if(NOPE.test((b.querySelector("b")||b).textContent.trim()))b.remove();else if(/Goals, meetings and competencies/.test(b.innerHTML))b.innerHTML=b.innerHTML.replace("Goals, meetings and competencies for your first year.","Review points, meetings, goals and programme sessions for your first year.")});
     const bk=document.querySelector("#app .obband .plbk");if(bk)bk.setAttribute("onclick",S.role==="stu"||S.role==="app"?"welcome('course')":S.role==="oth"?"welcome('oth')":"welcome('band')");}
    const ey=document.querySelector("#app .obband .pley");if(ey)ey.textContent=ey.textContent.replace("Your goals","Your Portfolio");
    if(step==="course"){const sk=[...document.querySelectorAll("#app .lnk")].find(b=>/Skip this/.test(b.textContent));if(sk)sk.setAttribute("onclick","S.crs=null;S.yr=null;save();welcome('tools')")}}catch(e){}
   return r};
  const pyP=pickYr;pickYr=function(y){S.yr=y;save();welcome("tools")};
- if(window.obTgo){const t0=obTgo;window.obTgo=function(){t0.apply(this,arguments);S.preTools=false;S.ivTools=false;S.plcTools=false;S.appTools=false;save()}}
+ if(window.obTgo){const t0=obTgo;window.obTgo=function(){t0.apply(this,arguments);S.pre466=1;S.ivTools=false;S.plcTools=false;S.appTools=false;save()}}
  /* Me: account, Portfolio tools, look, sound, help */
  const me1=meScreen;meScreen=function(){const r=me1.apply(this,arguments);
-  try{const drop=/^(Vee's kit bag|Stars|Annual leave days|Knowledge freshness|My plan|Daily goal|Focus|Phyzly Plus|Friends profile|Share activity with friends|Content review|Image credits|Tell us what you think|Reset progress|Preceptorship|Interview prep|Apprenticeship tools|Placements)/;
+  try{const drop=/^(Vee's kit bag|Stars|Annual leave days|Knowledge freshness|My plan|Daily goal|Focus|Phyzly Plus|Friends profile|Share activity with friends|Content review|Image credits|Tell us what you think|Reset progress|Interview prep|Apprenticeship tools|Placements)/;
    document.querySelectorAll("#app .mrow").forEach(b=>{const t=(b.querySelector(".mlb")||b).textContent.trim();if(drop.test(t))b.remove()});
    document.querySelectorAll("#app .mgrp").forEach(g=>{if(!g.querySelector(".mrow")){const h=g.previousElementSibling;if(h&&h.classList.contains("mgh"))h.remove();g.remove()}});
    document.querySelectorAll("#app .mgh").forEach(h=>{if(h.textContent.trim()==="Learning")h.textContent="Display"});
