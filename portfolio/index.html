@@ -2935,14 +2935,14 @@ function cpdForm(){
  `<button class="go" onclick="cpdSave()">Save entry</button>`+(cf.id?`<button class="opt" style="text-align:center;margin-top:10px;${cf.del?"border-color:var(--bad);color:var(--bad)":""}" onclick="cpdDel()">${cf.del?"Tap again to delete":"Delete entry"}</button>`:"");setTimeout(phFill,0);
 }
 function cpdScreen(){
- if(cp.v==="form"&&cf)return cpdForm();if(cp.v==="export")return cpdExport();cp.v="list";
+ if(cp.v==="form"&&cf)return cpdForm();if(cp.v==="export")return cpdExport();if(cp.v==="import")return imScreen();cp.v="list";
  const all=(S.cpd||[]).slice().sort((a,b)=>b.d.localeCompare(a.d)||b.id.localeCompare(a.id)),y=isoD(new Date(Date.now()-365*864e5)),yr=all.filter(e=>e.d>=y);
  const mins=yr.reduce((a,e)=>a+(e.m||0),0),hrs=Math.round(mins/6)/10,rf=yr.filter(cpHas).length,todo=all.filter(e=>!cpHas(e)).length;
  let h=head()+tabs()+`<button class="lnk" onclick="pf='home';home()">‹ Portfolio</button><h1 style="font-size:1.6rem;margin:6px 0 2px">CPD log</h1><p class="tag" style="margin:0 0 10px">Your learning from the last 12 months, with reflections you can export. Phyzly adds entries for you.</p>`+
  cpdNudge()+`<div class="stats"><div class="stat"><strong>${yr.length}</strong>entries</div><div class="stat"><strong>${hrs}</strong>hours</div><div class="stat"><strong>${rf}</strong>reflected</div></div>`+
- `<button class="go" onclick="cpdNew()">+ Add entry</button><label class="opt phb" style="margin-top:10px">📷 Add a photo<small>Notes, a certificate or other evidence. Write it up later</small><input type="file" accept="image/*" capture="environment" onchange="cpdSnap(this.files)"></label><button class="opt" style="text-align:center;margin-top:10px" onclick="cp.x='cpd';cp.v='export';home()" ${all.length?"":"disabled"}>Export my log</button>`;
+ `<button class="go" onclick="cpdNew()">+ Add entry</button><label class="opt phb" style="margin-top:10px">📷 Add a photo<small>Notes, a certificate or other evidence. Write it up later</small><input type="file" accept="image/*" capture="environment" onchange="cpdSnap(this.files)"></label><button class="opt" style="text-align:center;margin-top:10px" onclick="cp.x='cpd';cp.v='export';home()" ${all.length?"":"disabled"}>Export my log</button><button class="opt" style="text-align:center;margin-top:10px" onclick="imOpen()">Import existing CPD<small style="display:block;color:var(--mute);font-size:.8rem;font-weight:500">From Excel, CSV or a pasted table</small></button>`;
  if(todo)h+=`<div class="note">${todo} ${todo===1?"entry needs":"entries need"} a reflection. HCPC asks how your CPD benefited your practice and your service users, so a couple of lines each helps. <button class="lnk" style="padding:0;text-decoration:underline" onclick="cp.nf=!cp.nf;home()">${cp.nf?"Show all entries":"Show only these"}</button></div>`;
- if(!all.length)h+=`<div class="note">Nothing here yet. Finish a quiz or a bleep guide and an entry appears. Add courses, reading and shadowing yourself.</div>`;
+ if(!all.length)h+=`<div class="note">Nothing here yet. Finish a quiz or a bleep guide and an entry appears. Add courses, reading and shadowing yourself.<br><br>Already keep a CPD log in a spreadsheet? <button class="lnk" style="padding:0;text-decoration:underline" onclick="imOpen()">Import it</button></div>`;
  if(all.length)h+=tgFilter();if(all.length)h+=`<p class="tag" style="margin:8px 0 0">Swipe left on an entry to delete it.</p>`;
  const lst=(cp.nf?all.filter(e=>!cpHas(e)):all).filter(e=>!cp.tf||(e.tg||[]).includes(cp.tf)),ad={};lst.forEach(e=>{if(e.auto)ad[e.d]=(ad[e.d]||[]).concat([e])});cp.og=cp.og||{};
  const rowH=e=>`<div class="swp" data-id="${esc(e.id)}"><button class="swd" onclick="swAsk('${esc(e.id)}')" aria-label="Delete entry">Delete</button><button class="opt swr" onclick="swTap(event,'${esc(e.id)}','')"><div class="row"><b>${esc(e.t)}</b>${cpHas(e)?`<span class="bd t">Reflected</span>`:`<span class="bd s">Add reflection</span>`}</div><small style="color:var(--mute)">${esc(new Date(e.d+"T12:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"short"}))}${(e.ss||[]).length>1?" · "+e.ss.length+" sessions from "+esc(ssSort(e.ss)[0].tm):e.tm?" "+esc(e.tm):""} · ${esc(cptn(e.ty))} · ${e.m||0} min${e.otj?" · Off-the-job":""}${e.pre?" · Preceptorship":""}${e.auto?" · auto-logged":""}${(e.ph||[]).length?" · 📷 "+e.ph.length:""}</small>${tgPills(e)}</button></div>`;
@@ -12919,6 +12919,297 @@ html.xpvon,html.xpvon body{overflow:hidden}
 .xpvb{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;padding:12px 12px calc(24px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;align-items:center;gap:12px}
 .xpvp{background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.35);flex:none}.xpvp canvas{display:block}
 .xpve{color:#fff;text-align:center;margin:40px 16px}`;document.head.appendChild(st)})();
+
+/* ---------- v465: import CPD from a spreadsheet (.xlsx or .csv) or a pasted table ----------
+   Everything happens on the device: the file is read here and never uploaded. Only the entries the person imports are
+   added to the log (and synced like any other entry). Each import is tagged with a batch id (e.imp) so it can be undone.
+   Editing an entry saves it without e.imp, so undo leaves edited entries alone. */
+let IM=null;
+const IMMAX=2000;
+function imOpen(){IM={step:"pick"};cf=null;cp.x="cpd";cp.v="import";tab="cpd";pf="cpd";home();window.scrollTo(0,0)}
+function imClose(){IM=null;cp.v="list";home();window.scrollTo(0,0)}
+function imFail(e){console.warn("import",e);IM={step:"pick",err:(e&&e.message&&!/^[A-Z][a-z]+Error\b/.test(String(e))?e.message:"That file couldn't be read. Try saving it as CSV, or copy the table and paste it below.")};home()}
+
+/* ---------- reading files ---------- */
+async function imFile(fl){const f=fl&&fl[0];if(!f)return;IM={step:"pick",busy:"Reading "+f.name+"…"};home();
+ try{if(f.size>15*1048576)throw new Error("That file is over 15 MB. Save just your CPD sheet as a CSV file and import that.");
+  const n=String(f.name||"").toLowerCase(),hd=new Uint8Array(await f.slice(0,8).arrayBuffer());
+  const zip=hd[0]===0x50&&hd[1]===0x4B,ole=hd[0]===0xD0&&hd[1]===0xCF&&hd[2]===0x11&&hd[3]===0xE0;
+  let sheets;
+  if(/\.(docx?|pages|rtf)$/.test(n))throw new Error("For a table in a Word document, select the table, copy it, and paste it in the box below.");
+  if(/\.pdf$/.test(n))throw new Error("PDFs can't be imported. If you have the original spreadsheet, import that. Or copy the table and paste it below.");
+  if(/\.numbers$/.test(n))throw new Error("In Numbers, choose File, then Export To, then Excel or CSV. Then import that file.");
+  if(/\.ods$/.test(n))throw new Error("Save the file as Excel (.xlsx) or CSV, then import that.");
+  if(ole||/\.xls$/.test(n))throw new Error("This looks like an older Excel file (.xls) or one with a password. In Excel, remove any password, choose File, then Save As, and pick Excel Workbook (.xlsx) or CSV. Then import that.");
+  if(zip)sheets=await imXlsx(f);
+  else{const t=await imText(f);if(t.indexOf(String.fromCharCode(0))>=0)throw new Error("That file doesn't look like a spreadsheet. Use an Excel (.xlsx) or CSV file.");sheets=[{n:"",rows:imCsv(t,/\.(tsv|tab)$/.test(n))}]}
+  imLoad(f.name,sheets)}catch(e){imFail(e)}}
+async function imText(f){const b=new Uint8Array(await f.arrayBuffer());let t;
+ if(b[0]===0xFF&&b[1]===0xFE)t=new TextDecoder("utf-16le").decode(b);else if(b[0]===0xFE&&b[1]===0xFF)t=new TextDecoder("utf-16be").decode(b);
+ else{t=new TextDecoder("utf-8").decode(b);if(t.indexOf(String.fromCharCode(0xFFFD))>=0){try{t=new TextDecoder("windows-1252").decode(b)}catch(e){}}}
+ if(t.charCodeAt(0)===0xFEFF)t=t.slice(1);return t}
+/* CSV or tab-separated text. The delimiter is whichever of tab, comma or semicolon appears most outside quotes. */
+function imCsv(t,tab){t=String(t||"");if(t.charCodeAt(0)===0xFEFF)t=t.slice(1);
+ const cnt={"\t":0,",":0,";":0};{let q=false;const L=Math.min(t.length,20000);for(let i=0;i<L;i++){const ch=t[i];if(ch==='"')q=!q;else if(!q&&cnt[ch]!==undefined)cnt[ch]++}}
+ let d=tab||cnt["\t"]>0&&cnt["\t"]>=cnt[","]/4?"\t":cnt[";"]>cnt[","]?";":",";
+ const rows=[];let row=[],f="",q=false,i=0;const L=t.length;
+ const endRow=()=>{row.push(f);rows.push(row);row=[];f=""};
+ while(i<L){const ch=t[i];
+  if(q){if(ch==='"'){if(t[i+1]==='"'){f+='"';i+=2;continue}q=false;i++;continue}f+=ch;i++;continue}
+  if(ch==='"'&&f.trim()===""){q=true;f="";i++;continue}
+  if(ch===d){row.push(f);f="";i++;continue}
+  if(ch==="\r"||ch==="\n"){if(ch==="\r"&&t[i+1]==="\n")i++;endRow();i++;if(rows.length>IMMAX+60)break;continue}
+  f+=ch;i++}
+ if(f!==""||row.length)endRow();
+ return rows}
+
+/* ---------- .xlsx (a zip of XML files), read without any library ---------- */
+function imZip(b){const dv=new DataView(b.buffer,b.byteOffset,b.byteLength);let e=-1;
+ for(let i=b.length-22;i>=Math.max(0,b.length-65557);i--){if(dv.getUint32(i,true)===0x06054b50){e=i;break}}
+ if(e<0)throw new Error("This file couldn't be opened. It may be damaged, or it isn't an Excel file.");
+ const n=dv.getUint16(e+10,true);let p=dv.getUint32(e+16,true);const Z={},td=new TextDecoder();
+ for(let k=0;k<n&&p+46<=b.length;k++){if(dv.getUint32(p,true)!==0x02014b50)break;
+  const meth=dv.getUint16(p+10,true),cs=dv.getUint32(p+20,true),us=dv.getUint32(p+24,true),nl=dv.getUint16(p+28,true),xl=dv.getUint16(p+30,true),cl=dv.getUint16(p+32,true),off=dv.getUint32(p+42,true);
+  Z[td.decode(b.subarray(p+46,p+46+nl))]={meth,cs,us,off};p+=46+nl+xl+cl}
+ return Z}
+async function imUnz(b,e){const dv=new DataView(b.buffer,b.byteOffset,b.byteLength),p=e.off;
+ if(p+30>b.length||dv.getUint32(p,true)!==0x04034b50)throw new Error("This file couldn't be opened. It may be damaged.");
+ const st=p+30+dv.getUint16(p+26,true)+dv.getUint16(p+28,true),raw=b.subarray(st,st+e.cs),MAX=60*1048576;
+ const big=()=>new Error("This workbook is too big to import. Save just your CPD sheet as a CSV file and import that.");
+ if(e.us>MAX)throw big();
+ if(e.meth===0)return new TextDecoder().decode(raw);
+ if(e.meth!==8)throw new Error("This file couldn't be opened. Save it as CSV and import that.");
+ if(typeof DecompressionStream==="undefined")throw new Error("This browser can't open Excel files. Save the sheet as CSV and import that, or copy the table and paste it below.");
+ const rd=new Blob([raw]).stream().pipeThrough(new DecompressionStream("deflate-raw")).getReader(),parts=[];let tot=0;
+ for(;;){const r=await rd.read();if(r.done)break;tot+=r.value.length;if(tot>MAX){try{rd.cancel()}catch(x){}throw big()}parts.push(r.value)}
+ const out=new Uint8Array(tot);let o=0;for(const x of parts){out.set(x,o);o+=x.length}return new TextDecoder().decode(out)}
+const imSerial=n=>{n=Math.floor(+n);if(!(n>0&&n<2958466))return String(n);return new Date(Date.UTC(1899,11,30)+n*864e5).toISOString().slice(0,10)};
+const imHm=v=>{const m=Math.round((+v%1+(+v>=1?Math.floor(+v):0))*1440);return Math.floor(m/60)+":"+String(m%60).padStart(2,"0")};
+async function imXlsx(f){const buf=new Uint8Array(await f.arrayBuffer()),Z=imZip(buf);
+ if(!Z["xl/workbook.xml"])throw new Error("This file isn't an Excel workbook. Save it as Excel (.xlsx) or CSV and import that.");
+ const get=async p=>Z[p]?await imUnz(buf,Z[p]):null,X=s=>new DOMParser().parseFromString(s,"application/xml"),T=(d,n)=>Array.from(d.getElementsByTagNameNS("*",n));
+ const wb=X(await get("xl/workbook.xml")),rel={},relX=await get("xl/_rels/workbook.xml.rels");
+ if(relX)T(X(relX),"Relationship").forEach(r=>{rel[r.getAttribute("Id")]=r.getAttribute("Target")});
+ const ss=[],ssX=await get("xl/sharedStrings.xml");
+ if(ssX)T(X(ssX),"si").forEach(si=>ss.push(T(si,"t").filter(t=>!(t.parentNode&&t.parentNode.localName==="rPh")).map(t=>t.textContent).join("")));
+ const dS=new Set(),tS=new Set(),stX=await get("xl/styles.xml");
+ if(stX){const sd=X(stX),code={};T(sd,"numFmt").forEach(n=>{code[n.getAttribute("numFmtId")]=n.getAttribute("formatCode")||""});const xfs=T(sd,"cellXfs")[0];
+  if(xfs)Array.from(xfs.children).filter(x=>x.localName==="xf").forEach((x,i)=>{const id=+x.getAttribute("numFmtId")||0,c=String(code[id]||"").replace(/\[[^\]]*\]|"[^"]*"|\\./g,"");
+   if([14,15,16,17,22].includes(id)||(/[dy]/i.test(c))||(/m/i.test(c)&&!/[hs]/i.test(c)&&!/0/.test(c)))dS.add(i);else if([18,19,20,21,45,46,47].includes(id)||/[hs]/i.test(c))tS.add(i)})}
+ const sheets=[];
+ for(const s of T(wb,"sheet")){if(sheets.length>=12)break;const st=s.getAttribute("state");if(st==="hidden"||st==="veryHidden")continue;
+  const rid=s.getAttributeNS("http://schemas.openxmlformats.org/officeDocument/2006/relationships","id")||s.getAttribute("r:id");let tg=rel[rid];if(!tg)continue;
+  tg=tg.startsWith("/")?tg.slice(1):"xl/"+tg.replace(/^\.\//,"");const x=await get(tg);if(!x)continue;
+  sheets.push({n:s.getAttribute("name")||"Sheet "+(sheets.length+1),rows:imSheet(X(x),ss,dS,tS)})}
+ return sheets}
+function imSheet(d,ss,dS,tS){const rows=[],T=(e,n)=>e.getElementsByTagNameNS("*",n);
+ for(const r of Array.from(T(d,"row"))){const ri=(+r.getAttribute("r")||rows.length+1)-1;if(ri>IMMAX+60)break;const out=[];let ci=0;
+  for(const c of Array.from(T(r,"c"))){const ref=c.getAttribute("r"),m=ref&&/^([A-Z]+)/.exec(ref);if(m){ci=0;for(const ch of m[1])ci=ci*26+ch.charCodeAt(0)-64;ci--}
+   if(ci>=60){ci++;continue}
+   const t=c.getAttribute("t"),s=+c.getAttribute("s")||0,vE=T(c,"v")[0],v=vE?vE.textContent:"";let val="";
+   if(t==="s")val=ss[+v]||"";else if(t==="inlineStr")val=Array.from(T(c,"t")).map(x=>x.textContent).join("");else if(t==="b")val=v==="1"?"TRUE":"FALSE";else if(t==="e")val="";else if(t==="str")val=v;
+   else if(v!==""){const n=+v;if(!isFinite(n))val=v;else if(dS.has(s))val=imSerial(n);else if(tS.has(s))val=imHm(n);else val=String(Math.round(n*1e6)/1e6)}
+   out[ci]=val;ci++}
+  for(let k=0;k<out.length;k++)if(out[k]===undefined)out[k]="";rows[ri]=out}
+ for(let k=0;k<rows.length;k++)if(!rows[k])rows[k]=[];
+ return rows}
+
+/* ---------- pasting a table (Excel, Google Sheets, Numbers or Word give an HTML table as well as plain text) ---------- */
+let IMP=null;
+function imOnPaste(ev){try{const h=ev.clipboardData&&ev.clipboardData.getData("text/html");if(!h||!/<table/i.test(h)){IMP=null;return}
+ const doc=new DOMParser().parseFromString(h.replace(/<br\s*\/?>/gi,"\n").replace(/<\/p>/gi,"</p>\n"),"text/html"),tb=doc.querySelector("table");if(!tb){IMP=null;return}
+ const rows=Array.from(tb.querySelectorAll("tr")).slice(0,IMMAX+60).map(tr=>{const o=[];Array.from(tr.children).filter(c=>/^(td|th)$/i.test(c.tagName)).forEach(c=>{o.push(c.textContent.replace(/ /g," ").replace(/[ \t]+\n/g,"\n").replace(/\n{3,}/g,"\n\n").trim());for(let k=1;k<Math.min(20,+c.getAttribute("colspan")||1);k++)o.push("")});return o});
+ if(!rows.length||rows.every(r=>r.length<2)){IMP=null;return}
+ ev.preventDefault();const txt=rows.map(r=>r.map(x=>x.replace(/[\t\n]+/g," ")).join("\t")).join("\n");IMP={rows,txt};ev.target.value=txt;imPasteBtn()}catch(e){IMP=null}}
+function imPasteBtn(){const el=document.getElementById("im-p"),b=document.getElementById("im-pb");if(el&&b)b.disabled=!el.value.trim()}
+function imPaste(){const el=document.getElementById("im-p"),t=el?el.value:"";if(!t.trim())return;
+ try{if(t.length>4e6)throw new Error("That's too much to paste in one go. Save it as a CSV file and import that.");
+  const rows=IMP&&IMP.txt===t?IMP.rows:imCsv(t,t.indexOf("\t")>=0);IMP=null;imLoad("Pasted table",[{n:"",rows}])}catch(e){imFail(e)}}
+
+/* ---------- after reading: tidy, pick the best sheet, guess the columns ---------- */
+function imLoad(name,sheets){
+ sheets=sheets.map(s=>{const rows=s.rows.slice(0,IMMAX+60).map(r=>{const o=(r||[]).slice(0,60).map(c=>String(c==null?"":c).replace(/\r\n?/g,"\n").trim());while(o.length&&!o[o.length-1])o.pop();return o});while(rows.length&&!rows[rows.length-1].length)rows.pop();return {n:s.n,rows,more:s.rows.length>IMMAX+60}}).filter(s=>s.rows.length);
+ if(!sheets.length)throw new Error("There's nothing to import. The file looks empty.");
+ let si=0,bs=-1;sheets.forEach((s,i)=>{const h=imFindHdr(s.rows),sc=(h>=0?imHdrScore(s.rows[h])*10:0)+Math.min(s.rows.length,50)/10;if(sc>bs){bs=sc;si=i}});
+ IM={step:"map",name:String(name||"File"),sheets,si,dup:true,extra:false,defTy:"oth",tmap:{}};imAuto();cp.v="import";home();window.scrollTo(0,0)}
+function imAuto(){const R=IM.sheets[IM.si].rows;IM.hdr=imFindHdr(R);IM.map=imGuess(R,IM.hdr);IM.tmap={};imReguess()}
+function imReguess(){const R=IM.sheets[IM.si].rows;IM.unit=imUnitGuess(R,IM.hdr,IM.map.m);IM.dmy=imDmyGuess(R,IM.hdr,IM.map.d)}
+function imFieldOf(h,M){h=String(h||"").toLowerCase().replace(/[_*:?()\[\]#.\/-]+/g," ").replace(/\s+/g," ").trim();if(!h||h.length>80)return null;
+ const L=[
+  ["d",/^(date|dates|day|when|completed|date completed|completion date|start date|activity date|event date|date of (the )?(activity|cpd|event|learning|course|session|training))$|^date\b/],
+  ["m",/\b(hours?|hrs?|duration|minutes|mins|time spent|time taken|length|cpd time|cpd hours|learning hours|time)\b/,/\b(start|end|finish)\b/],
+  ["ty",/^(type|types|cpd type|activity type|type of (activity|cpd|learning|event)|category|learning type|format|method|kind)$|\btype\b/],
+  ["tg",/^(tags?|keywords?|labels?|speciality|specialty|clinical area|area|topic area|theme|themes|domain)$/],
+  ["c",/\b(practice|change|changes|apply|applied|application|action|actions|next steps|how will)\b/],
+  ["b",/\b(benefit|benefits|benefited|service users?|patients?|impact|who)\b/],
+  ["l",/\b(learn|learnt|learned|learning outcomes?|what did (i|you) (learn|do)|reflection|reflections|reflective|key points|takeaways?)\b/,/\b(model|framework|done|status|complete)\b/],
+  ["t",/^(title|activity|activity title|cpd activity|activity name|event|event name|course|course title|course name|name|session|session title|topic|subject|training|learning activity|description of activity|activity description|what)$/],
+  ["l",/\b(notes?|summary|description|details|comments?|outcome|outcomes)\b/]];
+ for(const x of L)if(M[x[0]]==null&&x[1].test(h)&&!(x[2]&&x[2].test(h)))return x[0];return null}
+function imHdrScore(row){const M={};let k=0;(row||[]).forEach(c=>{const f=imFieldOf(c,M);if(f){M[f]=1;k++}});return k}
+function imFindHdr(R){let bi=-1,bk=0;for(let i=0;i<Math.min(R.length,15);i++){const r=R[i]||[];if(r.filter(Boolean).length<2)continue;const k=imHdrScore(r);if(k>=2)return i;if(k>bk){bk=k;bi=i}}
+ if(bi>=0)return bi;const f=R.findIndex(r=>r.filter(Boolean).length>=2);if(f<0)return -1;
+ return (R[f]||[]).some(c=>imDate(c,"dmy"))?-1:f}
+const imW=R=>R.reduce((a,r)=>Math.max(a,r.length),0);
+const imCol=(R,h,c)=>R.slice(h+1).map(r=>String((r||[])[c]||"").trim()).filter(Boolean);
+function imGuess(R,h){const M={d:null,t:null,m:null,ty:null,l:null,c:null,b:null,tg:null};
+ if(h>=0)(R[h]||[]).forEach((c,i)=>{const f=imFieldOf(c,M);if(f)M[f]=i});
+ const W=imW(R),used=()=>new Set(Object.values(M).filter(x=>x!=null));
+ if(M.d==null)for(let c=0;c<W;c++){if(used().has(c))continue;const v=imCol(R,h,c);if(v.length&&v.filter(x=>imDate(x,"dmy")).length>=v.length*.6){M.d=c;break}}
+ if(M.t==null)for(let c=0;c<W;c++){if(used().has(c))continue;const v=imCol(R,h,c);if(!v.length)continue;const tx=v.filter(x=>!imDate(x,"dmy")&&!/^[\d.,:\s]+$/.test(x));
+  if(tx.length>=v.length*.6&&tx.reduce((a,x)=>a+x.length,0)/tx.length<=100){M.t=c;break}}
+ return M}
+function imUnitGuess(R,h,c){if(c==null)return "h";const hd=String((R[h]||[])[c]||"").toLowerCase();if(/min/.test(hd))return "min";if(/hour|hrs|\bhr\b|\bh\b/.test(hd))return "h";
+ const v=imCol(R,h,c).filter(x=>/^\d+([.,]\d+)?$/.test(x)).map(x=>parseFloat(x.replace(",",".")));if(!v.length)return "h";return v.filter(x=>x>24).length>v.length/3?"min":"h"}
+const imSlash=(R,h,c)=>c==null?0:imCol(R,h,c).filter(v=>/^\d{1,2}[\/.\-]\d{1,2}[\/.\-]\d{2,4}/.test(v)).length;
+function imDmyGuess(R,h,c){if(c==null)return "dmy";let a=0,b=0;imCol(R,h,c).forEach(v=>{const m=/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-]\d{2,4}/.exec(v);if(m){if(+m[1]>12)a++;if(+m[2]>12)b++}});return b>0&&a===0?"mdy":"dmy"}
+
+/* ---------- reading values ---------- */
+function imYmd(y,m,d){if(!(y>=1980&&y<=2100&&m>=1&&m<=12&&d>=1&&d<=31))return null;const x=new Date(Date.UTC(y,m-1,d));if(x.getUTCMonth()!==m-1)return null;return x.toISOString().slice(0,10)}
+const imYY=y=>y<100?y+(y>(new Date().getFullYear()%100)+1?1900:2000):y;
+function imDate(v,dmy){const s=String(v==null?"":v).trim();if(!s||s.length>40)return null;let m;
+ if((m=/^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})(?:[T ].*)?$/.exec(s)))return imYmd(+m[1],+m[2],+m[3]);
+ if((m=/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2}|\d{4})(?:[ ,T].*)?$/.exec(s))){const a=+m[1],b=+m[2],y=imYY(+m[3]);return dmy==="mdy"?imYmd(y,a,b):imYmd(y,b,a)}
+ if(/^\d{5}(\.\d+)?$/.test(s)){const n=+s;return n>29000&&n<80000?imSerial(n):null}
+ const MO=["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"],mo=x=>MO.indexOf(String(x).slice(0,3));
+ const t=s.toLowerCase().replace(/(\d)(st|nd|rd|th)\b/g,"$1").replace(/[,.]/g," ").replace(/^(mon|tue|wed|thu|fri|sat|sun)[a-z]*\s+/,"").replace(/\s+/g," ").trim();
+ if((m=/^(\d{1,2})[ -]([a-z]{3,9})[ -](\d{2}|\d{4})\b/.exec(t))&&mo(m[2])>=0)return imYmd(imYY(+m[3]),mo(m[2])+1,+m[1]);
+ if((m=/^([a-z]{3,9}) (\d{1,2}) (\d{4})\b/.exec(t))&&mo(m[1])>=0)return imYmd(+m[3],mo(m[1])+1,+m[2]);
+ return null}
+/* time spent: "1h 30m", "1:30", "90 mins", "1.5 hours", "1 day", or a plain number in the unit chosen */
+function imMin(v,unit){let s=String(v==null?"":v).trim().toLowerCase().replace(/(\d),(\d)/g,"$1.$2");if(!s)return {m:0,none:1};let m,tot=0,hit=false,day=false;
+ if((m=/^(\d{1,3}):(\d{1,2})(?::\d{1,2})?$/.exec(s)))tot=+m[1]*60+ +m[2],hit=true;
+ else{s.replace(/(\d+(?:\.\d+)?)\s*(days?)(?![a-z])/g,(_,n)=>{tot+=parseFloat(n)*450;hit=day=true});if(/\bhalf[ -]?day\b/.test(s)){tot+=225;hit=day=true}else if(/\b(a |one |full |whole )?day\b/.test(s)&&!hit){tot+=450;hit=day=true}
+  s.replace(/(\d+(?:\.\d+)?)\s*(hours?|hrs?|h)(?![a-z])/g,(_,n)=>{tot+=parseFloat(n)*60;hit=true});
+  s.replace(/(\d+(?:\.\d+)?)\s*(minutes?|mins?|m)(?![a-z])/g,(_,n)=>{tot+=parseFloat(n);hit=true});
+  if(!hit&&/^\d+(\.\d+)?$/.test(s)){tot=parseFloat(s)*(unit==="min"?1:60);hit=true}}
+ if(!hit)return {m:0,bad:1};tot=Math.round(tot);if(tot>1440)return {m:1440,cap:1,day};return {m:Math.max(0,tot),day}}
+function imTyOf(s){s=String(s||"").toLowerCase().trim();if(!s)return null;{const x=CPT.find(c=>c[0]!=="app"&&c[1].toLowerCase()===s);if(x)return x[0]}
+ const K=[["elearn",/e-?learning|online (course|module|learning)|webinar|e-?lfh|\bmodule\b|mooc|podcast|self[- ]?(study|directed)|\bvideo\b/],
+  ["inserv",/in-?service|\binset\b|teaching session|team teaching|department(al)? teaching|lunchtime|staff training|mandatory|statutory/],
+  ["teach",/\btaught\b|teaching (others|students)|\bdelivered\b|\bpresented\b|gave a (talk|presentation)|educator/],
+  ["read",/\bread|journal|article|\bpaper\b|literature|guideline|\bbook\b|critical appraisal/],
+  ["shad",/shadow|observ|\bpeer\b/],
+  ["sim",/simulation|\bsim\b|practical|skills session|hands-on/],
+  ["mentor",/mentor|supervision|supervised|preceptor|appraisal|coaching|1:1|one to one/],
+  ["course",/course|study day|conference|seminar|training day|symposium|masterclass|lecture|workshop|\bcpd event\b/],
+  ["clin",/clinical|on-?call|case|\bward\b|work-?based|incident|\baudit\b/],
+  ["oth",/^other\b|\bmisc/]];
+ for(const x of K)if(x[1].test(s))return x[0];return null}
+function imTyPick(v,t){if(IM.map.ty!=null&&v){const k=v.toLowerCase();return IM.tmap[k]||imTyOf(v)||IM.defTy}return imTyOf(t)||IM.defTy}
+function imPid(s){s=String(s||"");if(/\b(dob|d\.o\.b|date of birth|nhs (no|number)|hospital (no|number)|mrn)\b/i.test(s))return true;
+ const re=/\b(\d{3})[ -]?(\d{3})[ -]?(\d{4})\b/g;let m;while((m=re.exec(s))){const d=(m[1]+m[2]+m[3]).split("").map(Number);let t=0;for(let i=0;i<9;i++)t+=d[i]*(10-i);let c=11-t%11;if(c===11)c=0;if(c!==10&&c===d[9])return true}return false}
+const imL=c=>{let s="";c++;while(c>0){const r=(c-1)%26;s=String.fromCharCode(65+r)+s;c=Math.floor((c-1)/26)}return s};
+const imHn=c=>{const R=IM.sheets[IM.si].rows,h=IM.hdr>=0?String((R[IM.hdr]||[])[c]||"").replace(/\s+/g," ").trim():"";return h?h.slice(0,40):"Column "+imL(c)};
+function imExtra(){const R=IM.sheets[IM.si].rows,W=imW(R),u=new Set(Object.values(IM.map).filter(x=>x!=null)),o=[];for(let c=0;c<W;c++)if(!u.has(c)&&imCol(R,IM.hdr,c).length)o.push(c);return o}
+
+/* A reflection exported by Phyzly (or written the same way) has each prompt on its own line: split it back into its parts */
+function imSplit(t){const lines=String(t||"").split("\n"),lab=x=>x.trim().toLowerCase();
+ for(const k of Object.keys(FW)){if(k==="otj"&&!(typeof showApp==="function"&&showApp()))continue;const F=FW[k].f,ix={};F.forEach(f=>{ix[lab(f[1])]=f[0]});if(!ix[lab(lines[0]||"")])continue;
+  const r={};let cur=null,n=0;for(const ln of lines){const key=ix[lab(ln)];if(key&&!r[key]){cur=key;r[key]="";n++;continue}if(cur)r[cur]+=(r[cur]?"\n":"")+ln}
+  Object.keys(r).forEach(x=>{r[x]=r[x].trim().slice(0,6000);if(!r[x])delete r[x]});if(n)return {fw:k,r}}
+ return null}
+/* ---------- turning rows into entries ---------- */
+function imBuild(){const R=IM.sheets[IM.si].rows,M=IM.map,h=IM.hdr,out=[],skip=[],W={tcut:0,mbad:0,mcap:0,day:0,pid:[]};let cut=0;
+ if(M.d==null||M.t==null)return {out,skip,W,cut,need:true};
+ const have={};(S.cpd||[]).forEach(e=>{if(e&&e.d&&e.t)have[e.d+"|"+String(e.t).trim().toLowerCase()]=1});const seen={},ex=IM.extra?imExtra():[];
+ for(let i=h+1;i<R.length;i++){const r=R[i]||[];if(!r.some(Boolean))continue;
+  const g=k=>M[k]==null?"":String(r[M[k]]||"").trim(),rn=i+1,dv=g("d"),tv=g("t").replace(/\s+/g," ");
+  if(!dv&&!tv)continue;
+  if(!dv){skip.push([rn,"No date"]);continue}
+  const d=imDate(dv,IM.dmy);if(!d){skip.push([rn,"Date not recognised ("+dv.slice(0,24)+")"]);continue}
+  if(!tv){skip.push([rn,"No title"]);continue}
+  let t=tv;if(t.length>120){t=t.slice(0,119).trim()+"…";W.tcut++}
+  const key=d+"|"+t.toLowerCase();
+  if(IM.dup&&have[key]){skip.push([rn,"Already in your log"]);continue}
+  if(IM.dup&&seen[key]){skip.push([rn,"Same as row "+seen[key]]);continue}
+  if(out.length>=IMMAX){cut++;continue}
+  seen[key]=rn;
+  const mm=M.m==null?{m:0}:imMin(g("m"),IM.unit);if(mm.bad)W.mbad++;if(mm.cap)W.mcap++;if(mm.day)W.day++;
+  const rf={};["l","c","b"].forEach(k=>{const v=g(k);if(v)rf[k]=v.slice(0,6000)});
+  if(ex.length){const x=ex.map(c=>{const v=String(r[c]||"").trim();return v?imHn(c)+": "+v:""}).filter(Boolean).join("\n");if(x)rf.l=((rf.l?rf.l+"\n\n":"")+x).slice(0,6000)}
+  let fw="std";if(rf.l&&!rf.c&&!rf.b){const sp=imSplit(rf.l);if(sp){fw=sp.fw;Object.assign(rf,{l:undefined},sp.r);if(rf.l===undefined)delete rf.l}}
+  const tg=M.tg==null?[]:tgClean(g("tg").split(/[;,|\n]+/));
+  if(imPid([t,rf.l,rf.c,rf.b].join(" ")))W.pid.push(rn);
+  out.push({rn,d,t,ty:imTyPick(g("ty"),t),m:mm.m,r:rf,tg,fw})}
+ if(IM.sheets[IM.si].more)cut++;
+ return {out,skip,W,cut}}
+function imGo(){if(!IM||IM.step!=="map")return;const B=imBuild();if(!B.out.length)return;
+ const bid="i"+Date.now().toString(36),ids=new Set((S.cpd||[]).map(e=>e&&e.id)),base=Date.now().toString(36);
+ const es=B.out.map((x,k)=>{let id;do{id=base+k.toString(36).padStart(3,"0")+Math.random().toString(36).slice(2,4)}while(ids.has(id));ids.add(id);
+  const e={id,d:x.d,t:x.t,ty:x.ty,m:x.m,fw:FW[x.fw]?x.fw:"std",r:x.r,tm:"",otj:false,ks:[],imp:bid};if(x.tg.length)e.tg=x.tg;return e});
+ S.cpd=(S.cpd||[]).concat(es);save();
+ IM={step:"done",n:es.length,sk:B.skip.length,bid,nr:es.filter(e=>!cpHas(e)).length};home();window.scrollTo(0,0)}
+function imBatches(){const b={};(S.cpd||[]).forEach(e=>{if(e&&typeof e.imp==="string")b[e.imp]=(b[e.imp]||0)+1});
+ return Object.keys(b).map(id=>({id,n:b[id],at:parseInt(id.slice(1),36)||0})).sort((x,y)=>y.at-x.at)}
+function imUndo(bid){if(!IM)IM={step:"pick"};if(IM.undo!==bid){IM.undo=bid;return home()}
+ const n=(S.cpd||[]).filter(e=>e&&e.imp===bid).length;S.cpd=(S.cpd||[]).filter(e=>!(e&&e.imp===bid));save();
+ IM={step:"pick",msg:n+" imported "+(n===1?"entry":"entries")+" removed from your log."};home();window.scrollTo(0,0)}
+function imSet(k,v){const c=v===""?null:+v;if(c!=null)Object.keys(IM.map).forEach(f=>{if(IM.map[f]===c)IM.map[f]=null});IM.map[k]=c;if(k==="ty")IM.tmap={};if(k==="m"||k==="d")imReguess();home()}
+function imHdrSet(v){IM.hdr=+v;IM.map=imGuess(IM.sheets[IM.si].rows,IM.hdr);IM.tmap={};imReguess();home()}
+function imSheetSet(i){IM.si=+i;imAuto();home()}
+function imTm(v,k){IM.tmap[String(v).toLowerCase()]=k;home()}
+
+/* ---------- screens ---------- */
+const imDay=d=>new Date(d+"T12:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"});
+function imScreen(){if(!IM)IM={step:"pick"};const back=`<button class="lnk" onclick="imClose()">‹ CPD log</button>`;let h=head()+`<div class="imw">`;
+ if(IM.step==="done"){const un=IM.undo===IM.bid;
+  h+=`<h1 style="font-size:1.5rem;margin:14px 0 4px">✓ ${IM.n} ${IM.n===1?"entry":"entries"} imported</h1>`+
+   `<p class="tag" style="margin:0 0 10px">They're in your log with your other entries.${IM.sk?" "+IM.sk+(IM.sk===1?" row was":" rows were")+" skipped.":""}${IM.nr?` ${IM.nr} ${IM.nr===1?"needs":"need"} a reflection: open ${IM.nr===1?"it":"each one"} when you have time to add how it changed your practice.`:""}</p>`+
+   `<button class="go" onclick="imClose()">View my log</button>`+
+   `<button class="opt" style="text-align:center;margin-top:10px;${un?"border-color:var(--bad);color:var(--bad)":""}" onclick="imUndo('${IM.bid}')">${un?"Tap again to remove all "+IM.n:"Undo this import"}</button>`;
+  app.innerHTML=h+`</div>`;return}
+ if(IM.step==="pick"){const bs=imBatches();
+  h+=back+`<h1 style="font-size:1.5rem;margin:6px 0 2px">Import CPD</h1><p class="tag" style="margin:0 0 10px">Bring in learning you've logged somewhere else. Each row becomes an entry in your log.</p>`+
+   (IM.err?`<div class="fb bad" role="alert"><b>${esc(IM.err)}</b></div>`:"")+(IM.msg?`<div class="note" role="status">${esc(IM.msg)}</div>`:"")+
+   (IM.busy?`<div class="note" role="status">${esc(IM.busy)}</div>`:
+   `<label class="go phb" style="margin-top:6px">Choose a file<small style="color:inherit;opacity:.85">Excel (.xlsx) or CSV</small><input type="file" accept=".xlsx,.xlsm,.csv,.tsv,.txt,text/csv,text/plain,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" onchange="imFile(this.files)"></label>`+
+   `<label class="cfl" for="im-p" style="margin-top:18px">Or paste a table</label><p class="tag" style="margin:0 0 6px">Copy the rows from Excel, Google Sheets, Numbers or a table in Word, with the heading row, then paste them here.</p>`+
+   `<textarea id="im-p" class="cin" rows="4" placeholder="Paste here" onpaste="imOnPaste(event)" oninput="imPasteBtn()"></textarea><button id="im-pb" class="opt" style="text-align:center;margin-top:8px" onclick="imPaste()" disabled>Use pasted table</button>`)+
+   `<div class="note" style="margin-top:14px"><b>What works best</b><br>One row per activity, with headings such as Date, Title, Hours, Type and Reflection. You'll match the columns next and see what will be imported before anything is added.<br><br>The file stays on your device. Only the entries you import are added to your log.</div>`+
+   (bs.length?`<div class="cfl">Your imports</div>`+bs.slice(0,10).map(b=>{const on=IM.undo===b.id;return `<div class="note imb"><span><b>${b.n} ${b.n===1?"entry":"entries"}</b><small>Imported ${b.at?esc(imDay(isoD(new Date(b.at)))):""}</small></span><button class="opt" style="${on?"border-color:var(--bad);color:var(--bad)":""}" onclick="imUndo('${esc(b.id)}')">${on?"Tap again to remove":"Undo"}</button></div>`}).join("")+`<p class="tag" style="margin:4px 0 0">Undo removes the entries from that import that you haven't edited since.</p>`:"");
+  app.innerHTML=h+`</div>`;return}
+ /* step: map */
+ const sh=IM.sheets[IM.si],R=sh.rows,M=IM.map,W=imW(R),B=imBuild(),sel=(id,k,lab,req)=>{const v=M[k];
+   return `<label class="cfl" for="${id}">${lab}${req?"":` <span style="font-weight:500;color:var(--mute)">(optional)</span>`}</label><select id="${id}" class="cin" onchange="imSet('${k}',this.value)"><option value=""${v==null?" selected":""}>${req?"Choose a column":"Not in my file"}</option>${
+    Array.from({length:W},(_,c)=>{const s=imCol(R,IM.hdr,c)[0]||"";return `<option value="${c}"${v===c?" selected":""}>${esc(imL(c)+" · "+imHn(c)+(s&&IM.hdr>=0?" (e.g. "+(s.length>22?s.slice(0,21)+"…":s)+")":""))}</option>`}).join("")}</select>`};
+ const chip=(on,lab,go)=>`<button class="chipb${on?" on":""}" aria-pressed="${on}" onclick="${go}">${lab}</button>`;
+ const tys=CPT.filter(x=>x[0]!=="app"),tySel=(id,cur,on,lab)=>`<select ${id?`id="${id}" `:""}class="cin"${lab?` aria-label="${esc(lab)}"`:""} ${on}>${tys.map(x=>`<option value="${x[0]}"${cur===x[0]?" selected":""}>${esc(x[1])}</option>`).join("")}</select>`;
+ h+=`<button class="lnk" onclick="IM={step:'pick'};home()">‹ Choose a different file</button><h1 style="font-size:1.5rem;margin:6px 0 2px">Match your columns</h1><p class="tag" style="margin:0 0 6px">${esc(IM.name)}${sh.n?" · "+esc(sh.n):""}. Tell Phyzly which column holds what. Phyzly has made a first guess.</p>`;
+ if(IM.sheets.length>1)h+=`<div class="cfl">Sheet</div><div class="chipw" role="group" aria-label="Sheet">${IM.sheets.map((s,i)=>chip(i===IM.si,esc(s.n),`imSheetSet(${i})`)).join("")}</div>`;
+ h+=`<label class="cfl" for="im-h">Heading row</label><select id="im-h" class="cin" onchange="imHdrSet(this.value)"><option value="-1"${IM.hdr<0?" selected":""}>No heading row</option>${R.slice(0,15).map((r,i)=>{const t=r.filter(Boolean).join(" · ");return t?`<option value="${i}"${IM.hdr===i?" selected":""}>${esc("Row "+(i+1)+": "+(t.length>48?t.slice(0,47)+"…":t))}</option>`:""}).join("")}</select>`;
+ h+=sel("im-d","d","Date",1);
+ if(imSlash(R,IM.hdr,M.d))h+=`<div class="chipw" role="group" aria-label="Date order" style="margin-top:8px">${chip(IM.dmy!=="mdy","Day/month/year","IM.dmy='dmy';home()")}${chip(IM.dmy==="mdy","Month/day/year (US)","IM.dmy='mdy';home()")}</div>`;
+ h+=sel("im-t","t","Title",1)+sel("im-m","m","Time spent");
+ if(M.m!=null)h+=`<div class="chipw" role="group" aria-label="Plain numbers are in" style="margin-top:8px"><span class="tag" style="margin:0 4px 0 0;align-self:center">Plain numbers are</span>${chip(IM.unit!=="min","Hours","IM.unit='h';home()")}${chip(IM.unit==="min","Minutes","IM.unit='min';home()")}</div>`;
+ h+=sel("im-ty","ty","Type of CPD");
+ if(M.ty!=null){const cnt={},lab={};imCol(R,IM.hdr,M.ty).forEach(v=>{const k=v.toLowerCase();cnt[k]=(cnt[k]||0)+1;lab[k]=lab[k]||v});const ks=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]).slice(0,25);
+  if(ks.length)h+=`<details class="ksg" style="margin-top:8px"${IM.tOpen?" open":""} ontoggle="IM.tOpen=this.open"><summary>Match your types to Phyzly's (${ks.length})</summary>${ks.map((k,i)=>`<div class="imtm"><span>${esc(lab[k].slice(0,40))} <small>${cnt[k]}</small></span>${tySel("",IM.tmap[k]||imTyOf(lab[k])||IM.defTy,`data-v="${esc(lab[k])}" onchange="imTm(this.dataset.v,this.value)"`,"Phyzly type for "+lab[k].slice(0,40))}</div>`).join("")}</details>`}
+ h+=`<label class="cfl" for="im-dt">${M.ty!=null?"Type for anything else":"Type when the title doesn't make it clear"}</label>`+tySel("im-dt",IM.defTy,`onchange="IM.defTy=this.value;home()"`);
+ h+=`<div class="sec" style="margin-top:22px">Reflection</div><p class="tag" style="margin:-4px 0 0">Goes into the Simple model's three prompts. A reflection exported from Phyzly is split back into its prompts.</p>`+sel("im-l","l","What did you learn or do?")+sel("im-c","c","How will it change your practice?")+sel("im-b","b","Who benefits, and how?")+sel("im-tg","tg","Tags");
+ const ex=imExtra();
+ h+=`<div class="sec" style="margin-top:22px">Options</div><button class="ock${IM.dup?" on":""}" role="checkbox" aria-checked="${IM.dup}" onclick="IM.dup=!IM.dup;home()"><i>${IM.dup?"✓":""}</i><span>Skip rows already in my log<br><small style="color:var(--mute)">Same date and title as an entry you have.</small></span></button>`+
+  (ex.length||IM.extra?`<button class="ock${IM.extra?" on":""}" role="checkbox" aria-checked="${IM.extra}" onclick="IM.extra=!IM.extra;home()"><i>${IM.extra?"✓":""}</i><span>Keep the other columns<br><small style="color:var(--mute)">Adds ${esc(ex.slice(0,4).map(imHn).join(", "))}${ex.length>4?" and "+(ex.length-4)+" more":""} to "What did you learn or do?"</small></span></button>`:"");
+ /* summary and preview */
+ const n=B.out.length,mins=B.out.reduce((a,x)=>a+x.m,0);
+ h+=`<div class="sec" style="margin-top:22px">Check before importing</div>`;
+ if(B.need)h+=`<div class="note" role="status">Choose the ${M.d==null&&M.t==null?"date and title columns":M.d==null?"date column":"title column"} to see what will be imported.</div>`;
+ else{const tc={};B.out.forEach(x=>{tc[x.ty]=(tc[x.ty]||0)+1});
+  h+=`<p class="xpsum" role="status" style="margin-top:0"><b>${n} ${n===1?"entry":"entries"} ready</b>${M.m!=null?" · "+esc(fmtH(mins)):""}${B.skip.length?" · "+B.skip.length+(B.skip.length===1?" row skipped":" rows skipped"):""}</p>`+
+   (n?`<p class="tag" style="margin:-2px 0 8px">${Object.keys(tc).sort((a,b)=>tc[b]-tc[a]).map(k=>esc(cptn(k))+" "+tc[k]).join(" · ")}</p>`:"");
+  const wl=[];if(B.W.mbad)wl.push(B.W.mbad+(B.W.mbad===1?" time wasn't":" times weren't")+" recognised, so "+(B.W.mbad===1?"it's":"they're")+" set to 0. You can change "+(B.W.mbad===1?"it":"them")+" after.");if(B.W.day)wl.push("A day is counted as 7.5 hours.");if(B.W.mcap)wl.push(B.W.mcap+(B.W.mcap===1?" entry is":" entries are")+" over 24 hours, so "+(B.W.mcap===1?"it's":"they're")+" set to 24 hours, the most for one entry. You could split "+(B.W.mcap===1?"it":"them")+" by day.");if(B.W.tcut)wl.push(B.W.tcut+(B.W.tcut===1?" title is":" titles are")+" over 120 characters and will be shortened.");if(B.cut)wl.push("Only the first "+IMMAX+" entries can be imported at once. Import the rest as a second file.");
+  if(wl.length)h+=`<div class="note">${wl.map(esc).join("<br>")}</div>`;
+  if(B.W.pid.length)h+=`<div class="note" style="border-color:var(--bad)"><b>Check for patient details.</b> ${B.W.pid.length===1?"Row":"Rows"} ${esc(B.W.pid.slice(0,12).join(", ")+(B.W.pid.length>12?" and "+(B.W.pid.length-12)+" more":""))} may include an NHS number or date of birth. Remove them from your file first, or edit the entries after importing.</div>`;
+  h+=B.out.slice(0,5).map(x=>`<div class="imc"><small>${esc(imDay(x.d))} · ${esc(cptn(x.ty))}${M.m!=null?" · "+esc(fmtH(x.m)):""}</small><b>${esc(x.t)}</b>${(()=>{const v=Object.values(x.r).find(Boolean);return v?`<p>${esc(String(v).slice(0,160))}</p>`:""})()}${x.tg.length?tgPills({tg:x.tg}):""}</div>`).join("")+(n>5?`<p class="tag" style="margin:0 0 8px">and ${n-5} more</p>`:"");
+  if(B.skip.length)h+=`<details class="ksg"${IM.sOpen?" open":""} ontoggle="IM.sOpen=this.open"><summary>${B.skip.length} ${B.skip.length===1?"row":"rows"} skipped</summary><ul class="imsk">${B.skip.slice(0,200).map(x=>`<li>Row ${x[0]}: ${esc(x[1])}</li>`).join("")}${B.skip.length>200?`<li>and ${B.skip.length-200} more</li>`:""}</ul></details>`}
+ h+=`<button class="go" style="margin-top:12px" onclick="imGo()" ${n?"":"disabled"}>${n?"Import "+n+" "+(n===1?"entry":"entries"):"Nothing to import yet"}</button><p class="tag" style="margin:6px 0 0">You can undo the import afterwards.</p>`;
+ app.innerHTML=h+`</div>`}
+(function(){const st=document.createElement("style");st.textContent=`.imw select.cin{padding-right:40px;text-overflow:ellipsis;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%238A94A6' stroke-width='2'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;background-size:12px 8px}
+.imc{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:10px 14px;margin:0 0 8px}.imc small{display:block;color:var(--mute);font-size:.8rem}.imc b{display:block;margin:2px 0 0;overflow-wrap:anywhere}.imc p{margin:4px 0 0;color:var(--mute);font-size:.9rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;white-space:pre-line}
+.imtm{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:8px;align-items:center;margin:0 0 8px}.imtm span{overflow-wrap:anywhere;font-weight:600}.imtm small{color:var(--mute);font-weight:500}.imtm .cin{margin:0;padding-top:10px;padding-bottom:10px}
+.imsk{margin:0 0 8px;padding-left:20px;color:var(--mute)}.imsk li{margin:2px 0}
+.imb{display:flex;align-items:center;gap:12px}.imb span{flex:1;min-width:0}.imb small{display:block;color:var(--mute)}.imb .opt{width:auto;margin:0;padding:8px 16px}
+.imw .go:disabled{opacity:.5}`;document.head.appendChild(st)})();
 
 
 /* ---------- Phyzly Portfolio (early access): Portfolio and Profile only, plus Quick ref and feedback ---------- */
