@@ -13596,6 +13596,86 @@ html.clin .ivd{border:1px solid var(--line);border-radius:12px;background:var(--
 html.clin .ivd summary{cursor:pointer}
 html.clin .ivd .ivo{border:0;padding:8px 0 0}`;document.head.appendChild(st)})();
 
+/* ---------- v477: Portfolio home ----------
+   The CPD log stands on its own as the main card (time this year, what needs a reflection, the latest entries and
+   quick add buttons), with the other tools listed underneath. In the web Portfolio the header carries the same quiet
+   strip as Learn: a week streak, XP this week and the level. Portfolio XP is worked out from what is in the log, so
+   it is the same on every device: 20 an entry, 15 for a reflection, 5 for evidence (the same values the CPD save
+   already shows), 10 a preceptorship meeting; up to 5 entries a day count. */
+const PFX={entry:20,refl:15,ev:5,meet:10,dayCap:5};
+const pfStripOn=()=>window.PZ_ONLY==="portfolio";
+function pfMon(d){const x=new Date(d+"T12:00:00"),k=(x.getDay()+6)%7;x.setDate(x.getDate()-k);return isoD(x)}
+function pfPrevWk(w){const x=new Date(w+"T12:00:00");x.setDate(x.getDate()-7);return isoD(x)}
+function pfXp(){const today=isoD(new Date()),E=(S.cpd||[]).filter(e=>e&&!e.auto&&DAYRX.test(String(e.d||""))).sort((a,b)=>String(a.d).localeCompare(String(b.d))||String(a.id).localeCompare(String(b.id)));
+ const per={},n={};E.forEach(e=>{n[e.d]=(n[e.d]||0)+1;if(n[e.d]>PFX.dayCap)return;per[e.d]=(per[e.d]||0)+PFX.entry+(cpHas(e)?PFX.refl:0)+((e.ph||[]).length?PFX.ev:0)});
+ (((S.pre||{}).mt)||[]).forEach(m=>{if(m&&DAYRX.test(String(m.d||"")))per[m.d]=(per[m.d]||0)+PFX.meet});
+ const wk=pfMon(today),tot=Object.values(per).reduce((a,b)=>a+b,0),week=Object.entries(per).filter(([d])=>d>=wk&&d<=today).reduce((a,[,v])=>a+v,0);
+ const W=new Set(E.filter(e=>e.d<=today).map(e=>pfMon(e.d)));let w=W.has(wk)?wk:pfPrevWk(wk),st=0;while(W.has(w)&&st<600){st++;w=pfPrevWk(w)}
+ const lv=lvOf(tot),cur=LVL[lv-1][0],nx=LVL[lv]?LVL[lv][0]:null;
+ return {tot,week,streak:st,thisWk:W.has(wk),lv,name:LVL[lv-1][1],cur,nx,f:nx?(tot-cur)/(nx-cur):1}}
+const PFFLAME='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c1 4 5 5 5 10a5 5 0 0 1-10 0c0-3 2-4 2-7 2 1 3 3 3 5"/></svg>';
+function pfStrip(){if(!pfStripOn())return "";const X=pfXp();
+ return `<button class="cstrip pfst" onclick="pf='xp';home();window.scrollTo(0,0)" aria-label="${X.streak} week streak, ${X.week} XP this week, level ${X.lv}. Tap to see how XP works"><span class="cs"><b>${PFFLAME}${X.streak}</b><small>week streak</small></span><span class="cs"><b>${X.week.toLocaleString("en-GB")}</b><small>XP this week</small></span><span class="cs"><b>Level ${X.lv}</b><small>${X.nx?(X.nx-X.tot).toLocaleString("en-GB")+" XP to "+(X.lv+1):"Top level"}</small></span></button>`}
+const pfShortD=d=>{try{return new Date(d+"T12:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"short"})}catch(e){return ""}};
+function pfHero(){const all=(S.cpd||[]).filter(e=>e&&e.id).slice().sort((a,b)=>String(b.d).localeCompare(String(a.d))||String(b.id).localeCompare(String(a.id))),y=isoD(new Date(Date.now()-365*864e5)),yr=all.filter(e=>String(e.d)>=y);
+ const mins=yr.reduce((a,e)=>a+(+e.m||0),0),todo=all.filter(e=>!cpHas(e)).length,rec=all.filter(e=>String(e.d)<=isoD(new Date())).slice(0,3);
+ let h=`<div class="nvfl pfhero"><button class="pfh-t" onclick="pf='cpd';cp.v='list';cp.nf=false;home();window.scrollTo(0,0)"><span><b>CPD log</b><small>${all.length?`${all.length} ${all.length===1?"entry":"entries"} · ${esc(fmtH(mins))} in the last 12 months`:"Your learning, with reflections you can export"}</small></span><span class="pfh-go" aria-hidden="true">›</span></button>`;
+ if(todo)h+=`<button class="pfh-n" onclick="pf='cpd';cp.v='list';cp.nf=true;home();window.scrollTo(0,0)">${todo} ${todo===1?"entry needs":"entries need"} a reflection<span aria-hidden="true">›</span></button>`;
+ if(rec.length)h+=`<div class="pfh-l">`+rec.map(e=>`<button class="pfh-e" onclick="cpdEdit('${esc(e.id)}')"><span><b>${esc(e.t)}</b><small>${esc(pfShortD(e.d))} · ${esc(fmtH(+e.m||0))}</small></span>${cpHas(e)?`<span class="bd t">Reflected</span>`:`<span class="bd s">Add reflection</span>`}</button>`).join("")+`</div>`;
+ else h+=`<p class="pfh-0">Nothing logged yet. Add what you've been learning: courses, reading, in-service training, supervision.</p>`;
+ h+=`<div class="pfh-a"><button class="go" onclick="cpdNew()">+ Add entry</button><label class="opt phb pfh-ph">📷 Add a photo<input type="file" accept="image/*" capture="environment" onchange="cpdSnap(this.files)"></label></div>`;
+ if(!all.length)h+=`<button class="lnk pfh-im" onclick="imOpen()">Already keep a CPD log? Import it</button>`;
+ return h+`</div>`}
+function portHome(){
+ const P=S.pre,n=(S.cpd||[]).length,web=pfStripOn(),cs=web?[]:compAll(),V=cmV(),ind=cs.filter(c=>V[c.id]&&V[c.id].l===3).length;
+ let ps="Set up";if(P&&P.start){const d=daysTo(P.start);ps=d>0?"Starts "+dFmt(P.start,{day:"numeric",month:"short"}):"Month "+Math.min(P.len,Math.floor(-d/30.44)+1)+" of "+P.len}
+ const card=(ic,t,s,go,d)=>`<button class="opt" onclick="${go}"><div class="row"><b>${ic} ${t}</b><span>${s}</span></div>${d?`<small style="color:var(--mute)">${d}</small>`:""}</button>`;
+ const hcSt=(()=>{const H=S.hc;const go=!!H&&!!(H.setUp||String(H.name||"").trim()||String(H.hist||"").trim()||String(H.stmt||"").trim()||(H.pick||[]).length||Object.keys(H.ev||{}).length||H.reg||String(H.no||"").trim());if(!go)return "Start";const C=hcChecks();return C.every(c=>c[0])?"Ready":"In progress"})();
+ const tools=(showPre()?card("🧭","Preceptorship",esc(ps),"pf='pre';pe=null;home()","Review points, meetings and goals for your first year"):"")+
+  (showPlc()?card("🏥","Placements",esc((()=>{const L=plcL(),n=L.find(x=>plcStat(x)==="now"),u=L.filter(x=>plcStat(x)==="up").sort((a,b)=>a.st.localeCompare(b.st))[0];return n?"Day "+(1-daysTo(n.st)):u?"Starts in "+daysTo(u.st)+" days":fmtHr(plcTot())+"h logged"})()),"pl.stg=null;openPlc('list')","Dates, hours and sign-offs"):"")+
+  (showApp()?card("🧾","Off-the-job log",esc(fmtH(otjEnt(isoD(new Date()).slice(0,7)).reduce((a,e)=>a+(e.m||0),0)))+" this month","pf='otj';kz=null;home()","Your apprenticeship hours and KSBs"):"")+
+  (!web?card("✅","Competencies",ind+" of "+cs.length,"pf='comp';cmf=null;home()","Rate yourself and link evidence"):"")+
+  (showHc()?card("🛡️","HCPC audit pack",hcSt,"openHc()","Build your CPD profile if you're picked for audit"):"")+
+  (showIv()?card("💼","Interview prep",esc(ivPortSt()),"openIv()","Band 5 and band 6 interviews"):"")+
+  (S.qualAt&&!showPlc()&&(plcL().length||(S.otj||[]).length||Object.keys(S.ksb||{}).length)?(plcL().length?card("🏥","Placements",fmtHr(plcTot())+"h logged","pl.stg=null;openPlc('list')","Kept from your training"):"")+(!showApp()&&((S.otj||[]).length||Object.keys(S.ksb||{}).length)?card("🧾","Off-the-job log and KSBs","kept","pf='otj';kz=null;home()","Kept from your apprenticeship"):""):"");
+ app.innerHTML=head()+tabs()+`<h1 style="font-size:1.6rem;margin:6px 0 2px">Portfolio</h1><p class="tag" style="margin:0 0 10px">Your learning, competencies and career in one place.</p>`+pfStrip()+pfHero()+
+ (tools?`<div class="sec">Your tools</div>`+tools:"")+
+ `<button class="opt" style="text-align:center;margin-top:14px" ${n||P||Object.keys(V).length?"":"disabled"} onclick="cp.x='all';cp.v='export';pf='cpd';home()">Export everything</button><div class="note">Your own tracker. Your trust's records are the official ones, and sign-off has to come from a supervisor.</div><p class="tag">${showApp()&&showPre()&&showIv()?"":"Looking for "+[showApp()?"":"the off-the-job log",showPre()?"":"preceptorship",showIv()?"":"interview prep"].filter(Boolean).join(" or ")+"? Turn it on in Profile, Settings."}</p><p class="tag">Saved on this device only. Export a copy now and then.</p>`;
+}
+/* how XP works (web Portfolio) */
+function pfXpScreen(){const X=pfXp(),bar=window.segBar?segBar(Array.from({length:10},(_,j)=>Math.max(0,Math.min(1,X.f*10-j)))):"";
+ const row=(t,p)=>`<div class="pfx-r"><span>${t}</span><b>+${p} XP</b></div>`;
+ app.innerHTML=head()+tabs()+bk("pf='home';home()","Portfolio")+`<h1 style="font-size:1.6rem;margin:6px 0 2px">Your progress</h1><p class="tag" style="margin:0 0 12px">Points for keeping your portfolio up to date.</p>`+
+ `<div class="sec">Level ${X.lv}</div><div class="ivc pfx-l"><b>${esc(X.name)}</b>${bar}<p>${X.nx?`${X.tot.toLocaleString("en-GB")} XP · ${(X.nx-X.tot).toLocaleString("en-GB")} XP to level ${X.lv+1}`:`${X.tot.toLocaleString("en-GB")} XP · top level`}</p></div>`+
+ `<div class="sec">How you earn XP</div><div class="ivc">`+row("Log a CPD entry",PFX.entry)+row("Write a reflection on it",PFX.refl)+row("Add a photo or file as evidence",PFX.ev)+(showPre()?row("Log a preceptorship meeting",PFX.meet):"")+`<p>Up to ${PFX.dayCap} entries a day count, so a few good entries beat lots of small ones. XP comes from what's in your log, so it's the same on every device.</p></div>`+
+ `<div class="sec">Week streak</div><div class="ivc"><b>${X.streak} ${X.streak===1?"week":"weeks"} in a row</b><p>Weeks (Monday to Sunday) with at least one CPD entry. ${X.thisWk?"This week already counts.":"Log something before Sunday to keep it going."} A week only breaks the streak once it has ended.</p></div>`}
+{const psX=portScreen;portScreen=function(){if(pf==="xp"){if(pfStripOn())return pfXpScreen();pf="home"}return psX.apply(this,arguments)}}
+/* clinical look: the strip sits in the navy header, under the description */
+{const hmX=home;home=function(){const r=hmX.apply(this,arguments);try{if(tab==="cpd"&&pf==="home"){const A=document.getElementById("app"),b=A&&A.querySelector(":scope>.nvband"),st=A&&A.querySelector(":scope>.pfst");if(b&&st)b.appendChild(st)}}catch(e){console.error("v477",e)}return r}}
+(()=>{const st=document.createElement("style");st.textContent=`
+.pfhero{padding:0!important;overflow:hidden}
+html:not(.clin) .pfhero{background:var(--card);border:2px solid var(--line);border-radius:16px;margin:0 0 12px}
+.pfh-t,.pfh-n,.pfh-e{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:transparent;border:0;color:var(--ink);font:inherit;cursor:pointer}
+.pfh-t{padding:16px 16px 12px}.pfh-t>span:first-child{flex:1;min-width:0}.pfh-t b{display:block;font-size:var(--ft-t3,19px);font-weight:700;letter-spacing:-.01em}
+.pfh-t small,.pfh-e small{display:block;color:var(--mute);font-size:var(--ft-sub,15px);margin-top:2px}
+.pfh-go{font-size:1.4rem;color:var(--mute)}
+.pfh-n{margin:0 16px 8px;width:calc(100% - 32px);padding:10px 12px;border-radius:12px;background:var(--tint,#EAF1FF);color:var(--ink);font-weight:600;font-size:var(--ft-sub,15px);justify-content:space-between}
+.pfh-l{border-top:1px solid var(--line)}
+.pfh-e{padding:12px 16px;border-bottom:1px solid var(--line)}.pfh-e>span:first-child{flex:1;min-width:0}.pfh-e b{display:block;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pfh-0{margin:0;padding:4px 16px 12px;color:var(--mute)}
+.pfh-a{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px 16px 16px}.pfh-a .go,.pfh-a .opt{margin:0;width:100%;min-height:50px;padding:12px 10px;text-align:center;justify-content:center;white-space:nowrap;font-size:var(--ft-body,17px)}
+.pfh-a .phb{display:flex;align-items:center;gap:6px;position:relative;overflow:hidden}.pfh-a .phb input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.pfh-im{display:block;margin:-6px 16px 14px;padding:0;text-decoration:underline}
+.pfst{margin:16px 0 0}
+html.clin .nvband .pfst{width:100%;background:transparent;border:0;box-shadow:none;margin:16px 0 0;color:#fff}
+html.clin .nvband .pfst .cs{border-right:0;padding:0 4px}
+html.clin .nvband .pfst b{font-size:1.6rem!important;font-weight:700!important;letter-spacing:-.02em;color:#fff}
+html.clin .nvband .pfst b svg{color:#FF8A5B}
+html.clin .nvband .pfst small{color:rgba(255,255,255,.68)}
+html.clin .nvband .pfst:hover{border:0}
+.pfx-r{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line)}.pfx-r:last-of-type{border-bottom:0}
+.pfx-l .sgb{margin:10px 0 6px}`;document.head.appendChild(st)})();
+
 
 /* ---------- Phyzly Portfolio (early access): Portfolio and Profile only, plus Quick ref and feedback ---------- */
 try{(function(){
