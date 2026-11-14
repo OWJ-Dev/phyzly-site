@@ -8063,7 +8063,7 @@ function auScreen(){
   (au.err?`<div class="fb bad" role="alert"><b>${esc(au.err)}</b></div>`:"")+
   `<button class="go" ${au.code.length===6?"":"disabled"} onclick="auVerify()">${au.mode==="up"?"Create account":"Sign in"}</button>`+
   `<p class="tag" style="text-align:center" id="au-rs">${left?`Resend code in ${left}s`:`<button class="lnk aul" onclick="au.t=Date.now();toast('Code sent again');welcome()">Resend code</button>`}</p><p class="tag" style="text-align:center">Can't find it? Check your junk folder.</p><p class="tag aupr">Prototype: type any 6 digits.</p></div>`}
- if(au.v==="legal")return `<button class="lnk" onclick="auGo(au.back||'land')">‹ Back</button><h1 style="font-size:1.5rem">${au.lg==="terms"?"Terms of use":"Privacy policy"}</h1><div class="note">Placeholder. The real ${au.lg==="terms"?"terms":"privacy policy"} need writing and a legal check before launch.</div><p>${au.lg==="terms"?"Phyzly is a learning tool. It doesn't replace your training, supervision, local policies or clinical judgement.":"Phyzly will say what data it holds, why, where it's stored and how to delete it. Never enter patient details."}</p>`;
+ if(au.v==="legal")return `<button class="lnk" onclick="auGo(au.back||'land')">‹ Back</button><h1 style="font-size:1.5rem">${au.lg==="terms"?"Terms of use":"Privacy policy"}</h1>`+pzlDoc(au.lg,false);
  return ""}
 function auClr(){if(au.err){au.err="";const e=document.querySelector(".auf [role=alert]");if(e)e.remove()}}
 function auLegal(k){au.back=au.v;au.lg=k;au.v="legal";welcome();window.scrollTo(0,0)}
@@ -14020,7 +14020,8 @@ function grFbView(){const f=grV().find(x=>x.id===gv.id);if(!f)return grGo("home"
  part("What you do well",f.w)+part("What to work on",f.k)+part("Anything else",f.o)+
  (gv.err?`<div class="fb bad"><b>${esc(gv.err)}</b></div>`:"")+
  `<button class="go" onclick="grItemFrom('fb','${esc(f.id)}')">Add it to my SWOC${n?" ("+n+" so far)":""}</button>`+
- `<button class="opt" style="text-align:center;margin-top:10px;${gv.del?"border-color:var(--bad);color:var(--bad)":""}" onclick="grFbViewDel()">${gv.del?"Tap again to delete":"Delete feedback"}</button>`}
+ `<button class="opt" style="text-align:center;margin-top:10px;${gv.del?"border-color:var(--bad);color:var(--bad)":""}" onclick="grFbViewDel()">${gv.del?"Tap again to delete":"Delete feedback"}</button>`+
+ `<button class="lnk aul" style="display:block;margin:16px auto 0" onclick="pzcReport('${esc(f.id)}')">Report this feedback</button>`}
 async function grFbViewDel(){const f=grV().find(x=>x.id===gv.id);if(!f)return grGo("home",{tab:"fb"});if(!gv.del){gv.del=true;return home()}
  const G=grS(),id=f.id,rq=f.rq,uid=grAskOn()?PZ.user.id:null;
  /* gone from this Portfolio straight away; the copy in the account is deleted now, or at the next check if offline */
@@ -14032,6 +14033,144 @@ async function grFbViewDel(){const f=grV().find(x=>x.id===gv.id);if(!f)return gr
 {const ogA=openGr;openGr=function(){try{if(!grAskErr)grAskNext=Math.min(grAskNext,grAskLast+30000)}catch(e){}return ogA.apply(this,arguments)}}
 {const hmA=home;home=function(){const r=hmA.apply(this,arguments);try{if(tab==="cpd"&&(pf==="home"||pf==="gr")&&grAskOn())setTimeout(()=>{grAskSync(false)},0)}catch(e){}return r}}
 (function(){const st=document.createElement("style");st.textContent=`.grt{white-space:pre-wrap;overflow-wrap:anywhere;margin:0 0 4px;color:var(--ink)}`;document.head.appendChild(st)})();
+
+
+/* ---------- v485: Privacy policy and Terms (the real text), Make a complaint, Report on feedback sent by link ---------- */
+const PZL_DATE="14 November 2026",PZL_ADDR="13 Naseby House, Rothwell Road, Kettering, NN16 8WB",PZL_MAIL="hello@phyzly.app",PZL_VER="v485";
+const pzcNew=()=>({ab:"",tx:"",err:"",busy:false,sent:null,list:null,ref:"",who:"",foc:false,at:0,uid:null});
+let pzlPg=null,pzc=pzcNew();
+/* nothing typed or loaded for one account is ever shown to another */
+function pzcMine(){let u=null;try{u=pzlIn()?PZ.user.id:null}catch(e){}if(pzc.uid!==u){pzc=pzcNew();pzc.uid=u}}
+const pzlLinks=()=>!!window.PZ_FB_LINKS;
+const pzlIn=()=>{try{return !!(window.PZ&&PZ.on&&PZ.sb&&PZ.user&&PZ.user.id&&S.acct&&!S.acct.guest)}catch(e){return false}};
+const pzlH=t=>`<div class="pzlh" role="heading" aria-level="2">${t}</div>`,pzlS=t=>`<div class="pzls" role="heading" aria-level="3">${t}</div>`,pzlP=t=>`<p>${t}</p>`;
+const pzlU=a=>`<ul>${a.filter(Boolean).map(x=>`<li>${x}</li>`).join("")}</ul>`;
+const pzlT=(hd,rows)=>rows.filter(Boolean).map(r=>`<div class="pzlr"><b>${r[0]}</b>${r.slice(1).map((c,i)=>`<div><span>${hd[i]}:</span> ${c}</div>`).join("")}</div>`).join("");
+const pzlM=`<a class="aul" href="mailto:${PZL_MAIL}">${PZL_MAIL}</a>`;
+function pzlPrivacy(inApp){const L=pzlLinks();return `<p class="tag">Last updated ${PZL_DATE}</p>`+
+ pzlH("Who we are")+pzlP("Phyzly is run by Oliver Jones, trading as Phyzly, in the United Kingdom. Oliver is the data controller, which means he is responsible for your information. He is registered with the Information Commissioner's Office, number ZC298395.")+
+ pzlP(`Address: ${PZL_ADDR}. Email: ${pzlM}.`)+
+ pzlH("The short version")+pzlU(["Your portfolio is yours. Only you can see it.","We keep what you add so you can use it on any device. We don't sell it, share it for advertising or use it to train AI.","Phyzly has no advertising, no tracking and no analytics.","You can export or delete everything at any time.","Please don't put patient details in Phyzly."])+
+ pzlH("What we collect")+
+ pzlS("When you create an account")+pzlU(["Your email address and first name.","How you sign in: a code sent by email, or Sign in with Apple. If you use Apple, Apple gives us your name and an email address, which may be a private relay address.","Your role, for example student, apprentice or registered physiotherapist, your band or year of study, and whether you're newly qualified.","Whether you asked to receive news by email."])+
+ pzlS("What you add to your portfolio")+pzlU(["CPD entries: dates, titles, types, time spent, reflections, tags and supervision details.","Photos and PDFs you attach as evidence.","Your HCPC audit pack: your summary of practice, your statement, and your HCPC registration number if you choose to add it.","Preceptorship records: dates, goals, meetings, actions and your preceptor's name and role.","Placement records and apprenticeship records, if you use those tools.","Feedback and SWOC: feedback you type in, your SWOC and snapshots"+(L?", and links you make to ask for feedback.":".")])+
+ (L?pzlS("What other people send you")+pzlU(["If you ask a colleague for feedback by link, we store what they write, their role and their name if they give it, so that you can read it."]):"")+
+ pzlS("When you contact us")+pzlU(["Messages sent with the feedback button, with the screen you were on, the app version and your browser type, so we can find and fix problems.","Complaints you send us, in the app or by email.","Emails you send us."])+
+ pzlS("Technical records")+pzlU(["Our database provider records sign-ins, including the time, your IP address and your browser type, to keep accounts secure.","The company that hosts our website records visitors' IP addresses for security."])+
+ pzlP("We don't collect your location, your contacts or anything about how you use other apps or websites.")+
+ pzlH("Information about other people")+pzlP("Your portfolio may mention colleagues, for example a preceptor's name or a supervisor's role. Add only what you need, and use a role instead of a name where you can. If someone asks us to remove information about them, we'll tell you and, where the law requires, remove it.")+
+ pzlH("What not to put in Phyzly")+pzlP("Don't add patient names, dates of birth, NHS or hospital numbers, photos of patients or anything else that could identify a patient. Phyzly is a personal record of your learning. It isn't approved by your employer or university for holding patient information.")+
+ pzlP("We don't ask for sensitive information about you, such as your health. If you choose to write about it in a reflection, we store it only so you can read it back, and you can delete it at any time.")+
+ pzlH("What we use your information for")+pzlT(["What we use","Our lawful basis"],[
+  ["Running your account and keeping your portfolio available on your devices","Account details and everything you add","Contract: we need it to provide the service you signed up for"],
+  ["Sending sign-in codes and essential messages about your account","Email address","Contract"],
+  L?["Showing you feedback a colleague sent through your link","The colleague's role, optional name and words","Legitimate interests: yours in getting feedback for your development, and ours in providing the tool"]:null,
+  ["Keeping accounts and the service secure","Sign-in records","Legitimate interests: preventing misuse"],
+  ["Fixing problems and improving Phyzly","Messages you send us; counts of accounts and entries, never their content","Legitimate interests: running a working service"],
+  ["Dealing with complaints","What you tell us in the complaint, and your email address so we can reply","Legal obligation"],
+  ["Emailing you news and study tips","Email address and first name","Consent. Only if you ticked the box. You can change your mind at any time."],
+  ["Meeting legal duties","Whatever the law requires","Legal obligation"]])+
+ pzlP("We don't make decisions about you by automated means, and we don't build profiles.")+
+ pzlH("Who can see your information")+pzlU(["<b>You.</b> Nobody else using Phyzly can see your portfolio.","<b>Oliver.</b> As the person who runs Phyzly, Oliver can access the database. He looks at an individual's content only to fix a problem they've reported, or when the law requires it.","<b>Companies that run Phyzly for us.</b> They act only on our instructions."])+
+ pzlT(["What it does","What it holds","Where"],[
+  ["Supabase","Database, sign-in and file storage","Your account and portfolio","London. Its support staff may be elsewhere, and its technical logs are kept in the EU."],
+  ["Resend","Sends sign-in emails, and emails confirming a complaint","Your email address and the emails we send, for 30 days","United States"],
+  ["GitHub","Hosts the website","Visitors' IP addresses","United States"],
+  ["Apple","Sign in with Apple, if you choose it","What Apple's own privacy policy describes","Apple acts for itself, not for us"]])+
+ pzlP("We would also share information if a court or regulator required it by law. We'll never sell your information.")+
+ pzlH("Information sent outside the UK")+pzlP("Your portfolio is stored in London. Some of the companies above are based in other countries or have staff there. When information goes outside the UK, it is protected by contract terms approved for that purpose by the UK's data protection regulator, or it goes to a country or scheme the UK government has decided gives equivalent protection. Email us if you'd like more detail.")+
+ pzlH("How long we keep it")+pzlU(["<b>Your account and portfolio:</b> until you delete your account. If you don't use Phyzly for three years, we'll email you, and delete the account 30 days later unless you sign in.","<b>Things you delete:</b> removed from our database within 30 days.",
+  L?"<b>Feedback a colleague sent you:</b> until you delete it or your account. A link nobody answers is removed 30 days after it expires.":null,
+  "<b>Messages sent with the feedback button:</b> two years.","<b>Complaints:</b> three years after we close them.","<b>Sign-in emails:</b> 30 days, with our email provider.","<b>When you delete your account:</b> everything in it is deleted straight away"+(L?", including feedback you received.":".")])+
+ pzlH("What's stored on your device")+pzlP("Phyzly keeps your sign-in and a copy of your portfolio in your browser's storage, so it opens quickly and works when your connection drops. This is needed for Phyzly to work, so we don't ask permission for it. We don't use cookies or similar tools for advertising, tracking or analytics. Signing out removes your portfolio from the device.")+
+ pzlH("Your rights")+pzlP("You can:")+pzlU(["see what we hold about you, and get a copy. You can also export your portfolio yourself at any time;","correct anything that's wrong, in the app or by asking us;","delete your account and everything in it, from your Profile;","ask us to stop or limit how we use your information;","object to anything we do on the basis of legitimate interests;","withdraw consent to news emails at any time, with the switch in your Profile or by emailing us."])+
+ pzlP(`Email ${pzlM}. We'll reply within one month, and it's free.`)+
+ (L?pzlH("If you gave feedback through a link")+pzlP("The page you used explains how your feedback is handled. In short: only the person who asked can see it, it stays until they delete it or their account, and you can ask them or us to remove it."):"")+
+ pzlH("Age")+pzlP("Phyzly is for people aged 18 and over. We don't knowingly collect information from anyone under 18. If you think someone under 18 has an account, email us and we'll remove it.")+
+ pzlH("Complaints")+pzlP(`If you're unhappy with how we've used your information, tell us. ${inApp&&pzlIn()?`Use <button class="lnk aul" onclick="pzlGo('complaint')">Make a complaint</button>, or email`:"Use Make a complaint in your Profile, or email"} ${pzlM}. We'll confirm we've received your complaint within 30 days and tell you the outcome as soon as we can.`)+
+ pzlP("You can also complain to the Information Commissioner's Office at ico.org.uk or on 0303 123 1113. We'd be grateful for the chance to put things right first.")+
+ pzlH("Changes to this policy")+pzlP("If we change how we use your information, we'll update this page and change the date at the top. For a significant change, we'll tell you in the app or by email before it takes effect.")}
+function pzlTerms(inApp){const L=pzlLinks();let n=0;const H=t=>pzlH((++n)+". "+t);return `<p class="tag">Last updated ${PZL_DATE}</p>`+
+ H("About these terms")+pzlP(`Phyzly is run by Oliver Jones, trading as Phyzly, ${PZL_ADDR}. You can reach us at ${pzlM}.`)+pzlP("These terms are the agreement between you and us when you use Phyzly. By creating an account you agree to them. Our Privacy policy explains how we use your information.")+
+ H("Who can use Phyzly")+pzlP("You must be 18 or over. Phyzly is made for physiotherapy students, apprentices and physiotherapists in the UK, but anyone aged 18 or over may use it.")+
+ H("Early access")+pzlP("Phyzly is in early access. It is still being built, so features may change or be removed, and there may be faults. We'll take reasonable care, but we can't promise it will always be available or free of errors.")+pzlP("Export a copy of your portfolio from time to time, and before any deadline that matters, such as an HCPC audit.")+
+ H("Your account")+pzlU(["Keep your sign-in secure. Anyone who can read your email can sign in as you.","Give accurate details, and use one account for yourself only.",`Tell us straight away at ${pzlM} if you think someone else has used your account.`])+
+ H("Your content")+pzlP("Everything you add to your portfolio stays yours. You give us permission to store it, back it up and show it to you on your devices, and nothing more. We don't use it for advertising or to train AI.")+pzlP("You're responsible for what you add. You can export it or delete it at any time.")+
+ H("Rules for using Phyzly")+pzlP("You agree that you won't:")+pzlU(["add patient names, dates of birth, NHS or hospital numbers, photos of patients or anything else that could identify a patient;","add confidential information that belongs to your employer, university or placement provider unless you're allowed to keep it;","add more about another person than you need. Use a role instead of a name where you can;","add anything unlawful, abusive or misleading, or anything that infringes someone else's rights;","try to get into anyone else's account, interfere with how Phyzly works or copy it for another product."])+pzlP("You remain responsible for following your regulator's standards and your employer's or university's policies, including on confidentiality and record keeping.")+
+ (L?H("Asking for feedback")+pzlP("You can make a link to ask someone for feedback on your practice.")+pzlU(["Send each link only to the one person you're asking, and only to people who know you through your work or study.","Don't send links to patients or their families.","What they write is their own view. We don't check it and aren't responsible for it.","You can't edit feedback that arrives this way. You can delete it.","If the person asks you to delete their feedback, please do. If they ask us, we may remove it and will tell you.","If feedback is abusive, or includes something it shouldn't, use Report this feedback. We'll look at it and may remove it."]):"")+
+ H("What Phyzly is not")+pzlU(["<b>Not clinical advice.</b> Phyzly helps you learn and keep records. It doesn't replace your training, your clinical judgement, supervision, local policies or national guidance.","<b>Not an official record.</b> Your employer's, university's and the HCPC's records are the official ones. Phyzly isn't endorsed by or connected to the HCPC, the NHS or the Chartered Society of Physiotherapy.","<b>No guarantee of an outcome.</b> We can't promise that using Phyzly will meet any audit, appraisal, course or job requirement. Check what your regulator, employer or university asks for."])+
+ H("Our content")+pzlP("The Phyzly name, design, software and written content belong to us or to those who license them to us. You may use Phyzly for your own learning and professional development. You may not copy, sell or republish it.")+
+ H("Price")+pzlP("Early access is free. If we introduce paid plans, we'll tell you the price and the terms first. You'll never be charged unless you choose a paid plan.")+
+ H("Changes and availability")+pzlP("We may change or withdraw features. If we plan to close Phyzly or remove a feature that holds your content, we'll give you at least 30 days' notice by email, so you can export it.")+
+ H("Ending your use")+pzlP("You can delete your account at any time from your Profile. That deletes your portfolio.")+pzlP("We may suspend or close an account that seriously or repeatedly breaks these terms. Unless there's a risk to others, we'll tell you first and give you the chance to export your content.")+
+ H("Our responsibility to you")+pzlU(["We'll provide Phyzly with reasonable care and skill.","If faulty digital content that we supply damages your device or other digital content because we didn't use reasonable care and skill, we'll repair the damage or pay compensation.","We're not responsible for loss that we couldn't reasonably have foreseen, loss caused by events outside our control, or business losses. Phyzly is for your personal professional development.","We're not responsible for decisions you make in clinical practice.","Nothing in these terms limits our liability for death or personal injury caused by our negligence, for fraud, or for anything else the law doesn't allow us to limit. Your legal rights as a consumer are not affected."])+
+ H("Complaints")+pzlP(`${inApp&&pzlIn()?`Use <button class="lnk aul" onclick="pzlGo('complaint')">Make a complaint</button>, or email`:"Use Make a complaint in your Profile, or email"} ${pzlM}, and we'll try to put it right. For concerns about your personal information, see the Privacy policy.`)+
+ H("Law")+pzlP("These terms are governed by the law of England and Wales. You can bring a claim in the courts of the part of the UK where you live.")+
+ H("Changes to these terms")+pzlP("We may update these terms. For a significant change, we'll tell you in the app or by email at least 14 days before it takes effect. If you don't agree, you can delete your account.")}
+function pzlDoc(k,inApp){return `<div class="pzl">${k==="terms"?pzlTerms(inApp):pzlPrivacy(inApp)}</div>`}
+
+/* ---- Make a complaint ---- */
+const PZC_AB=[["data","How my information is used"],["feedback","Feedback someone sent me"],["other","Something else"]];
+const pzcAb=k=>(PZC_AB.find(x=>x[0]===k)||PZC_AB[2])[1];
+const pzcRef=id=>"C-"+String(id||"").replace(/[^0-9a-f]/gi,"").slice(0,6).toUpperCase();
+const pzcDay=t=>{try{return new Date(t).toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"})}catch(e){return ""}};
+function pzcId(){try{if(crypto.randomUUID)return crypto.randomUUID()}catch(e){}const b=crypto.getRandomValues(new Uint8Array(16));b[6]=b[6]&15|64;b[8]=b[8]&63|128;const h=[...b].map(x=>x.toString(16).padStart(2,"0")).join("");return h.slice(0,8)+"-"+h.slice(8,12)+"-"+h.slice(12,16)+"-"+h.slice(16,20)+"-"+h.slice(20)}
+function pzcHtml(){pzcMine();const inn=pzlIn(),L=pzlLinks(),mail=`<a class="go pzcm" href="mailto:${PZL_MAIL}?subject=Complaint">Email ${PZL_MAIL}</a>`;
+ const ico=`<p class="tag" style="margin-top:14px">You can also complain to the Information Commissioner's Office at ico.org.uk or on 0303 123 1113, at any time.</p>`;
+ if(!inn)return `<div class="pzl"><p>Tell us what went wrong and we'll look into it. We confirm every complaint within 30 days and tell you the outcome as soon as we can.</p>${mail}<p class="tag" style="margin-top:10px">${S.acct&&!S.acct.guest?"You're not connected, so complaints can't be sent from here at the moment.":"Sign in to send a complaint from here."}</p>${ico}</div>`;
+ if(pzc.sent){const s=pzc.sent;return `<div class="pzl"><div class="note pzcok" role="status"><b>We've received your complaint</b><p style="margin:6px 0 0">Sent on ${esc(pzcDay(s.at))}. Reference ${esc(pzcRef(s.id))}.</p></div><p>Oliver, who runs Phyzly, will look into it and email you the outcome at ${esc((S.acct&&S.acct.email)||"your sign-in address")} as soon as he can.</p>${s.ab==="feedback"?`<p>Please keep the feedback until we've replied, so we can look at it.</p>`:""}<button class="go" onclick="pzlBack()">Done</button>${ico}</div>`}
+ const abs=PZC_AB.filter(x=>x[0]!=="feedback"||L||pzc.ab==="feedback");
+ let h=`<div class="pzl"><p>Tell us what went wrong and we'll look into it. We confirm every complaint within 30 days and tell you the outcome as soon as we can.</p>`+
+  (pzc.ref?`<div class="note"><b>You're reporting feedback from ${esc(pzc.who||"a colleague")}.</b> <span>We'll look at that piece of feedback only. Please keep it until we've replied.</span></div>`:"")+
+  `<div class="cfl" id="pzc-l">What is it about?</div><div class="chipw" role="group" aria-labelledby="pzc-l">${abs.map(([k,l])=>`<button class="chipb${pzc.ab===k?" on":""}" aria-pressed="${pzc.ab===k}" onclick="pzcPick('${k}')">${l}</button>`).join("")}</div>`+
+  `<label class="cfl" for="pzc-t" style="display:block;margin-top:14px">What happened?</label><textarea id="pzc-t" class="cin" rows="6" maxlength="3000" placeholder="What happened, and what you'd like us to do about it" oninput="pzc.tx=this.value;pzcClr()" onfocus="pzc.foc=true" onblur="if(this.isConnected)pzc.foc=false">${esc(pzc.tx)}</textarea>`+
+  `<p class="tag" style="margin-top:6px">Don't include patient details. We'll reply to ${esc((S.acct&&S.acct.email)||"your sign-in address")}.</p>`+
+  (pzc.err?`<div class="fb bad" role="alert"><b>${esc(pzc.err)}</b></div>`:"")+
+  `<button class="go" onclick="pzcSend()" ${pzc.busy?"disabled":""}>${pzc.busy?"Sending…":"Send complaint"}</button>`+
+  `<p class="tag" style="margin-top:10px">Or email ${pzlM}.</p>`;
+ if(Array.isArray(pzc.list)&&pzc.list.length)h+=pzlH("Your complaints")+pzc.list.map(c=>`<div class="pzlr"><b>${esc(pzcAb(c.about))}</b><div><span>Sent:</span> ${esc(pzcDay(c.created_at))} · ${esc(pzcRef(c.id))}</div><div>${c.closed_at?`<span>Closed:</span> ${esc(pzcDay(c.closed_at))}. We emailed you the outcome.`:"Received. We're looking into it."}</div></div>`).join("");
+ return h+ico+`</div>`}
+function pzcClr(){if(pzc.err){pzc.err="";const e=document.querySelector("#app .pzl [role=alert]");if(e)e.remove()}}
+function pzcPick(k){pzc.ab=k;if(k!=="feedback"){pzc.ref="";pzc.who=""}pzc.err="";meScreen()}
+async function pzcLoad(){if(!pzlIn())return;const uid=PZ.user.id;try{const r=await PZ.sb.from("complaints").select("id,created_at,about,closed_at").eq("user_id",uid).order("created_at",{ascending:false});if(r.error||!pzlIn()||PZ.user.id!==uid)return;pzcMine();pzc.list=(r.data||[]).slice(0,20);pzc.at=Date.now();if(pzlPg==="complaint"&&tab==="me"&&!(pzc.foc&&document.activeElement&&document.activeElement.id==="pzc-t"))meScreen()}catch(e){}}
+async function pzcSend(){pzcMine();if(pzc.busy||!pzlIn())return;const tx=String(pzc.tx||"").trim();
+ if(!pzc.ab){pzc.err="Choose what it's about.";return meScreen()}
+ if(tx.length<10){pzc.err="Tell us what happened, in a sentence or more.";return meScreen()}
+ if(navigator.onLine===false){pzc.err="You're offline. Try again when you're connected, or email "+PZL_MAIL+".";return meScreen()}
+ const uid=PZ.user.id,id=pzcId(),row={id,about:pzc.ab,body:tx.slice(0,3000),app_version:PZL_VER};if(pzc.ab==="feedback"&&/^[0-9a-f-]{36}$/i.test(pzc.ref))row.ref_id=pzc.ref;
+ pzc.busy=true;pzc.err="";meScreen();let err=null;
+ try{const r=await PZ.sb.from("complaints").insert(row);if(r&&r.error)err=r.error}catch(e){err=e}
+ pzc.busy=false;if(!pzlIn()||PZ.user.id!==uid)return;
+ if(err){const m=String((err&&err.message)||err);pzc.err=/limit/i.test(m)?"You've sent several complaints today. Please email "+PZL_MAIL+" instead.":"That didn't send. Try again, or email "+PZL_MAIL+".";if(pzlPg==="complaint")meScreen();return}
+ pzc.sent={id,at:Date.now(),ab:pzc.ab};pzc.tx="";pzc.ref="";pzc.who="";pzc.ab="";pzc.list=null;if(pzlPg==="complaint"){meScreen();window.scrollTo(0,0)}}
+/* from feedback that arrived by link */
+function pzcReport(id){let f=null;try{f=grV().find(x=>x.id===id)}catch(e){}if(!f)return;pzcMine();pzc.sent=null;pzc.err="";pzc.ab="feedback";pzc.ref=String(f.rq||"");pzc.who=String(f.nm||f.who||"a colleague").slice(0,60);pzlGo("complaint")}
+
+/* ---- pages inside Profile ---- */
+function pzlGo(k){pzlPg=k;try{meSub=null}catch(e){}if(k==="complaint"){pzcMine();if(pzc.sent&&Date.now()-pzc.sent.at>6e5)pzc.sent=null;if(!pzc.list||Date.now()-pzc.at>60000)setTimeout(pzcLoad,0)}openMe();window.scrollTo(0,0)}
+function pzlBack(){pzlPg=null;if(pzc.sent)pzc.sent=null;meScreen();window.scrollTo(0,0)}
+function pzlAfter(){const A=document.getElementById("app");if(!A||tab!=="me")return;
+ if(pzlPg){const title=pzlPg==="terms"?"Terms of use":pzlPg==="complaint"?"Make a complaint":"Privacy policy",body=pzlPg==="complaint"?pzcHtml():pzlDoc(pzlPg,true),band=A.querySelector(".nvband");
+  if(band){[...A.children].forEach(e=>{if(e!==band)e.remove()});[...band.children].forEach(e=>{if(!e.matches(".top"))e.remove()});band.classList.remove("nvtab","nvme");band.classList.add("nvsubpg");
+   band.insertAdjacentHTML("beforeend",`<button class="lnk" onclick="pzlBack()">‹ Profile</button><h1>${title}</h1>`);const c=document.createElement("div");c.className="mcard";c.innerHTML=body;band.after(c)}
+  else{const top=A.querySelector(".top");A.innerHTML=(top?top.outerHTML:"")+`<button class="lnk" onclick="pzlBack()">‹ Profile</button><h1 style="font-size:1.5rem;margin:6px 0 10px">${title}</h1>${body}`}
+  if(pzlPg==="complaint"&&pzc.foc){const t=document.getElementById("pzc-t");if(t){try{t.focus();t.setSelectionRange(t.value.length,t.value.length)}catch(e){}}}
+  return}
+ if(A.querySelector(".pzlg")||A.querySelector(".nvsubpg"))return;try{if(typeof meV!=="undefined"&&meV==="kit")return}catch(e){}
+ const rows=[["privacy","Privacy policy","#2F4A8A",'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/>'],["terms","Terms of use","#6B7A90",'<path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/>'],["complaint","Make a complaint","#0A1F3D",'<path d="M4 5h16v11H9l-5 4z"/><path d="M12 8v3.5M12 13.6v.1"/>']];
+ if(A.querySelector(".mgrp")){const ch=(A.querySelector(".mrow .mchv")||{}).outerHTML||"";
+  const g=`<div class="mgh pzlg">Privacy and terms</div><div class="mgrp">${rows.map(([k,l,c,p])=>`<button class="mrow" onclick="pzlGo('${k}')"><span class="msq" style="background:${c}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg></span><span class="mtx"><span class="mlb">${l}</span></span>${ch}</button>`).join("")}</div>`;
+  const hh=[...A.querySelectorAll(".mgh")].find(e=>e.textContent.trim()==="Help"),hg=hh&&hh.nextElementSibling;
+  if(hg&&hg.matches(".mgrp"))hg.insertAdjacentHTML("afterend",g);else{const red=A.querySelector(".mrow.mred"),rg=red&&red.closest(".mgrp");if(rg)rg.insertAdjacentHTML("beforebegin",g);else A.insertAdjacentHTML("beforeend",g)}}
+ else if(A.querySelector(".sec")){const g=`<div class="sec pzlg">Privacy and terms</div>${rows.map(([k,l])=>`<button class="opt" onclick="pzlGo('${k}')"><div class="row"><b>${l}</b><span>›</span></div></button>`).join("")}`;
+  const ab=[...A.querySelectorAll(".sec")].find(e=>e.textContent.trim()==="About");if(ab)ab.insertAdjacentHTML("beforebegin",g);else A.insertAdjacentHTML("beforeend",g)}}
+{const msL=meScreen;meScreen=function(){const r=msL.apply(this,arguments);try{pzlAfter()}catch(e){console.error("v485",e)}return r}}
+{const ngL=window.navGo;if(typeof ngL==="function")window.navGo=function(){pzlPg=null;return ngL.apply(this,arguments)}}
+(function(){const st=document.createElement("style");st.textContent=`.pzl{line-height:1.5;color:var(--ink);font-size:1rem}.pzl p{margin:0 0 10px;color:var(--ink);font-size:1rem;max-width:none}.pzl p.tag{color:var(--mute);font-size:.9rem}.pzl ul{margin:0 0 12px;padding-left:20px}.pzl li{margin:0 0 6px;font-size:1rem}
+.pzl .pzlh{font-weight:800;font-size:1.08rem;line-height:1.3;margin:22px 0 6px;color:var(--ink)}.pzl .pzls{font-weight:700;margin:12px 0 4px;color:var(--ink)}
+.pzl .pzlr{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:0 0 8px}.pzl .pzlr>b{display:block;margin-bottom:2px}.pzl .pzlr span{color:var(--mute)}
+.pzl textarea{width:100%;box-sizing:border-box}.pzl .pzcm{display:block;text-align:center;text-decoration:none;box-sizing:border-box}.pzl .pzcok{border-color:var(--ok);background:var(--okbg)}
+.pzl .chipw{margin-top:6px}.pzl .aul{color:var(--pri)}`;document.head.appendChild(st)})();
 
 
 /* ---------- Phyzly Portfolio (early access): Portfolio and Profile only, plus Quick ref and feedback ---------- */
