@@ -2939,7 +2939,7 @@ function cpdForm(){
  (showApp()?ksbPick():"")+
  `<div class="cfl">Reflection model</div><div class="chipw">${Object.keys(FW).filter(k=>(k!=="otj"||showApp()||cf.fw==="otj")&&(k!=="sup"||cf.ty==="mentor"||cf.fw==="sup")&&k!=="pm").map(k=>`<button class="chipb${(cf.fw||"std")===k?" on":""}" onclick="cf.fw='${k}';cfRe()">${esc(FW[k].n)}</button>`).join("")}</div><p class="tag" style="margin:6px 0 0">${esc(F.d)}</p>`+
  F.f.map(x=>`<label class="cfl" for="cf-${x[0]}">${esc(x[1])}</label>${x[2]?`<div class="tag" style="margin:0 0 4px">${esc(x[2])}</div>`:""}<textarea id="cf-${x[0]}" class="cin" rows="4" maxlength="6000" oninput="cf.r.${x[0]}=this.value;cpWc(this)">${esc(cf.r[x[0]]||"")}</textarea><small class="cfwc" data-wc="cf-${x[0]}">${cpWn(cf.r[x[0]]||"")}</small>`).join("")+
- `<button class="go" onclick="cpdSave()">Save entry</button>`+(cf.id?`<button class="opt" style="text-align:center;margin-top:10px;${cf.del?"border-color:var(--bad);color:var(--bad)":""}" onclick="cpdDel()">${cf.del?"Tap again to delete":"Delete entry"}</button>`:"");setTimeout(phFill,0);
+ `<button class="go" onclick="cpdSave()">Save entry</button>`+(cf.id?`<button class="opt" style="text-align:center;margin-top:10px;${cf.del?"border-color:var(--bad);color:var(--bad)":""}" onclick="cpdDel()">${cf.del?"Tap again to delete":"Delete entry"}</button>`:"")+(cf.id&&!cf.auto?`<button class="lnk" style="display:block;margin:16px auto 0" onclick="grFromCpd()">Add something from this to my SWOC</button>`:"");setTimeout(phFill,0);
 }
 /* ---------- v479: supervision and mentoring ---------- */
 FW.sup={n:"Supervision",d:"Three prompts for supervision, mentoring or a 1:1.",f:[["s1","What did you discuss?","Cases in general terms, skills, wellbeing or goals. No patient details."],["s2","What did you agree to do next?","Actions, who does them and by when."],["s3","How will it help your practice?","Think patients, team and service."]]};
@@ -3076,9 +3076,9 @@ async function phAdd(files){if(!cf||!files||!files.length)return;cf.ph=cf.ph||[]
  for(const f of Array.from(files).slice(0,12-cf.ph.length)){try{if(f.type==="application/pdf"||/\.pdf$/i.test(f.name||"")){if(f.size>15e6){cf.phMsg="That PDF is over 15 MB. Try a smaller copy.";continue}const id="pd"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);await phPut(id,f);cf.ph.push(id);n++;continue}const b=await phShrink(f),id="ph"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);await phPut(id,b);cf.ph.push(id);n++}catch(e){}}
  cf.phMsg=n?"":cf.phMsg&&cf.phMsg!=="Adding…"?cf.phMsg:"That file couldn't be added. Try a photo or a PDF.";if(n&&!cpHas({r:cf.r,fw:cf.fw}))cf.nr=true;cfRe();hap("tap")}
 function phFill(){document.querySelectorAll("img[data-ph]").forEach(async im=>{const u=await phUrl(im.dataset.ph);if(u)im.src=u});document.querySelectorAll("[data-pn]").forEach(async el=>{try{const b=await phGet(el.dataset.pn);if(b&&b.name)el.textContent=b.name}catch(e){}});document.querySelectorAll("iframe[data-pf]").forEach(async f=>{const u=await phUrl(f.dataset.pf);if(u)f.src=u})}
-function phView(id){const d=document.createElement("div");d.className="phv";d.innerHTML=`${isPdf(id)?`<iframe title="Attached PDF" data-pf="${esc(id)}" style="width:100%;flex:1;min-height:60vh;border:0;background:#fff;border-radius:10px"></iframe>`:`<img alt="Photo attached to this entry" data-ph="${esc(id)}">`}<div class="phvb"><button class="opt" onclick="this.closest('.phv').remove()">Close</button>${cf||cmf||(typeof pe!=="undefined"&&pe&&pe.v==="mt")?`<button class="opt" style="color:var(--bad)" onclick="${cf?"phRm":cmf?"cmPhRm":"mtPhRm"}('${esc(id)}');this.closest('.phv').remove()">${isPdf(id)?"Delete PDF":"Delete photo"}</button>`:""}</div>`;d.onclick=e=>{if(e.target===d)d.remove()};document.body.appendChild(d);phFill()}
+function phView(id){const d=document.createElement("div");d.className="phv";d.innerHTML=`${isPdf(id)?`<iframe title="Attached PDF" data-pf="${esc(id)}" style="width:100%;flex:1;min-height:60vh;border:0;background:#fff;border-radius:10px"></iframe>`:`<img alt="Photo attached to this entry" data-ph="${esc(id)}">`}<div class="phvb"><button class="opt" onclick="this.closest('.phv').remove()">Close</button>${cf||cmf||(typeof pe!=="undefined"&&pe&&pe.v==="mt")||(typeof grf!=="undefined"&&grf&&grf.k==="fb")?`<button class="opt" style="color:var(--bad)" onclick="${cf?"phRm":cmf?"cmPhRm":(typeof grf!=="undefined"&&grf&&grf.k==="fb")?"grPhRm":"mtPhRm"}('${esc(id)}');this.closest('.phv').remove()">${isPdf(id)?"Delete PDF":"Delete photo"}</button>`:""}</div>`;d.onclick=e=>{if(e.target===d)d.remove()};document.body.appendChild(d);phFill()}
 function phRm(id){if(!cf)return;cf.ph=(cf.ph||[]).filter(x=>x!==id);cf.phGone=(cf.phGone||[]).concat([id]);cfRe()}
-async function phGc(){try{const used=new Set(),scan=o=>{(JSON.stringify(o||null).match(/"(?:ph|pd)[a-z0-9]{8,}"/g)||[]).forEach(x=>used.add(x.slice(1,-1)))};scan(S);scan(typeof cf!=="undefined"?cf:null);scan(typeof cmf!=="undefined"?cmf:null);scan(typeof cmPend!=="undefined"?cmPend:null);scan(typeof pe!=="undefined"?pe:null);const ks=await phKeys();for(const k of ks||[])if(!used.has(k))await phDel(k)}catch(e){}}
+async function phGc(){try{const used=new Set(),scan=o=>{(JSON.stringify(o||null).match(/"(?:ph|pd)[a-z0-9]{8,}"/g)||[]).forEach(x=>used.add(x.slice(1,-1)))};scan(S);scan(typeof cf!=="undefined"?cf:null);scan(typeof cmf!=="undefined"?cmf:null);scan(typeof cmPend!=="undefined"?cmPend:null);scan(typeof pe!=="undefined"?pe:null);scan(typeof grf!=="undefined"?grf:null);const ks=await phKeys();for(const k of ks||[])if(!used.has(k))await phDel(k)}catch(e){}}
 function phBlock(){const ph=cf.ph||[],F=fwOf(cf);
  let o=`<div class="cfl">Photos and evidence</div><p class="tag" style="margin:0 0 6px">Notes, certificates, agendas or slides from the session.</p>`+(ph.length?`<div class="phs">${ph.map(id=>isPdf(id)?`<button class="pht pdt" onclick="phView('${id}')" aria-label="View PDF"><span>📄</span><small data-pn="${id}">PDF</small></button>`:`<button class="pht" onclick="phView('${id}')" aria-label="View photo"><img alt="" data-ph="${id}"></button>`).join("")}</div>`:"")+
  (ph.length<12?`<div class="tabs"><label class="opt phb">📷 Take photo<input type="file" accept="image/*" capture="environment" onchange="phAdd(this.files)"></label><label class="opt phb">📎 Choose files<input type="file" accept="image/*,application/pdf,.pdf" multiple onchange="phAdd(this.files)"></label></div>`:"")+
@@ -11947,7 +11947,8 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
    apprenticeship:()=>({otj:S.otj||[],otjT:S.otjT||{},ksb:S.ksb||{}}),
    preceptorship:()=>({pre:S.pre||null}),
    competencies:()=>({cm:S.cm||null}),
-   interview:()=>({iv:S.iv||null})};
+   interview:()=>({iv:S.iv||null}),
+   tools:()=>({gr:S.gr||null})};
   /* per-group checks for values screens use as numbers */
   const FIX={
    apprenticeship:v=>{const T=v.otjT,o={};if(T&&typeof T==="object"&&!Array.isArray(T))Object.keys(T).forEach(k=>{const n=+T[k];if(/^\d{4}-\d{2}$/.test(k)&&isFinite(n)&&n>0)o[k]=Math.min(300,n)});if("otjT" in v)v.otjT=o},
@@ -11965,7 +11966,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
   /* v452: what belongs to an account on this device. Removed when you sign out, and before a different
      account is used here, so one person's Portfolio can never be read by, or copied into, another's
      (security pass 10 Nov 2026, findings 1 and 3). v454: rotation, qualification and export dates added (R9). */
-  const ACCT_K=["cpd","plc","hc","otj","otjT","ksb","pre","cm","iv","pfp","role","band","nq","oth","crs","yr","pzAsk","pzAskIds","qualAt","prevRole","rot","rotDate","cpdX"];
+  const ACCT_K=["cpd","plc","hc","otj","otjT","ksb","pre","cm","iv","gr","pfp","role","band","nq","oth","crs","yr","pzAsk","pzAskIds","qualAt","prevRole","rot","rotDate","cpdX"];
   const dropAcct=()=>{ACCT_K.forEach(k=>delete S[k]);delete S.sy};
   const photosIn=o=>{const out=new Set();(JSON.stringify(o||null).match(/"(?:ph|pd)[a-z0-9]{8,}"/g)||[]).forEach(x=>out.add(x.slice(1,-1)));return out};
   const wipePhotos=async()=>{try{const ks=await phKeys();for(const k of ks)await phDel(k)}catch(e){}};
@@ -11976,7 +11977,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
 
   /* v455: photos of entries kept on this phone only, or still waiting for "Add to my account?", stay on the phone */
   const askSet=sy=>S.pzAsk?new Set(S.pzAskIds||(S.cpd||[]).filter(e=>e&&!sy.ent[e.id]).map(e=>e.id)):null;
-  const photoIds=()=>{const sy=S.sy||{ent:{},lo:[]},lo=new Set(sy.lo||[]),ask=askSet(sy);return photosIn([(S.cpd||[]).filter(e=>e&&!lo.has(e.id)&&!(ask&&ask.has(e.id))),S.cm||null,S.plc||[],S.hc||null,S.pre||null])};
+  const photoIds=()=>{const sy=S.sy||{ent:{},lo:[]},lo=new Set(sy.lo||[]),ask=askSet(sy);return photosIn([(S.cpd||[]).filter(e=>e&&!lo.has(e.id)&&!(ask&&ask.has(e.id))),S.cm||null,S.plc||[],S.hc||null,S.pre||null,S.gr||null])};
   const phPath=id=>`${PZ.user.id}/${id}.${id.startsWith("pd")?"pdf":"jpg"}`;
 
   /* ---------- sync ---------- */
@@ -13718,7 +13719,7 @@ function portHome(){
   (showApp()?card("🧾","Off-the-job log",esc(fmtH(otjEnt(isoD(new Date()).slice(0,7)).reduce((a,e)=>a+(e.m||0),0)))+" this month","pf='otj';kz=null;home()","Your apprenticeship hours and KSBs"):"")+
   (!web?card("✅","Competencies",ind+" of "+cs.length,"pf='comp';cmf=null;home()","Rate yourself and link evidence"):"")+
   (showHc()?card("🛡️","HCPC audit pack",hcSt,"openHc()","Build your CPD profile if you're picked for audit"):"")+
-  (showIv()?card("💼","Interview prep",esc(ivPortSt()),"openIv()","Band 5 and band 6 interviews"):"")+
+  card("🎯","Feedback and SWOC",esc(grPortSt()),"openGr()","Feedback from colleagues, and your own view of your strengths")+(showIv()?card("💼","Interview prep",esc(ivPortSt()),"openIv()","Band 5 and band 6 interviews"):"")+
   (S.qualAt&&!showPlc()&&(plcL().length||(S.otj||[]).length||Object.keys(S.ksb||{}).length)?(plcL().length?card("🏥","Placements",fmtHr(plcTot())+"h logged","pl.stg=null;openPlc('list')","Kept from your training"):"")+(!showApp()&&((S.otj||[]).length||Object.keys(S.ksb||{}).length)?card("🧾","Off-the-job log and KSBs","kept","pf='otj';kz=null;home()","Kept from your apprenticeship"):""):"");
  app.innerHTML=head()+tabs()+`<h1 style="font-size:1.6rem;margin:6px 0 2px">Portfolio</h1><p class="tag" style="margin:0 0 10px">Your learning, competencies and career in one place.</p>`+pfStrip()+pfHero()+
  (tools?`<div class="sec">Your tools</div>`+tools:"")+
@@ -13757,6 +13758,153 @@ html.clin .nvband .pfst small{color:rgba(255,255,255,.68)}
 html.clin .nvband .pfst:hover{border:0}
 .pfx-r{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line)}.pfx-r:last-of-type{border-bottom:0}
 .pfx-l .sgb{margin:10px 0 6px}`;document.head.appendChild(st)})();
+
+/* ---------- v482: Feedback and SWOC (stage 1: typed-in feedback, SWOC matrix, four pillars, snapshots) ---------- */
+/* S.gr = {fb:[{id,d,who,rel,ctx,txt,ph}], sw:[{id,q,t,pil,ev:[{k:"fb"|"cpd",id}],d}], sn:[{id,d,n,it:[{q,t,pil,ev}]}]}
+   Private to the person: nothing here is posted to the friends feed. Synced in the "tools" group. */
+const GRQ=[["s","Strengths","What you do well","strength"],["w","Weaknesses","What you want to get better at","weakness"],["o","Opportunities","What could help you grow","opportunity"],["c","Challenges","What could get in the way","challenge"]];
+const GRPL=[["clin","Clinical practice"],["lead","Leadership"],["edu","Education"],["res","Research"]];
+const GRR=[["sen","A senior or supervisor","Senior or supervisor"],["peer","A peer","Peer"],["jun","Someone I supervised","Someone I supervised"],["mdt","Another profession","Another profession"],["pt","A patient or carer","Patient or carer"],["oth","Someone else","Someone else"]];
+const GREG={s:"e.g. Clear handovers under pressure",w:"e.g. Confidence with tracheostomy care",o:"e.g. A respiratory rotation coming up",c:"e.g. Little protected time for CPD"};
+let gv={v:"home",tab:"sw"},grf=null;
+const grQ=k=>GRQ.find(x=>x[0]===k)||GRQ[0],grPn=k=>(GRPL.find(x=>x[0]===k)||["",""])[1],grRn=k=>(GRR.find(x=>x[0]===k)||GRR[5])[2];
+function grS(){let G=S.gr;if(!G||typeof G!=="object"||Array.isArray(G))G=S.gr={fb:[],sw:[],sn:[]};
+ const A=x=>Array.isArray(x)?x:[],str=(x,n)=>String(x==null?"":x).slice(0,n),okid=x=>/^[A-Za-z0-9_-]{1,40}$/.test(String(x==null?"":x)),day=x=>/^\d{4}-\d{2}-\d{2}$/.test(String(x)),today=isoD(new Date());
+ G.fb=A(G.fb).filter(f=>f&&typeof f==="object"&&okid(f.id)).slice(0,400);
+ G.fb.forEach(f=>{f.id=String(f.id);if(!day(f.d))f.d=today;f.who=str(f.who,80);f.rel=GRR.some(r=>r[0]===f.rel)?f.rel:"oth";f.ctx=str(f.ctx,80);f.txt=str(f.txt,3000);f.ph=A(f.ph).filter(i=>/^(ph|pd)[a-z0-9]{6,40}$/.test(String(i))).slice(0,12)});
+ G.sw=A(G.sw).filter(x=>x&&typeof x==="object"&&okid(x.id)).slice(0,200);
+ G.sw.forEach(x=>{x.id=String(x.id);x.q=GRQ.some(q=>q[0]===x.q)?x.q:"s";x.t=str(x.t,200);x.pil=GRPL.some(p=>p[0]===x.pil)?x.pil:"";if(!day(x.d))x.d=today;x.ev=A(x.ev).filter(e=>e&&(e.k==="fb"||e.k==="cpd")&&okid(e.id)).slice(0,20).map(e=>({k:e.k,id:String(e.id)}))});
+ G.sn=A(G.sn).filter(x=>x&&typeof x==="object"&&okid(x.id)).slice(0,24);
+ G.sn.forEach(x=>{x.id=String(x.id);if(!day(x.d))x.d=today;x.n=str(x.n,80);x.it=A(x.it).filter(i=>i&&typeof i==="object").slice(0,200).map(i=>({q:GRQ.some(q=>q[0]===i.q)?i.q:"s",t:str(i.t,200),pil:GRPL.some(p=>p[0]===i.pil)?i.pil:"",ev:Math.max(0,Math.min(20,Math.round(+i.ev||0)))}))});
+ return G}
+/* what an evidence link points at now (null if it has gone) */
+function grEv(e){if(e.k==="fb"){const f=grS().fb.find(x=>x.id===e.id);return f?{t:"Feedback from "+(f.who||grRn(f.rel).toLowerCase()),s:dFmt(f.d),go:"grFb('"+f.id+"')"}:null}
+ const c=(typeof cpdAll==="function"?cpdAll():(S.cpd||[])).find(x=>x&&x.id===e.id);return c?{t:c.t,s:dFmt(c.d)+" · CPD entry",go:""}:null}
+const grBacked=x=>(x.ev||[]).filter(e=>grEv(e)).length;
+function openGr(t){tab="cpd";pf="gr";grf=null;gv={v:"home",tab:t==="fb"?"fb":"sw"};home();window.scrollTo(0,0)}
+function grGo(v,extra){grf=null;gv=Object.assign({v:v||"home",tab:gv.tab||"sw"},extra||{});home();window.scrollTo(0,0)}
+function grTab(t){gv.tab=t;gv.just=null;home()}
+function grPortSt(){const G=S.gr;const n=G&&typeof G==="object"?((Array.isArray(G.sw)?G.sw.length:0)+(Array.isArray(G.fb)?G.fb.length:0)):0;return n?n+(n===1?" item":" items"):"Start"}
+
+function grScreen(){
+ if(grf&&grf.k==="sw")return grItemForm();if(grf&&grf.k==="fb")return grFbForm();if(gv.v==="snf")return grSnapForm();if(gv.v==="snap")return grSnapView();if(gv.v==="exp")return grExport();
+ const G=grS(),sw=gv.tab!=="fb";
+ let h=head()+tabs()+bk("pf='home';home()","Portfolio")+`<h1 style="font-size:1.6rem;margin:6px 0 2px">Feedback and SWOC</h1><p class="tag" style="margin:0 0 10px">What colleagues say about your practice, and your own view of where you're strong and where you're growing. Private to you.</p>`+
+  `<div class="seg" role="tablist"><button role="tab" aria-selected="${sw}" class="${sw?"on":""}" onclick="grTab('sw')">SWOC</button><button role="tab" aria-selected="${!sw}" class="${sw?"":"on"}" onclick="grTab('fb')">Feedback log${G.fb.length?" ("+G.fb.length+")":""}</button></div>`;
+ app.innerHTML=h+(sw?grSwocH(G):grFbH(G))}
+
+function grItemH(x){const n=grBacked(x);return `<button class="gri" onclick="grItem('${esc(x.id)}')"><b>${esc(x.t)}</b><small>${x.pil?esc(grPn(x.pil))+" · ":""}${n?"Backed by "+n+(n===1?" piece":" pieces")+" of evidence":"My view"}</small></button>`}
+function grSwocH(G){
+ let h=G.sw.length?"":`<div class="note">A SWOC is a picture of you as a clinician: your strengths, weaknesses, opportunities and challenges. Start with your own view, then back it up with feedback and reflections as they come.</div>`;
+ h+=`<div class="grm">`+GRQ.map(q=>{const L=G.sw.filter(x=>x.q===q[0]);return `<section class="grq" aria-label="${q[1]}"><div class="grh" role="heading" aria-level="2">${q[1]}</div><small>${q[2]}</small>${L.map(grItemH).join("")}<button class="lnk gra" onclick="grItem(null,'${q[0]}')">+ Add ${q[0]==="o"?"an":"a"} ${q[3]}</button></section>`}).join("")+`</div>`;
+ /* four pillars: where strengths and development areas sit, and how much is backed by evidence */
+ const SW=G.sw.filter(x=>x.q==="s"||x.q==="w");
+ if(SW.some(x=>x.pil)){h+=`<div class="sec">Across the four pillars</div><p class="tag" style="margin:0 0 8px">Where your strengths and development areas sit. A filled bar is backed by feedback or a reflection.</p><div class="grq grpp">`+
+  GRPL.map(p=>{const L=SW.filter(x=>x.pil===p[0]),s=L.filter(x=>x.q==="s").length,w=L.length-s,bk2=L.filter(x=>grBacked(x)).length;
+   return `<div class="grpr"><div class="row"><b>${p[1]}</b><span>${L.length?[s?s+(s===1?" strength":" strengths"):"",w?w+" to develop":""].filter(Boolean).join(" · "):"Nothing yet"}</span></div>${L.length?`<div class="grb" role="img" aria-label="${bk2} of ${L.length} backed by evidence">${L.slice().sort((a,b)=>grBacked(b)-grBacked(a)).map(x=>`<span class="${grBacked(x)?"on":""}"></span>`).join("")}</div>`:""}</div>`}).join("")+`</div>`;
+  const un=SW.filter(x=>!x.pil).length;if(un)h+=`<p class="tag" style="margin:6px 0 0">${un} ${un===1?"strength or weakness isn't":"strengths or weaknesses aren't"} in a pillar yet. Open one to choose.</p>`}
+ h+=`<div class="sec">Snapshots</div><p class="tag" style="margin:0 0 8px">Save a copy at the end of a rotation, so you can look back at how you've grown.</p>`+
+  G.sn.slice().sort((a,b)=>b.d.localeCompare(a.d)).map(s=>`<button class="opt" onclick="grGo('snap',{id:'${esc(s.id)}'})"><div class="row"><b>${esc(s.n||"Snapshot")}</b><span>${s.it.length} ${s.it.length===1?"item":"items"}</span></div><small style="color:var(--mute)">${esc(dFmt(s.d))}</small></button>`).join("")+
+  `<button class="opt" style="text-align:center" ${G.sw.length&&G.sn.length<24?"":"disabled"} onclick="grGo('snf')">Save a snapshot</button>`+
+  `<button class="opt" style="text-align:center;margin-top:10px" ${G.sw.length||G.fb.length?"":"disabled"} onclick="grGo('exp')">Export</button>`+
+  `<div class="note">Your own view of your practice, to bring to supervision and appraisal. It isn't an assessment, and it stays private unless you export it.</div>`;
+ return h}
+
+function grFbH(G){
+ const L=G.fb.slice().sort((a,b)=>b.d.localeCompare(a.d)||b.id.localeCompare(a.id)),used=new Set();G.sw.forEach(x=>x.ev.forEach(e=>{if(e.k==="fb")used.add(e.id)}));
+ let h=`<button class="go" onclick="grFb()">+ Add feedback</button>`;
+ if(gv.just&&G.fb.some(f=>f.id===gv.just))h+=`<div class="note" role="status"><b>Saved.</b> Does it say something about a strength, or something to work on?<button class="opt" style="text-align:center;margin:8px 0 0" onclick="grItemFrom('fb','${esc(gv.just)}')">Add it to my SWOC</button></div>`;
+ if(!L.length)h+=`<div class="note">Nothing here yet. Add feedback as you get it: a comment after a joint session, an end-of-rotation review, a note from a student you supervised.</div>`;
+ h+=L.map(f=>`<button class="opt" onclick="grFb('${esc(f.id)}')"><div class="row"><b>${esc(f.who||grRn(f.rel))}</b>${used.has(f.id)?`<span class="bd t">In your SWOC</span>`:""}</div><small style="color:var(--mute)">${esc(dFmt(f.d))} · ${esc(grRn(f.rel))}${f.ctx?" · "+esc(f.ctx):""}${f.ph.length?" · "+f.ph.length+" attached":""}</small>${f.txt?`<small class="grx">${esc(f.txt.length>140?f.txt.slice(0,140).trim()+"…":f.txt)}</small>`:""}</button>`).join("");
+ return h}
+
+/* ----- SWOC item ----- */
+function grItem(id,q){const G=grS(),x=id?G.sw.find(i=>i.id===id):null;if(id&&!x)return;grf=x?{k:"sw",id:x.id,q:x.q,t:x.t,pil:x.pil,ev:x.ev.map(e=>({k:e.k,id:e.id}))}:{k:"sw",id:null,q:GRQ.some(z=>z[0]===q)?q:"s",t:"",pil:"",ev:[]};tab="cpd";pf="gr";home();window.scrollTo(0,0)}
+function grItemFrom(k,id,keep){grf={k:"sw",id:null,q:"s",t:"",pil:"",ev:[{k,id}],back:k};if(keep)grf.keepCf=keep;gv.just=null;tab="cpd";pf="gr";home();window.scrollTo(0,0)}
+function grFromCpd(){if(!cf||!cf.id)return;const keep=JSON.parse(JSON.stringify(cf)),id=cf.id;cf=null;cp.v="list";grItemFrom("cpd",id,keep)}
+function grItemBack(){const f=grf||{};grf=null;if(f.keepCf){cf=f.keepCf;cp.v="form";tab="cpd";pf="cpd"}else if(f.back==="fb")gv={v:"home",tab:"fb"};else gv={v:"home",tab:"sw"};home();window.scrollTo(0,0)}
+function grItemForm(){const f=grf,G=grS(),linked=f.ev.map(e=>({e,v:grEv(e)})).filter(x=>x.v),has=(k,id)=>f.ev.some(e=>e.k===k&&e.id===id);
+ const fbs=G.fb.filter(x=>!has("fb",x.id)).sort((a,b)=>b.d.localeCompare(a.d)),cps=(S.cpd||[]).filter(e=>e&&!e.auto&&!has("cpd",e.id)).slice().sort((a,b)=>String(b.d).localeCompare(String(a.d))).slice(0,40);
+ app.innerHTML=head()+tabs()+bk("grItemBack()",f.keepCf?"Back to your entry":f.back==="fb"?"Feedback log":"SWOC")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">${f.id?"Edit":"Add to your SWOC"}</h1>`+
+ (f.err?`<div class="fb bad"><b>${esc(f.err)}</b></div>`:"")+
+ `<div class="cfl">Which box?</div><div class="chipw" role="group" aria-label="Which box">${GRQ.map(q=>`<button class="chipb${f.q===q[0]?" on":""}" aria-pressed="${f.q===q[0]}" onclick="grRd();grf.q='${q[0]}';cfRe()">${q[3].charAt(0).toUpperCase()+q[3].slice(1)}</button>`).join("")}</div><p class="tag" style="margin:6px 0 0">${grQ(f.q)[2]}.</p>`+
+ `<label class="cfl" for="gr-t">What is it?</label><input id="gr-t" class="cin" maxlength="200" value="${esc(f.t)}" placeholder="${GREG[f.q]}" oninput="grf.t=this.value">`+
+ `<div class="cfl">Pillar of practice <span style="font-weight:500;color:var(--mute)">(optional)</span></div><div class="chipw" role="group" aria-label="Pillar of practice">${GRPL.map(p=>`<button class="chipb${f.pil===p[0]?" on":""}" aria-pressed="${f.pil===p[0]}" onclick="grRd();grf.pil=grf.pil==='${p[0]}'?'':'${p[0]}';cfRe()">${p[1]}</button>`).join("")}</div>`+
+ `<div class="cfl">Evidence</div>`+(linked.length?linked.map(x=>`<div class="grow"><div class="opt" style="margin:0;flex:1;cursor:default"><b style="font-weight:600;display:block">${esc(x.v.t)}</b><small style="color:var(--mute)">${esc(x.v.s)}</small></div><button class="gx" aria-label="Unlink ${esc(x.v.t)}" onclick="grRd();grEvT('${x.e.k}','${esc(x.e.id)}')">✕</button></div>`).join(""):`<p class="tag" style="margin:0 0 6px">This is your own view so far. Link feedback or a CPD reflection to back it up.</p>`)+
+ (fbs.length?`<details class="grd"><summary class="lnk" style="cursor:pointer">Link feedback</summary><div style="margin-top:6px">${fbs.map(x=>`<button class="opt" style="margin:0 0 6px" onclick="grRd();grEvT('fb','${esc(x.id)}')"><div class="row"><b style="font-weight:600">${esc(x.who||grRn(x.rel))}</b><span>+ Link</span></div><small style="color:var(--mute)">${esc(dFmt(x.d))}${x.txt?" · "+esc(x.txt.slice(0,60))+(x.txt.length>60?"…":""):""}</small></button>`).join("")}</div></details>`:"")+
+ (cps.length?`<details class="grd"><summary class="lnk" style="cursor:pointer">Link a CPD entry</summary><div style="margin-top:6px">${cps.map(e=>`<button class="opt" style="margin:0 0 6px" onclick="grRd();grEvT('cpd','${esc(e.id)}')"><div class="row"><b style="font-weight:600">${esc(e.t)}</b><span>+ Link</span></div><small style="color:var(--mute)">${esc(dFmt(e.d))}</small></button>`).join("")}</div></details>`:"")+
+ (!fbs.length&&!G.fb.length?`<p class="tag" style="margin:6px 0 0">Feedback you add to your feedback log can be linked here.</p>`:"")+
+ `<button class="go" onclick="grItemSave()">Save</button>`+(f.id?`<button class="opt" style="text-align:center;margin-top:10px;${f.del?"border-color:var(--bad);color:var(--bad)":""}" onclick="grItemDel()">${f.del?"Tap again to delete":"Delete"}</button>`:"")}
+function grRd(){const el=document.getElementById("gr-t");if(el&&grf&&grf.k==="sw"){grf.t=el.value;grf.err=""}}
+function grEvT(k,id){if(!grf||grf.k!=="sw")return;const i=grf.ev.findIndex(e=>e.k===k&&e.id===id);if(i>=0)grf.ev.splice(i,1);else if(grf.ev.length<20)grf.ev.push({k,id});cfRe()}
+function grItemSave(){grRd();const f=grf,G=grS(),t=String(f.t||"").replace(/\s+/g," ").trim().slice(0,200);if(!t){f.err="Say what it is in a few words.";return home()}
+ const o={id:f.id||cpId(),q:f.q,t,pil:f.pil||"",ev:f.ev.filter(e=>grEv(e)).slice(0,20),d:isoD(new Date())},i=G.sw.findIndex(x=>x.id===o.id);
+ if(i>=0){o.d=G.sw[i].d;G.sw[i]=o}else{if(G.sw.length>=200){f.err="That's the most a SWOC can hold. Remove one first.";return home()}G.sw.push(o)}
+ save();try{toast(i>=0?"Saved":"Added to your SWOC")}catch(e){}const k=f.keepCf;grf=null;if(k){cf=k;cp.v="form";tab="cpd";pf="cpd"}else gv={v:"home",tab:"sw"};home();window.scrollTo(0,0)}
+function grItemDel(){const f=grf;if(!f.del){f.del=true;if(armTap(/^Delete$/,"Tap again to delete"))return;return home()}const G=grS();G.sw=G.sw.filter(x=>x.id!==f.id);save();grf=null;gv={v:"home",tab:"sw"};home();window.scrollTo(0,0)}
+
+/* ----- feedback ----- */
+function grFb(id){const G=grS(),x=id?G.fb.find(i=>i.id===id):null;if(id&&!x)return;grf=x?{k:"fb",id:x.id,d:x.d,who:x.who,rel:x.rel,ctx:x.ctx,txt:x.txt,ph:x.ph.slice()}:{k:"fb",id:null,d:isoD(new Date()),who:"",rel:"sen",ctx:"",txt:"",ph:[]};gv.just=null;tab="cpd";pf="gr";home();window.scrollTo(0,0)}
+function grFbRd(){const f=grf;if(!f||f.k!=="fb")return;f.err="";const g=k=>document.getElementById(k);if(g("grf-d")&&/^\d{4}-\d{2}-\d{2}$/.test(g("grf-d").value))f.d=g("grf-d").value;if(g("grf-w"))f.who=g("grf-w").value;if(g("grf-c"))f.ctx=g("grf-c").value;if(g("grf-x"))f.txt=g("grf-x").value}
+function grFbForm(){const f=grf,ph=f.ph||[],G=grS(),n=f.id?G.sw.filter(x=>x.ev.some(e=>e.k==="fb"&&e.id===f.id)).length:0;
+ app.innerHTML=head()+tabs()+bk("grf=null;gv={v:'home',tab:'fb'};home()","Feedback log")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">${f.id?"Edit feedback":"Add feedback"}</h1><div class="note"><b>No patient details.</b> A colleague's role is enough, unless they're happy to be named.</div>`+
+ (f.err?`<div class="fb bad"><b>${esc(f.err)}</b></div>`:"")+
+ `<label class="cfl" for="grf-d">Date</label><input id="grf-d" class="cin" type="date" value="${esc(f.d)}" oninput="grf.d=this.value" onchange="grf.d=this.value">`+
+ `<label class="cfl" for="grf-w">Who gave it?</label><input id="grf-w" class="cin" maxlength="80" value="${esc(f.who)}" placeholder="e.g. Band 7 respiratory physio" oninput="grf.who=this.value">`+
+ `<div class="cfl">They were…</div><div class="chipw" role="group" aria-label="Who they were to you">${GRR.map(r=>`<button class="chipb${f.rel===r[0]?" on":""}" aria-pressed="${f.rel===r[0]}" onclick="grFbRd();grf.rel='${r[0]}';cfRe()">${r[1]}</button>`).join("")}</div>`+
+ `<label class="cfl" for="grf-c">When or where <span style="font-weight:500;color:var(--mute)">(optional)</span></label><input id="grf-c" class="cin" maxlength="80" value="${esc(f.ctx)}" placeholder="e.g. End of respiratory rotation" oninput="grf.ctx=this.value">`+
+ `<label class="cfl" for="grf-x">What did they say?</label><div class="tag" style="margin:0 0 4px">Their words as closely as you can, the good and the things to work on.</div><textarea id="grf-x" class="cin" rows="6" maxlength="3000" oninput="grf.txt=this.value">${esc(f.txt)}</textarea>`+
+ `<div class="cfl">Evidence <span style="font-weight:500;color:var(--mute)">(optional)</span></div><p class="tag" style="margin:0 0 6px">A feedback form, an email or a card. Photos and PDFs.</p>`+
+ (ph.length?`<div class="phs">${ph.map(id=>isPdf(id)?`<button class="pht pdt" onclick="phView('${id}')" aria-label="View PDF"><span>📄</span><small data-pn="${id}">PDF</small></button>`:`<button class="pht" onclick="phView('${id}')" aria-label="View photo"><img alt="" data-ph="${id}"></button>`).join("")}</div>`:"")+
+ (ph.length<12?`<div class="tabs"><label class="opt phb">📷 Take photo<input type="file" accept="image/*" capture="environment" onchange="grPhAdd(this.files)"></label><label class="opt phb">📎 Choose files<input type="file" accept="image/*,application/pdf,.pdf" multiple onchange="grPhAdd(this.files)"></label></div>`:"")+
+ (f.phMsg?`<p class="tag" role="status">${esc(f.phMsg)}</p>`:"")+`<p class="tag" style="margin:4px 0 0">Cover any patient details, and check the person is happy for you to keep a copy.</p>`+
+ `<button class="go" onclick="grFbSave()">Save feedback</button>`+
+ (f.id?`<button class="opt" style="text-align:center;margin-top:10px" onclick="grFbRd();grFbToSw()">Add it to my SWOC${n?" ("+n+" so far)":""}</button><button class="opt" style="text-align:center;margin-top:10px;${f.del?"border-color:var(--bad);color:var(--bad)":""}" onclick="grFbDel()">${f.del?"Tap again to delete":"Delete feedback"}</button>`:"");setTimeout(phFill,0)}
+async function grPhAdd(files){if(!grf||grf.k!=="fb"||!files||!files.length)return;grFbRd();const f=grf;f.ph=f.ph||[];f.phMsg="Adding…";cfRe();let n=0;
+ for(const x of Array.from(files).slice(0,12-f.ph.length)){try{if(x.type==="application/pdf"||/\.pdf$/i.test(x.name||"")){if(x.size>15e6){f.phMsg="That PDF is over 15 MB. Try a smaller copy.";continue}const id="pd"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);await phPut(id,x);f.ph.push(id);n++;continue}const b=await phShrink(x),id="ph"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);await phPut(id,b);f.ph.push(id);n++}catch(e){}}
+ f.phMsg=n?"":f.phMsg&&f.phMsg!=="Adding…"?f.phMsg:"That file couldn't be added. Try a photo or a PDF.";cfRe();try{hap("tap")}catch(e){}}
+function grPhRm(id){if(!grf||grf.k!=="fb")return;grFbRd();grf.ph=(grf.ph||[]).filter(x=>x!==id);grf.phGone=(grf.phGone||[]).concat([id]);cfRe()}
+function grFbPut(){grFbRd();const f=grf,G=grS(),txt=String(f.txt||"").trim().slice(0,3000);if(!/^\d{4}-\d{2}-\d{2}$/.test(f.d||"")){f.err="Pick a date.";home();return null}if(!txt&&!(f.ph||[]).length){f.err="Add what they said, or attach it.";home();return null}
+ const o={id:f.id||cpId(),d:f.d,who:String(f.who||"").replace(/\s+/g," ").trim().slice(0,80),rel:f.rel,ctx:String(f.ctx||"").replace(/\s+/g," ").trim().slice(0,80),txt,ph:(f.ph||[]).slice(0,12)},i=G.fb.findIndex(x=>x.id===o.id);
+ if(i>=0)G.fb[i]=o;else{if(G.fb.length>=400){f.err="Your feedback log is full. Remove one first.";home();return null}G.fb.push(o)}
+ (f.phGone||[]).forEach(id=>{try{phDel(id).catch(()=>{})}catch(e){}});save();return {id:o.id,isNew:i<0}}
+function grFbSave(){const r=grFbPut();if(!r)return;grf=null;gv={v:"home",tab:"fb",just:r.isNew?r.id:null};try{if(!r.isNew)toast("Saved")}catch(e){}home();window.scrollTo(0,0)}
+function grFbToSw(){const r=grFbPut();if(!r)return;grItemFrom("fb",r.id)}
+function grFbDel(){const f=grf;if(!f.del){f.del=true;if(armTap(/^Delete feedback$/,"Tap again to delete"))return;return home()}const G=grS();(f.ph||[]).concat(f.phGone||[]).forEach(id=>{try{phDel(id).catch(()=>{})}catch(e){}});
+ G.fb=G.fb.filter(x=>x.id!==f.id);G.sw.forEach(x=>{x.ev=x.ev.filter(e=>!(e.k==="fb"&&e.id===f.id))});save();grf=null;gv={v:"home",tab:"fb"};home();window.scrollTo(0,0)}
+
+/* ----- snapshots ----- */
+function grSnapForm(){app.innerHTML=head()+tabs()+bk("grGo('home')","SWOC")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">Save a snapshot</h1><p class="tag" style="margin:0 0 8px">A copy of your SWOC as it is today. Your SWOC itself carries on as normal.</p>`+(gv.err?`<div class="fb bad"><b>${esc(gv.err)}</b></div>`:"")+
+ `<label class="cfl" for="gs-n">Name it</label><input id="gs-n" class="cin" maxlength="80" placeholder="e.g. End of respiratory rotation" value="${esc(gv.n||"")}" oninput="gv.n=this.value"><button class="go" onclick="grSnapSave()">Save snapshot</button>`}
+function grSnapSave(){const G=grS(),n=String(gv.n||"").replace(/\s+/g," ").trim().slice(0,80);if(!n){gv.err="Give it a name.";return home()}if(!G.sw.length||G.sn.length>=24)return grGo("home");
+ const it=G.sw.map(x=>({q:x.q,t:x.t,pil:x.pil,ev:grBacked(x)}));grS().sn.push({id:cpId(),d:isoD(new Date()),n,it});save();try{toast("Snapshot saved")}catch(e){}grGo("home")}
+function grSnapView(){const G=grS(),s=G.sn.find(x=>x.id===gv.id);if(!s)return grGo("home");
+ app.innerHTML=head()+tabs()+bk("grGo('home')","SWOC")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">${esc(s.n||"Snapshot")}</h1><p class="tag" style="margin:0 0 10px">Your SWOC on ${esc(dFmt(s.d))}.</p><div class="grm">`+
+ GRQ.map(q=>{const L=s.it.filter(x=>x.q===q[0]);return `<section class="grq" aria-label="${q[1]}"><div class="grh" role="heading" aria-level="2">${q[1]}</div>${L.length?L.map(x=>`<div class="gri"><b>${esc(x.t)}</b><small>${x.pil?esc(grPn(x.pil))+" · ":""}${x.ev?"Backed by "+x.ev+(x.ev===1?" piece":" pieces")+" of evidence":"My view"}</small></div>`).join(""):`<small>Nothing here then.</small>`}</section>`}).join("")+`</div>`+
+ `<button class="opt" style="text-align:center;margin-top:12px;${gv.del?"border-color:var(--bad);color:var(--bad)":""}" onclick="grSnapDel()">${gv.del?"Tap again to delete":"Delete snapshot"}</button>`}
+function grSnapDel(){if(!gv.del){gv.del=true;if(armTap(/^Delete snapshot$/,"Tap again to delete"))return;return home()}const G=grS();G.sn=G.sn.filter(x=>x.id!==gv.id);save();grGo("home")}
+
+/* ----- export ----- */
+function grText(){const G=grS();let t="Feedback and SWOC\nExported "+dFmt(isoD(new Date()))+"\nMy own record of my practice. It is not a formal assessment.\n";
+ GRQ.forEach(q=>{const L=G.sw.filter(x=>x.q===q[0]);t+="\n"+q[1].toUpperCase()+"\n";if(!L.length)t+="-\n";L.forEach(x=>{const ev=x.ev.map(grEv).filter(Boolean);t+="- "+x.t+(x.pil?" ("+grPn(x.pil)+")":"")+"\n"+(ev.length?ev.map(v=>"    Evidence: "+v.t+", "+v.s+"\n").join(""):"    My view\n")})});
+ if(G.fb.length){t+="\nFEEDBACK LOG\n";G.fb.slice().sort((a,b)=>a.d.localeCompare(b.d)).forEach(f=>{t+="\n"+dFmt(f.d)+" · "+(f.who?f.who+" ("+grRn(f.rel).toLowerCase()+")":grRn(f.rel))+(f.ctx?" · "+f.ctx:"")+"\n"+(f.txt||"(attached)")+(f.ph.length?"\n["+f.ph.length+(f.ph.length===1?" file":" files")+" attached in Phyzly]":"")+"\n"})}
+ return t}
+function grMsg(m){const e=document.getElementById("grm");if(e)e.textContent=m}
+function grExport(){app.innerHTML=head()+tabs()+bk("grGo('home')","SWOC")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">Export</h1><p class="tag" style="margin:0 0 8px">Your SWOC and feedback log as text, for supervision or appraisal. Check it before you share it.</p><button class="go" onclick="grDl()">Download text file</button><button class="opt" style="text-align:center;margin-top:10px" onclick="grCopy()">Copy as text</button><p id="grm" class="tag" role="status"></p><textarea id="grx" class="cin" rows="14" readonly aria-label="Your SWOC and feedback log as text">${esc(grText())}</textarea>`}
+async function grDl(){const name="phyzly-swoc-"+isoD(new Date())+".txt",blob=new Blob([grText()],{type:"text/plain"});
+ try{if(window.claude&&claude.use){const dl=await claude.use("downloads");if(dl){await dl.save({filename:name,data:blob});return grMsg("Saved.")}}}catch(e){if(e&&e.code==="declined")return grMsg("Not saved.")}
+ try{const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=name;a.rel="noopener";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>{try{URL.revokeObjectURL(u)}catch(e){}},4000);grMsg("Saved.")}catch(e){grMsg("Saving a file isn't available here. Use Copy instead.")}}
+function grCopy(){const t=document.getElementById("grx");let ok=false;try{t.focus();t.select();ok=document.execCommand("copy")}catch(e){}if(ok)return grMsg("Copied.");try{navigator.clipboard.writeText(t.value).then(()=>grMsg("Copied."),()=>grMsg("Select the text and copy it."))}catch(e){grMsg("Select the text and copy it.")}}
+
+/* ----- wiring ----- */
+{const psG=portScreen;portScreen=function(){if(pf==="gr")return grScreen();return psG.apply(this,arguments)}}
+(function(){const st=document.createElement("style");st.textContent=`.grm{display:grid;gap:10px;margin:10px 0 0}@media (min-width:760px){.grm{grid-template-columns:1fr 1fr}}
+.grq{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:12px 14px 10px;min-width:0}.grh{font-size:1.1rem;line-height:1.3;font-weight:800;color:var(--ink)}.grq>small{display:block;color:var(--mute);margin:2px 0 6px}
+.gri{display:block;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);border-radius:0;padding:10px 0;color:var(--ink);font:inherit}button.gri{cursor:pointer}.gri b{display:block;font-weight:600;overflow-wrap:anywhere}.gri small{display:block;color:var(--mute);margin-top:2px}
+.gra{display:block;padding:8px 0 2px;border-top:1px solid var(--line);width:100%;text-align:left;border-radius:0}
+.grpp{padding-top:4px}.grpr{padding:10px 0;border-top:1px solid var(--line)}.grpr:first-child{border-top:0}.grpr .row span{color:var(--mute);font-size:.9rem}
+.grb{display:flex;gap:4px;margin:8px 0 0}.grb span{height:6px;flex:1;max-width:36px;border-radius:99px;background:var(--line)}.grb span.on{background:var(--pri)}
+.grx{display:block;color:var(--ink);margin-top:6px;overflow-wrap:anywhere}.grd{margin-top:8px}`;document.head.appendChild(st)})();
 
 
 /* ---------- Phyzly Portfolio (early access): Portfolio and Profile only, plus Quick ref and feedback ---------- */
