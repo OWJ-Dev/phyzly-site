@@ -1,12 +1,11 @@
 <!doctype html>
 <html lang="en-GB">
 <head>
+<style>@font-face{font-family:Inter;font-style:normal;font-weight:100 900;font-display:swap;src:url(/vendor/fonts/inter-latin-wght-normal.woff2) format("woff2")}@font-face{font-family:Fredoka;font-style:normal;font-weight:300 700;font-display:swap;src:url(/vendor/fonts/fredoka-latin-wght-normal.woff2) format("woff2")}@font-face{font-family:"Bricolage Grotesque";font-style:normal;font-weight:200 800;font-display:swap;src:url(/vendor/fonts/bricolage-grotesque-latin-wght-normal.woff2) format("woff2")}</style>
 <meta name="robots" content="noindex, nofollow">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Phyzly</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#F0F6FF;--card:#fff;--ink:#0A1F3D;--mute:#4A6285;--line:#C8D9F2;--pri:#1A6BFF;--pri-ink:#fff;--ok:#16813F;--gold:#E3A008;--gold-ink:#8A5A00;--rok:#1FD15A;--rgold:#FFC107;--okbg:#DAF5E3;--bad:#C2413B;--badbg:#FCE4E1;--bone:#C3D7F5;--flbg:#FFE6DC;--flink:#C2410C;--xpbg:#FFF1C2;--xpink:#7A5200;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#07162B;--card:#0E2748;--ink:#E8F1FF;--mute:#8FAED6;--line:#1C3F6E;--pri:#5CA3FF;--pri-ink:#04122A;--ok:#5CE08F;--gold:#F5C542;--gold-ink:#F5C542;--rok:#39F07A;--rgold:#FFD23F;--okbg:#103D27;--bad:#FF8F88;--badbg:#42201D;--bone:#1B3F72;--flbg:#3B1F17;--flink:#FF9C7E;--xpbg:#3A3010;--xpink:#FFD36B}}
@@ -8046,14 +8045,14 @@ function auScreen(){
  if(au.v==="land")return `<div class="auh"><div class="hero"><div class="wm">Phy<i>z</i>ly</div><p class="strap">Makes being a physiotherapist <b>easier.</b></p><div class="pzsg" aria-hidden="true"><span><i></i></span><span><i></i></span><span><i></i></span><span><i></i></span><span><i></i></span></div></div>`+
   `<ul class="aub"><li><span>${window.CL&&CL()?'<svg width=\'20\' height=\'20\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'1.9\' stroke-linecap=\'round\' stroke-linejoin=\'round\' aria-hidden=\'true\'><circle cx=\'12\' cy=\'12\' r=\'9\'/><circle cx=\'12\' cy=\'12\' r=\'5\'/><circle cx=\'12\' cy=\'12\' r=\'1\'/></svg>':'🎯'}</span>Five-minute lessons, from anatomy to on call</li><li><span>${window.CL&&CL()?'<svg width=\'20\' height=\'20\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'1.9\' stroke-linecap=\'round\' stroke-linejoin=\'round\' aria-hidden=\'true\'><path d=\'M20 11a8 8 0 0 0-14.3-4.9L4 8M4 3v5h5M4 13a8 8 0 0 0 14.3 4.9L20 16M20 21v-5h-5\'/></svg>':'🧠'}</span>Daily review that brings things back before you forget</li><li><span>${window.CL&&CL()?'<svg width=\'20\' height=\'20\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'1.9\' stroke-linecap=\'round\' stroke-linejoin=\'round\' aria-hidden=\'true\'><rect x=\'5\' y=\'3\' width=\'14\' height=\'18\' rx=\'2\'/><path d=\'M9 3v18M12.5 8h3.5M12.5 12h3.5\'/></svg>':'📒'}</span>A CPD log that's ready for audit</li></ul>`+
   `<button class="go" onclick="auGo('form','up')">Get started, it's free</button><button class="opt aualt" onclick="auGo('form','in')">I already have an account</button>`+
-  `<p class="tag" style="text-align:center;margin-top:10px">By continuing you agree to the <button class="lnk aul" onclick="auLegal('terms')">Terms</button> and <button class="lnk aul" onclick="auLegal('privacy')">Privacy policy</button>.</p></div>`;
+  `<p class="tag" style="text-align:center;margin-top:10px">By continuing you agree to the <button class="lnk aul" onclick="auLegal('terms')">Terms</button>. Our <button class="lnk aul" onclick="auLegal('privacy')">Privacy policy</button> explains how we use your information.</p></div>`;
  if(au.v==="form"){const up=au.mode==="up";
   return `<button class="lnk" onclick="auGo('land')">‹ Back</button><div class="auf"><div style="text-align:center">${mascot(72,"cheer")}</div><h1>${up?"Create your account":"Welcome back"}</h1><p class="tag" style="text-align:center;margin:0 0 14px">${up?"Save your progress and pick up on any device.":"Sign in to carry on where you left off."}</p>`+
   `<button class="opt ausso" onclick="auSso('apple')"><span class="auic auap" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M12 7.5c1.6-1.6 4.6-1.5 6 .6-1.4.9-2.2 2.2-2 3.9.2 1.7 1.2 2.9 2.6 3.4-.6 1.7-1.6 3.4-2.9 4.4-1 .8-2 .6-3.1.1-1-.4-1.9-.4-2.9 0-1.2.5-2.2.7-3.2-.2C4.2 17.6 3 13.4 4.8 10.4c1-1.7 2.9-2.6 4.5-2.3.9.1 1.8.6 2.7-.6zM12.3 6.6c-.1-1.9 1.4-3.6 3.2-3.8.2 1.9-1.5 3.8-3.2 3.8z"/></svg></span>Continue with Apple</button><button class="opt ausso" onclick="auSso('google')"><span class="auic augo" aria-hidden="true">G</span>Continue with Google</button>`+
   `<div class="audiv"><span>or with email</span></div>`+
   (up?`<label class="cfl" for="au-n">First name</label><input id="au-n" class="cin" autocomplete="given-name" maxlength="40" value="${esc(au.name)}" oninput="au.name=this.value;auClr()">`:"")+
   `<label class="cfl" for="au-e">Email</label><input id="au-e" class="cin" type="email" inputmode="email" autocomplete="email" autocapitalize="off" maxlength="120" value="${esc(au.email)}" oninput="au.email=this.value;auClr()" onkeydown="if(event.key==='Enter')auSend()">`+
-  (up?`<button class="ock${au.agree?" on":""}" role="checkbox" aria-checked="${au.agree}" onclick="au.agree=!au.agree;welcome()" style="margin-top:12px"><i>${au.agree?"✓":""}</i><span>I agree to the <span class="aul2">Terms</span> and <span class="aul2">Privacy policy</span></span></button><button class="ock${au.news?" on":""}" role="checkbox" aria-checked="${au.news}" onclick="au.news=!au.news;welcome()"><i>${au.news?"✓":""}</i><span>Send me study tips and Phyzly news (optional)</span></button>`:"")+
+  (up?`<button class="ock${au.agree?" on":""}" role="checkbox" aria-checked="${au.agree}" onclick="au.agree=!au.agree;welcome()" style="margin-top:12px"><i>${au.agree?"✓":""}</i><span>I agree to the <span class="aul2">Terms</span></span></button><button class="ock${au.news?" on":""}" role="checkbox" aria-checked="${au.news}" onclick="au.news=!au.news;welcome()"><i>${au.news?"✓":""}</i><span>Send me study tips and Phyzly news (optional)</span></button><p class="tag" style="margin:8px 0 0">Read the <button class="lnk aul" onclick="auLegal('terms')">Terms</button>. Our <button class="lnk aul" onclick="auLegal('privacy')">Privacy policy</button> explains how we use your information.</p>`:"")+
   (au.err?`<div class="fb bad" role="alert"><b>${esc(au.err)}</b></div>`:"")+
   `<button class="go" onclick="auSend()">Email me a sign-in code</button><p class="tag" style="text-align:center">No password to remember. We'll send a 6-digit code.</p>`+
   `<p style="text-align:center;margin:6px 0 0">${up?`Already have an account? <button class="lnk aul" onclick="auGo('form','in')">Sign in</button>`:`New to Phyzly? <button class="lnk aul" onclick="auGo('form','up')">Create an account</button>`}</p>`+
@@ -8069,7 +8068,7 @@ function auScreen(){
 function auClr(){if(au.err){au.err="";const e=document.querySelector(".auf [role=alert]");if(e)e.remove()}}
 function auLegal(k){au.back=au.v;au.lg=k;au.v="legal";welcome();window.scrollTo(0,0)}
 function auCodeRe(){const c=document.querySelectorAll(".auc span");c.forEach((s,i)=>{s.textContent=au.code[i]||"";s.className=au.code.length===i?"on":""});const b=document.querySelector(".auf .go");if(b)b.disabled=au.code.length!==6;if(au.code.length===6)setTimeout(auVerify,250)}
-function auSend(){au.err="";if(au.mode==="up"&&!au.name.trim())au.err="Add your first name.";else if(!auEmailOk(au.email))au.err="Enter a valid email address.";else if(au.mode==="up"&&!au.agree)au.err="Please agree to the Terms and Privacy policy.";
+function auSend(){au.err="";if(au.mode==="up"&&!au.name.trim())au.err="Add your first name.";else if(!auEmailOk(au.email))au.err="Enter a valid email address.";else if(au.mode==="up"&&!au.agree)au.err="Please agree to the Terms.";
  if(au.err){welcome();return}au.code="";au.t=Date.now();au.v="code";welcome();window.scrollTo(0,0);setTimeout(()=>{const i=document.getElementById("au-c");if(i)i.focus()},100);clearInterval(au.iv);au.iv=setInterval(()=>{const r=document.getElementById("au-rs");if(!r||au.v!=="code"){clearInterval(au.iv);return}const left=Math.max(0,30-Math.floor((Date.now()-au.t)/1000));if(left)r.textContent="Resend code in "+left+"s";else{clearInterval(au.iv);welcome()}},1000)}
 function auVerify(){if(au.v!=="code"||au.code.length!==6)return;auDone({method:"email",email:au.email.trim().toLowerCase(),name:au.mode==="up"?au.name.trim():(S.acct&&S.acct.name)||"",news:!!au.news})}
 function auSso(m){auDone({method:m,email:"",name:(S.acct&&S.acct.name)||""})}
@@ -11966,14 +11965,14 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
   /* v452: what belongs to an account on this device. Removed when you sign out, and before a different
      account is used here, so one person's Portfolio can never be read by, or copied into, another's
      (security pass 10 Nov 2026, findings 1 and 3). v454: rotation, qualification and export dates added (R9). */
-  const ACCT_K=["cpd","plc","hc","otj","otjT","ksb","pre","cm","iv","gr","pfp","role","band","nq","oth","crs","yr","pzAsk","pzAskIds","qualAt","prevRole","rot","rotDate","cpdX"];
+  const ACCT_K=["cpd","plc","hc","otj","otjT","ksb","pre","cm","iv","gr","grV","rqT","pfp","role","band","nq","oth","crs","yr","pzAsk","pzAskIds","qualAt","prevRole","rot","rotDate","cpdX"];
   const dropAcct=()=>{ACCT_K.forEach(k=>delete S[k]);delete S.sy};
   const photosIn=o=>{const out=new Set();(JSON.stringify(o||null).match(/"(?:ph|pd)[a-z0-9]{8,}"/g)||[]).forEach(x=>out.add(x.slice(1,-1)));return out};
   const wipePhotos=async()=>{try{const ks=await phKeys();for(const k of ks)await phDel(k)}catch(e){}};
 
   /* profile */
   const profRow=()=>({first_name:((S.acct&&S.acct.name)||"").slice(0,40)||null,role:S.role||null,band:S.band!=null?String(S.band):null,newly_qualified:!!S.nq,other_role:S.oth||null,course:S.crs||null,course_year:S.yr||null,marketing_opt_in:!!(S.acct&&S.acct.news),marketing_opt_in_at:S.acct&&S.acct.news?(S.acct.newsAt||new Date().toISOString()):null});
-  const applyProf=p=>{if(!p)return;if(!S.role&&p.role){S.role=p.role;if(p.band)S.band=p.band==="nb"?"nb":+p.band;S.nq=!!p.newly_qualified;if(p.other_role)S.oth=p.other_role;if(p.course)S.crs=p.course;if(p.course_year)S.yr=p.course_year}if(S.acct&&!S.acct.name&&p.first_name)S.acct.name=p.first_name};
+  const applyProf=p=>{if(!p)return;if(!S.role&&p.role){S.role=p.role;if(p.band)S.band=p.band==="nb"?"nb":+p.band;S.nq=!!p.newly_qualified;if(p.other_role)S.oth=p.other_role;if(p.course)S.crs=p.course;if(p.course_year)S.yr=p.course_year}if(S.acct&&!S.acct.name&&p.first_name)S.acct.name=p.first_name;if(S.acct&&S.acct.news==null&&p.marketing_opt_in!=null){S.acct.news=!!p.marketing_opt_in;S.acct.newsAt=p.marketing_opt_in?(p.marketing_opt_in_at||new Date().toISOString()):null}};
 
   /* v455: photos of entries kept on this phone only, or still waiting for "Add to my account?", stay on the phone */
   const askSet=sy=>S.pzAsk?new Set(S.pzAskIds||(S.cpd||[]).filter(e=>e&&!sy.ent[e.id]).map(e=>e.id)):null;
@@ -12004,7 +12003,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
     if(gone.length){const {error}=await sb.from("cpd_entries").update({deleted_at:new Date().toISOString()}).eq("user_id",uid).in("id",gone);live();if(error)throw error;gone.forEach(id=>delete sy.ent[id])}
     /* 2. push saved groups and profile */
     for(const k of Object.keys(GROUPS)){const v=GROUPS[k](),h=hsh(v);if(sy.st[k]!==h){const {error}=await sb.from("user_state").upsert({user_id:uid,key:k,value:v},{onConflict:"user_id,key"});live();if(error)throw error;sy.st[k]=h}}
-    const pr=profRow(),ph=hsh(pr);if(sy.prof!==ph&&S.role){const {error}=await sb.from("profiles").update(pr).eq("id",uid);live();if(error)throw error;sy.prof=ph}
+    let pr=profRow(),ph=hsh(pr);if(sy.prof!==ph&&S.role){if(S.acct&&!S.acct.newsCh){const q=await sb.from("profiles").select("marketing_opt_in,marketing_opt_in_at").eq("id",uid).maybeSingle();live();if(q.error)throw q.error;if(q.data&&q.data.marketing_opt_in!=null){S.acct.news=!!q.data.marketing_opt_in;S.acct.newsAt=q.data.marketing_opt_in?(q.data.marketing_opt_in_at||new Date().toISOString()):null;pr=profRow();ph=hsh(pr)}}const {error}=await sb.from("profiles").update(pr).eq("id",uid);live();if(error)throw error;sy.prof=ph;if(S.acct&&S.acct.newsCh){delete S.acct.newsCh;save()}}
     /* 3. photos: upload new, remove ones no longer used */
     const want=photoIds();
     /* a photo that isn't on this device (made on another one, not yet viewed here) has nothing to upload */
@@ -12067,7 +12066,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
    if(owner&&owner!==u.id){dropAcct();await wipePhotos()}
    try{window.meSub=null}catch(e){}  /* v453: Profile opens at its top page for whoever signs in */
    PZ.user=u;const prev=(S.acct&&(S.acct.uid===u.id||S.acct.guest))?S.acct:{},sy=SY();
-   S.acct=Object.assign({},prev.uid===u.id?prev:{},{uid:u.id,method:method(u),email:u.email||"",name:(extra&&extra.name)||prev.name||((u.user_metadata||{}).first_name)||((u.user_metadata||{}).given_name)||((u.user_metadata||{}).full_name||"").split(" ")[0]||"",at:prev.at||Date.now()},extra&&extra.news!=null?{news:!!extra.news,newsAt:extra.news?new Date().toISOString():null}:{});
+   S.acct=Object.assign({},prev.uid===u.id?prev:{},{uid:u.id,method:method(u),email:u.email||"",name:(extra&&extra.name)||prev.name||((u.user_metadata||{}).first_name)||((u.user_metadata||{}).given_name)||((u.user_metadata||{}).full_name||"").split(" ")[0]||"",at:prev.at||Date.now()},extra&&extra.news!=null?{news:!!extra.news,newsAt:extra.news?new Date().toISOString():null,newsCh:1}:{});
    delete S.signedOut;delete S.acct.guest;
    if(sy.uid&&sy.uid!==u.id){sy.ent={};sy.st={};sy.ph={};sy.pull=null;sy.pullS=null;sy.prof=null;sy.lo=[]}
    const localOnly=(S.cpd||[]).filter(e=>e&&!sy.ent[e.id]&&!(sy.lo||[]).includes(e.id));if(!sy.uid&&localOnly.length&&!S.pzAsk){S.pzAsk=localOnly.length;S.pzAskIds=localOnly.map(e=>e.id)}
@@ -12141,7 +12140,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
     if(S.acct&&!S.acct.guest&&S.acct.uid===u){if(!localOnlyN()&&!unsynced())PZ.signOut(true);
      else setTimeout(()=>{try{toast("Sign-out didn't finish because some changes aren't backed up yet. Go to Profile, then Account, to try again.")}catch(e){}},1500)}}
    if(!S.acct&&(S.signedOut||(S.sy&&S.sy.uid))){const had=ACCT_K.some(k=>S[k]!==undefined)||!!S.sy;if(had){dropAcct();try{save()}catch(e){}wipePhotos()}}
-   auSend=async function(){au.err="";if(au.mode==="up"&&!au.name.trim())au.err="Add your first name.";else if(!auEmailOk(au.email))au.err="Enter a valid email address.";else if(au.mode==="up"&&!au.agree)au.err="Please agree to the Terms and Privacy policy.";
+   auSend=async function(){au.err="";if(au.mode==="up"&&!au.name.trim())au.err="Add your first name.";else if(!auEmailOk(au.email))au.err="Enter a valid email address.";else if(au.mode==="up"&&!au.agree)au.err="Please agree to the Terms.";
     if(au.err){welcome();return}au.busy=true;welcome();
     try{await PZ.sendCode(au.email.trim().toLowerCase(),au.mode==="up"?au.name.trim():"")}catch(e){au.busy=false;au.err=nice(e);welcome();return}
     au.busy=false;au.code="";au.t=Date.now();au.v="code";welcome();window.scrollTo(0,0);setTimeout(()=>{const i=document.getElementById("au-c");if(i)i.focus()},100);
@@ -12169,8 +12168,10 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
      `<p class="tag pzst">${st}</p><button class="opt" style="text-align:center;margin-top:8px" onclick="PZ.sync().then(()=>meScreen())">Back up now</button>`+
      `<button class="opt" style="text-align:center;margin-top:8px;${au.oc?"border-color:var(--bad);color:var(--bad)":""}" onclick="auOut()"${au.ob?" disabled":""}>${au.ob?"Signing out…":au.oc?"Tap again to sign out":"Sign out"}</button>`+
      `<p class="tag">Signing out removes your Portfolio from this device. It stays safe in your account.</p>`+
+     `<div class="cfl" style="margin-top:16px">Emails from Phyzly</div><button class="ock pznews${a.news?" on":""}" role="checkbox" aria-checked="${!!a.news}" onclick="pzNews()"><i>${a.news?"✓":""}</i><span>Send me study tips and Phyzly news<br><small style="color:var(--mute)">Change this whenever you like. Sign-in codes are always sent.</small></span></button>`+
      `<button class="opt" style="text-align:center;margin-top:8px;border-color:var(--bad);color:var(--bad)" onclick="pzDel()">${au.del?"Tap again to delete your account and everything in it":"Delete my account"}</button>`};
    window.pzSignInAgain=function(){au.v='form';au.mode='in';au.email=(S.acct&&S.acct.email)||'';delete S.acct;save();welcome()};
+   window.pzNews=function(){const a=S.acct;if(!a||a.guest)return;a.news=!a.news;a.newsAt=a.news?new Date().toISOString():null;a.newsCh=1;save();try{PZ.sync("quiet")}catch(e){}meScreen()};
    window.pzDel=async function(){if(!au.del){au.del=1;meScreen();return}au.del=0;try{toast("Deleting…");await PZ.deleteAccount();delete S.acct;S.signedOut=1;save();au.v="land";tab="found";welcome();window.scrollTo(0,0);toast("Your account and everything in it have been deleted")}catch(e){toast(/nothing was deleted/.test(String(e&&e.message))?e.message:"Couldn't delete: "+nice(e));meScreen()}};
    /* remove the 'prototype' notes and route Resend to the real service */
    const as0=auScreen;auScreen=function(){let h=as0.apply(this,arguments);h=h.replace(/<p class="tag aupr">[\s\S]*?<\/p>/g,"").replace(/onclick="au\.t=Date\.now\(\);toast\('Code sent again'\);welcome\(\)"/,'onclick="pzResend()"');if(au.busy&&au.v==="form")h=h.replace('<button class="go" onclick="auSend()">Email me a sign-in code</button>','<button class="go" disabled>Sending…</button>');return h};
@@ -13771,26 +13772,29 @@ const grQ=k=>GRQ.find(x=>x[0]===k)||GRQ[0],grPn=k=>(GRPL.find(x=>x[0]===k)||["",
 function grS(){let G=S.gr;if(!G||typeof G!=="object"||Array.isArray(G))G=S.gr={fb:[],sw:[],sn:[]};
  const A=x=>Array.isArray(x)?x:[],str=(x,n)=>String(x==null?"":x).slice(0,n),okid=x=>/^[A-Za-z0-9_-]{1,40}$/.test(String(x==null?"":x)),day=x=>/^\d{4}-\d{2}-\d{2}$/.test(String(x)),today=isoD(new Date());
  G.fb=A(G.fb).filter(f=>f&&typeof f==="object"&&okid(f.id)).slice(0,400);
- G.fb.forEach(f=>{f.id=String(f.id);if(!day(f.d))f.d=today;f.who=str(f.who,80);f.rel=GRR.some(r=>r[0]===f.rel)?f.rel:"oth";f.ctx=str(f.ctx,80);f.txt=str(f.txt,3000);f.ph=A(f.ph).filter(i=>/^(ph|pd)[a-z0-9]{6,40}$/.test(String(i))).slice(0,12)});
+ G.fb.forEach(f=>{f.id=String(f.id);if(!day(f.d))f.d=today;f.who=str(f.who,80);f.rel=GRR.some(r=>r[0]===f.rel)?f.rel:"oth";f.ctx=str(f.ctx,80);f.txt=str(f.txt,3000);delete f.v;delete f.nm;delete f.rq;f.ph=A(f.ph).filter(i=>/^(ph|pd)[a-z0-9]{6,40}$/.test(String(i))).slice(0,12)});
  G.sw=A(G.sw).filter(x=>x&&typeof x==="object"&&okid(x.id)).slice(0,200);
  G.sw.forEach(x=>{x.id=String(x.id);x.q=GRQ.some(q=>q[0]===x.q)?x.q:"s";x.t=str(x.t,200);x.pil=GRPL.some(p=>p[0]===x.pil)?x.pil:"";if(!day(x.d))x.d=today;x.ev=A(x.ev).filter(e=>e&&(e.k==="fb"||e.k==="cpd")&&okid(e.id)).slice(0,20).map(e=>({k:e.k,id:String(e.id)}))});
  G.sn=A(G.sn).filter(x=>x&&typeof x==="object"&&okid(x.id)).slice(0,24);
  G.sn.forEach(x=>{x.id=String(x.id);if(!day(x.d))x.d=today;x.n=str(x.n,80);x.it=A(x.it).filter(i=>i&&typeof i==="object").slice(0,200).map(i=>({q:GRQ.some(q=>q[0]===i.q)?i.q:"s",t:str(i.t,200),pil:GRPL.some(p=>p[0]===i.pil)?i.pil:"",ev:Math.max(0,Math.min(20,Math.round(+i.ev||0)))}))});
+ G.rq=A(G.rq).filter(x=>x&&typeof x==="object"&&okid(x.id)).slice(0,60);
+ G.rq.forEach(x=>{x.id=String(x.id);x.who=str(x.who,60);x.fn=str(x.fn,40);x.ctx=str(x.ctx,80);if(!day(x.d))x.d=today;if(!day(x.x))x.x=x.d;delete x.tk;delete x.token});
+ G.gone=A(G.gone).filter(okid).map(String).slice(-200);G.seen=A(G.seen).filter(okid).map(String).slice(-100);
  return G}
 /* what an evidence link points at now (null if it has gone) */
-function grEv(e){if(e.k==="fb"){const f=grS().fb.find(x=>x.id===e.id);return f?{t:"Feedback from "+(f.who||grRn(f.rel).toLowerCase()),s:dFmt(f.d),go:"grFb('"+f.id+"')"}:null}
+function grEv(e){if(e.k==="fb"){const f=grFbAll().find(x=>x.id===e.id);return f?{t:"Feedback from "+(f.who||grRn(f.rel).toLowerCase()),s:dFmt(f.d),go:"grFb('"+f.id+"')"}:null}
  const c=(typeof cpdAll==="function"?cpdAll():(S.cpd||[])).find(x=>x&&x.id===e.id);return c?{t:c.t,s:dFmt(c.d)+" · CPD entry",go:""}:null}
 const grBacked=x=>(x.ev||[]).filter(e=>grEv(e)).length;
 function openGr(t){tab="cpd";pf="gr";grf=null;gv={v:"home",tab:t==="fb"?"fb":"sw"};home();window.scrollTo(0,0)}
 function grGo(v,extra){grf=null;gv=Object.assign({v:v||"home",tab:gv.tab||"sw"},extra||{});home();window.scrollTo(0,0)}
 function grTab(t){gv.tab=t;gv.just=null;home()}
-function grPortSt(){const G=S.gr;const n=G&&typeof G==="object"?((Array.isArray(G.sw)?G.sw.length:0)+(Array.isArray(G.fb)?G.fb.length:0)):0;return n?n+(n===1?" item":" items"):"Start"}
+function grPortSt(){const G=S.gr;let nw=0,nv=0;try{nw=grNew().length;nv=grV().length}catch(e){}if(nw)return nw+" new";const n=(G&&typeof G==="object"?((Array.isArray(G.sw)?G.sw.length:0)+(Array.isArray(G.fb)?G.fb.length:0)):0)+nv;return n?n+(n===1?" item":" items"):"Start"}
 
 function grScreen(){
- if(grf&&grf.k==="sw")return grItemForm();if(grf&&grf.k==="fb")return grFbForm();if(gv.v==="snf")return grSnapForm();if(gv.v==="snap")return grSnapView();if(gv.v==="exp")return grExport();
+ if(grf&&grf.k==="sw")return grItemForm();if(grf&&grf.k==="fb")return grFbForm();if(gv.v==="snf")return grSnapForm();if(gv.v==="snap")return grSnapView();if(gv.v==="exp")return grExport();if(gv.v==="fbv")return grFbView();if(gv.v==="ask")return grAskForm();if(gv.v==="lnk")return grAskLink();
  const G=grS(),sw=gv.tab!=="fb";
  let h=head()+tabs()+bk("pf='home';home()","Portfolio")+`<h1 style="font-size:1.6rem;margin:6px 0 2px">Feedback and SWOC</h1><p class="tag" style="margin:0 0 10px">What colleagues say about your practice, and your own view of where you're strong and where you're growing. Private to you.</p>`+
-  `<div class="seg" role="tablist"><button role="tab" aria-selected="${sw}" class="${sw?"on":""}" onclick="grTab('sw')">SWOC</button><button role="tab" aria-selected="${!sw}" class="${sw?"":"on"}" onclick="grTab('fb')">Feedback log${G.fb.length?" ("+G.fb.length+")":""}</button></div>`;
+  `<div class="seg" role="tablist"><button role="tab" aria-selected="${sw}" class="${sw?"on":""}" onclick="grTab('sw')">SWOC</button><button role="tab" aria-selected="${!sw}" class="${sw?"":"on"}" onclick="grTab('fb')">Feedback log${grFbAll().length?" ("+grFbAll().length+")":""}</button></div>`;
  app.innerHTML=h+(sw?grSwocH(G):grFbH(G))}
 
 function grItemH(x){const n=grBacked(x);return `<button class="gri" onclick="grItem('${esc(x.id)}')"><b>${esc(x.t)}</b><small>${x.pil?esc(grPn(x.pil))+" · ":""}${n?"Backed by "+n+(n===1?" piece":" pieces")+" of evidence":"My view"}</small></button>`}
@@ -13806,16 +13810,16 @@ function grSwocH(G){
  h+=`<div class="sec">Snapshots</div><p class="tag" style="margin:0 0 8px">Save a copy at the end of a rotation, so you can look back at how you've grown.</p>`+
   G.sn.slice().sort((a,b)=>b.d.localeCompare(a.d)).map(s=>`<button class="opt" onclick="grGo('snap',{id:'${esc(s.id)}'})"><div class="row"><b>${esc(s.n||"Snapshot")}</b><span>${s.it.length} ${s.it.length===1?"item":"items"}</span></div><small style="color:var(--mute)">${esc(dFmt(s.d))}</small></button>`).join("")+
   `<button class="opt" style="text-align:center" ${G.sw.length&&G.sn.length<24?"":"disabled"} onclick="grGo('snf')">Save a snapshot</button>`+
-  `<button class="opt" style="text-align:center;margin-top:10px" ${G.sw.length||G.fb.length?"":"disabled"} onclick="grGo('exp')">Export</button>`+
+  `<button class="opt" style="text-align:center;margin-top:10px" ${G.sw.length||grFbAll().length?"":"disabled"} onclick="grGo('exp')">Export</button>`+
   `<div class="note">Your own view of your practice, to bring to supervision and appraisal. It isn't an assessment, and it stays private unless you export it.</div>`;
  return h}
 
 function grFbH(G){
- const L=G.fb.slice().sort((a,b)=>b.d.localeCompare(a.d)||b.id.localeCompare(a.id)),used=new Set();G.sw.forEach(x=>x.ev.forEach(e=>{if(e.k==="fb")used.add(e.id)}));
- let h=`<button class="go" onclick="grFb()">+ Add feedback</button>`;
- if(gv.just&&G.fb.some(f=>f.id===gv.just))h+=`<div class="note" role="status"><b>Saved.</b> Does it say something about a strength, or something to work on?<button class="opt" style="text-align:center;margin:8px 0 0" onclick="grItemFrom('fb','${esc(gv.just)}')">Add it to my SWOC</button></div>`;
+ const L=grFbAll().slice().sort((a,b)=>b.d.localeCompare(a.d)||b.id.localeCompare(a.id)),used=new Set();G.sw.forEach(x=>x.ev.forEach(e=>{if(e.k==="fb")used.add(e.id)}));
+ let h=`<button class="go" onclick="grFb()">+ Add feedback</button>`+grAskH(G);
+ if(gv.just&&grFbAll().some(f=>f.id===gv.just))h+=`<div class="note" role="status"><b>Saved.</b> Does it say something about a strength, or something to work on?<button class="opt" style="text-align:center;margin:8px 0 0" onclick="grItemFrom('fb','${esc(gv.just)}')">Add it to my SWOC</button></div>`;
  if(!L.length)h+=`<div class="note">Nothing here yet. Add feedback as you get it: a comment after a joint session, an end-of-rotation review, a note from a student you supervised.</div>`;
- h+=L.map(f=>`<button class="opt" onclick="grFb('${esc(f.id)}')"><div class="row"><b>${esc(f.who||grRn(f.rel))}</b>${used.has(f.id)?`<span class="bd t">In your SWOC</span>`:""}</div><small style="color:var(--mute)">${esc(dFmt(f.d))} · ${esc(grRn(f.rel))}${f.ctx?" · "+esc(f.ctx):""}${f.ph.length?" · "+f.ph.length+" attached":""}</small>${f.txt?`<small class="grx">${esc(f.txt.length>140?f.txt.slice(0,140).trim()+"…":f.txt)}</small>`:""}</button>`).join("");
+ h+=L.map(f=>`<button class="opt" onclick="grFb('${esc(f.id)}')"><div class="row"><b>${esc(grWho(f))}</b>${used.has(f.id)?`<span class="bd t">In your SWOC</span>`:""}</div><small style="color:var(--mute)">${esc(dFmt(f.d))} · ${esc(grRn(f.rel))}${f.ctx?" · "+esc(f.ctx):""}${f.v?" · Sent by them":""}${f.ph.length?" · "+f.ph.length+" attached":""}</small>${f.txt?`<small class="grx">${esc(f.txt.length>140?f.txt.slice(0,140).trim()+"…":f.txt)}</small>`:""}</button>`).join("");
  return h}
 
 /* ----- SWOC item ----- */
@@ -13824,7 +13828,7 @@ function grItemFrom(k,id,keep){grf={k:"sw",id:null,q:"s",t:"",pil:"",ev:[{k,id}]
 function grFromCpd(){if(!cf||!cf.id)return;const keep=JSON.parse(JSON.stringify(cf)),id=cf.id;cf=null;cp.v="list";grItemFrom("cpd",id,keep)}
 function grItemBack(){const f=grf||{};grf=null;if(f.keepCf){cf=f.keepCf;cp.v="form";tab="cpd";pf="cpd"}else if(f.back==="fb")gv={v:"home",tab:"fb"};else gv={v:"home",tab:"sw"};home();window.scrollTo(0,0)}
 function grItemForm(){const f=grf,G=grS(),linked=f.ev.map(e=>({e,v:grEv(e)})).filter(x=>x.v),has=(k,id)=>f.ev.some(e=>e.k===k&&e.id===id);
- const fbs=G.fb.filter(x=>!has("fb",x.id)).sort((a,b)=>b.d.localeCompare(a.d)),cps=(S.cpd||[]).filter(e=>e&&!e.auto&&!has("cpd",e.id)).slice().sort((a,b)=>String(b.d).localeCompare(String(a.d))).slice(0,40);
+ const fbs=grFbAll().filter(x=>!has("fb",x.id)).sort((a,b)=>b.d.localeCompare(a.d)),cps=(S.cpd||[]).filter(e=>e&&!e.auto&&!has("cpd",e.id)).slice().sort((a,b)=>String(b.d).localeCompare(String(a.d))).slice(0,40);
  app.innerHTML=head()+tabs()+bk("grItemBack()",f.keepCf?"Back to your entry":f.back==="fb"?"Feedback log":"SWOC")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">${f.id?"Edit":"Add to your SWOC"}</h1>`+
  (f.err?`<div class="fb bad"><b>${esc(f.err)}</b></div>`:"")+
  `<div class="cfl">Which box?</div><div class="chipw" role="group" aria-label="Which box">${GRQ.map(q=>`<button class="chipb${f.q===q[0]?" on":""}" aria-pressed="${f.q===q[0]}" onclick="grRd();grf.q='${q[0]}';cfRe()">${q[3].charAt(0).toUpperCase()+q[3].slice(1)}</button>`).join("")}</div><p class="tag" style="margin:6px 0 0">${grQ(f.q)[2]}.</p>`+
@@ -13833,18 +13837,18 @@ function grItemForm(){const f=grf,G=grS(),linked=f.ev.map(e=>({e,v:grEv(e)})).fi
  `<div class="cfl">Evidence</div>`+(linked.length?linked.map(x=>`<div class="grow"><div class="opt" style="margin:0;flex:1;cursor:default"><b style="font-weight:600;display:block">${esc(x.v.t)}</b><small style="color:var(--mute)">${esc(x.v.s)}</small></div><button class="gx" aria-label="Unlink ${esc(x.v.t)}" onclick="grRd();grEvT('${x.e.k}','${esc(x.e.id)}')">✕</button></div>`).join(""):`<p class="tag" style="margin:0 0 6px">This is your own view so far. Link feedback or a CPD reflection to back it up.</p>`)+
  (fbs.length?`<details class="grd"><summary class="lnk" style="cursor:pointer">Link feedback</summary><div style="margin-top:6px">${fbs.map(x=>`<button class="opt" style="margin:0 0 6px" onclick="grRd();grEvT('fb','${esc(x.id)}')"><div class="row"><b style="font-weight:600">${esc(x.who||grRn(x.rel))}</b><span>+ Link</span></div><small style="color:var(--mute)">${esc(dFmt(x.d))}${x.txt?" · "+esc(x.txt.slice(0,60))+(x.txt.length>60?"…":""):""}</small></button>`).join("")}</div></details>`:"")+
  (cps.length?`<details class="grd"><summary class="lnk" style="cursor:pointer">Link a CPD entry</summary><div style="margin-top:6px">${cps.map(e=>`<button class="opt" style="margin:0 0 6px" onclick="grRd();grEvT('cpd','${esc(e.id)}')"><div class="row"><b style="font-weight:600">${esc(e.t)}</b><span>+ Link</span></div><small style="color:var(--mute)">${esc(dFmt(e.d))}</small></button>`).join("")}</div></details>`:"")+
- (!fbs.length&&!G.fb.length?`<p class="tag" style="margin:6px 0 0">Feedback you add to your feedback log can be linked here.</p>`:"")+
+ (!fbs.length&&!grFbAll().length?`<p class="tag" style="margin:6px 0 0">Feedback you add to your feedback log can be linked here.</p>`:"")+
  `<button class="go" onclick="grItemSave()">Save</button>`+(f.id?`<button class="opt" style="text-align:center;margin-top:10px;${f.del?"border-color:var(--bad);color:var(--bad)":""}" onclick="grItemDel()">${f.del?"Tap again to delete":"Delete"}</button>`:"")}
 function grRd(){const el=document.getElementById("gr-t");if(el&&grf&&grf.k==="sw"){grf.t=el.value;grf.err=""}}
 function grEvT(k,id){if(!grf||grf.k!=="sw")return;const i=grf.ev.findIndex(e=>e.k===k&&e.id===id);if(i>=0)grf.ev.splice(i,1);else if(grf.ev.length<20)grf.ev.push({k,id});cfRe()}
 function grItemSave(){grRd();const f=grf,G=grS(),t=String(f.t||"").replace(/\s+/g," ").trim().slice(0,200);if(!t){f.err="Say what it is in a few words.";return home()}
- const o={id:f.id||cpId(),q:f.q,t,pil:f.pil||"",ev:f.ev.filter(e=>grEv(e)).slice(0,20),d:isoD(new Date())},i=G.sw.findIndex(x=>x.id===o.id);
- if(i>=0){o.d=G.sw[i].d;G.sw[i]=o}else{if(G.sw.length>=200){f.err="That's the most a SWOC can hold. Remove one first.";return home()}G.sw.push(o)}
+ const o={id:f.id||cpId(),q:f.q,t,pil:f.pil||"",ev:f.ev.filter(e=>grEv(e)||(e.k==="fb"&&grAskOn()&&!grVOk)).slice(0,20),d:isoD(new Date())},i=G.sw.findIndex(x=>x.id===o.id);
+ if(i>=0){o.d=G.sw[i].d;G.sw[i]=o}else{if(G.sw.length>=200||!grRoom(700)){f.err="That's the most a SWOC can hold. Remove one first.";return home()}G.sw.push(o)}
  save();try{toast(i>=0?"Saved":"Added to your SWOC")}catch(e){}const k=f.keepCf;grf=null;if(k){cf=k;cp.v="form";tab="cpd";pf="cpd"}else gv={v:"home",tab:"sw"};home();window.scrollTo(0,0)}
 function grItemDel(){const f=grf;if(!f.del){f.del=true;if(armTap(/^Delete$/,"Tap again to delete"))return;return home()}const G=grS();G.sw=G.sw.filter(x=>x.id!==f.id);save();grf=null;gv={v:"home",tab:"sw"};home();window.scrollTo(0,0)}
 
 /* ----- feedback ----- */
-function grFb(id){const G=grS(),x=id?G.fb.find(i=>i.id===id):null;if(id&&!x)return;grf=x?{k:"fb",id:x.id,d:x.d,who:x.who,rel:x.rel,ctx:x.ctx,txt:x.txt,ph:x.ph.slice()}:{k:"fb",id:null,d:isoD(new Date()),who:"",rel:"sen",ctx:"",txt:"",ph:[]};gv.just=null;tab="cpd";pf="gr";home();window.scrollTo(0,0)}
+function grFb(id){const G=grS(),x=id?grFbAll().find(i=>i.id===id):null;if(id&&!x)return;if(x&&x.v){grf=null;gv={v:"fbv",tab:"fb",id:x.id};tab="cpd";pf="gr";home();window.scrollTo(0,0);return}grf=x?{k:"fb",id:x.id,d:x.d,who:x.who,rel:x.rel,ctx:x.ctx,txt:x.txt,ph:x.ph.slice()}:{k:"fb",id:null,d:isoD(new Date()),who:"",rel:"sen",ctx:"",txt:"",ph:[]};gv.just=null;tab="cpd";pf="gr";home();window.scrollTo(0,0)}
 function grFbRd(){const f=grf;if(!f||f.k!=="fb")return;f.err="";const g=k=>document.getElementById(k);if(g("grf-d")&&/^\d{4}-\d{2}-\d{2}$/.test(g("grf-d").value))f.d=g("grf-d").value;if(g("grf-w"))f.who=g("grf-w").value;if(g("grf-c"))f.ctx=g("grf-c").value;if(g("grf-x"))f.txt=g("grf-x").value}
 function grFbForm(){const f=grf,ph=f.ph||[],G=grS(),n=f.id?G.sw.filter(x=>x.ev.some(e=>e.k==="fb"&&e.id===f.id)).length:0;
  app.innerHTML=head()+tabs()+bk("grf=null;gv={v:'home',tab:'fb'};home()","Feedback log")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">${f.id?"Edit feedback":"Add feedback"}</h1><div class="note"><b>No patient details.</b> A colleague's role is enough, unless they're happy to be named.</div>`+
@@ -13866,6 +13870,7 @@ async function grPhAdd(files){if(!grf||grf.k!=="fb"||!files||!files.length)retur
 function grPhRm(id){if(!grf||grf.k!=="fb")return;grFbRd();grf.ph=(grf.ph||[]).filter(x=>x!==id);grf.phGone=(grf.phGone||[]).concat([id]);cfRe()}
 function grFbPut(){grFbRd();const f=grf,G=grS(),txt=String(f.txt||"").trim().slice(0,3000);if(!/^\d{4}-\d{2}-\d{2}$/.test(f.d||"")){f.err="Pick a date.";home();return null}if(!txt&&!(f.ph||[]).length){f.err="Add what they said, or attach it.";home();return null}
  const o={id:f.id||cpId(),d:f.d,who:String(f.who||"").replace(/\s+/g," ").trim().slice(0,80),rel:f.rel,ctx:String(f.ctx||"").replace(/\s+/g," ").trim().slice(0,80),txt,ph:(f.ph||[]).slice(0,12)},i=G.fb.findIndex(x=>x.id===o.id);
+ if(i<0&&!grRoom(o.txt.length+400)){f.err="Your feedback log is full. Export it, then remove some older items.";home();return null}
  if(i>=0)G.fb[i]=o;else{if(G.fb.length>=400){f.err="Your feedback log is full. Remove one first.";home();return null}G.fb.push(o)}
  (f.phGone||[]).forEach(id=>{try{phDel(id).catch(()=>{})}catch(e){}});save();return {id:o.id,isNew:i<0}}
 function grFbSave(){const r=grFbPut();if(!r)return;grf=null;gv={v:"home",tab:"fb",just:r.isNew?r.id:null};try{if(!r.isNew)toast("Saved")}catch(e){}home();window.scrollTo(0,0)}
@@ -13877,7 +13882,7 @@ function grFbDel(){const f=grf;if(!f.del){f.del=true;if(armTap(/^Delete feedback
 function grSnapForm(){app.innerHTML=head()+tabs()+bk("grGo('home')","SWOC")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">Save a snapshot</h1><p class="tag" style="margin:0 0 8px">A copy of your SWOC as it is today. Your SWOC itself carries on as normal.</p>`+(gv.err?`<div class="fb bad"><b>${esc(gv.err)}</b></div>`:"")+
  `<label class="cfl" for="gs-n">Name it</label><input id="gs-n" class="cin" maxlength="80" placeholder="e.g. End of respiratory rotation" value="${esc(gv.n||"")}" oninput="gv.n=this.value"><button class="go" onclick="grSnapSave()">Save snapshot</button>`}
 function grSnapSave(){const G=grS(),n=String(gv.n||"").replace(/\s+/g," ").trim().slice(0,80);if(!n){gv.err="Give it a name.";return home()}if(!G.sw.length||G.sn.length>=24)return grGo("home");
- const it=G.sw.map(x=>({q:x.q,t:x.t,pil:x.pil,ev:grBacked(x)}));grS().sn.push({id:cpId(),d:isoD(new Date()),n,it});save();try{toast("Snapshot saved")}catch(e){}grGo("home")}
+ const it=G.sw.map(x=>({q:x.q,t:x.t,pil:x.pil,ev:grBacked(x)}));if(!grRoom(JSON.stringify(it).length+200)){gv.err="There isn't room for another snapshot. Delete an older one first.";return home()}grS().sn.push({id:cpId(),d:isoD(new Date()),n,it});save();try{toast("Snapshot saved")}catch(e){}grGo("home")}
 function grSnapView(){const G=grS(),s=G.sn.find(x=>x.id===gv.id);if(!s)return grGo("home");
  app.innerHTML=head()+tabs()+bk("grGo('home')","SWOC")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">${esc(s.n||"Snapshot")}</h1><p class="tag" style="margin:0 0 10px">Your SWOC on ${esc(dFmt(s.d))}.</p><div class="grm">`+
  GRQ.map(q=>{const L=s.it.filter(x=>x.q===q[0]);return `<section class="grq" aria-label="${q[1]}"><div class="grh" role="heading" aria-level="2">${q[1]}</div>${L.length?L.map(x=>`<div class="gri"><b>${esc(x.t)}</b><small>${x.pil?esc(grPn(x.pil))+" · ":""}${x.ev?"Backed by "+x.ev+(x.ev===1?" piece":" pieces")+" of evidence":"My view"}</small></div>`).join(""):`<small>Nothing here then.</small>`}</section>`}).join("")+`</div>`+
@@ -13887,7 +13892,7 @@ function grSnapDel(){if(!gv.del){gv.del=true;if(armTap(/^Delete snapshot$/,"Tap 
 /* ----- export ----- */
 function grText(){const G=grS();let t="Feedback and SWOC\nExported "+dFmt(isoD(new Date()))+"\nMy own record of my practice. It is not a formal assessment.\n";
  GRQ.forEach(q=>{const L=G.sw.filter(x=>x.q===q[0]);t+="\n"+q[1].toUpperCase()+"\n";if(!L.length)t+="-\n";L.forEach(x=>{const ev=x.ev.map(grEv).filter(Boolean);t+="- "+x.t+(x.pil?" ("+grPn(x.pil)+")":"")+"\n"+(ev.length?ev.map(v=>"    Evidence: "+v.t+", "+v.s+"\n").join(""):"    My view\n")})});
- if(G.fb.length){t+="\nFEEDBACK LOG\n";G.fb.slice().sort((a,b)=>a.d.localeCompare(b.d)).forEach(f=>{t+="\n"+dFmt(f.d)+" · "+(f.who?f.who+" ("+grRn(f.rel).toLowerCase()+")":grRn(f.rel))+(f.ctx?" · "+f.ctx:"")+"\n"+(f.txt||"(attached)")+(f.ph.length?"\n["+f.ph.length+(f.ph.length===1?" file":" files")+" attached in Phyzly]":"")+"\n"})}
+ if(grFbAll().length){t+="\nFEEDBACK LOG\n";grFbAll().slice().sort((a,b)=>a.d.localeCompare(b.d)).forEach(f=>{t+="\n"+dFmt(f.d)+" · "+(f.who?f.who+" ("+grRn(f.rel).toLowerCase()+")":grRn(f.rel))+(f.ctx?" · "+f.ctx:"")+(f.v?" · sent by them through a Phyzly feedback link":"")+"\n"+(f.txt||"(attached)")+(f.ph.length?"\n["+f.ph.length+(f.ph.length===1?" file":" files")+" attached in Phyzly]":"")+"\n"})}
  return t}
 function grMsg(m){const e=document.getElementById("grm");if(e)e.textContent=m}
 function grExport(){app.innerHTML=head()+tabs()+bk("grGo('home')","SWOC")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">Export</h1><p class="tag" style="margin:0 0 8px">Your SWOC and feedback log as text, for supervision or appraisal. Check it before you share it.</p><button class="go" onclick="grDl()">Download text file</button><button class="opt" style="text-align:center;margin-top:10px" onclick="grCopy()">Copy as text</button><p id="grm" class="tag" role="status"></p><textarea id="grx" class="cin" rows="14" readonly aria-label="Your SWOC and feedback log as text">${esc(grText())}</textarea>`}
@@ -13905,6 +13910,128 @@ function grCopy(){const t=document.getElementById("grx");let ok=false;try{t.focu
 .grpp{padding-top:4px}.grpr{padding:10px 0;border-top:1px solid var(--line)}.grpr:first-child{border-top:0}.grpr .row span{color:var(--mute);font-size:.9rem}
 .grb{display:flex;gap:4px;margin:8px 0 0}.grb span{height:6px;flex:1;max-width:36px;border-radius:99px;background:var(--line)}.grb span.on{background:var(--pri)}
 .grx{display:block;color:var(--ink);margin-top:6px;overflow-wrap:anywhere}.grd{margin-top:8px}`;document.head.appendChild(st)})();
+
+/* ---------- v483: asking for feedback by link (stage 2 of Feedback and SWOC) ---------- */
+/* The link carries a random code; only its SHA-256 fingerprint is stored in the account (table feedback_requests).
+   Synced with the Portfolio (S.gr.rq): each request's id, who it's for, what it's for and dates. Never the code.
+   Device only, dropped on sign-out: S.rqT (the codes, so a link can be copied again on the device that made it)
+   and S.grV (a copy of the feedback people sent, read from table feedback_responses).
+   Feedback that arrives this way is read-only: the words are the sender's. */
+const GRFB_BASE=()=>String(window.PZ_FB_BASE||"https://phyzly.app/feedback/");
+let grAskNext=0,grAskLast=0,grAskErr=false,grAskBusy=false,grVOk=false;
+function grAskOn(){try{return !!(window.PZ_FB_LINKS&&window.PZ&&PZ.on&&PZ.sb&&PZ.user&&PZ.user.id)}catch(e){return false}}
+/* feedback people sent through a link, as feedback-log items (checked each time it's read) */
+function grV(){const V=S.grV;if(!V||typeof V!=="object"||!Array.isArray(V.l)||!grAskOn()||V.u!==PZ.user.id)return [];
+ const okid=x=>/^[A-Za-z0-9_-]{1,40}$/.test(String(x==null?"":x)),str=(x,n)=>String(x==null?"":x).slice(0,n),day=x=>/^\d{4}-\d{2}-\d{2}$/.test(String(x));
+ let gone=[];try{gone=(S.gr&&Array.isArray(S.gr.gone))?S.gr.gone:[]}catch(e){}
+ return V.l.filter(f=>f&&typeof f==="object"&&okid(f.id)&&!gone.includes(f.id)).slice(0,400).map(f=>{const w=str(f.w,2000),k=str(f.k,2000),o=str(f.o,2000);
+  return {id:String(f.id),d:day(f.d)?f.d:isoD(new Date()),who:str(f.who,80),nm:str(f.nm,80),rel:GRR.some(r=>r[0]===f.rel)?f.rel:"oth",ctx:str(f.ctx,80),w,k,o,
+   txt:[w?"What you do well:\n"+w:"",k?"What to work on:\n"+k:"",o?"Anything else:\n"+o:""].filter(Boolean).join("\n\n"),ph:[],v:1,rq:okid(f.rq)?String(f.rq):"",at:str(f.at,40)}})}
+function grFbAll(){return grS().fb.concat(grV())}
+const grWho=f=>f.v&&f.nm?f.nm+", "+(f.who||grRn(f.rel)):(f.who||grRn(f.rel));
+/* room left in the saved Portfolio item (the account stores it as one item with a size limit) */
+function grRoom(extra){try{return JSON.stringify(S.gr||{}).length+(extra||0)<150000}catch(e){return true}}
+/* new = sent in the last 14 days and not opened yet */
+function grNew(){try{const seen=(S.gr&&Array.isArray(S.gr.seen))?S.gr.seen:[],cut=Date.now()-14*864e5;return grV().filter(f=>!seen.includes(f.id)&&Date.parse(f.at||"")>cut)}catch(e){return []}}
+
+async function grAskSync(force){if(!grAskOn()||grAskBusy)return;const now=Date.now();if(!force&&now<grAskNext)return;grAskLast=now;grAskNext=now+60000;grAskBusy=true;const uid=PZ.user.id,sb=PZ.sb;
+ try{const rs=await sb.from("feedback_responses").select("*").eq("user_id",uid);if(rs.error)throw rs.error;
+  const rq=await sb.from("feedback_requests").select("id,context,created_at,expires_at,answered_at").eq("user_id",uid);if(rq.error)throw rq.error;
+  if(!grAskOn()||PZ.user.id!==uid)return;
+  const G=grS(),okid=x=>/^[A-Za-z0-9_-]{1,40}$/.test(String(x==null?"":x)),dOf=t=>{const d=new Date(t);return isNaN(d)?isoD(new Date()):isoD(d)},before=JSON.stringify([S.grV,G.rq,G.gone]),had=new Set(grV().map(f=>f.id));
+  const R=(rq.data||[]).filter(r=>r&&okid(r.id)&&(!r.user_id||r.user_id===uid)),RS=(rs.data||[]).filter(r=>r&&okid(r.id)&&(!r.user_id||r.user_id===uid));
+  /* feedback deleted here while offline: finish the delete in the account */
+  const dead=new Set();
+  for(const id of G.gone.slice()){const r=RS.find(x=>x.id===id);if(!r){G.gone=G.gone.filter(x=>x!==id);continue}
+   try{const d=await sb.from("feedback_requests").delete().eq("user_id",uid).eq("id",r.request_id);if(!d.error){dead.add(id);G.gone=G.gone.filter(x=>x!==id)}}catch(e){}}
+  if(!grAskOn()||PZ.user.id!==uid)return;
+  S.grV={u:uid,l:RS.filter(r=>!G.gone.includes(r.id)&&!dead.has(r.id)).map(r=>{const q=R.find(x=>x.id===r.request_id),loc=G.rq.find(x=>x.id===r.request_id);
+   return {id:String(r.id),d:dOf(r.created_at),at:String(r.created_at||""),who:String(r.giver_role||"").slice(0,80),nm:String(r.giver_name||"").slice(0,80),rel:r.rel,ctx:String((loc&&loc.ctx)||(q&&q.context)||"").slice(0,80),w:String(r.did_well||""),k:String(r.work_on||""),o:String(r.other||""),rq:String(r.request_id||"")}})};
+  /* requests: answered ones leave the waiting list, ones made on another device join it, cancelled ones go */
+  const ids=new Set(R.map(r=>r.id));
+  G.rq=G.rq.filter(r=>ids.has(r.id)&&!R.find(x=>x.id===r.id).answered_at);
+  R.forEach(r=>{if(r.answered_at||G.rq.some(x=>x.id===r.id))return;G.rq.push({id:String(r.id),who:"",fn:"",ctx:String(r.context||"").slice(0,80),d:dOf(r.created_at),x:dOf(r.expires_at)})});
+  if(S.rqT&&typeof S.rqT==="object")Object.keys(S.rqT).forEach(k=>{if(!G.rq.some(r=>r.id===k))delete S.rqT[k]});
+  const live=new Set(grV().map(f=>f.id));G.seen=G.seen.filter(id=>live.has(id));
+  grVOk=true;grAskErr=false;grAskNext=Date.now()+300000;const fresh=grNew().filter(f=>!had.has(f.id));
+  if(before!==JSON.stringify([S.grV,G.rq,G.gone])){save();if(fresh.length)try{toast("New feedback from "+grWho(fresh[0]))}catch(e){}
+   if(tab==="cpd"&&((pf==="gr"&&!grf&&gv.v==="home")||pf==="home"))home()}
+ }catch(e){/* not switched on yet, or offline: nothing to show; wait ten minutes before trying again */grAskErr=true;grAskNext=Date.now()+600000}finally{grAskBusy=false}}
+
+/* the Feedback log tab: the ask button, anything new, and links still waiting */
+function grAskH(G){if(!grAskOn())return "";const today=isoD(new Date()),L=G.rq.slice().sort((a,b)=>b.d.localeCompare(a.d)),nw=grNew();
+ let h=`<button class="opt" style="text-align:center;margin-top:10px" onclick="grGo('ask',{tab:'fb'})">Ask someone for feedback</button>`;
+ if(nw.length)h+=`<div class="note" role="status"><b>New feedback.</b> ${nw.slice(0,3).map(f=>`<button class="lnk" style="padding:0;text-decoration:underline" onclick="grFb('${esc(f.id)}')">${esc(grWho(f))}</button>`).join(", ")}${nw.length>3?" and "+(nw.length-3)+" more":""} sent you feedback.</div>`;
+ if(L.length)h+=`<div class="sec">Waiting for an answer</div>`+L.map(r=>{const ex=r.x<today;return `<button class="opt" onclick="grGo('lnk',{tab:'fb',id:'${esc(r.id)}'})"><div class="row"><b>${esc(r.who||r.ctx||"Feedback request")}</b><span>${ex?"Expired":"Waiting"}</span></div><small style="color:var(--mute)">Made ${esc(dFmt(r.d,{day:"numeric",month:"short"}))}${ex?"":" · works until "+esc(dFmt(r.x,{day:"numeric",month:"short"}))}${r.who&&r.ctx?" · "+esc(r.ctx):""}</small></button>`}).join("")+(grFbAll().length?`<div class="sec">Your feedback</div>`:"");
+ return h}
+
+/* ask form */
+function grAskForm(){const a=gv.a=gv.a||{fn:String((S.acct&&S.acct.name)||"").slice(0,40),ctx:"",who:""};
+ app.innerHTML=head()+tabs()+bk("grGo('home',{tab:'fb'})","Feedback log")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">Ask for feedback</h1><p class="tag" style="margin:0 0 8px">Make a link to send to one colleague. They don't need an account, and what they write comes straight into your feedback log.</p>`+
+ (a.err?`<div class="fb bad"><b>${esc(a.err)}</b></div>`:"")+
+ `<label class="cfl" for="ga-c">What's it for? <span style="font-weight:500;color:var(--mute)">(optional)</span></label><input id="ga-c" class="cin" maxlength="80" value="${esc(a.ctx)}" placeholder="e.g. End of respiratory rotation" oninput="gv.a.ctx=this.value"><p class="tag" style="margin:4px 0 0">They'll see this, with your first name.</p>`+
+ `<label class="cfl" for="ga-n">Your first name</label><input id="ga-n" class="cin" maxlength="40" value="${esc(a.fn)}" autocomplete="given-name" oninput="gv.a.fn=this.value">`+
+ `<label class="cfl" for="ga-w">Who are you asking? <span style="font-weight:500;color:var(--mute)">(optional)</span></label><input id="ga-w" class="cin" maxlength="60" value="${esc(a.who)}" placeholder="e.g. Sam, Band 7" oninput="gv.a.who=this.value"><p class="tag" style="margin:4px 0 0">Only you see this. It helps you tell your links apart.</p>`+
+ `<div class="note">The link works once and for 30 days. Anyone who has it can answer, so send it straight to the person, not to a group.</div>`+
+ `<button class="go" ${a.busy?"disabled":""} onclick="grAskMake()">${a.busy?"Making your link…":"Make the link"}</button>`}
+const grHex=b=>Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,"0")).join("");
+function grUuid(){try{if(crypto.randomUUID)return crypto.randomUUID()}catch(e){}const b=crypto.getRandomValues(new Uint8Array(16));b[6]=(b[6]&15)|64;b[8]=(b[8]&63)|128;const h=grHex(b);return h.slice(0,8)+"-"+h.slice(8,12)+"-"+h.slice(12,16)+"-"+h.slice(16,20)+"-"+h.slice(20)}
+async function grAskMake(){const a=gv.a;if(!a||a.busy||!grAskOn())return;const cl=(x,n)=>String(x||"").replace(/\s+/g," ").trim().slice(0,n),fn=cl(a.fn,40),ctx=cl(a.ctx,80),who=cl(a.who,60);
+ if(!fn){a.err="Add your first name, so they know who it's for.";return home()}
+ if(!(window.crypto&&crypto.subtle&&crypto.getRandomValues)){a.err="This browser can't make a secure link. Try another browser.";return home()}
+ if(!grRoom(600)){a.err="Your feedback log is full. Export it, then remove some older items.";return home()}
+ a.err="";a.busy=true;home();const uid=PZ.user.id;
+ try{const tk=grHex(crypto.getRandomValues(new Uint8Array(32))),hash=grHex(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(tk))),id=grUuid();
+  const r=await PZ.sb.from("feedback_requests").insert({id,token_hash:hash,first_name:fn,context:ctx});
+  if(!grAskOn()||PZ.user.id!==uid)return;
+  if(r.error)throw r.error;
+  const G=grS(),d=isoD(new Date());G.rq.push({id,who,fn,ctx,d,x:isoD(new Date(Date.now()+30*864e5))});S.rqT=(S.rqT&&typeof S.rqT==="object")?S.rqT:{};S.rqT[id]=tk;save();
+  if(pf==="gr"&&gv.v==="ask"){gv={v:"lnk",tab:"fb",id,isNew:1};home();window.scrollTo(0,0)}
+ }catch(e){const m=String((e&&e.message)||e||"");a.busy=false;
+  a.err=/10 links are already waiting/.test(m)?"You already have 10 links waiting for an answer. Cancel one you don't need first.":/40 links made/.test(m)?"You've made a lot of links this month. Try again in a few days.":/does not exist|schema cache|PGRST20|42P01|permission denied/i.test(m)?"Asking for feedback by link isn't switched on yet.":(PZ.nice?PZ.nice(e):"That didn't work. Check your connection and try again.");
+  if(pf==="gr"&&gv.v==="ask")home()}}
+
+/* the link, to send */
+function grAskRq(){const G=grS();return G.rq.find(r=>r.id===gv.id)||null}
+function grAskUrl(r){const tk=S.rqT&&typeof S.rqT==="object"?S.rqT[r.id]:"";return /^[0-9a-f]{64}$/.test(String(tk||""))?GRFB_BASE()+"#t="+tk:""}
+function grAskMsg(r,url){const fn=r.fn||String((S.acct&&S.acct.name)||"").slice(0,40);return "Hi,\n\nCould you give me some feedback on my practice"+(r.ctx?" ("+r.ctx+")":"")+"? It takes a few minutes and you don't need an account:\n\n"+url+"\n\nThe link works once, until "+dFmt(r.x)+".\n\nThank you"+(fn?",\n"+fn:"")}
+function grAskLink(){const r=grAskRq();if(!r)return grGo("home",{tab:"fb"});const url=grAskUrl(r),ex=r.x<isoD(new Date()),canShare=!!navigator.share;
+ app.innerHTML=head()+tabs()+bk("grGo('home',{tab:'fb'})","Feedback log")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">${gv.isNew?"Your link is ready":"Feedback request"}</h1><p class="tag" style="margin:0 0 10px">${r.who?"For "+esc(r.who)+". ":""}${r.ctx?esc(r.ctx)+". ":""}${ex?"This link has expired.":"Works once, until "+esc(dFmt(r.x))+"."}</p>`+
+ (ex?`<div class="note">Nobody answered before it ran out. Remove it, then make a new one if you still want their feedback.</div>`:
+  url?`<label class="cfl" for="gl-u">The link</label><input id="gl-u" class="cin" readonly value="${esc(url)}" onfocus="this.select()"><button class="go" onclick="grAskCopy()">Copy link</button>`+(canShare?`<button class="opt" style="text-align:center;margin-top:10px" onclick="grAskShare()">Share…</button>`:"")+`<button class="opt" style="text-align:center;margin-top:10px" onclick="grAskMail()">Email it</button><p id="grm" class="tag" role="status"></p><div class="note">Send it to the one person you're asking. Anyone who has the link can answer it once, so don't post it in a group chat.</div>`
+  :`<div class="note">The link itself is only kept on the device you made it on. If you need it again, cancel this one and make a new link.</div>`)+
+ (gv.err?`<div class="fb bad"><b>${esc(gv.err)}</b></div>`:"")+
+ `<button class="opt" style="text-align:center;margin-top:10px;${gv.del?"border-color:var(--bad);color:var(--bad)":""}" ${gv.busy?"disabled":""} onclick="grAskCancel()">${gv.del?"Tap again to "+(ex?"remove":"cancel"):ex?"Remove":"Cancel this request"}</button>`}
+function grAskCopy(){const t=document.getElementById("gl-u");if(!t)return;let ok=false;try{t.focus();t.select();ok=document.execCommand("copy")}catch(e){}if(ok)return grMsg("Copied.");try{navigator.clipboard.writeText(t.value).then(()=>grMsg("Copied."),()=>grMsg("Press and hold the link to copy it."))}catch(e){grMsg("Press and hold the link to copy it.")}}
+function grAskShare(){const r=grAskRq(),url=r&&grAskUrl(r);if(!url)return;try{navigator.share({title:"Feedback for "+(r.fn||"me"),text:grAskMsg(r,url)}).catch(()=>{})}catch(e){}}
+function grAskMail(){const r=grAskRq(),url=r&&grAskUrl(r);if(!url)return;const fn=r.fn||String((S.acct&&S.acct.name)||"");location.href="mailto:?subject="+encodeURIComponent("Could you give me some feedback?"+(fn?" ("+fn+")":""))+"&body="+encodeURIComponent(grAskMsg(r,url))}
+async function grAskCancel(){const r=grAskRq();if(!r||gv.busy)return;if(!gv.del){gv.del=true;return home()}if(!grAskOn())return;gv.busy=true;gv.err="";home();const uid=PZ.user.id,id=r.id;
+ try{const d=await PZ.sb.from("feedback_requests").delete().eq("user_id",uid).eq("id",id);if(!grAskOn()||PZ.user.id!==uid)return;if(d.error)throw d.error;
+  const G=grS();G.rq=G.rq.filter(x=>x.id!==id);if(S.rqT&&typeof S.rqT==="object")delete S.rqT[id];save();try{toast("Request cancelled. The link no longer works.")}catch(e){}
+  if(pf==="gr"&&gv.v==="lnk")grGo("home",{tab:"fb"})
+ }catch(e){gv.busy=false;gv.del=false;gv.err=PZ.nice?PZ.nice(e):"That didn't work. Check your connection and try again.";if(pf==="gr"&&gv.v==="lnk")home()}}
+
+/* feedback someone sent: read-only */
+function grFbView(){const f=grV().find(x=>x.id===gv.id);if(!f)return grGo("home",{tab:"fb"});const G=grS();
+ if(!G.seen.includes(f.id)){G.seen.push(f.id);G.seen=G.seen.slice(-100);save()}
+ const n=G.sw.filter(x=>x.ev.some(e=>e.k==="fb"&&e.id===f.id)).length,part=(t,x)=>x?`<div class="cfl">${t}</div><p class="grt">${esc(x)}</p>`:"";
+ app.innerHTML=head()+tabs()+bk("grGo('home',{tab:'fb'})","Feedback log")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">Feedback from ${esc(f.nm||f.who||"a colleague")}</h1><p class="tag" style="margin:0 0 10px">${f.nm&&f.who?esc(f.who)+" · ":""}${esc(grRn(f.rel))} · ${esc(dFmt(f.d))}${f.ctx?" · "+esc(f.ctx):""}</p>`+
+ `<div class="note">They sent this through your feedback link, so the words are theirs and can't be changed here.</div>`+
+ part("What you do well",f.w)+part("What to work on",f.k)+part("Anything else",f.o)+
+ (gv.err?`<div class="fb bad"><b>${esc(gv.err)}</b></div>`:"")+
+ `<button class="go" onclick="grItemFrom('fb','${esc(f.id)}')">Add it to my SWOC${n?" ("+n+" so far)":""}</button>`+
+ `<button class="opt" style="text-align:center;margin-top:10px;${gv.del?"border-color:var(--bad);color:var(--bad)":""}" onclick="grFbViewDel()">${gv.del?"Tap again to delete":"Delete feedback"}</button>`}
+async function grFbViewDel(){const f=grV().find(x=>x.id===gv.id);if(!f)return grGo("home",{tab:"fb"});if(!gv.del){gv.del=true;return home()}
+ const G=grS(),id=f.id,rq=f.rq,uid=grAskOn()?PZ.user.id:null;
+ /* gone from this Portfolio straight away; the copy in the account is deleted now, or at the next check if offline */
+ G.gone.push(id);G.gone=G.gone.slice(-200);G.sw.forEach(x=>{x.ev=x.ev.filter(e=>!(e.k==="fb"&&e.id===id))});G.seen=G.seen.filter(x=>x!==id);
+ if(S.grV&&Array.isArray(S.grV.l))S.grV.l=S.grV.l.filter(x=>x&&x.id!==id);save();try{toast("Feedback deleted")}catch(e){}grGo("home",{tab:"fb"});
+ if(uid&&rq){try{const d=await PZ.sb.from("feedback_requests").delete().eq("user_id",uid).eq("id",rq);if(!d.error&&grAskOn()&&PZ.user.id===uid){const G2=grS();G2.gone=G2.gone.filter(x=>x!==id);save()}}catch(e){}}}
+
+/* check for new feedback when the Portfolio home or this section is on screen; opening the section checks sooner */
+{const ogA=openGr;openGr=function(){try{if(!grAskErr)grAskNext=Math.min(grAskNext,grAskLast+30000)}catch(e){}return ogA.apply(this,arguments)}}
+{const hmA=home;home=function(){const r=hmA.apply(this,arguments);try{if(tab==="cpd"&&(pf==="home"||pf==="gr")&&grAskOn())setTimeout(()=>{grAskSync(false)},0)}catch(e){}return r}}
+(function(){const st=document.createElement("style");st.textContent=`.grt{white-space:pre-wrap;overflow-wrap:anywhere;margin:0 0 4px;color:var(--ink)}`;document.head.appendChild(st)})();
 
 
 /* ---------- Phyzly Portfolio (early access): Portfolio and Profile only, plus Quick ref and feedback ---------- */
