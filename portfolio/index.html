@@ -2946,12 +2946,12 @@ FW.sup={n:"Supervision",d:"Three prompts for supervision, mentoring or a 1:1.",f
 function svOf(e){const v=e&&e.ty==="mentor"&&e.sv&&typeof e.sv==="object"?e.sv:null;return v?{k:String(v.k||"").slice(0,40),dir:v.dir==="giv"?"giv":"rcv",who:String(v.who||"").slice(0,60)}:null}
 function cpTy(e,sh){const v=svOf(e);if(!v)return cptn(e&&e.ty);const k=v.k||cptn("mentor");if(v.dir==="giv")return k+(sh?" (supervising)":", supervising "+(v.who||"someone"));return k+(!sh&&v.who?" with "+v.who:"")}
 function svClean(v){v=v||{};const c=(x,n)=>String(x==null?"":x).replace(/[<>]/g,"").replace(/\s+/g," ").trim().slice(0,n);return {k:c(v.k,40),dir:v.dir==="giv"?"giv":"rcv",who:c(v.who,60)}}
-function svNames(){const b=["Clinical supervision","Mentoring","1:1","Preceptorship meeting","Peer supervision","Coaching","Restorative supervision"],own=[];
+function svNames(){const b=["Clinical supervision","Managerial supervision","Restorative supervision","Peer supervision","1:1","Mentoring","Coaching","Preceptorship meeting"],own=[];
  (S.cpd||[]).forEach(e=>{const v=svOf(e);if(v&&v.k&&own.length<4&&!b.concat(own).some(x=>x.toLowerCase()===v.k.toLowerCase()))own.push(v.k)});return b.concat(own)}
 function svLast(){const L=(S.cpd||[]).filter(e=>{const v=svOf(e);return v&&v.k}).sort((a,b)=>String(b.d).localeCompare(String(a.d)));return L.length?svOf(L[0]).k:""}
 function svBlock(){if(!cf.sv)cf.sv={k:cf.id?"":svLast(),dir:"rcv",who:""};const v=cf.sv,giv=v.dir==="giv",N=svNames();if(v.k&&!v.o&&!N.includes(v.k))N.push(v.k);
- return `<div class="svb"><div class="cfl">What does your workplace call it?</div><div class="chipw" role="group" aria-label="What your workplace calls it">${N.map(n=>{const on=!v.o&&v.k===n;return `<button class="chipb${on?" on":""}" aria-pressed="${on}" data-n="${esc(n)}" onclick="svK(this.dataset.n)">${esc(n)}</button>`}).join("")}<button class="chipb${v.o?" on":""}" aria-pressed="${!!v.o}" onclick="svOther()">Other</button></div>`+
- (v.o?`<input id="cf-svo" class="cin" maxlength="40" placeholder="What your workplace calls it" aria-label="What your workplace calls it" value="${esc(v.k||"")}" oninput="cf.sv.k=this.value">`:"")+svLine()+
+ return `<div class="svb"><div class="cfl">What kind was it?</div><div class="chipw" role="group" aria-label="What kind of supervision it was">${N.map(n=>{const on=!v.o&&v.k===n;return `<button class="chipb${on?" on":""}" aria-pressed="${on}" data-n="${esc(n)}" onclick="svK(this.dataset.n)">${esc(n)}</button>`}).join("")}<button class="chipb${v.o?" on":""}" aria-pressed="${!!v.o}" onclick="svOther()">Other</button></div>`+
+ (v.o?`<input id="cf-svo" class="cin" maxlength="40" placeholder="What your workplace calls it" aria-label="What kind it was, in your workplace's words" value="${esc(v.k||"")}" oninput="cf.sv.k=this.value">`:"")+svLine()+
  `<div class="cfl">Were you…</div><div class="chipw" role="group" aria-label="Were you being supervised or supervising someone"><button class="chipb${!giv?" on":""}" aria-pressed="${!giv}" onclick="cf.sv.dir='rcv';cfRe()">Being supervised</button><button class="chipb${giv?" on":""}" aria-pressed="${giv}" onclick="cf.sv.dir='giv';cfRe()">Supervising someone</button></div>`+
  `<label class="cfl" for="cf-svw">${giv?"Who you supervised":"Who with"} <span style="font-weight:500;color:var(--mute)">(optional)</span></label><input id="cf-svw" class="cin" maxlength="60" placeholder="${giv?"e.g. a second-year student":"e.g. my Band 7, the MSK team lead"}" value="${esc(v.who||"")}" oninput="cf.sv.who=this.value">`+
  `<p class="tag" style="margin:4px 0 0">Their role is enough. If you attach your signed form, cover any patient details first, and check your workplace is happy for you to keep a copy.</p></div>`}
@@ -2959,25 +2959,33 @@ function svK(n){cf.sv=cf.sv||{dir:"rcv",who:""};cf.sv.k=String(n||"");cf.sv.o=fa
 function svOther(){cf.sv=cf.sv||{dir:"rcv",who:""};cf.sv.o=true;cf.sv.k="";cfRe();setTimeout(()=>{const i=document.getElementById("cf-svo");if(i)i.focus()},30)}
 function cfTy(k){cf.ty=k;const empty=f=>!FW[f].f.some(x=>String((cf.r||{})[x[0]]||"").trim());
  if(k==="mentor"){if((cf.fw||"std")==="std"&&empty("std"))cf.fw="sup"}else if(cf.fw==="sup"&&empty("sup"))cf.fw="std";cfRe()}
-function svNew(){cpdNew();cfTy("mentor")}
+function svNew(k){cpdNew();if(k&&typeof k==="string")cf.sv={k:k.slice(0,40),dir:"rcv",who:""};cfTy("mentor")}
 function svAgo(n){return n<=0?"today":n===1?"yesterday":n<14?n+" days ago":n<84?Math.round(n/7)+" weeks ago":Math.round(n/30.4)+" months ago"}
 function svGap(n){return n<14?n+" days":n<84?Math.round(n/7)+" weeks":Math.round(n/30.4)+" months"}
-function svInfo(){const ent=(S.cpd||[]).filter(e=>e&&e.ty==="mentor");let pm=[];try{if(showPre()&&S.pre&&Array.isArray(S.pre.mt))pm=S.pre.mt.filter(m=>m&&/^\d{4}-\d{2}-\d{2}$/.test(String(m.d)))}catch(er){}
+/* v480: one kind of supervision at a time; no kind given means every kind, and entries with no kind are "supervision" */
+const svKey=k=>String(k||"").trim().toLowerCase()||"supervision";
+function svInfo(k){const want=k==null?"":svKey(k),ent=(S.cpd||[]).filter(e=>e&&e.ty==="mentor");let pm=[];try{if(showPre()&&S.pre&&Array.isArray(S.pre.mt))pm=S.pre.mt.filter(m=>m&&/^\d{4}-\d{2}-\d{2}$/.test(String(m.d)))}catch(er){}
  if(!ent.length&&!pm.length)return null;
  const today=isoD(new Date()),y=isoD(new Date(Date.now()-365*864e5)),dd=(a,b)=>Math.round((new Date(b+"T12:00:00")-new Date(a+"T12:00:00"))/864e5);
- const rc=[...new Set(ent.filter(e=>{const v=svOf(e);return !(v&&v.dir==="giv")}).map(e=>String(e.d)).concat(pm.map(m=>String(m.d))))].filter(d=>/^\d{4}-\d{2}-\d{2}$/.test(d)&&d<=today).sort();
+ const mine=e=>{const v=svOf(e);return !want||svKey(v&&v.k)===want};
+ const rc=[...new Set(ent.filter(e=>{const v=svOf(e);return !(v&&v.dir==="giv")&&mine(e)}).map(e=>String(e.d)).concat(!want||want==="preceptorship meeting"?pm.map(m=>String(m.d)):[]))].filter(d=>/^\d{4}-\d{2}-\d{2}$/.test(d)&&d<=today).sort();
  const o={gv:ent.filter(e=>{const v=svOf(e);return v&&v.dir==="giv"&&e.d>=y&&e.d<=today}).length,n:0,ago:null,med:null,due:false};
  if(rc.length){const r=rc.filter(d=>d>=y),gaps=[];o.ago=dd(rc[rc.length-1],today);o.n=r.length;for(let i=1;i<r.length;i++)gaps.push(dd(r[i-1],r[i]));
   if(gaps.length>=2){gaps.sort((a,b)=>a-b);o.med=gaps[Math.floor(gaps.length/2)];o.due=o.med>0&&o.ago>Math.max(Math.round(o.med*1.5),o.med+14)}}
  return o}
-/* one quiet line under the name question when adding supervision */
-function svLine(){const o=svInfo();if(!o||(o.ago==null&&!o.gv))return "";const p=[];if(o.ago!=null)p.push("Last one "+svAgo(o.ago),o.n+" in the last 12 months");if(o.gv)p.push("you supervised someone "+(o.gv===1?"once":o.gv+" times"));
- const t=p.join(" · ");return `<p class="tag svl">${esc(t.charAt(0).toUpperCase()+t.slice(1))}</p>`}
+/* one quiet line under the kind question: this kind's last one and count, and how often you supervised someone */
+function svLine(){const k=cf&&cf.sv&&!cf.sv.o?cf.sv.k:"";const o=k?svInfo(k):null,all=svInfo();const p=[];
+ if(o&&o.ago!=null)p.push("Last "+svNoun(k)+" "+svAgo(o.ago),o.n+" in the last 12 months");if(all&&all.gv)p.push("you supervised someone "+(all.gv===1?"once":all.gv+" times"));
+ if(!p.length)return "";const t=p.join(" · ");return `<p class="tag svl">${esc(t.charAt(0).toUpperCase()+t.slice(1))}</p>`}
 /* "your last 1:1", "your last clinical supervision", "your last mentoring session" */
-function svNoun(k){const m={"Clinical supervision":"clinical supervision","Mentoring":"mentoring session","Preceptorship meeting":"preceptorship meeting","Peer supervision":"peer supervision","Coaching":"coaching session","Restorative supervision":"restorative supervision"};return k?(m[k]||k):"supervision"}
-/* shown in the CPD log's reminder slot only when overdue and no other reminder is showing; ✕ hides it for 2 weeks */
-function svNudge(){try{const t=isoD(new Date());if(S.svNz&&S.svNz>t)return "";const o=svInfo();if(!o||!o.due)return "";
- return `<div class="opt fbn svn" style="cursor:default"><div class="row"><b>Your last ${esc(svNoun(svLast()))} was ${svAgo(o.ago)}</b><button class="gx" aria-label="Remind me in 2 weeks" onclick="S.svNz=isoD(new Date(Date.now()+14*864e5));save();home()">✕</button></div><p class="tag" style="margin:4px 0 8px">That's longer than your usual gap of about ${svGap(o.med)}.</p><button class="go" style="margin:0" onclick="svNew()">Log one</button></div>`}catch(e){return ""}}
+function svNoun(k){const m={"clinical supervision":"clinical supervision","managerial supervision":"managerial supervision","restorative supervision":"restorative supervision","peer supervision":"peer supervision","mentoring":"mentoring session","coaching":"coaching session","preceptorship meeting":"preceptorship meeting"};return k?(m[svKey(k)]||String(k)):"supervision"}
+/* each kind the person has been supervised in, by its latest spelling */
+function svKinds(){const m={};(S.cpd||[]).filter(e=>e&&e.ty==="mentor").sort((a,b)=>String(a.d).localeCompare(String(b.d))).forEach(e=>{const v=svOf(e);if(v&&v.dir!=="giv")m[svKey(v.k)]=v.k||""});
+ try{if(showPre()&&S.pre&&Array.isArray(S.pre.mt)&&S.pre.mt.length&&!m["preceptorship meeting"])m["preceptorship meeting"]="Preceptorship meeting"}catch(er){}return Object.values(m)}
+/* shown in the CPD log's reminder slot only when a kind is overdue and no other reminder is showing; ✕ hides it for 2 weeks */
+function svNudge(){try{const t=isoD(new Date());if(S.svNz&&S.svNz>t)return "";let best=null;
+ svKinds().forEach(k=>{const o=svInfo(k);if(o&&o.due){const r=o.ago/o.med;if(!best||r>best.r)best={k,o,r}}});if(!best)return "";const o=best.o;
+ return `<div class="opt fbn svn" style="cursor:default"><div class="row"><b>Your last ${esc(svNoun(best.k))} was ${svAgo(o.ago)}</b><button class="gx" aria-label="Remind me in 2 weeks" onclick="S.svNz=isoD(new Date(Date.now()+14*864e5));save();home()">✕</button></div><p class="tag" style="margin:4px 0 8px">That's longer than your usual gap of about ${svGap(o.med)}.</p><button class="go" style="margin:0" data-n="${esc(best.k)}" onclick="svNew(this.dataset.n)">Log one</button></div>`}catch(e){return ""}}
 (function(){const st=document.createElement("style");st.textContent=`.svb{margin:8px 0 0;padding:0 0 2px 12px;border-left:2px solid var(--line)}.svb .cfl:first-child{margin-top:4px}
 .svl{margin:6px 0 0}`;document.head.appendChild(st)})();
 function cpdScreen(){
