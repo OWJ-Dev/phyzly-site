@@ -686,6 +686,13 @@ body.vvlock{overflow:hidden}
 .vvi{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)}.vvi span:nth-child(2){flex:1}.vvc{font-size:.72rem;font-weight:800;border-radius:99px;padding:3px 9px;white-space:nowrap}.vvc.ok{background:var(--okbg);color:var(--ok)}.vvc.mid{background:var(--xpbg);color:var(--xpink)}.vvc.bad{background:var(--badbg);color:var(--bad)}
 .vvf{margin-bottom:6px}.vvf p{margin:4px 0}.vvl{padding-left:18px;margin:0 0 14px}.vvl li{margin-bottom:6px}
 .clvb[aria-pressed="true"]{font-weight:700;text-decoration:underline}.plt image{border-radius:8px}.plt .hl{mix-blend-mode:multiply}[data-theme="dark"] .plt .hl{mix-blend-mode:screen;fill-opacity:.55}@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .plt .hl{mix-blend-mode:screen;fill-opacity:.55}}[data-theme="dark"] .plt image{filter:invert(.92) hue-rotate(180deg) saturate(1.3)}@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .plt image{filter:invert(.92) hue-rotate(180deg) saturate(1.3)}}.ifsh:has(#qrw){height:86vh}
+
+/* v492: holding screen while signing in */
+.pzhold .hero{margin-bottom:0}
+.pzhw{display:flex;flex-direction:column;align-items:center;gap:14px;margin:42px auto 0;color:var(--mute);font-weight:600;font-size:16px;text-align:center}
+.pzspin{width:26px;height:26px;border-radius:50%;border:2.5px solid rgba(127,140,160,.28);border-top-color:var(--ink);animation:pzspin .9s linear infinite}
+@keyframes pzspin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.pzspin{animation-duration:2.4s}}
 </style>
 <style>
 .cpsl{font-size:.78rem;font-weight:600;color:var(--mute);margin:4px 0 6px}
@@ -14422,6 +14429,36 @@ function grAskOwa(){const r=grAskRq(),url=r&&grAskUrl(r);if(!url)return;
  const u="https://outlook.office.com/mail/deeplink/compose?subject="+encodeURIComponent(grAskSubj(r))+"&body="+encodeURIComponent(grAskMsg(r,url));
  try{const a=document.createElement("a");a.href=u;a.target="_blank";a.rel="noopener noreferrer";document.body.appendChild(a);a.click();a.remove()}catch(e){}
  grMsg("Opening Outlook on the web. If it doesn't open, use Copy message.")}
+
+
+/* ---------- v492: holding screen while signing in ---------- */
+/* While an account is being brought onto this device (back from Apple or Google, or after an email code is accepted),
+   the sign-in screens are replaced by a quiet "Signing you in…" screen, so the landing or sign-up screen never shows
+   for a moment in between. Only ever replaces a sign-in screen: someone already signed in never sees it. */
+(function(){try{
+ const P=window.PZ;if(!P||!P.on)return;
+ const A=()=>document.getElementById("app");
+ const onAuth=()=>{const a=A();return !!(a&&a.querySelector(".auh,.auf,.pzhold"))};
+ const outNow=()=>!S.acct||!!S.signedOut||!!S.acct.guest;
+ let hold=0,txt="Signing you in…",since=0,running=0,cap=null;
+ window.pzHoldOn=()=>!!hold;
+ const html=()=>`<div class="auh pzhold"><div class="hero"><div class="wm">Phy<i>z</i>ly</div><p class="strap">Makes being a physiotherapist <b>easier.</b></p></div><div class="pzhw" role="status" aria-live="polite"><span class="pzspin" aria-hidden="true"></span><span>${txt}</span></div></div>`;
+ const show=()=>{const a=A();if(a){a.innerHTML=html();try{window.scrollTo(0,0)}catch(e){}}};
+ const start=t=>{hold=1;since=Date.now();if(t)txt=t;arm(30000);show()};
+ const arm=ms=>{clearTimeout(cap);cap=setTimeout(()=>{if(running)arm(15000);else stop("That sign-in didn't finish. Please try again.")},ms)};
+ const stop=err=>{if(!hold)return;hold=0;clearTimeout(cap);if(err&&outNow()){au.v="form";au.mode="in";au.err=err;au.busy=false}
+  if(onAuth()){if(S.role&&!outNow())home();else welcome()}};
+ const w0=welcome;welcome=function(step){if(hold&&!step){show();return}return w0.apply(this,arguments)};
+ const a0=P.adopt;P.adopt=async function(u,extra){const mine=onAuth();
+  if(mine&&!hold)start(au.busy&&au.v==="code"&&au.mode==="up"?"Setting up your account…":"Signing you in…");
+  running++;try{return await a0.apply(this,arguments)}finally{running--;if(hold&&!running){hold=0;clearTimeout(cap)}}};
+ /* back from Apple or Google: hold from the first moment, until the account has loaded or the sign-in has failed */
+ const back=/[?&]code=/.test(location.search)&&outNow();
+ if(back){start("Signing you in…");
+  P.sb.auth.getSession().then(({data})=>{const ses=data&&data.session;
+   if(!ses||!ses.user){try{history.replaceState(null,"",location.pathname)}catch(e){}stop("That sign-in didn't finish. Please try again, or use your email.")}})
+   .catch(()=>stop("That sign-in didn't finish. Check your connection and try again."))}
+}catch(e){console.error("v492",e)}})();
 
 
 /* ---------- Phyzly Portfolio (early access): Portfolio and Profile only, plus Quick ref and feedback ---------- */
