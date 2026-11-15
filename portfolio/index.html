@@ -761,6 +761,12 @@ body.vvlock{overflow:hidden}
 .crnowb{cursor:pointer;position:relative;padding-right:34px}
 .crnowb:after{content:"›";position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:1.4rem;color:#B8C4D6}
 .crgo{font-size:1.3rem;line-height:1}
+
+/* v499: trust or employer, university */
+.crl .crwo{color:var(--ink);opacity:.8}
+.crrs .crwo{color:var(--ink);font-weight:600}
+.crnow .crwo{color:#DCE5F2;font-size:.92rem}
+html.clin .mcard>.opt.crfb{border:1.5px solid var(--line)!important;background:var(--card);padding:12px 14px;border-radius:13px}
 </style>
 <style>
 .cpsl{font-size:.78rem;font-weight:600;color:var(--mute);margin:4px 0 6px}
@@ -12026,9 +12032,9 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
    tools:()=>({gr:S.gr||null,about:S.about||null,role:S.role||null,band:S.band==null?null:S.band,nq:!!S.nq,oth:S.oth||null})};
   /* per-group checks for values screens use as numbers */
   const FIX={
-   tools:v=>{if("about" in v){const A=v.about,o={};if(A&&typeof A==="object"&&!Array.isArray(A)){if(typeof A.area==="string"&&/^[a-z]{2,12}$/.test(A.area))o.area=A.area;if(typeof A.areaTx==="string")o.areaTx=A.areaTx.slice(0,60);if(typeof A.since==="string"&&/^\d{4}-\d{2}$/.test(A.since))o.since=A.since;if(typeof A.nf==="string"&&/^\d{4}-\d{2}$/.test(A.nf))o.nf=A.nf;if(typeof A.n==="string"&&A.n)o.n=A.n.slice(0,2000);
+   tools:v=>{if("about" in v){const A=v.about,o={};if(A&&typeof A==="object"&&!Array.isArray(A)){if(typeof A.area==="string"&&/^[a-z]{2,12}$/.test(A.area))o.area=A.area;if(typeof A.areaTx==="string")o.areaTx=A.areaTx.slice(0,60);if(typeof A.since==="string"&&/^\d{4}-\d{2}$/.test(A.since))o.since=A.since;if(typeof A.nf==="string"&&/^\d{4}-\d{2}$/.test(A.nf))o.nf=A.nf;if(typeof A.n==="string"&&A.n)o.n=A.n.slice(0,2000);if(typeof A.org==="string"&&A.org)o.org=A.org.slice(0,100);if(typeof A.uni==="string"&&A.uni)o.uni=A.uni.slice(0,100);
      const M=/^\d{4}-(0[1-9]|1[0-2])$/,ST=["stu","app","q","5n","5","6","7","8","nb","oth"],ID=/^[a-z0-9]{4,24}$/;
-     if(Array.isArray(A.hist))o.hist=A.hist.filter(e=>e&&typeof e==="object"&&ID.test(String(e.id))&&/^[a-z]{2,12}$/.test(String(e.a))&&M.test(e.f)&&M.test(e.t)&&e.f<=e.t&&ST.includes(e.st)).slice(0,200).map(e=>{const x={id:e.id,a:e.a,f:e.f,t:e.t,st:e.st};if(typeof e.ax==="string")x.ax=e.ax.slice(0,60);if(["rotation","placement","post"].includes(e.w))x.w=e.w;if(typeof e.n==="string"&&e.n)x.n=e.n.slice(0,2000);return x});
+     if(Array.isArray(A.hist))o.hist=A.hist.filter(e=>e&&typeof e==="object"&&ID.test(String(e.id))&&/^[a-z]{2,12}$/.test(String(e.a))&&M.test(e.f)&&M.test(e.t)&&e.f<=e.t&&ST.includes(e.st)).slice(0,200).map(e=>{const x={id:e.id,a:e.a,f:e.f,t:e.t,st:e.st};if(typeof e.ax==="string")x.ax=e.ax.slice(0,60);if(["rotation","placement","post"].includes(e.w))x.w=e.w;if(typeof e.n==="string"&&e.n)x.n=e.n.slice(0,2000);if(typeof e.o==="string"&&e.o)x.o=e.o.slice(0,100);if(typeof e.u==="string"&&e.u)x.u=e.u.slice(0,100);return x});
      if(Array.isArray(A.ms))o.ms=A.ms.filter(m=>m&&typeof m==="object"&&ID.test(String(m.id))&&M.test(m.d)&&ST.includes(m.st)).slice(0,100).map(m=>{const x={id:m.id,d:m.d,st:m.st};if(ST.includes(m.from))x.from=m.from;return x})}v.about=o}
     if(!["stu","app","sta","rot","oth"].includes(v.role)){delete v.role;delete v.band;delete v.nq;delete v.oth}
     else{if(!(v.band==="nb"||[5,6,7,8].includes(v.band)))delete v.band;v.nq=!!v.nq&&v.band===5;if(v.oth!=null&&!["sw","edu","ahp","else"].includes(v.oth))delete v.oth}},
@@ -14140,7 +14146,7 @@ function pzlPrivacy(inApp){const L=pzlLinks();return `<p class="tag">Last update
  pzlP(`Address: ${PZL_ADDR}. Email: ${pzlM}.`)+
  pzlH("The short version")+pzlU(["Your portfolio is yours. Only you can see it.","We keep what you add so you can use it on any device. We don't sell it, share it for advertising or use it to train AI.","Phyzly has no advertising, no tracking and no analytics.","You can export or delete everything at any time.","Please don't put patient details in Phyzly."])+
  pzlH("What we collect")+
- pzlS("When you create an account")+pzlU(["Your email address and first name.","How you sign in: a code sent by email, or Sign in with Apple. If you use Apple, Apple gives us your name and an email address, which may be a private relay address.","Your role, for example student, apprentice or registered physiotherapist, your band or year of study, whether you're newly qualified, and whether you're in a static or rotational post.","The area you work in or your current rotation, and your career history (your rotations, placements and posts, and when you moved band or role, with their dates, and any notes you add on what you learnt), if you add them in About you.","That you confirmed you're 18 or over, and whether you asked to receive news by email.","The invite code you used, while Phyzly is invitation only."])+
+ pzlS("When you create an account")+pzlU(["Your email address and first name.","How you sign in: a code sent by email, or Sign in with Apple. If you use Apple, Apple gives us your name and an email address, which may be a private relay address.","Your role, for example student, apprentice or registered physiotherapist, your band or year of study, whether you're newly qualified, and whether you're in a static or rotational post.","The area you work in or your current rotation, and your career history (your rotations, placements and posts, and when you moved band or role, with their dates, where you worked or studied, and any notes you add on what you learnt), if you add them in About you.","That you confirmed you're 18 or over, and whether you asked to receive news by email.","The invite code you used, while Phyzly is invitation only."])+
  pzlS("What you add to your portfolio")+pzlU(["CPD entries: dates, titles, types, time spent, reflections, tags and supervision details.","Photos and PDFs you attach as evidence.","Your HCPC audit pack: your summary of practice, your statement, and your HCPC registration number if you choose to add it.","Preceptorship records: dates, goals, meetings, actions and your preceptor's name and role.","Placement records and apprenticeship records, if you use those tools.","Feedback and SWOC: feedback you type in, your SWOC and snapshots"+(L?", and links you make to ask for feedback.":".")])+
  (L?pzlS("What other people send you")+pzlU(["If you ask a colleague for feedback by link, we store what they write, their role and their name if they give it, so that you can read it."]):"")+
  pzlS("When you contact us")+pzlU(["Messages sent with the feedback button, with the screen you were on, the app version and your browser type, so we can find and fix problems.","Complaints you send us, in the app or by email.","Emails you send us."])+
@@ -14591,6 +14597,7 @@ function abHtml(){const r=S.role,a=S.about||{},H=S.hc||{};let h="";
  else if(r==="stu"||r==="app"){let n=4;try{if(r==="stu"&&typeof CRS!=="undefined"&&S.crs){const c=CRS.find(x=>x[0]===S.crs);if(c&&c[3])n=c[3]}}catch(e){}
   h+=`<div class="abh">Year of your ${r==="app"?"apprenticeship":"course"}</div><div class="abl four" role="radiogroup" aria-label="Year">${Array.from({length:n},(_,i)=>abOpt(`abYr(${i+1})`,+S.yr===i+1,"Year "+(i+1))).join("")}</div>`}
  if(!abQual())h+=crStepHtml();
+ h+=orgHtml();
  {const W=crWord(),lab=W==="post"?"Area you work in":"Current "+W;
   h+=`<label class="abh" for="ab-ar" style="display:block">${lab}</label><p class="tag abp">${W==="post"?"Optional.":"Finish it here when you move on, and it's added to your career history."}</p>`+
    `<div class="absel"><select id="ab-ar" class="cin" onchange="abArea(this.value)"><option value=""${a.area?"":" selected"}>${a.area?"None":"Choose…"}</option>${AB_AREAS.map(([k,n])=>`<option value="${k}"${a.area===k?" selected":""}>${n}</option>`).join("")}</select></div>`+
@@ -14661,7 +14668,7 @@ function crFinHtml(W){const a=S.about||{};
 function crFinish(){const a=abA();if(!crFin||!a.area)return;const f=crFin.f,t=crFin.t;
  if(!crOkM(f)||!crOkM(t)){crFin.err="Add the month it started and the month it finished.";abRe();return}
  if(f>t){crFin.err="The finish month is before the start month.";abRe();return}
- const W=crWord();crH().push({id:crId(),a:a.area,ax:a.area==="other"?String(a.areaTx||"").slice(0,60):undefined,f,t,st:abStage(),w:W});
+ const W=crWord();crH().push({id:crId(),a:a.area,ax:a.area==="other"?String(a.areaTx||"").slice(0,60):undefined,o:orgCur().o||undefined,u:orgCur().u||undefined,f,t,st:abStage(),w:W});
  delete a.area;delete a.areaTx;delete a.since;a.nf=crAdd(t,1);crFin=null;
  crMsg=`Added to your career history. ${W==="post"?"Choose where you work now, if it has changed.":"Choose your next "+W+" when you know it."}`;abSave();abRe();
  setTimeout(()=>{const e=document.getElementById("ab-ar");if(e)e.scrollIntoView({block:"center"})},60)}
@@ -14671,7 +14678,7 @@ function crItems(){const a=S.about||{},E=(Array.isArray(a.hist)?a.hist:[]).map(e
 function crCount(){const a=S.about||{};return (Array.isArray(a.hist)?a.hist.length:0)+(Array.isArray(a.ms)?a.ms.length:0)}
 function crPage(){const a=S.about||{},now=abStage(),cur=a.area?crAreaL(a.area,a.areaTx):"",W=crWord();let h="";
  h+=`<p class="tag crin">Your ${W==="placement"?"placements":"rotations and posts"}, and when you moved band. Finish your current ${W} in Your details to add it here, or add past ones yourself.</p>`;
- h+=`<div class="crnow"><div class="crnl">Now</div><div class="crnb">${esc(crStLbl(now)||"Not set")}</div><div class="crna">${cur?esc(cur)+(a.since?" · since "+esc(crML(a.since)):""):`No current ${W} set. <button class="lnk aul" onclick="abGo()">Add it in Your details</button>`}</div></div>`;
+ h+=`<div class="crnow"><div class="crnl">Now</div><div class="crnb">${esc(crStLbl(now)||"Not set")}</div><div class="crna">${cur?esc(cur)+(a.since?" · since "+esc(crML(a.since)):""):`No current ${W} set. <button class="lnk aul" onclick="abGo()">Add it in Your details</button>`}</div>${orgW(orgCur())?`<div class="crna crwo">${esc(orgW(orgCur()))}</div>`:""}</div>`;
  if(crEd)h+=crEdHtml();
  else h+=`<div class="crbtns"><button class="opt" onclick="crEdNew('e')">Add a past ${W==="placement"?"placement":"rotation or post"}</button><button class="opt" onclick="crEdNew('m')">Add a band or role change</button></div>`;
  const I=crItems();
@@ -14679,16 +14686,16 @@ function crPage(){const a=S.about||{},now=abStage(),cur=a.area?crAreaL(a.area,a.
  const G=[];I.forEach(it=>{const st=it.x.st;const g=G[G.length-1];if(g&&g.st===st)g.items.push(it);else G.push({st,items:[it]})});
  h+=G.map(g=>`<div class="crg"><div class="crgh">${esc(crStLbl(g.st))}</div><div class="mgrp crl">${g.items.map(it=>{
   if(it.k==="m")return `<button class="mrow crm" onclick="crEdOpen('m','${it.x.id}')"><span class="crdot" aria-hidden="true"></span><span class="mtx"><span class="mlb">Started as ${esc(crStLbl(it.x.st))}</span></span><span class="mval">${esc(crML(it.x.d))}</span></button>`;
-  const e=it.x,n=crN(e.f,e.t);return `<button class="mrow" onclick="crEdOpen('e','${e.id}')"><span class="mtx"><span class="mlb">${esc(crAreaL(e.a,e.ax))}</span><span class="crd">${esc(crML(e.f))} to ${esc(crML(e.t))} · ${n} ${n===1?"month":"months"}</span></span><span class="mval">Edit</span></button>`}).join("")}</div></div>`).join("");
+  const e=it.x,n=crN(e.f,e.t);return `<button class="mrow" onclick="crEdOpen('e','${e.id}')"><span class="mtx"><span class="mlb">${esc(crAreaL(e.a,e.ax))}</span><span class="crd">${esc(crML(e.f))} to ${esc(crML(e.t))} · ${n} ${n===1?"month":"months"}</span>${orgW(e)?`<span class="crd crwo">${esc(orgW(e))}</span>`:""}</span><span class="mval">Edit</span></button>`}).join("")}</div></div>`).join("");
  return h}
-function crEdNew(k){crEd={k,id:null,d:k==="e"?{a:"",ax:"",f:"",t:"",st:abStage()||"5"}:{st:"",d:""},err:""};abRe()}
-function crEdOpen(k,id){const src=(k==="e"?crH():crMs()).find(x=>x.id===id);if(!src)return;crEd={k,id,d:k==="e"?{a:src.a,ax:src.ax||"",f:src.f,t:src.t,st:src.st}:{st:src.st,d:src.d},err:""};abRe();window.scrollTo(0,0)}
+function crEdNew(k){crEd={k,id:null,d:k==="e"?{a:"",ax:"",f:"",t:"",st:abStage()||"5",o:"",u:""}:{st:"",d:""},err:""};abRe()}
+function crEdOpen(k,id){const src=(k==="e"?crH():crMs()).find(x=>x.id===id);if(!src)return;crEd={k,id,d:k==="e"?{a:src.a,ax:src.ax||"",f:src.f,t:src.t,st:src.st,o:src.o||"",u:src.u||""}:{st:src.st,d:src.d},err:""};abRe();window.scrollTo(0,0)}
 function crEdHtml(){const E=crEd,d=E.d,stOpt=sel=>`<option value=""${sel?"":" selected"}>Choose…</option>`+CR_STAGES.map(([k,n])=>`<option value="${k}"${sel===k?" selected":""}>${n}</option>`).join("");let h=`<div class="crfin cred">`;
  if(E.k==="e"){h+=`<div class="crft">${E.id?"Edit":"Add a past rotation or post"}</div>`+
   `<label class="cfl" for="cr-ea">Area</label><div class="absel"><select id="cr-ea" class="cin" onchange="crEd.d.a=this.value;abRe()"><option value=""${d.a?"":" selected"}>Choose…</option>${AB_AREAS.map(([k,n])=>`<option value="${k}"${d.a===k?" selected":""}>${n}</option>`).join("")}</select></div>`+
   (d.a==="other"?`<label class="cfl" for="cr-ex">Where?</label><input id="cr-ex" class="cin" maxlength="60" value="${esc(d.ax)}" oninput="crEd.d.ax=this.value">`:"")+
   `<label class="cfl" for="cr-es">You were</label><div class="absel"><select id="cr-es" class="cin" onchange="crEd.d.st=this.value">${stOpt(d.st)}</select></div>`+
-  `<div class="crrow"><div><label class="cfl" for="cr-ef">Started</label><input id="cr-ef" class="cin" type="month" value="${esc(d.f)}" oninput="crEd.d.f=this.value"></div><div><label class="cfl" for="cr-et">Finished</label><input id="cr-et" class="cin" type="month" value="${esc(d.t)}" oninput="crEd.d.t=this.value"></div></div>`}
+  orgEdHtml(d)+`<div class="crrow"><div><label class="cfl" for="cr-ef">Started</label><input id="cr-ef" class="cin" type="month" value="${esc(d.f)}" oninput="crEd.d.f=this.value"></div><div><label class="cfl" for="cr-et">Finished</label><input id="cr-et" class="cin" type="month" value="${esc(d.t)}" oninput="crEd.d.t=this.value"></div></div>`}
  else h+=`<div class="crft">${E.id?"Edit band or role change":"Add a band or role change"}</div>`+
   `<label class="cfl" for="cr-ms">Started as</label><div class="absel"><select id="cr-ms" class="cin" onchange="crEd.d.st=this.value">${stOpt(d.st)}</select></div>`+
   `<label class="cfl" for="cr-md">From</label><input id="cr-md" class="cin" type="month" value="${esc(d.d)}" oninput="crEd.d.d=this.value">`;
@@ -14698,7 +14705,7 @@ function crEdHtml(){const E=crEd,d=E.d,stOpt=sel=>`<option value=""${sel?"":" se
 function crEdSave(){const E=crEd;if(!E)return;const d=E.d;
  if(E.k==="e"){if(!d.a){E.err="Choose the area.";abRe();return}if(!CR_STAGES.some(x=>x[0]===d.st)){E.err="Choose what you were at the time.";abRe();return}
   if(!crOkM(d.f)||!crOkM(d.t)){E.err="Add the month it started and the month it finished.";abRe();return}if(d.f>d.t){E.err="The finish month is before the start month.";abRe();return}
-  const v={a:d.a,ax:d.a==="other"?String(d.ax||"").slice(0,60):undefined,f:d.f,t:d.t,st:d.st};const H=crH(),x=E.id&&H.find(z=>z.id===E.id);if(x)Object.assign(x,v);else H.push(Object.assign({id:crId()},v))}
+  const v={a:d.a,ax:d.a==="other"?String(d.ax||"").slice(0,60):undefined,o:orgClean(d.o)||undefined,u:orgClean(d.u)||undefined,f:d.f,t:d.t,st:d.st};const H=crH(),x=E.id&&H.find(z=>z.id===E.id);if(x)Object.assign(x,v);else H.push(Object.assign({id:crId()},v))}
  else{if(!CR_STAGES.some(x=>x[0]===d.st)){E.err="Choose the band or role.";abRe();return}if(!crOkM(d.d)){E.err="Add the month it started.";abRe();return}
   const M=crMs(),x=E.id&&M.find(z=>z.id===E.id);if(x){x.st=d.st;x.d=d.d}else M.push({id:crId(),st:d.st,d:d.d})}
  crEd=null;abSave();abRe()}
@@ -14714,6 +14721,24 @@ function crGo(){abPg="career";abOn=true;crEd=null;try{pzlPg=null}catch(e){}try{m
   g.insertAdjacentHTML("beforeend",`<button class="mrow crrowp" onclick="crGo()"><span class="msq" style="background:#2F4A8A"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3v18M6 6h12l-2.5 3.5L18 13H6"/></svg></span><span class="mtx"><span class="mlb">Career history</span></span><span class="mval">${n?n+(n===1?" entry":" entries"):""}</span>${ch}</button>`)}
  return r}}
 
+/* ---------- v499: where you worked and studied (trust or employer, and university) ---------- */
+/* Your details keeps your current trust or employer (S.about.org) and, for students and apprentices, your university
+   (S.about.uni). Finishing a rotation stamps them on it; past entries have their own. Suggestions come from ones you've
+   used before. */
+const orgClean=v=>String(v==null?"":v).replace(/\s+/g," ").trim().slice(0,100);
+const orgStudy=st=>st==="stu"||st==="app";
+function orgCur(){const a=S.about||{},st=abStage();return {o:S.role==="stu"?"":orgClean(a.org),u:orgStudy(st)?orgClean(a.uni):""}}
+const orgW=x=>[x&&x.o,x&&x.u].filter(Boolean).join(" · ");
+function orgSeen(k){const a=S.about||{},L=[];if(a[k==="o"?"org":"uni"])L.push(a[k==="o"?"org":"uni"]);(Array.isArray(a.hist)?a.hist:[]).forEach(e=>{if(e&&e[k])L.push(e[k])});
+ return Array.from(new Set(L.map(orgClean).filter(Boolean))).slice(0,20)}
+const orgDl=(id,k)=>`<datalist id="${id}">${orgSeen(k).map(v=>`<option value="${esc(v)}"></option>`).join("")}</datalist>`;
+function orgHtml(){const r=S.role;let h="";
+ if(r!=="stu")h+=`<label class="abh" for="ab-org" style="display:block">Trust or employer</label><p class="tag abp">Optional. For example your NHS trust or health board, or a private practice. It's added to each rotation you finish.</p><input id="ab-org" class="cin" maxlength="100" list="ab-orgs" autocomplete="organization" value="${esc((S.about||{}).org||"")}" oninput="abA().org=this.value||undefined;abSave()">`+orgDl("ab-orgs","o");
+ if(r==="stu"||r==="app")h+=`<label class="abh" for="ab-uni" style="display:block">University</label><p class="tag abp">Optional.</p><input id="ab-uni" class="cin" maxlength="100" list="ab-unis" value="${esc((S.about||{}).uni||"")}" oninput="abA().uni=this.value||undefined;abSave()">`+orgDl("ab-unis","u");
+ return h}
+function orgEdHtml(d){return `<label class="cfl" for="cr-eo">Trust or employer (optional)</label><input id="cr-eo" class="cin" maxlength="100" list="cr-eos" value="${esc(d.o||"")}" oninput="crEd.d.o=this.value">`+orgDl("cr-eos","o")+
+ `<label class="cfl" for="cr-eu">University (optional, if you were studying)</label><input id="cr-eu" class="cin" maxlength="100" list="cr-eus" value="${esc(d.u||"")}" oninput="crEd.d.u=this.value">`+orgDl("cr-eus","u")}
+
 
 /* ---------- v497: what happened in each rotation (Career history, step 2) ---------- */
 /* Tap a rotation, placement or post in Career history (or the "Now" card) to see what you did in those dates:
@@ -14723,7 +14748,7 @@ function crGo(){abPg="career";abOn=true;crEd=null;try{pzlPg=null}catch(e){}try{m
 let crV=null;
 const crMEnd=m=>{const d=new Date(+m.slice(0,4),+m.slice(5,7),0,12);return isoD(d)};
 function crRotGet(id){const a=S.about||{};
- if(id==="cur"){if(!a.area)return null;return {cur:true,id:"cur",a:a.area,ax:a.areaTx,f:a.since||"",t:"",st:abStage(),w:crWord(),n:a.n||""}}
+ if(id==="cur"){if(!a.area)return null;const w=orgCur();return {cur:true,id:"cur",a:a.area,ax:a.areaTx,f:a.since||"",t:"",st:abStage(),w:crWord(),n:a.n||"",o:w.o,u:w.u}}
  const e=(Array.isArray(a.hist)?a.hist:[]).find(x=>x.id===id);return e?Object.assign({cur:false},e,{w:e.w||crWord(e.st==="stu"?"stu":e.st==="app"?"app":"rot")}):null}
 function crRange(R){const today=isoD(new Date());return {from:crOkM(R.f)?R.f+"-01":null,to:R.cur?today:crMEnd(R.t)}}
 const crIn=(d,g)=>/^\d{4}-\d{2}-\d{2}$/.test(String(d||""))&&(!g.from||d>=g.from)&&d<=g.to;
@@ -14744,7 +14769,7 @@ function crRot(id){if(!crRotGet(id))return;crV={id};crEd=null;abPg="rot";abOn=tr
 function crRotBack(){crV=null;abPg="career";abOn=true;meScreen();window.scrollTo(0,0)}
 function crNote(v){v=String(v||"").slice(0,2000);const id=crV&&crV.id;if(!id)return;if(id==="cur")abA().n=v||undefined;else{const e=crH().find(x=>x.id===id);if(e)e.n=v||undefined}abSave()}
 function crRotHtml(){const R=crRotGet(crV&&crV.id);if(!R)return `<p class="tag">This has been deleted.</p>`;const D=crData(R),W=R.w,len=crLen(R);let h="";
- h+=`<p class="crrs">${esc(crStLbl(R.st))} · ${esc(crDates(R))}${len?" · "+esc(len):""}</p>`;
+ h+=`<p class="crrs">${esc(crStLbl(R.st))} · ${esc(crDates(R))}${len?" · "+esc(len):""}${orgW(R)?`<br><span class="crwo">${esc(orgW(R))}</span>`:""}</p>`;
  if(R.cur&&!R.f)h+=`<div class="note">Add the month this ${W} started in <button class="lnk aul" onclick="abGo()">Your details</button> to see what you've done in it.</div>`;
  h+=`<div class="crst">${[[D.cpd.length,D.cpd.length===1?"CPD activity":"CPD activities"],[crHrs(D.min),"hours of CPD"],[D.fb.length,D.fb.length===1?"piece of feedback":"pieces of feedback"],[D.gl.length,D.gl.length===1?"plan goal":"plan goals"]].map(x=>`<div><b>${esc(String(x[0]))}</b><span>${x[1]}</span></div>`).join("")}</div>`;
  h+=`<label class="abh" for="cr-n" style="display:block">What you learnt</label><p class="tag abp">Optional. A few lines in your own words. It goes in the summary you download.</p><textarea id="cr-n" class="cin crn" rows="4" maxlength="2000" placeholder="e.g. Confident with suction and airway clearance. Led my first MDT discussion." oninput="crNote(this.value)">${esc(R.n||"")}</textarea>`;
@@ -14759,7 +14784,7 @@ function crRotHtml(){const R=crRotGet(crV&&crV.id);if(!R)return `<p class="tag">
 function crWho(L){const W=xpWho();if(W.name)L.text(W.name+(W.prof?" · "+W.prof:""),{sz:12,w:"bold",gap:1});if(W.reg)L.text("HCPC registration number "+W.reg,{sz:10,c:L.mute});return W}
 async function crRotPdf(R){const D=crData(R),W0=R.w,title=W0==="placement"?"Placement summary":W0==="post"?"Post summary":"Rotation summary",len=crLen(R);
  return xpPdf(async L=>{L.h1(title);const W=crWho(L);L.y+=8;
-  L.text(crAreaL(R.a,R.ax),{sz:16,w:"bold",lh:1.25,gap:2});L.text(crStLbl(R.st)+" · "+crDates(R)+(len?" · "+len:""),{sz:10.5,c:L.mute,gap:4});
+  L.text(crAreaL(R.a,R.ax),{sz:16,w:"bold",lh:1.25,gap:2});if(orgW(R))L.text(orgW(R),{sz:11,gap:2});L.text(crStLbl(R.st)+" · "+crDates(R)+(len?" · "+len:""),{sz:10.5,c:L.mute,gap:4});
   L.text("Exported "+xpLong(isoD(new Date())),{sz:9,c:L.soft,gap:14});
   L.stats([[String(D.cpd.length),D.cpd.length===1?"CPD activity":"CPD activities"],[crHrs(D.min),"hours of CPD"],[String(D.fb.length),"feedback"],[String(D.gl.length),D.gl.length===1?"plan goal":"plan goals"]]);
   if(String(R.n||"").trim()){L.h2("What I learnt");L.text(R.n,{gap:6})}
@@ -14773,10 +14798,10 @@ function crRotPdfGo(){const R=crRotGet(crV&&crV.id);if(!R)return;const nm=(R.w==
  xpRun("pdf",async()=>[{name:nm,blob:await crRotPdf(R)}],"cr")}
 async function crCareerPdf(){const a=S.about||{},now=abStage(),I=crItems();
  return xpPdf(async L=>{L.h1("Career history");crWho(L);L.text("Exported "+xpLong(isoD(new Date())),{sz:9,c:L.soft,gap:14});
-  const cur=crRotGet("cur");L.h2("Now");L.text(crStLbl(now)||"Not set",{sz:12,w:"bold",gap:2});if(cur){const D=crData(cur);L.text(crAreaL(cur.a,cur.ax)+" · "+crDates(cur)+(cur.f?" · "+D.cpd.length+" CPD, "+D.fb.length+" feedback":""),{c:L.mute,gap:6})}
+  const cur=crRotGet("cur");L.h2("Now");L.text(crStLbl(now)||"Not set",{sz:12,w:"bold",gap:2});if(cur){const D=crData(cur);L.text(crAreaL(cur.a,cur.ax)+(orgW(cur)?" · "+orgW(cur):"")+" · "+crDates(cur)+(cur.f?" · "+D.cpd.length+" CPD, "+D.fb.length+" feedback":""),{c:L.mute,gap:6})}
   const G=[];I.forEach(it=>{const g=G[G.length-1];if(g&&g.st===it.x.st)g.items.push(it);else G.push({st:it.x.st,items:[it]})});
   G.forEach(g=>{L.h2(crStLbl(g.st));const rows=[];g.items.forEach(it=>{if(it.k==="m"){rows.push(["Started as "+crStLbl(it.x.st),crML(it.x.d),"","",""]);return}
-    const e=it.x,D=crData(Object.assign({cur:false},e));rows.push([crAreaL(e.a,e.ax),crML(e.f)+" to "+crML(e.t),String(crN(e.f,e.t)),String(D.cpd.length)+" ("+crHrs(D.min)+" h)",String(D.fb.length)])});
+    const e=it.x,D=crData(Object.assign({cur:false},e));rows.push([crAreaL(e.a,e.ax)+(orgW(e)?"\n"+orgW(e):""),crML(e.f)+" to "+crML(e.t),String(crN(e.f,e.t)),String(D.cpd.length)+" ("+crHrs(D.min)+" h)",String(D.fb.length)])});
    L.table([{t:"Rotation, placement or post",w:.36},{t:"Dates",w:.27},{t:"Months",w:.11,a:"r"},{t:"CPD",w:.15,a:"r"},{t:"Feedback",w:.11,a:"r"}],rows,{firstBold:true})});
   if(!G.length)L.text("No past rotations, placements or posts added yet.",{c:L.mute});
   L.y+=8;L.text("My own record of my career. It is not a formal record.",{sz:9,c:L.soft})
