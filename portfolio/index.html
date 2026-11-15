@@ -693,6 +693,25 @@ body.vvlock{overflow:hidden}
 .pzspin{width:26px;height:26px;border-radius:50%;border:2.5px solid rgba(127,140,160,.28);border-top-color:var(--ink);animation:pzspin .9s linear infinite}
 @keyframes pzspin{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){.pzspin{animation-duration:2.4s}}
+
+/* v494: About you */
+.abc .abh{font-weight:800;font-size:1rem;margin:20px 0 8px}
+.abc .abh:first-child{margin-top:2px}
+.abc .abp{margin:-4px 0 8px}
+.abl{display:grid;gap:8px;margin:0 0 4px}
+.abl.two{grid-template-columns:1fr 1fr}
+.abl.four{grid-template-columns:repeat(4,1fr)}
+.abo{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;text-align:left;padding:11px 12px 11px 14px;border:1.5px solid var(--line);border-radius:13px;background:var(--card);color:var(--ink);font:inherit;font-weight:600;font-size:.95rem;line-height:1.3;cursor:pointer;min-height:48px;margin:0}
+.abo small{display:block;font-weight:400;color:var(--mute);font-size:.85rem;margin-top:2px}
+.abo[aria-checked="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.abo .abk{flex:0 0 22px;width:22px;height:22px;border-radius:50%;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center}
+.abo[aria-checked="true"] .abk{background:var(--ink);border-color:var(--ink);color:var(--card)}
+.abl.four .abo{justify-content:center;text-align:center;padding:11px 6px}
+.abl.four .abo .abk{display:none}
+.absel{position:relative}
+.absel select{appearance:none;-webkit-appearance:none;padding-right:40px;background-image:none;cursor:pointer}
+.absel:after{content:"";position:absolute;right:16px;top:50%;width:8px;height:8px;border-right:2px solid var(--mute);border-bottom:2px solid var(--mute);transform:translateY(-70%) rotate(45deg);pointer-events:none}
+@media (max-width:360px){.abl.two{grid-template-columns:1fr}}
 </style>
 <style>
 .cpsl{font-size:.78rem;font-weight:600;color:var(--mute);margin:4px 0 6px}
@@ -11955,9 +11974,12 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
    preceptorship:()=>({pre:S.pre||null}),
    competencies:()=>({cm:S.cm||null}),
    interview:()=>({iv:S.iv||null}),
-   tools:()=>({gr:S.gr||null})};
+   tools:()=>({gr:S.gr||null,about:S.about||null,role:S.role||null,band:S.band==null?null:S.band,nq:!!S.nq,oth:S.oth||null})};
   /* per-group checks for values screens use as numbers */
   const FIX={
+   tools:v=>{if("about" in v){const A=v.about,o={};if(A&&typeof A==="object"&&!Array.isArray(A)){if(typeof A.area==="string"&&/^[a-z]{2,12}$/.test(A.area))o.area=A.area;if(typeof A.areaTx==="string")o.areaTx=A.areaTx.slice(0,60);if(typeof A.since==="string"&&/^\d{4}-\d{2}$/.test(A.since))o.since=A.since}v.about=o}
+    if(!["stu","app","sta","rot","oth"].includes(v.role)){delete v.role;delete v.band;delete v.nq;delete v.oth}
+    else{if(!(v.band==="nb"||[5,6,7,8].includes(v.band)))delete v.band;v.nq=!!v.nq&&v.band===5;if(v.oth!=null&&!["sw","edu","ahp","else"].includes(v.oth))delete v.oth}},
    apprenticeship:v=>{const T=v.otjT,o={};if(T&&typeof T==="object"&&!Array.isArray(T))Object.keys(T).forEach(k=>{const n=+T[k];if(/^\d{4}-\d{2}$/.test(k)&&isFinite(n)&&n>0)o[k]=Math.min(300,n)});if("otjT" in v)v.otjT=o},
    preceptorship:v=>{const P=v.pre;if(P&&typeof P==="object"&&!Array.isArray(P)){const n=Math.round(+P.len);P.len=n>=1&&n<=36?n:12;if(P.start!=null&&!DAY.test(String(P.start)))P.start=""}}};
   /* the Portfolio keeps these tools off whatever an account says. v466: preceptorship is back in the Portfolio. Accounts
@@ -11973,7 +11995,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
   /* v452: what belongs to an account on this device. Removed when you sign out, and before a different
      account is used here, so one person's Portfolio can never be read by, or copied into, another's
      (security pass 10 Nov 2026, findings 1 and 3). v454: rotation, qualification and export dates added (R9). */
-  const ACCT_K=["cpd","plc","hc","otj","otjT","ksb","pre","cm","iv","gr","grV","rqT","pfp","role","band","nq","oth","crs","yr","pzAsk","pzAskIds","qualAt","prevRole","rot","rotDate","cpdX"];
+  const ACCT_K=["cpd","plc","hc","otj","otjT","ksb","pre","cm","iv","gr","grV","rqT","pfp","role","band","nq","oth","crs","yr","pzAsk","pzAskIds","qualAt","prevRole","rot","rotDate","cpdX","about"];
   const dropAcct=()=>{ACCT_K.forEach(k=>delete S[k]);delete S.sy};
   const photosIn=o=>{const out=new Set();(JSON.stringify(o||null).match(/"(?:ph|pd)[a-z0-9]{8,}"/g)||[]).forEach(x=>out.add(x.slice(1,-1)));return out};
   const wipePhotos=async()=>{try{const ks=await phKeys();for(const k of ks)await phDel(k)}catch(e){}};
@@ -14066,7 +14088,7 @@ function pzlPrivacy(inApp){const L=pzlLinks();return `<p class="tag">Last update
  pzlP(`Address: ${PZL_ADDR}. Email: ${pzlM}.`)+
  pzlH("The short version")+pzlU(["Your portfolio is yours. Only you can see it.","We keep what you add so you can use it on any device. We don't sell it, share it for advertising or use it to train AI.","Phyzly has no advertising, no tracking and no analytics.","You can export or delete everything at any time.","Please don't put patient details in Phyzly."])+
  pzlH("What we collect")+
- pzlS("When you create an account")+pzlU(["Your email address and first name.","How you sign in: a code sent by email, or Sign in with Apple. If you use Apple, Apple gives us your name and an email address, which may be a private relay address.","Your role, for example student, apprentice or registered physiotherapist, your band or year of study, and whether you're newly qualified.","That you confirmed you're 18 or over, and whether you asked to receive news by email.","The invite code you used, while Phyzly is invitation only."])+
+ pzlS("When you create an account")+pzlU(["Your email address and first name.","How you sign in: a code sent by email, or Sign in with Apple. If you use Apple, Apple gives us your name and an email address, which may be a private relay address.","Your role, for example student, apprentice or registered physiotherapist, your band or year of study, whether you're newly qualified, and whether you're in a static or rotational post.","The area you work in or your current rotation, if you add it in About you.","That you confirmed you're 18 or over, and whether you asked to receive news by email.","The invite code you used, while Phyzly is invitation only."])+
  pzlS("What you add to your portfolio")+pzlU(["CPD entries: dates, titles, types, time spent, reflections, tags and supervision details.","Photos and PDFs you attach as evidence.","Your HCPC audit pack: your summary of practice, your statement, and your HCPC registration number if you choose to add it.","Preceptorship records: dates, goals, meetings, actions and your preceptor's name and role.","Placement records and apprenticeship records, if you use those tools.","Feedback and SWOC: feedback you type in, your SWOC and snapshots"+(L?", and links you make to ask for feedback.":".")])+
  (L?pzlS("What other people send you")+pzlU(["If you ask a colleague for feedback by link, we store what they write, their role and their name if they give it, so that you can read it."]):"")+
  pzlS("When you contact us")+pzlU(["Messages sent with the feedback button, with the screen you were on, the app version and your browser type, so we can find and fix problems.","Complaints you send us, in the app or by email.","Emails you send us."])+
@@ -14483,6 +14505,76 @@ function grAskOwa(){const r=grAskRq(),url=r&&grAskUrl(r);if(!url)return;
 }catch(e){console.error("v493",e)}})();
 
 
+/* ---------- v494: About you (Profile), and one look only ---------- */
+/* About you: role, band (or year), the area you work in or your current rotation, and your HCPC details.
+   The HCPC details are the same ones the HCPC audit pack uses, so they're typed once and show in both.
+   Saved with the account (user_state "about", and the profile row for role and band). */
+const AB_ROLES=[["sta","Qualified physio, static","A permanent post in one area or team."],["rot","Qualified physio, rotational","Rotating between specialities."],["stu","Student","On a physiotherapy degree or pre-registration master's."],["app","Apprentice","On a physiotherapy degree apprenticeship."],["oth","Another role","Support worker, educator, another profession or something else."]];
+const AB_BANDS=[["5n","Band 5, newly qualified"],["5","Band 5"],["6","Band 6"],["7","Band 7"],["8","Band 8a or above"],["nb","Not on NHS bands"]];
+const AB_OTHS=[["sw","Physio assistant or support worker"],["edu","Educator, lecturer or researcher"],["ahp","Another profession"],["else","Something else"]];
+const AB_AREAS=[["msk","MSK outpatients"],["ortho","Orthopaedics"],["resp","Respiratory"],["crit","Critical care"],["neuro","Neurology"],["stroke","Stroke"],["older","Older people and medicine"],["surg","Surgery"],["cardiac","Cardiac"],["comm","Community"],["paeds","Paediatrics"],["pelvic","Pelvic health"],["other","Somewhere else"]];
+let abOn=false;
+const abA=()=>{if(!S.about||typeof S.about!=="object"||Array.isArray(S.about))S.about={};return S.about};
+const abQual=()=>S.role==="sta"||S.role==="rot";
+const abBandK=()=>S.band==="nb"?"nb":S.band===5&&S.nq?"5n":S.band!=null&&S.band!==""?String(S.band):"";
+function abAreaLbl(){const a=S.about||{};if(!a.area)return "";if(a.area==="other")return String(a.areaTx||"").trim()||"Somewhere else";const x=AB_AREAS.find(z=>z[0]===a.area);return x?x[1]:""}
+function abSum(){return abAreaLbl()}
+function abSave(){save();try{if(window.pzDirty)pzDirty()}catch(e){}}
+function abRe(){const y=window.scrollY;meScreen();window.scrollTo(0,y)}
+function abRole(k){if(!AB_ROLES.some(r=>r[0]===k)||S.role===k)return;const was=S.role;S.role=k;
+ if(k==="sta"||k==="rot"){if(was!=="sta"&&was!=="rot"){delete S.band;delete S.nq}}
+ else if(k==="oth"){delete S.band;delete S.nq}
+ else{delete S.band;delete S.nq;if(k==="app")S.crs="app";else if(S.crs==="app")delete S.crs}
+ if(k!=="oth")delete S.oth;abSave();abRe()}
+function abBand(k){if(!AB_BANDS.some(z=>z[0]===k))return;S.nq=k==="5n";S.band=k==="nb"?"nb":k==="5n"?5:+k;abSave();abRe()}
+function abOth(k){S.oth=k;abSave();abRe()}
+function abYr(y){S.yr=y;abSave();abRe()}
+function abArea(k){const a=abA();if(!k||!AB_AREAS.some(z=>z[0]===k)){delete a.area;delete a.areaTx;delete a.since}else{a.area=k;if(k!=="other")delete a.areaTx}abSave();abRe();
+ if(k==="other")setTimeout(()=>{const i=document.getElementById("ab-ox");if(i)i.focus()},50)}
+function abOpt(on,sel,t,d){return `<button class="abo" role="radio" aria-checked="${sel}" onclick="${on}"><span>${t}${d?`<small>${d}</small>`:""}</span><span class="abk" aria-hidden="true">${sel?'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>':""}</span></button>`}
+function abHtml(){const r=S.role,a=S.about||{},H=S.hc||{};let h="";
+ h+=`<div class="abh">Your role</div><div class="abl" role="radiogroup" aria-label="Your role">${AB_ROLES.map(([k,n,d])=>abOpt(`abRole('${k}')`,r===k,n,d)).join("")}</div>`;
+ if(abQual()){const b=abBandK();h+=`<label class="abh" for="ab-bd" style="display:block">Band</label><div class="absel"><select id="ab-bd" class="cin" onchange="if(this.value)abBand(this.value)">${b?"":`<option value="" selected>Choose…</option>`}${AB_BANDS.map(([k,n])=>`<option value="${k}"${b===k?" selected":""}>${n}</option>`).join("")}</select></div>`}
+ else if(r==="oth")h+=`<div class="abh">Which best describes you?</div><div class="abl" role="radiogroup" aria-label="Which best describes you">${AB_OTHS.map(([k,n])=>abOpt(`abOth('${k}')`,S.oth===k,n)).join("")}</div>`;
+ else if(r==="stu"||r==="app"){let n=4;try{if(r==="stu"&&typeof CRS!=="undefined"&&S.crs){const c=CRS.find(x=>x[0]===S.crs);if(c&&c[3])n=c[3]}}catch(e){}
+  h+=`<div class="abh">Year of your ${r==="app"?"apprenticeship":"course"}</div><div class="abl four" role="radiogroup" aria-label="Year">${Array.from({length:n},(_,i)=>abOpt(`abYr(${i+1})`,+S.yr===i+1,"Year "+(i+1))).join("")}</div>`}
+ if(abQual()||r==="oth"){const rot=r==="rot";
+  h+=`<label class="abh" for="ab-ar" style="display:block">${rot?"Current rotation":"Area you work in"}</label><p class="tag abp">${rot?"Change it when you move to your next rotation.":"Optional."}</p>`+
+   `<div class="absel"><select id="ab-ar" class="cin" onchange="abArea(this.value)"><option value=""${a.area?"":" selected"}>${a.area?"None":"Choose…"}</option>${AB_AREAS.map(([k,n])=>`<option value="${k}"${a.area===k?" selected":""}>${n}</option>`).join("")}</select></div>`+
+   (a.area==="other"?`<label class="cfl" for="ab-ox">Where?</label><input id="ab-ox" class="cin" maxlength="60" value="${esc(a.areaTx||"")}" oninput="abA().areaTx=this.value;abSave()">`:"")+
+   (rot&&a.area?`<label class="cfl" for="ab-sn">Started this rotation</label><input id="ab-sn" class="cin" type="month" value="${esc(a.since||"")}" onchange="abA().since=this.value||undefined;abSave()">`:"")}
+ if(abQual()){
+  h+=`<div class="abh">HCPC registration</div><p class="tag abp">Your HCPC audit pack uses these too, so you only need to add them once.</p>`+
+   `<label class="cfl" for="ab-nm">Full name, as it appears on the HCPC Register</label><input id="ab-nm" class="cin" autocomplete="name" maxlength="80" value="${esc(H.name||"")}" oninput="hcS().name=this.value;abSave()">`+
+   `<label class="cfl" for="ab-rg">HCPC registration number</label><input id="ab-rg" class="cin" autocapitalize="characters" autocomplete="off" spellcheck="false" maxlength="12" value="${esc(H.regNo||"")}" placeholder="e.g. PH123456" oninput="hcS().regNo=this.value.toUpperCase().replace(/\\s+/g,'');abSave()" onblur="this.value=(S.hc&&S.hc.regNo)||''" style="text-transform:uppercase">`+
+   `<label class="cfl" for="ab-rf">Registered since</label><input id="ab-rf" class="cin" type="month" value="${esc(H.regFrom||S.qualAt||"")}" onchange="hcS().regFrom=this.value;abSave()">`+
+   `<p class="tag abp" style="margin-top:10px">You can check your details on the HCPC Register at hcpc-uk.org.</p>`}
+ return h}
+function abGo(){abOn=true;try{pzlPg=null}catch(e){}try{meSub=null}catch(e){}openMe();window.scrollTo(0,0)}
+function abBack(){abOn=false;meScreen();window.scrollTo(0,0)}
+const AB_IC='<path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/><path d="M4.5 20c1.3-3.6 4.2-5.5 7.5-5.5s6.2 1.9 7.5 5.5"/>';
+function abAfter(){const A=document.getElementById("app");if(!A||tab!=="me")return;
+ /* one look only: the Display choice goes */
+ A.querySelectorAll(".mrow").forEach(b=>{if(((b.querySelector(".mlb")||{}).textContent||"").trim()==="How Phyzly looks")b.remove()});
+ A.querySelectorAll(".mgrp").forEach(g=>{if(!g.querySelector(".mrow")&&!g.classList.contains("mraw")){const h=g.previousElementSibling;if(h&&h.classList.contains("mgh"))h.remove();g.remove()}});
+ if(abOn){const band=A.querySelector(".nvband");
+  if(band){[...A.children].forEach(e=>{if(e!==band)e.remove()});[...band.children].forEach(e=>{if(!e.matches(".top"))e.remove()});band.classList.remove("nvtab","nvme");band.classList.add("nvsubpg");
+   band.insertAdjacentHTML("beforeend",`<button class="lnk" onclick="abBack()">‹ Profile</button><h1>About you</h1>`);const c=document.createElement("div");c.className="mcard abc";c.innerHTML=abHtml();band.after(c)}
+  else{const top=A.querySelector(".top");A.innerHTML=(top?top.outerHTML:"")+`<button class="lnk" onclick="abBack()">‹ Profile</button><h1 style="font-size:1.5rem;margin:6px 0 10px">About you</h1><div class="abc">${abHtml()}</div>`}
+  return}
+ if(A.querySelector(".abg")||A.querySelector(".nvsubpg"))return;try{if(typeof meV!=="undefined"&&meV==="kit")return}catch(e){}
+ const first=A.querySelector(".mgh,.mgrp");if(!first||!S.role)return;const ch=(A.querySelector(".mrow .mchv")||{}).outerHTML||"";
+ first.insertAdjacentHTML("beforebegin",`<div class="mgh abg">About you</div><div class="mgrp"><button class="mrow" onclick="abGo()"><span class="msq" style="background:#0A1F3D"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${AB_IC}</svg></span><span class="mtx"><span class="mlb">Role, area and HCPC details</span></span><span class="mval">${esc(abSum())}</span>${ch}</button></div>`);
+}
+{const msA=meScreen;meScreen=function(){const r=msA.apply(this,arguments);try{abAfter()}catch(e){console.error("v494",e)}return r}}
+{const ngA=window.navGo;if(typeof ngA==="function")window.navGo=function(){abOn=false;return ngA.apply(this,arguments)}}
+{if(typeof pzlGo==="function"){const pgA=pzlGo;pzlGo=function(){abOn=false;return pgA.apply(this,arguments)}}}
+/* one look only: anyone still on Classic moves to the current style */
+try{if(S.style!=="clinical"){S.style="clinical";save();if(window.applyStyle)applyStyle()}}catch(e){}
+try{if(window.setStyle)window.setStyle=function(){S.style="clinical";save();if(window.applyStyle)applyStyle();meScreen()}}catch(e){}
+{const wA=welcome;welcome=function(step){if(step==="look")step="goal";return wA.apply(this,arguments)}}
+
+
 /* ---------- Phyzly Portfolio (early access): Portfolio and Profile only, plus Quick ref and feedback ---------- */
 try{(function(){
  if(window.PZ_ONLY!=="portfolio")return;
@@ -14550,7 +14642,7 @@ try{(function(){
    document.querySelectorAll("#app .mgrp").forEach(g=>{if(!g.querySelector(".mrow")){const h=g.previousElementSibling;if(h&&h.classList.contains("mgh"))h.remove();g.remove()}});
    document.querySelectorAll("#app .mgh").forEach(h=>{if(h.textContent.trim()==="Learning")h.textContent="Display"});
    /* no levels, streaks or XP in the Portfolio: the band shows who you are instead */
-   const lv=document.querySelector("#app .nvme .lvk");if(lv){const sm=lv.querySelector("small");const t=(sm?sm.textContent:"").split(" · ").filter(x=>x&&!/^level/i.test(x.trim())).map(x=>{x=x.trim();return x.charAt(0).toUpperCase()+x.slice(1)}).join(" · ");const q=document.createElement("p");q.className="tag pzrole";q.textContent=t;lv.replaceWith(q)}
+   const lv=document.querySelector("#app .nvme .lvk");if(lv){const sm=lv.querySelector("small");const t=(sm?sm.textContent:"").split(" · ").filter(x=>x&&!/^level/i.test(x.trim())).map(x=>{x=x.trim();return x.charAt(0).toUpperCase()+x.slice(1)}).join(" · ");const q=document.createElement("p");q.className="tag pzrole";let ar="";try{ar=window.abAreaLbl?abAreaLbl():""}catch(e){}q.textContent=t+(ar?" · "+ar:"");lv.replaceWith(q)}
    document.querySelectorAll("#app .nvme + .nvfl").forEach(e=>e.remove())}catch(e){}return r};
  /* tidy anything the screens add later (some headers are built a moment after the page) */
  const tidy=()=>{try{document.querySelectorAll("#nav [data-k]").forEach(b=>{if(b.dataset.k!=="cpd"&&b.dataset.k!=="me")b.remove()});
