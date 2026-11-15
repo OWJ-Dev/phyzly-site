@@ -14461,6 +14461,28 @@ function grAskOwa(){const r=grAskRq(),url=r&&grAskUrl(r);if(!url)return;
 }catch(e){console.error("v492",e)}})();
 
 
+/* ---------- v493: signing in after using Phyzly without an account ---------- */
+(function(){try{
+ /* from Profile > Account: the sign-in screen itself (before, the role chooser showed, because the role was already set) */
+ window.pzAcctGo=function(mode){au.v="form";au.mode=mode;au.err="";au.busy=false;au.fromGuest=1;welcome();window.scrollTo(0,0)};
+ window.pzAcctBack=function(){au.fromGuest=0;au.v="land";au.err="";tab="me";try{window.meSub="Account"}catch(e){}home();window.scrollTo(0,0)};
+ const guestNow=()=>!S.acct||!!S.acct.guest;
+ const w0=welcome;welcome=function(step){
+  if(au.fromGuest&&!guestNow())au.fromGuest=0;
+  if(au.fromGuest&&!step&&!(window.pzHoldOn&&pzHoldOn())){const a=document.getElementById("app");if(a){a.innerHTML=auScreen();return}}
+  return w0.apply(this,arguments)};
+ const as0=auScreen;auScreen=function(){let h=as0.apply(this,arguments);
+  if(window.PZ&&PZ.on)h=h.replace(/<button class="lnk" style="width:100%;margin-top:8px" onclick="auGuest\(\)">Try it without an account<\/button>/,"");
+  if(au.fromGuest&&au.v==="form")h=h.replace(`<button class="lnk" onclick="auGo('land')">‹ Back</button>`,`<button class="lnk" onclick="pzAcctBack()">‹ Back</button>`);
+  return h};
+ if(window.PZ&&PZ.adopt){const ad0=PZ.adopt;PZ.adopt=async function(){try{return await ad0.apply(this,arguments)}finally{if(!guestNow())au.fromGuest=0}}}
+ const me0=auMe;auMe=function(){let h=me0.apply(this,arguments);
+  h=h.replace(`onclick="au.v='form';au.mode='up';delete S.acct;S.acctLater=1;save();welcome()"`,`onclick="pzAcctGo('up')"`)
+     .replace(`onclick="au.v='form';au.mode='in';delete S.acct;save();welcome()"`,`onclick="pzAcctGo('in')"`);
+  return h};
+}catch(e){console.error("v493",e)}})();
+
+
 /* ---------- Phyzly Portfolio (early access): Portfolio and Profile only, plus Quick ref and feedback ---------- */
 try{(function(){
  if(window.PZ_ONLY!=="portfolio")return;
