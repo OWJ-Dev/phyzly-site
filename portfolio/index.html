@@ -2938,7 +2938,7 @@ function cpdForm(){
  (showApp()?ksbPick():"")+
  `<div class="cfl">Reflection model</div><div class="chipw">${Object.keys(FW).filter(k=>(k!=="otj"||showApp()||cf.fw==="otj")&&(k!=="sup"||cf.ty==="mentor"||cf.fw==="sup")&&k!=="pm").map(k=>`<button class="chipb${(cf.fw||"std")===k?" on":""}" onclick="cf.fw='${k}';cfRe()">${esc(FW[k].n)}</button>`).join("")}</div><p class="tag" style="margin:6px 0 0">${esc(F.d)}</p>`+
  F.f.map(x=>`<label class="cfl" for="cf-${x[0]}">${esc(x[1])}</label>${x[2]?`<div class="tag" style="margin:0 0 4px">${esc(x[2])}</div>`:""}<textarea id="cf-${x[0]}" class="cin" rows="4" maxlength="6000" oninput="cf.r.${x[0]}=this.value;cpWc(this)">${esc(cf.r[x[0]]||"")}</textarea><small class="cfwc" data-wc="cf-${x[0]}">${cpWn(cf.r[x[0]]||"")}</small>`).join("")+
- `<button class="go" onclick="cpdSave()">Save entry</button>`+(cf.id?`<button class="opt" style="text-align:center;margin-top:10px;${cf.del?"border-color:var(--bad);color:var(--bad)":""}" onclick="cpdDel()">${cf.del?"Tap again to delete":"Delete entry"}</button>`:"")+(cf.id&&!cf.auto?`<button class="lnk" style="display:block;margin:16px auto 0" onclick="grFromCpd()">Add something from this to my SWOC</button>`:"");setTimeout(phFill,0);
+ `<button class="go" onclick="cpdSave()">Save entry</button>`+(cf.id?`<button class="opt" style="text-align:center;margin-top:10px;${cf.del?"border-color:var(--bad);color:var(--bad)":""}" onclick="cpdDel()">${cf.del?"Tap again to delete":"Delete entry"}</button>`:"")+(cf.id&&!cf.auto?`<button class="lnk" style="display:block;margin:16px auto 0" onclick="grFromCpd()">Use this in my SWOC${(()=>{try{const n=grUsedBy("cpd",cf.id).length;return n?" ("+n+(n===1?" point)":" points)"):""}catch(e){return ""}})()}</button>`:"");setTimeout(phFill,0);
 }
 /* ---------- v479: supervision and mentoring ---------- */
 FW.sup={n:"Supervision",d:"Three prompts for supervision, mentoring or a 1:1.",f:[["s1","What did you discuss?","Cases in general terms, skills, wellbeing or goals. No patient details."],["s2","What did you agree to do next?","Actions, who does them and by when."],["s3","How will it help your practice?","Think patients, team and service."]]};
@@ -13779,7 +13779,7 @@ function grS(){let G=S.gr;if(!G||typeof G!=="object"||Array.isArray(G))G=S.gr={f
  G.fb=A(G.fb).filter(f=>f&&typeof f==="object"&&okid(f.id)).slice(0,400);
  G.fb.forEach(f=>{f.id=String(f.id);if(!day(f.d))f.d=today;f.who=str(f.who,80);f.rel=GRR.some(r=>r[0]===f.rel)?f.rel:"oth";f.ctx=str(f.ctx,80);f.txt=str(f.txt,3000);delete f.v;delete f.nm;delete f.rq;f.ph=A(f.ph).filter(i=>/^(ph|pd)[a-z0-9]{6,40}$/.test(String(i))).slice(0,12)});
  G.sw=A(G.sw).filter(x=>x&&typeof x==="object"&&okid(x.id)).slice(0,200);
- G.sw.forEach(x=>{x.id=String(x.id);x.q=GRQ.some(q=>q[0]===x.q)?x.q:"s";x.t=str(x.t,200);x.pil=GRPL.some(p=>p[0]===x.pil)?x.pil:"";if(!day(x.d))x.d=today;x.ev=A(x.ev).filter(e=>e&&(e.k==="fb"||e.k==="cpd")&&okid(e.id)).slice(0,20).map(e=>({k:e.k,id:String(e.id)}))});
+ G.sw.forEach(x=>{x.id=String(x.id);x.q=GRQ.some(q=>q[0]===x.q)?x.q:"s";x.t=str(x.t,200);x.pil=GRPL.some(p=>p[0]===x.pil)?x.pil:"";if(!day(x.d))x.d=today;x.ev=A(x.ev).filter(e=>e&&(e.k==="fb"||e.k==="cpd")&&okid(e.id)).slice(0,20).map(e=>Object.assign({k:e.k,id:String(e.id)},e.n?{n:str(e.n,120)}:{}))});
  G.sn=A(G.sn).filter(x=>x&&typeof x==="object"&&okid(x.id)).slice(0,24);
  G.sn.forEach(x=>{x.id=String(x.id);if(!day(x.d))x.d=today;x.n=str(x.n,80);x.it=A(x.it).filter(i=>i&&typeof i==="object").slice(0,200).map(i=>({q:GRQ.some(q=>q[0]===i.q)?i.q:"s",t:str(i.t,200),pil:GRPL.some(p=>p[0]===i.pil)?i.pil:"",ev:Math.max(0,Math.min(20,Math.round(+i.ev||0)))}))});
  G.rq=A(G.rq).filter(x=>x&&typeof x==="object"&&okid(x.id)).slice(0,60);
@@ -13796,7 +13796,7 @@ function grTab(t){gv.tab=t;gv.just=null;home()}
 function grPortSt(){const G=S.gr;let nw=0,nv=0;try{nw=grNew().length;nv=grV().length}catch(e){}if(nw)return nw+" new";const n=(G&&typeof G==="object"?((Array.isArray(G.sw)?G.sw.length:0)+(Array.isArray(G.fb)?G.fb.length:0)):0)+nv;return n?n+(n===1?" item":" items"):"Start"}
 
 function grScreen(){
- if(grf&&grf.k==="sw")return grItemForm();if(grf&&grf.k==="fb")return grFbForm();if(gv.v==="snf")return grSnapForm();if(gv.v==="snap")return grSnapView();if(gv.v==="exp")return grExport();if(gv.v==="fbv")return grFbView();if(gv.v==="ask")return grAskForm();if(gv.v==="lnk")return grAskLink();
+ if(grf&&grf.k==="use")return grUseForm();if(grf&&grf.k==="sw")return grItemForm();if(grf&&grf.k==="fb")return grFbForm();if(gv.v==="snf")return grSnapForm();if(gv.v==="snap")return grSnapView();if(gv.v==="exp")return grExport();if(gv.v==="fbv")return grFbView();if(gv.v==="ask")return grAskForm();if(gv.v==="lnk")return grAskLink();
  const G=grS(),sw=gv.tab!=="fb";
  let h=head()+tabs()+bk("pf='home';home()","Portfolio")+`<h1 style="font-size:1.6rem;margin:6px 0 2px">Feedback and SWOC</h1><p class="tag" style="margin:0 0 10px">What colleagues say about your practice, and your own view of where you're strong and where you're growing. Private to you.</p>`+
   `<div class="seg" role="tablist"><button role="tab" aria-selected="${sw}" class="${sw?"on":""}" onclick="grTab('sw')">SWOC</button><button role="tab" aria-selected="${!sw}" class="${sw?"":"on"}" onclick="grTab('fb')">Feedback log${grFbAll().length?" ("+grFbAll().length+")":""}</button></div>`;
@@ -13822,14 +13822,14 @@ function grSwocH(G){
 function grFbH(G){
  const L=grFbAll().slice().sort((a,b)=>b.d.localeCompare(a.d)||b.id.localeCompare(a.id)),used=new Set();G.sw.forEach(x=>x.ev.forEach(e=>{if(e.k==="fb")used.add(e.id)}));
  let h=`<button class="go" onclick="grFb()">+ Add feedback</button>`+grAskH(G);
- if(gv.just&&grFbAll().some(f=>f.id===gv.just))h+=`<div class="note" role="status"><b>Saved.</b> Does it say something about a strength, or something to work on?<button class="opt" style="text-align:center;margin:8px 0 0" onclick="grItemFrom('fb','${esc(gv.just)}')">Add it to my SWOC</button></div>`;
+ if(gv.just&&grFbAll().some(f=>f.id===gv.just))h+=`<div class="note" role="status"><b>Saved.</b> Does it say something about a strength, or something to work on?<button class="opt" style="text-align:center;margin:8px 0 0" onclick="grItemFrom('fb','${esc(gv.just)}')">Use in my SWOC</button></div>`;
  if(!L.length)h+=`<div class="note">Nothing here yet. Add feedback as you get it: a comment after a joint session, an end-of-rotation review, a note from a student you supervised.</div>`;
  h+=L.map(f=>`<button class="opt" onclick="grFb('${esc(f.id)}')"><div class="row"><b>${esc(grWho(f))}</b>${used.has(f.id)?`<span class="bd t">In your SWOC</span>`:""}</div><small style="color:var(--mute)">${esc(dFmt(f.d))} · ${esc(grRn(f.rel))}${f.ctx?" · "+esc(f.ctx):""}${f.v?" · Sent by them":""}${f.ph.length?" · "+f.ph.length+" attached":""}</small>${f.txt?`<small class="grx">${esc(f.txt.length>140?f.txt.slice(0,140).trim()+"…":f.txt)}</small>`:""}</button>`).join("");
  return h}
 
 /* ----- SWOC item ----- */
-function grItem(id,q){const G=grS(),x=id?G.sw.find(i=>i.id===id):null;if(id&&!x)return;grf=x?{k:"sw",id:x.id,q:x.q,t:x.t,pil:x.pil,ev:x.ev.map(e=>({k:e.k,id:e.id}))}:{k:"sw",id:null,q:GRQ.some(z=>z[0]===q)?q:"s",t:"",pil:"",ev:[]};tab="cpd";pf="gr";home();window.scrollTo(0,0)}
-function grItemFrom(k,id,keep){grf={k:"sw",id:null,q:"s",t:"",pil:"",ev:[{k,id}],back:k};if(keep)grf.keepCf=keep;gv.just=null;tab="cpd";pf="gr";home();window.scrollTo(0,0)}
+function grItem(id,q){const G=grS(),x=id?G.sw.find(i=>i.id===id):null;if(id&&!x)return;grf=x?{k:"sw",id:x.id,q:x.q,t:x.t,pil:x.pil,ev:x.ev.map(e=>Object.assign({k:e.k,id:e.id},e.n?{n:e.n}:{}))}:{k:"sw",id:null,q:GRQ.some(z=>z[0]===q)?q:"s",t:"",pil:"",ev:[]};tab="cpd";pf="gr";home();window.scrollTo(0,0)}
+function grItemFrom(k,id,keep){grUse(k,id,keep)}
 function grFromCpd(){if(!cf||!cf.id)return;const keep=JSON.parse(JSON.stringify(cf)),id=cf.id;cf=null;cp.v="list";grItemFrom("cpd",id,keep)}
 function grItemBack(){const f=grf||{};grf=null;if(f.keepCf){cf=f.keepCf;cp.v="form";tab="cpd";pf="cpd"}else if(f.back==="fb")gv={v:"home",tab:"fb"};else gv={v:"home",tab:"sw"};home();window.scrollTo(0,0)}
 function grItemForm(){const f=grf,G=grS(),linked=f.ev.map(e=>({e,v:grEv(e)})).filter(x=>x.v),has=(k,id)=>f.ev.some(e=>e.k===k&&e.id===id);
@@ -13839,7 +13839,7 @@ function grItemForm(){const f=grf,G=grS(),linked=f.ev.map(e=>({e,v:grEv(e)})).fi
  `<div class="cfl">Which box?</div><div class="chipw" role="group" aria-label="Which box">${GRQ.map(q=>`<button class="chipb${f.q===q[0]?" on":""}" aria-pressed="${f.q===q[0]}" onclick="grRd();grf.q='${q[0]}';cfRe()">${q[3].charAt(0).toUpperCase()+q[3].slice(1)}</button>`).join("")}</div><p class="tag" style="margin:6px 0 0">${grQ(f.q)[2]}.</p>`+
  `<label class="cfl" for="gr-t">What is it?</label><input id="gr-t" class="cin" maxlength="200" value="${esc(f.t)}" placeholder="${GREG[f.q]}" oninput="grf.t=this.value">`+
  `<div class="cfl">Pillar of practice <span style="font-weight:500;color:var(--mute)">(optional)</span></div><div class="chipw" role="group" aria-label="Pillar of practice">${GRPL.map(p=>`<button class="chipb${f.pil===p[0]?" on":""}" aria-pressed="${f.pil===p[0]}" onclick="grRd();grf.pil=grf.pil==='${p[0]}'?'':'${p[0]}';cfRe()">${p[1]}</button>`).join("")}</div>`+
- `<div class="cfl">Evidence</div>`+(linked.length?linked.map(x=>`<div class="grow"><div class="opt" style="margin:0;flex:1;cursor:default"><b style="font-weight:600;display:block">${esc(x.v.t)}</b><small style="color:var(--mute)">${esc(x.v.s)}</small></div><button class="gx" aria-label="Unlink ${esc(x.v.t)}" onclick="grRd();grEvT('${x.e.k}','${esc(x.e.id)}')">✕</button></div>`).join(""):`<p class="tag" style="margin:0 0 6px">This is your own view so far. Link feedback or a CPD reflection to back it up.</p>`)+
+ `<div class="cfl">Evidence</div>`+(linked.length?linked.map(x=>`<div class="grow"><div class="opt" style="margin:0;flex:1;cursor:default"><b style="font-weight:600;display:block">${esc(x.v.t)}</b><small style="color:var(--mute)">${esc(x.v.s)}</small>${x.e.n?`<small style="display:block;margin-top:2px">“${esc(x.e.n)}”</small>`:""}</div><button class="gx" aria-label="Unlink ${esc(x.v.t)}" onclick="grRd();grEvT('${x.e.k}','${esc(x.e.id)}')">✕</button></div>`).join(""):`<p class="tag" style="margin:0 0 6px">This is your own view so far. Link feedback or a CPD reflection to back it up.</p>`)+
  (fbs.length?`<details class="grd"><summary class="lnk" style="cursor:pointer">Link feedback</summary><div style="margin-top:6px">${fbs.map(x=>`<button class="opt" style="margin:0 0 6px" onclick="grRd();grEvT('fb','${esc(x.id)}')"><div class="row"><b style="font-weight:600">${esc(x.who||grRn(x.rel))}</b><span>+ Link</span></div><small style="color:var(--mute)">${esc(dFmt(x.d))}${x.txt?" · "+esc(x.txt.slice(0,60))+(x.txt.length>60?"…":""):""}</small></button>`).join("")}</div></details>`:"")+
  (cps.length?`<details class="grd"><summary class="lnk" style="cursor:pointer">Link a CPD entry</summary><div style="margin-top:6px">${cps.map(e=>`<button class="opt" style="margin:0 0 6px" onclick="grRd();grEvT('cpd','${esc(e.id)}')"><div class="row"><b style="font-weight:600">${esc(e.t)}</b><span>+ Link</span></div><small style="color:var(--mute)">${esc(dFmt(e.d))}</small></button>`).join("")}</div></details>`:"")+
  (!fbs.length&&!grFbAll().length?`<p class="tag" style="margin:6px 0 0">Feedback you add to your feedback log can be linked here.</p>`:"")+
@@ -13868,7 +13868,7 @@ function grFbForm(){const f=grf,ph=f.ph||[],G=grS(),n=f.id?G.sw.filter(x=>x.ev.s
  (ph.length<12?`<div class="tabs"><label class="opt phb">📷 Take photo<input type="file" accept="image/*" capture="environment" onchange="grPhAdd(this.files)"></label><label class="opt phb">📎 Choose files<input type="file" accept="image/*,application/pdf,.pdf" multiple onchange="grPhAdd(this.files)"></label></div>`:"")+
  (f.phMsg?`<p class="tag" role="status">${esc(f.phMsg)}</p>`:"")+`<p class="tag" style="margin:4px 0 0">Cover any patient details, and check the person is happy for you to keep a copy.</p>`+
  `<button class="go" onclick="grFbSave()">Save feedback</button>`+
- (f.id?`<button class="opt" style="text-align:center;margin-top:10px" onclick="grFbRd();grFbToSw()">Add it to my SWOC${n?" ("+n+" so far)":""}</button><button class="opt" style="text-align:center;margin-top:10px;${f.del?"border-color:var(--bad);color:var(--bad)":""}" onclick="grFbDel()">${f.del?"Tap again to delete":"Delete feedback"}</button>`:"");setTimeout(phFill,0)}
+ (f.id?`<button class="opt" style="text-align:center;margin-top:10px" onclick="grFbRd();grFbToSw()">Use in my SWOC${n?" ("+n+" so far)":""}</button><button class="opt" style="text-align:center;margin-top:10px;${f.del?"border-color:var(--bad);color:var(--bad)":""}" onclick="grFbDel()">${f.del?"Tap again to delete":"Delete feedback"}</button>`+grUsedH("fb",f.id):"");setTimeout(phFill,0)}
 async function grPhAdd(files){if(!grf||grf.k!=="fb"||!files||!files.length)return;grFbRd();const f=grf;f.ph=f.ph||[];f.phMsg="Adding…";cfRe();let n=0;
  for(const x of Array.from(files).slice(0,12-f.ph.length)){try{if(x.type==="application/pdf"||/\.pdf$/i.test(x.name||"")){if(x.size>15e6){f.phMsg="That PDF is over 15 MB. Try a smaller copy.";continue}const id="pd"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);await phPut(id,x);f.ph.push(id);n++;continue}const b=await phShrink(x),id="ph"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);await phPut(id,b);f.ph.push(id);n++}catch(e){}}
  f.phMsg=n?"":f.phMsg&&f.phMsg!=="Adding…"?f.phMsg:"That file couldn't be added. Try a photo or a PDF.";cfRe();try{hap("tap")}catch(e){}}
@@ -13896,7 +13896,7 @@ function grSnapDel(){if(!gv.del){gv.del=true;if(armTap(/^Delete snapshot$/,"Tap 
 
 /* ----- export ----- */
 function grText(){const G=grS();let t="Feedback and SWOC\nExported "+dFmt(isoD(new Date()))+"\nMy own record of my practice. It is not a formal assessment.\n";
- GRQ.forEach(q=>{const L=G.sw.filter(x=>x.q===q[0]);t+="\n"+q[1].toUpperCase()+"\n";if(!L.length)t+="-\n";L.forEach(x=>{const ev=x.ev.map(grEv).filter(Boolean);t+="- "+x.t+(x.pil?" ("+grPn(x.pil)+")":"")+"\n"+(ev.length?ev.map(v=>"    Evidence: "+v.t+", "+v.s+"\n").join(""):"    My view\n")})});
+ GRQ.forEach(q=>{const L=G.sw.filter(x=>x.q===q[0]);t+="\n"+q[1].toUpperCase()+"\n";if(!L.length)t+="-\n";L.forEach(x=>{const ev=x.ev.map(e=>({e,v:grEv(e)})).filter(z=>z.v);t+="- "+x.t+(x.pil?" ("+grPn(x.pil)+")":"")+"\n"+(ev.length?ev.map(z=>"    Evidence: "+z.v.t+", "+z.v.s+(z.e.n?": \u201c"+z.e.n+"\u201d":"")+"\n").join(""):"    My view\n")})});
  if(grFbAll().length){t+="\nFEEDBACK LOG\n";grFbAll().slice().sort((a,b)=>a.d.localeCompare(b.d)).forEach(f=>{t+="\n"+dFmt(f.d)+" · "+(f.who?f.who+" ("+grRn(f.rel).toLowerCase()+")":grRn(f.rel))+(f.ctx?" · "+f.ctx:"")+(f.v?" · sent by them through a Phyzly feedback link":"")+"\n"+(f.txt||"(attached)")+(f.ph.length?"\n["+f.ph.length+(f.ph.length===1?" file":" files")+" attached in Phyzly]":"")+"\n"})}
  return t}
 function grMsg(m){const e=document.getElementById("grm");if(e)e.textContent=m}
@@ -14024,8 +14024,8 @@ function grFbView(){const f=grV().find(x=>x.id===gv.id);if(!f)return grGo("home"
  `<div class="note">They sent this through your feedback link, so the words are theirs and can't be changed here.</div>`+
  part("What you do well",f.w)+part("What to work on",f.k)+part("Anything else",f.o)+
  (gv.err?`<div class="fb bad"><b>${esc(gv.err)}</b></div>`:"")+
- `<button class="go" onclick="grItemFrom('fb','${esc(f.id)}')">Add it to my SWOC${n?" ("+n+" so far)":""}</button>`+
- `<button class="opt" style="text-align:center;margin-top:10px;${gv.del?"border-color:var(--bad);color:var(--bad)":""}" onclick="grFbViewDel()">${gv.del?"Tap again to delete":"Delete feedback"}</button>`+
+ `<button class="go" onclick="grItemFrom('fb','${esc(f.id)}')">Use in my SWOC${n?" ("+n+" so far)":""}</button>`+
+ `<button class="opt" style="text-align:center;margin-top:10px;${gv.del?"border-color:var(--bad);color:var(--bad)":""}" onclick="grFbViewDel()">${gv.del?"Tap again to delete":"Delete feedback"}</button>`+grUsedH("fb",f.id)+
  `<button class="lnk aul" style="display:block;margin:16px auto 0" onclick="pzcReport('${esc(f.id)}')">Report this feedback</button>`}
 async function grFbViewDel(){const f=grV().find(x=>x.id===gv.id);if(!f)return grGo("home",{tab:"fb"});if(!gv.del){gv.del=true;return home()}
  const G=grS(),id=f.id,rq=f.rq,uid=grAskOn()?PZ.user.id:null;
@@ -14182,6 +14182,82 @@ function pzlAfter(){const A=document.getElementById("app");if(!A||tab!=="me")ret
 /* ---------- v486: invitation only ---------- */
 function pzInv(){try{return !!(window.PZ_CFG&&window.PZ_CFG.invite&&window.PZ&&PZ.on)}catch(e){return false}}
 function pzInvN(c){return String(c==null?"":c).toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,20)}
+
+
+/* ---------- v488: Use in my SWOC ----------
+   One piece of feedback, or one CPD entry, can make several SWOC points and back up points already there.
+   grf={k:"use",src:{k:"fb"|"cpd",id},pts:[{q,t,pil,n}],lk:{[swId]:{on,n}},keepCf,err}
+   Each evidence link can carry a short note (n) of what in the source backs that point up. */
+const GRU_MAX=10;
+function grUseSrc(src,keep){
+ if(src.k==="fb"){const f=grFbAll().find(x=>x.id===src.id);if(!f)return null;
+  const parts=f.v?[["What you do well",f.w,"s"],["What to work on",f.k,"w"],["Anything else",f.o,"s"]].filter(p=>String(p[1]||"").trim()):(String(f.txt||"").trim()?[["What they said",f.txt,"s"]]:[]);
+  return {t:"Feedback from "+grWho(f),s:[dFmt(f.d),grRn(f.rel),f.ctx].filter(Boolean).join(" · "),parts,sent:!!f.v}}
+ const e=keep&&keep.id===src.id?keep:(typeof cpdAll==="function"?cpdAll():(S.cpd||[])).find(x=>x&&x.id===src.id);if(!e)return null;
+ const parts=fwOf(e).f.map(x=>[x[1],e.r&&e.r[x[0]],"s"]).filter(p=>String(p[1]||"").trim());
+ return {t:e.t||"CPD entry",s:dFmt(e.d)+" · CPD entry",parts}}
+function grUse(k,id,keep){const G=grS(),lk={};
+ G.sw.forEach(x=>{const e=x.ev.find(e=>e.k===k&&e.id===id);if(e)lk[x.id]={on:true,n:e.n||""}});
+ const src=grUseSrc({k,id},keep),q0=src&&src.parts[0]?src.parts[0][2]:"s";
+ grf={k:"use",src:{k,id},pts:[{q:q0,t:"",pil:"",n:""}],lk,keepCf:keep||null,err:""};gv.just=null;tab="cpd";pf="gr";home();window.scrollTo(0,0)}
+/* the points that use a source, for the line under its button */
+function grUsedBy(k,id){return grS().sw.filter(x=>x.ev.some(e=>e.k===k&&e.id===id))}
+function grUsedH(k,id){const L=grUsedBy(k,id);if(!L.length)return "";
+ return `<div class="cfl" style="margin-top:14px">In your SWOC</div>`+L.map(x=>`<button class="opt gru" onclick="grItem('${esc(x.id)}')"><div class="row"><b style="font-weight:600">${esc(x.t)}</b><span>${esc(grQ(x.q)[3].charAt(0).toUpperCase()+grQ(x.q)[3].slice(1))}</span></div>${(()=>{const e=x.ev.find(e=>e.k===k&&e.id===id);return e&&e.n?`<small style="color:var(--mute)">“${esc(e.n)}”</small>`:""})()}</button>`).join("")}
+function grUseBack(){const f=grf||{},src=f.src||{};grf=null;
+ if(f.keepCf){cf=f.keepCf;cp.v="form";tab="cpd";pf="cpd";home();window.scrollTo(0,0);return}
+ if(src.k==="fb"){const x=grFbAll().find(i=>i.id===src.id);if(x){grFb(x.id);return}}
+ gv={v:"home",tab:src.k==="fb"?"fb":"sw"};home();window.scrollTo(0,0)}
+function grUseForm(){const f=grf,G=grS(),src=grUseSrc(f.src,f.keepCf);
+ if(!src){grf=null;gv={v:"home",tab:"sw"};return home()}
+ const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+ let h=head()+tabs()+bk("grUseBack()",f.keepCf?"Back to your entry":src.sent||f.src.k==="fb"?"Back to the feedback":"SWOC")+
+  `<h1 style="font-size:1.5rem;margin:6px 0 2px">Use in my SWOC</h1><p class="tag" style="margin:0 0 10px">Make new points from it, say which points it backs up, or both.</p>`+
+  `<div class="note gus"><b>${esc(src.t)}</b><small style="display:block;color:var(--mute);margin:2px 0 6px">${esc(src.s)}</small>`+
+  (src.parts.length?src.parts.map((p,i)=>`<div class="cfl" style="margin-top:8px">${esc(p[0])}</div><p class="grt">${esc(p[1])}</p>${f.pts.length<GRU_MAX?`<button class="lnk aul gup" onclick="grUseAdd('${p[2]}')">+ Make a point from this</button>`:""}`).join(""):`<p class="tag" style="margin:4px 0 0">Nothing written yet.</p>`)+`</div>`+
+  (f.err?`<div class="fb bad" role="alert"><b>${esc(f.err)}</b></div>`:"")+
+  `<div class="grh2" role="heading" aria-level="2">New points</div>`+
+  (f.pts.length?f.pts.map((p,i)=>`<div class="gup1" data-i="${i}"><div class="row" style="align-items:center"><div class="chipw" role="group" aria-label="Which box, point ${i+1}">${GRQ.map(q=>`<button class="chipb${p.q===q[0]?" on":""}" aria-pressed="${p.q===q[0]}" onclick="grUseRd();grf.pts[${i}].q='${q[0]}';cfRe()">${cap(q[3])}</button>`).join("")}</div><button class="gx" aria-label="Remove point ${i+1}" onclick="grUseRd();grf.pts.splice(${i},1);cfRe()">✕</button></div>`+
+   `<label class="cfl" for="gu-t${i}">What is it?</label><input id="gu-t${i}" class="cin" maxlength="200" value="${esc(p.t)}" placeholder="${GREG[p.q]}" oninput="grf.pts[${i}].t=this.value;grUseClr()">`+
+   `<label class="cfl" for="gu-n${i}">What in it backs this up? <span style="font-weight:500;color:var(--mute)">(optional)</span></label><input id="gu-n${i}" class="cin" maxlength="120" value="${esc(p.n)}" placeholder="e.g. Clear, structured handovers" oninput="grf.pts[${i}].n=this.value">`+
+   `<label class="cfl" for="gu-p${i}">Pillar of practice <span style="font-weight:500;color:var(--mute)">(optional)</span></label><select id="gu-p${i}" class="cin" onchange="grf.pts[${i}].pil=this.value"><option value="">None</option>${GRPL.map(x=>`<option value="${x[0]}"${p.pil===x[0]?" selected":""}>${x[1]}</option>`).join("")}</select></div>`).join(""):`<p class="tag" style="margin:4px 0 8px">No new points.</p>`)+
+  (f.pts.length<GRU_MAX?`<button class="opt" style="text-align:center" onclick="grUseAdd()">+ Add ${f.pts.length?"another":"a"} point</button>`:`<p class="tag">That's ${GRU_MAX} new points, the most at once.</p>`);
+ if(G.sw.length){h+=`<div class="grh2" role="heading" aria-level="2">Also backs up</div><p class="tag" style="margin:0 0 8px">Tick the points you already have that this supports.</p>`+
+  GRQ.map(q=>{const L=G.sw.filter(x=>x.q===q[0]);if(!L.length)return "";
+   return `<div class="cfl">${q[1]}</div>`+L.map(x=>{const l=f.lk[x.id]||{},on=!!l.on,full=!on&&x.ev.length>=20;
+    return `<button class="ock${on?" on":""}" role="checkbox" aria-checked="${on}" ${full?"disabled":""} onclick="grUseRd();grUseLk('${esc(x.id)}')"><i>${on?"✓":""}</i><span>${esc(x.t)}${full?`<br><small style="color:var(--mute)">Already has the most evidence a point can hold</small>`:""}</span></button>`+
+     (on?`<input id="gu-l${esc(x.id)}" class="cin gul" maxlength="120" value="${esc(l.n||"")}" placeholder="What in it backs this up? (optional)" aria-label="What in it backs up: ${esc(x.t)}" oninput="grf.lk['${esc(x.id)}'].n=this.value">`:"")}).join("")}).join("")}
+ h+=`<button class="go" onclick="grUseSave()">Save</button>`;
+ app.innerHTML=h}
+function grUseRd(){if(!grf||grf.k!=="use")return;grf.pts.forEach((p,i)=>{const t=document.getElementById("gu-t"+i),n=document.getElementById("gu-n"+i),s=document.getElementById("gu-p"+i);if(t)p.t=t.value;if(n)p.n=n.value;if(s)p.pil=s.value});
+ Object.keys(grf.lk).forEach(id=>{const e=document.getElementById("gu-l"+id);if(e&&grf.lk[id])grf.lk[id].n=e.value});grf.err=""}
+function grUseClr(){if(grf&&grf.err){grf.err="";const e=document.querySelector("#app .fb.bad");if(e)e.remove()}}
+function grUseAdd(q){grUseRd();const f=grf;if(f.pts.length>=GRU_MAX)return;
+ /* a part's button fills an empty point first, so the starting row isn't wasted */
+ const blank=f.pts.findIndex(p=>!String(p.t).trim()&&!String(p.n).trim());let i;
+ if(q&&blank>=0){f.pts[blank].q=q;i=blank}else{f.pts.push({q:q||"s",t:"",pil:"",n:""});i=f.pts.length-1}
+ cfRe();setTimeout(()=>{const e=document.getElementById("gu-t"+i);if(e){e.focus();try{e.scrollIntoView({block:"center"})}catch(x){}}},30)}
+function grUseLk(id){const f=grf,l=f.lk[id];if(l&&l.on)l.on=false;else f.lk[id]={on:true,n:(l&&l.n)||""};cfRe()}
+function grUseSave(){grUseRd();const f=grf,G=grS(),k=f.src.k,id=f.src.id,clean=(s,n)=>String(s||"").replace(/\s+/g," ").trim().slice(0,n);
+ const P=f.pts.map(p=>({q:p.q,t:clean(p.t,200),pil:GRPL.some(x=>x[0]===p.pil)?p.pil:"",n:clean(p.n,120)}));
+ if(P.some(p=>!p.t&&p.n)){f.err="Say what the point is, or remove it.";return cfRe()}
+ const add=P.filter(p=>p.t);
+ const before=G.sw.filter(x=>x.ev.some(e=>e.k===k&&e.id===id)).map(x=>x.id).sort().join(),after=G.sw.filter(x=>f.lk[x.id]&&f.lk[x.id].on).map(x=>x.id).sort().join();
+ const notesChanged=G.sw.some(x=>{const e=x.ev.find(e=>e.k===k&&e.id===id),l=f.lk[x.id];return e&&l&&l.on&&(e.n||"")!==clean(l.n,120)});
+ if(!add.length&&before===after&&!notesChanged){f.err="Write a point, or tick a point it backs up.";return cfRe()}
+ if(G.sw.length+add.length>200||!grRoom(add.length*700+400)){f.err="That's more than a SWOC can hold. Remove some points first.";return cfRe()}
+ let linked=0,unlinked=0;
+ G.sw.forEach(x=>{const i=x.ev.findIndex(e=>e.k===k&&e.id===id),l=f.lk[x.id],want=!!(l&&l.on);
+  if(want&&i<0&&x.ev.length<20){x.ev.push(Object.assign({k,id},clean(l.n,120)?{n:clean(l.n,120)}:{}));linked++}
+  else if(want&&i>=0){const n=clean(l.n,120);if(n)x.ev[i].n=n;else delete x.ev[i].n}
+  else if(!want&&i>=0){x.ev.splice(i,1);unlinked++}});
+ const d=isoD(new Date());add.forEach(p=>G.sw.push({id:cpId(),q:p.q,t:p.t,pil:p.pil,ev:[Object.assign({k,id},p.n?{n:p.n}:{})],d}));
+ save();const bits=[add.length?"Added "+add.length+(add.length===1?" point":" points"):"",linked?"backed up "+linked:"",unlinked?"unlinked "+unlinked:""].filter(Boolean);
+ try{toast(bits.length?bits.join(", ").replace(/^./,c=>c.toUpperCase()):"Saved")}catch(e){}
+ grUseBack()}
+(function(){const st=document.createElement("style");st.textContent=`.grh2{font-weight:800;font-size:1.05rem;margin:18px 0 6px;color:var(--ink)}
+.gup1{border:2px solid var(--line);border-radius:14px;padding:10px 12px 12px;margin:0 0 10px;background:var(--card)}.gup1 .chipw{flex:1}.gup1 .row{display:flex;gap:8px}
+.gus .gup{display:inline-block;margin:0 0 4px}.gul{margin:-2px 0 10px}.gru small{display:block;margin-top:2px}`;document.head.appendChild(st)})();
 
 
 /* ---------- Phyzly Portfolio (early access): Portfolio and Profile only, plus Quick ref and feedback ---------- */
