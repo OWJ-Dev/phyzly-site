@@ -14005,7 +14005,7 @@ function grAskMsg(r,url){const fn=r.fn||String((S.acct&&S.acct.name)||"").slice(
 function grAskLink(){const r=grAskRq();if(!r)return grGo("home",{tab:"fb"});const url=grAskUrl(r),ex=r.x<isoD(new Date()),canShare=!!navigator.share;
  app.innerHTML=head()+tabs()+bk("grGo('home',{tab:'fb'})","Feedback log")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">${gv.isNew?"Your link is ready":"Feedback request"}</h1><p class="tag" style="margin:0 0 10px">${r.who?"For "+esc(r.who)+". ":""}${r.ctx?esc(r.ctx)+". ":""}${ex?"This link has expired.":"Works once, until "+esc(dFmt(r.x))+"."}</p>`+
  (ex?`<div class="note">Nobody answered before it ran out. Remove it, then make a new one if you still want their feedback.</div>`:
-  url?`<label class="cfl" for="gl-u">The link</label><input id="gl-u" class="cin" readonly value="${esc(url)}" onfocus="this.select()"><button class="go" onclick="grAskCopy()">Copy link</button>`+(canShare?`<button class="opt" style="text-align:center;margin-top:10px" onclick="grAskShare()">Share…</button>`:"")+`<button class="opt" style="text-align:center;margin-top:10px" onclick="grAskMail()">Email it</button><p id="grm" class="tag" role="status"></p><div class="note">Send it to the one person you're asking. Anyone who has the link can answer it once, so don't post it in a group chat.</div>`
+  url?`<label class="cfl" for="gl-u">The link</label><input id="gl-u" class="cin" readonly value="${esc(url)}" onfocus="this.select()">`+grAskBtns(canShare)+`<p id="grm" class="tag" role="status"></p><div class="note">Send it to the one person you're asking. Anyone who has the link can answer it once, so don't post it in a group chat.</div>`
   :`<div class="note">The link itself is only kept on the device you made it on. If you need it again, cancel this one and make a new link.</div>`)+
  (gv.err?`<div class="fb bad"><b>${esc(gv.err)}</b></div>`:"")+
  `<button class="opt" style="text-align:center;margin-top:10px;${gv.del?"border-color:var(--bad);color:var(--bad)":""}" ${gv.busy?"disabled":""} onclick="grAskCancel()">${gv.del?"Tap again to "+(ex?"remove":"cancel"):ex?"Remove":"Cancel this request"}</button>`}
@@ -14405,6 +14405,23 @@ function preGl(){try{return grGl().filter(g=>g.pre)}catch(e){return []}}
 (function(){const st=document.createElement("style");st.textContent=`.glop{font-weight:500;color:var(--mute)}.glck{margin:6px 0 0}.glck.ok{color:var(--ok)}
 .glst .ock{flex:0 0 48px;width:48px;min-width:0;margin:0;padding:0;justify-content:center;align-items:center;border-radius:13px}.glst .cin{flex:1;margin:0}.gladd{width:auto!important;padding:0 14px;color:var(--pri-ink)!important;background:var(--pri)!important;border-color:var(--pri)!important;font-weight:700}
 .grgl .bd{flex:none}#app .go+.grgl,#app .grod+.grgl{margin-top:12px}`;document.head.appendChild(st)})();
+
+
+/* ---------- v491: sending a feedback link from a computer ---------- */
+const grAskPhone=()=>{try{return matchMedia("(pointer:coarse)").matches}catch(e){return false}};
+function grAskBtns(canShare){const B=(f,l,go)=>`<button class="${go?"go":"opt"}" style="text-align:center${go?"":";margin-top:10px"}" onclick="${f}()">${l}</button>`;
+ if(grAskPhone())return B("grAskCopy","Copy link",1)+(canShare?B("grAskShare","Share…"):"")+B("grAskMail","Email it")+B("grAskCopyMsg","Copy message");
+ return B("grAskCopyMsg","Copy message",1)+B("grAskOwa","Outlook on the web")+B("grAskMail","Email it")+B("grAskCopy","Copy link")+
+  `<p class="tag" style="margin:10px 0 0">Using email in your browser? Copy the message and paste it into a new email.</p>`}
+function grAskSubj(r){const fn=r.fn||String((S.acct&&S.acct.name)||"");return "Could you give me some feedback?"+(fn?" ("+fn+")":"")}
+async function grAskCopyMsg(){const r=grAskRq(),url=r&&grAskUrl(r);if(!url)return;const t=grAskMsg(r,url),done=()=>grMsg("Message copied. Paste it into a new email or message.");
+ try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(t);return done()}}catch(e){}
+ try{const a=document.createElement("textarea");a.value=t;a.setAttribute("readonly","");a.style.cssText="position:fixed;top:-1000px;opacity:0";document.body.appendChild(a);a.select();const ok=document.execCommand("copy");a.remove();if(ok)return done()}catch(e){}
+ grMsg("Couldn't copy here. Copy the link instead.")}
+function grAskOwa(){const r=grAskRq(),url=r&&grAskUrl(r);if(!url)return;
+ const u="https://outlook.office.com/mail/deeplink/compose?subject="+encodeURIComponent(grAskSubj(r))+"&body="+encodeURIComponent(grAskMsg(r,url));
+ try{const a=document.createElement("a");a.href=u;a.target="_blank";a.rel="noopener noreferrer";document.body.appendChild(a);a.click();a.remove()}catch(e){}
+ grMsg("Opening Outlook on the web. If it doesn't open, use Copy message.")}
 
 
 /* ---------- Phyzly Portfolio (early access): Portfolio and Profile only, plus Quick ref and feedback ---------- */
