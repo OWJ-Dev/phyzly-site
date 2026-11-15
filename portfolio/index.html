@@ -712,6 +712,40 @@ body.vvlock{overflow:hidden}
 .absel select{appearance:none;-webkit-appearance:none;padding-right:40px;background-image:none;cursor:pointer}
 .absel:after{content:"";position:absolute;right:16px;top:50%;width:8px;height:8px;border-right:2px solid var(--mute);border-bottom:2px solid var(--mute);transform:translateY(-70%) rotate(45deg);pointer-events:none}
 @media (max-width:360px){.abl.two{grid-template-columns:1fr}}
+
+/* v496: career history */
+.crfb{display:block;width:100%;text-align:center;margin-top:12px;min-height:48px;border:1.5px solid var(--line)!important;border-radius:13px;background:var(--card);color:var(--ink);font-weight:600}
+#ab-rg:placeholder-shown{text-transform:none!important}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .crnow{border:1px solid var(--line);background:#081A33}}
+:root[data-theme="dark"] .crnow{border:1px solid var(--line);background:#081A33}
+.crfin{border:1.5px solid var(--line);border-radius:14px;padding:12px 14px 14px;margin:10px 0 4px}
+.crft{font-weight:800;margin:0 0 2px}
+.crrow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.crrow>div{min-width:0}
+.crrow .cin{width:100%;min-width:0;box-sizing:border-box}
+.crrow .cfl{margin-top:8px}
+.crfin .go{margin-top:12px}
+.crcx{text-align:center;margin-top:8px}
+.crdel{display:block;width:100%;text-align:center;margin-top:10px;color:var(--bad)}
+.crsure{font-weight:700}
+.crok{margin-top:10px}
+.crok .cfl{margin-top:8px}
+.crin{margin:0 0 12px}
+.crnow{background:#0A1F3D;color:#fff;border-radius:14px;padding:12px 14px;margin:0 0 12px}
+.crnl{font-size:.75rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#B8C4D6}
+.crnb{font-weight:800;font-size:1.1rem;margin-top:2px}
+.crna{color:#DCE5F2;margin-top:2px}
+.crna .lnk{color:#fff}
+.crbtns{display:grid;gap:8px;margin:0 0 6px}
+.crbtns .opt{text-align:center;margin:0}
+.crg{margin-top:16px}
+.crgh{font-size:.8rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--mute);margin:0 4px 6px}
+.crl{margin:0}
+.crl .crd{display:block;font-size:.85rem;color:var(--mute);font-weight:400;margin-top:2px}
+.crm .mlb{font-weight:600}
+.crdot{flex:0 0 10px;width:10px;height:10px;border-radius:50%;background:var(--ink);margin:0 4px 0 6px}
+.crempty{margin-top:14px}
+@media (max-width:480px){.crrow{grid-template-columns:1fr;gap:0}}
 </style>
 <style>
 .cpsl{font-size:.78rem;font-weight:600;color:var(--mute);margin:4px 0 6px}
@@ -11977,7 +12011,10 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
    tools:()=>({gr:S.gr||null,about:S.about||null,role:S.role||null,band:S.band==null?null:S.band,nq:!!S.nq,oth:S.oth||null})};
   /* per-group checks for values screens use as numbers */
   const FIX={
-   tools:v=>{if("about" in v){const A=v.about,o={};if(A&&typeof A==="object"&&!Array.isArray(A)){if(typeof A.area==="string"&&/^[a-z]{2,12}$/.test(A.area))o.area=A.area;if(typeof A.areaTx==="string")o.areaTx=A.areaTx.slice(0,60);if(typeof A.since==="string"&&/^\d{4}-\d{2}$/.test(A.since))o.since=A.since}v.about=o}
+   tools:v=>{if("about" in v){const A=v.about,o={};if(A&&typeof A==="object"&&!Array.isArray(A)){if(typeof A.area==="string"&&/^[a-z]{2,12}$/.test(A.area))o.area=A.area;if(typeof A.areaTx==="string")o.areaTx=A.areaTx.slice(0,60);if(typeof A.since==="string"&&/^\d{4}-\d{2}$/.test(A.since))o.since=A.since;if(typeof A.nf==="string"&&/^\d{4}-\d{2}$/.test(A.nf))o.nf=A.nf;
+     const M=/^\d{4}-(0[1-9]|1[0-2])$/,ST=["stu","app","q","5n","5","6","7","8","nb","oth"],ID=/^[a-z0-9]{4,24}$/;
+     if(Array.isArray(A.hist))o.hist=A.hist.filter(e=>e&&typeof e==="object"&&ID.test(String(e.id))&&/^[a-z]{2,12}$/.test(String(e.a))&&M.test(e.f)&&M.test(e.t)&&e.f<=e.t&&ST.includes(e.st)).slice(0,200).map(e=>{const x={id:e.id,a:e.a,f:e.f,t:e.t,st:e.st};if(typeof e.ax==="string")x.ax=e.ax.slice(0,60);if(["rotation","placement","post"].includes(e.w))x.w=e.w;return x});
+     if(Array.isArray(A.ms))o.ms=A.ms.filter(m=>m&&typeof m==="object"&&ID.test(String(m.id))&&M.test(m.d)&&ST.includes(m.st)).slice(0,100).map(m=>{const x={id:m.id,d:m.d,st:m.st};if(ST.includes(m.from))x.from=m.from;return x})}v.about=o}
     if(!["stu","app","sta","rot","oth"].includes(v.role)){delete v.role;delete v.band;delete v.nq;delete v.oth}
     else{if(!(v.band==="nb"||[5,6,7,8].includes(v.band)))delete v.band;v.nq=!!v.nq&&v.band===5;if(v.oth!=null&&!["sw","edu","ahp","else"].includes(v.oth))delete v.oth}},
    apprenticeship:v=>{const T=v.otjT,o={};if(T&&typeof T==="object"&&!Array.isArray(T))Object.keys(T).forEach(k=>{const n=+T[k];if(/^\d{4}-\d{2}$/.test(k)&&isFinite(n)&&n>0)o[k]=Math.min(300,n)});if("otjT" in v)v.otjT=o},
@@ -14088,7 +14125,7 @@ function pzlPrivacy(inApp){const L=pzlLinks();return `<p class="tag">Last update
  pzlP(`Address: ${PZL_ADDR}. Email: ${pzlM}.`)+
  pzlH("The short version")+pzlU(["Your portfolio is yours. Only you can see it.","We keep what you add so you can use it on any device. We don't sell it, share it for advertising or use it to train AI.","Phyzly has no advertising, no tracking and no analytics.","You can export or delete everything at any time.","Please don't put patient details in Phyzly."])+
  pzlH("What we collect")+
- pzlS("When you create an account")+pzlU(["Your email address and first name.","How you sign in: a code sent by email, or Sign in with Apple. If you use Apple, Apple gives us your name and an email address, which may be a private relay address.","Your role, for example student, apprentice or registered physiotherapist, your band or year of study, whether you're newly qualified, and whether you're in a static or rotational post.","The area you work in or your current rotation, if you add it in About you.","That you confirmed you're 18 or over, and whether you asked to receive news by email.","The invite code you used, while Phyzly is invitation only."])+
+ pzlS("When you create an account")+pzlU(["Your email address and first name.","How you sign in: a code sent by email, or Sign in with Apple. If you use Apple, Apple gives us your name and an email address, which may be a private relay address.","Your role, for example student, apprentice or registered physiotherapist, your band or year of study, whether you're newly qualified, and whether you're in a static or rotational post.","The area you work in or your current rotation, and your career history (your rotations, placements and posts, and when you moved band or role, with their dates), if you add them in About you.","That you confirmed you're 18 or over, and whether you asked to receive news by email.","The invite code you used, while Phyzly is invitation only."])+
  pzlS("What you add to your portfolio")+pzlU(["CPD entries: dates, titles, types, time spent, reflections, tags and supervision details.","Photos and PDFs you attach as evidence.","Your HCPC audit pack: your summary of practice, your statement, and your HCPC registration number if you choose to add it.","Preceptorship records: dates, goals, meetings, actions and your preceptor's name and role.","Placement records and apprenticeship records, if you use those tools.","Feedback and SWOC: feedback you type in, your SWOC and snapshots"+(L?", and links you make to ask for feedback.":".")])+
  (L?pzlS("What other people send you")+pzlU(["If you ask a colleague for feedback by link, we store what they write, their role and their name if they give it, so that you can read it."]):"")+
  pzlS("When you contact us")+pzlU(["Messages sent with the feedback button, with the screen you were on, the app version and your browser type, so we can find and fix problems.","Complaints you send us, in the app or by email.","Emails you send us."])+
@@ -14521,28 +14558,30 @@ function abAreaLbl(){const a=S.about||{};if(!a.area)return "";if(a.area==="other
 function abSum(){return abAreaLbl()}
 function abSave(){save();try{if(window.pzDirty)pzDirty()}catch(e){}}
 function abRe(){const y=window.scrollY;meScreen();window.scrollTo(0,y)}
-function abRole(k){if(!AB_ROLES.some(r=>r[0]===k)||S.role===k)return;const was=S.role;S.role=k;
+function abRole(k){if(!AB_ROLES.some(r=>r[0]===k)||S.role===k)return;const was=S.role,st0=abStage();S.role=k;
  if(k==="sta"||k==="rot"){if(was!=="sta"&&was!=="rot"){delete S.band;delete S.nq}}
  else if(k==="oth"){delete S.band;delete S.nq}
  else{delete S.band;delete S.nq;if(k==="app")S.crs="app";else if(S.crs==="app")delete S.crs}
- if(k!=="oth")delete S.oth;abSave();abRe()}
-function abBand(k){if(!AB_BANDS.some(z=>z[0]===k))return;S.nq=k==="5n";S.band=k==="nb"?"nb":k==="5n"?5:+k;abSave();abRe()}
+ if(k!=="oth")delete S.oth;crStep(st0);abSave();abRe()}
+function abBand(k){if(!AB_BANDS.some(z=>z[0]===k))return;const st0=abStage();S.nq=k==="5n";S.band=k==="nb"?"nb":k==="5n"?5:+k;crStep(st0);abSave();abRe()}
 function abOth(k){S.oth=k;abSave();abRe()}
 function abYr(y){S.yr=y;abSave();abRe()}
-function abArea(k){const a=abA();if(!k||!AB_AREAS.some(z=>z[0]===k)){delete a.area;delete a.areaTx;delete a.since}else{a.area=k;if(k!=="other")delete a.areaTx}abSave();abRe();
+function abArea(k){const a=abA();crFin=null;crMsg="";if(!k||!AB_AREAS.some(z=>z[0]===k)){delete a.area;delete a.areaTx;delete a.since}else{a.area=k;if(k!=="other")delete a.areaTx;if(!a.since&&a.nf)a.since=a.nf;delete a.nf}abSave();abRe();
  if(k==="other")setTimeout(()=>{const i=document.getElementById("ab-ox");if(i)i.focus()},50)}
 function abOpt(on,sel,t,d){return `<button class="abo" role="radio" aria-checked="${sel}" onclick="${on}"><span>${t}${d?`<small>${d}</small>`:""}</span><span class="abk" aria-hidden="true">${sel?'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>':""}</span></button>`}
 function abHtml(){const r=S.role,a=S.about||{},H=S.hc||{};let h="";
  h+=`<div class="abh">Your role</div><div class="abl" role="radiogroup" aria-label="Your role">${AB_ROLES.map(([k,n,d])=>abOpt(`abRole('${k}')`,r===k,n,d)).join("")}</div>`;
- if(abQual()){const b=abBandK();h+=`<label class="abh" for="ab-bd" style="display:block">Band</label><div class="absel"><select id="ab-bd" class="cin" onchange="if(this.value)abBand(this.value)">${b?"":`<option value="" selected>Choose…</option>`}${AB_BANDS.map(([k,n])=>`<option value="${k}"${b===k?" selected":""}>${n}</option>`).join("")}</select></div>`}
+ if(abQual()){const b=abBandK();h+=`<label class="abh" for="ab-bd" style="display:block">Band</label><div class="absel"><select id="ab-bd" class="cin" onchange="if(this.value)abBand(this.value)">${b?"":`<option value="" selected>Choose…</option>`}${AB_BANDS.map(([k,n])=>`<option value="${k}"${b===k?" selected":""}>${n}</option>`).join("")}</select></div>`+crStepHtml()}
  else if(r==="oth")h+=`<div class="abh">Which best describes you?</div><div class="abl" role="radiogroup" aria-label="Which best describes you">${AB_OTHS.map(([k,n])=>abOpt(`abOth('${k}')`,S.oth===k,n)).join("")}</div>`;
  else if(r==="stu"||r==="app"){let n=4;try{if(r==="stu"&&typeof CRS!=="undefined"&&S.crs){const c=CRS.find(x=>x[0]===S.crs);if(c&&c[3])n=c[3]}}catch(e){}
   h+=`<div class="abh">Year of your ${r==="app"?"apprenticeship":"course"}</div><div class="abl four" role="radiogroup" aria-label="Year">${Array.from({length:n},(_,i)=>abOpt(`abYr(${i+1})`,+S.yr===i+1,"Year "+(i+1))).join("")}</div>`}
- if(abQual()||r==="oth"){const rot=r==="rot";
-  h+=`<label class="abh" for="ab-ar" style="display:block">${rot?"Current rotation":"Area you work in"}</label><p class="tag abp">${rot?"Change it when you move to your next rotation.":"Optional."}</p>`+
+ if(!abQual())h+=crStepHtml();
+ {const W=crWord(),lab=W==="post"?"Area you work in":"Current "+W;
+  h+=`<label class="abh" for="ab-ar" style="display:block">${lab}</label><p class="tag abp">${W==="post"?"Optional.":"Finish it here when you move on, and it's added to your career history."}</p>`+
    `<div class="absel"><select id="ab-ar" class="cin" onchange="abArea(this.value)"><option value=""${a.area?"":" selected"}>${a.area?"None":"Choose…"}</option>${AB_AREAS.map(([k,n])=>`<option value="${k}"${a.area===k?" selected":""}>${n}</option>`).join("")}</select></div>`+
    (a.area==="other"?`<label class="cfl" for="ab-ox">Where?</label><input id="ab-ox" class="cin" maxlength="60" value="${esc(a.areaTx||"")}" oninput="abA().areaTx=this.value;abSave()">`:"")+
-   (rot&&a.area?`<label class="cfl" for="ab-sn">Started this rotation</label><input id="ab-sn" class="cin" type="month" value="${esc(a.since||"")}" onchange="abA().since=this.value||undefined;abSave()">`:"")}
+   (a.area?`<label class="cfl" for="ab-sn">${W==="post"?"Started in this post":"Started this "+W}</label><input id="ab-sn" class="cin" type="month" value="${esc(a.since||"")}" onchange="abA().since=this.value||undefined;crFin=null;abSave();abRe()">`+crFinHtml(W):"")+
+   (crMsg?`<div class="note crok" role="status">${crMsg}</div>`:"")}
  if(abQual()){
   h+=`<div class="abh">HCPC registration</div><p class="tag abp">Your HCPC audit pack uses these too, so you only need to add them once.</p>`+
    `<label class="cfl" for="ab-nm">Full name, as it appears on the HCPC Register</label><input id="ab-nm" class="cin" autocomplete="name" maxlength="80" value="${esc(H.name||"")}" oninput="hcS().name=this.value;abSave()">`+
@@ -14573,6 +14612,92 @@ function abAfter(){const A=document.getElementById("app");if(!A||tab!=="me")retu
 try{if(S.style!=="clinical"){S.style="clinical";save();if(window.applyStyle)applyStyle()}}catch(e){}
 try{if(window.setStyle)window.setStyle=function(){S.style="clinical";save();if(window.applyStyle)applyStyle();meScreen()}}catch(e){}
 {const wA=welcome;welcome=function(step){if(step==="look")step="goal";return wA.apply(this,arguments)}}
+
+/* ---------- v496: career history (Profile > About you > Career history) ---------- */
+/* Rotations, placements and posts with their dates, and when you moved band or role. Each entry keeps the stage you
+   were at (apprentice, Band 5, Band 6...), so the history reads in stages. Finishing the current rotation in About you
+   adds it here; past ones can be added by hand. Kept in S.about.hist (entries) and S.about.ms (band or role changes). */
+const CR_STAGES=[["stu","Student"],["app","Apprentice"],["q","Qualified"],["5n","Band 5, newly qualified"],["5","Band 5"],["6","Band 6"],["7","Band 7"],["8","Band 8a or above"],["nb","Not on NHS bands"],["oth","Another role"]];
+const CR_MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+let crFin=null,crMsg="",crJust=null,crEd=null,abPg="about";
+const crM=()=>isoD(new Date()).slice(0,7);
+const crOkM=m=>typeof m==="string"&&/^\d{4}-(0[1-9]|1[0-2])$/.test(m);
+const crAdd=(m,n)=>{const y=+m.slice(0,4),mo=+m.slice(5,7)-1+n,d=new Date(y,mo,1);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")};
+const crML=m=>crOkM(m)?CR_MON[+m.slice(5,7)-1]+" "+m.slice(0,4):"";
+const crN=(f,t)=>(+t.slice(0,4)-+f.slice(0,4))*12+(+t.slice(5,7)-+f.slice(5,7))+1;
+const crId=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+function abStage(){const r=S.role;if(r==="stu"||r==="app"||r==="oth")return r;if(r==="sta"||r==="rot")return abBandK()||"q";return ""}
+const crStLbl=k=>(CR_STAGES.find(x=>x[0]===k)||[0,""])[1];
+function crWord(r){r=r||S.role;return r==="rot"||r==="app"?"rotation":r==="stu"?"placement":"post"}
+function crH(){const a=abA();if(!Array.isArray(a.hist))a.hist=[];return a.hist}
+function crMs(){const a=abA();if(!Array.isArray(a.ms))a.ms=[];return a.ms}
+function crAreaL(k,tx){if(k==="other")return String(tx||"").trim()||"Somewhere else";const x=AB_AREAS.find(z=>z[0]===k);return x?x[1]:""}
+/* a change of band or role is noted this month; changing it again straight away updates the same note */
+function crStep(st0){const st1=abStage();if(!st0||!st1||st0===st1)return;const M=crMs();
+ if(crJust){const j=M.find(x=>x.id===crJust);if(j){if(j.from===st1){M.splice(M.indexOf(j),1);crJust=null;return}j.st=st1;return}}
+ const m={id:crId(),d:crM(),st:st1,from:st0};M.push(m);crJust=m.id}
+function crStepHtml(){if(!crJust)return "";const m=crMs().find(x=>x.id===crJust);if(!m)return "";
+ return `<div class="note crok" role="status"><b>Added to your career history: ${esc(crStLbl(m.st))} from ${esc(crML(m.d))}.</b> If it started earlier, change the month.<label class="cfl" for="cr-jm">Started as ${esc(crStLbl(m.st))}</label><input id="cr-jm" class="cin" type="month" value="${esc(m.d)}" max="${crM()}" onchange="if(/^\\d{4}-\\d{2}$/.test(this.value)){crMs().find(x=>x.id===crJust).d=this.value;abSave()}"></div>`}
+function crFinHtml(W){const a=S.about||{};
+ if(!crFin)return `<button class="opt crfb" onclick="crFin={f:(S.about&&S.about.since)||'',t:crM(),err:''};abRe()">Finish this ${W}</button>`;
+ return `<div class="crfin"><div class="crft">Finish ${esc(crAreaL(a.area,a.areaTx))}</div><div class="crrow"><div><label class="cfl" for="cr-ff">Started</label><input id="cr-ff" class="cin" type="month" value="${esc(crFin.f)}" oninput="crFin.f=this.value"></div><div><label class="cfl" for="cr-ft">Finished</label><input id="cr-ft" class="cin" type="month" value="${esc(crFin.t)}" oninput="crFin.t=this.value"></div></div>`+
+  (crFin.err?`<div class="fb bad" role="alert"><b>${esc(crFin.err)}</b></div>`:"")+
+  `<button class="go" onclick="crFinish()">Add to career history</button><button class="opt crcx" onclick="crFin=null;abRe()">Cancel</button></div>`}
+function crFinish(){const a=abA();if(!crFin||!a.area)return;const f=crFin.f,t=crFin.t;
+ if(!crOkM(f)||!crOkM(t)){crFin.err="Add the month it started and the month it finished.";abRe();return}
+ if(f>t){crFin.err="The finish month is before the start month.";abRe();return}
+ const W=crWord();crH().push({id:crId(),a:a.area,ax:a.area==="other"?String(a.areaTx||"").slice(0,60):undefined,f,t,st:abStage(),w:W});
+ delete a.area;delete a.areaTx;delete a.since;a.nf=crAdd(t,1);crFin=null;
+ crMsg=`Added to your career history. ${W==="post"?"Choose where you work now, if it has changed.":"Choose your next "+W+" when you know it."}`;abSave();abRe();
+ setTimeout(()=>{const e=document.getElementById("ab-ar");if(e)e.scrollIntoView({block:"center"})},60)}
+/* ---------- the Career history page ---------- */
+function crItems(){const a=S.about||{},E=(Array.isArray(a.hist)?a.hist:[]).map(e=>({k:"e",s:e.f,t:e.t,x:e})),M=(Array.isArray(a.ms)?a.ms:[]).map(m=>({k:"m",s:m.d,t:m.d,x:m}));
+ return E.concat(M).sort((p,q)=>p.s!==q.s?(p.s<q.s?1:-1):p.k!==q.k?(p.k==="e"?-1:1):0)}
+function crCount(){const a=S.about||{};return (Array.isArray(a.hist)?a.hist.length:0)+(Array.isArray(a.ms)?a.ms.length:0)}
+function crPage(){const a=S.about||{},now=abStage(),cur=a.area?crAreaL(a.area,a.areaTx):"",W=crWord();let h="";
+ h+=`<p class="tag crin">Your ${W==="placement"?"placements":"rotations and posts"}, and when you moved band. Finish your current ${W} in About you to add it here, or add past ones yourself.</p>`;
+ h+=`<div class="crnow"><div class="crnl">Now</div><div class="crnb">${esc(crStLbl(now)||"Not set")}</div><div class="crna">${cur?esc(cur)+(a.since?" · since "+esc(crML(a.since)):""):`No current ${W} set. <button class="lnk aul" onclick="abGo()">Add it in About you</button>`}</div></div>`;
+ if(crEd)h+=crEdHtml();
+ else h+=`<div class="crbtns"><button class="opt" onclick="crEdNew('e')">Add a past ${W==="placement"?"placement":"rotation or post"}</button><button class="opt" onclick="crEdNew('m')">Add a band or role change</button></div>`;
+ const I=crItems();
+ if(!I.length)return h+`<p class="tag crempty">Nothing here yet.</p>`;
+ const G=[];I.forEach(it=>{const st=it.x.st;const g=G[G.length-1];if(g&&g.st===st)g.items.push(it);else G.push({st,items:[it]})});
+ h+=G.map(g=>`<div class="crg"><div class="crgh">${esc(crStLbl(g.st))}</div><div class="mgrp crl">${g.items.map(it=>{
+  if(it.k==="m")return `<button class="mrow crm" onclick="crEdOpen('m','${it.x.id}')"><span class="crdot" aria-hidden="true"></span><span class="mtx"><span class="mlb">Started as ${esc(crStLbl(it.x.st))}</span></span><span class="mval">${esc(crML(it.x.d))}</span></button>`;
+  const e=it.x,n=crN(e.f,e.t);return `<button class="mrow" onclick="crEdOpen('e','${e.id}')"><span class="mtx"><span class="mlb">${esc(crAreaL(e.a,e.ax))}</span><span class="crd">${esc(crML(e.f))} to ${esc(crML(e.t))} · ${n} ${n===1?"month":"months"}</span></span><span class="mval">Edit</span></button>`}).join("")}</div></div>`).join("");
+ return h}
+function crEdNew(k){crEd={k,id:null,d:k==="e"?{a:"",ax:"",f:"",t:"",st:abStage()||"5"}:{st:"",d:""},err:""};abRe()}
+function crEdOpen(k,id){const src=(k==="e"?crH():crMs()).find(x=>x.id===id);if(!src)return;crEd={k,id,d:k==="e"?{a:src.a,ax:src.ax||"",f:src.f,t:src.t,st:src.st}:{st:src.st,d:src.d},err:""};abRe();window.scrollTo(0,0)}
+function crEdHtml(){const E=crEd,d=E.d,stOpt=sel=>`<option value=""${sel?"":" selected"}>Choose…</option>`+CR_STAGES.map(([k,n])=>`<option value="${k}"${sel===k?" selected":""}>${n}</option>`).join("");let h=`<div class="crfin cred">`;
+ if(E.k==="e"){h+=`<div class="crft">${E.id?"Edit":"Add a past rotation or post"}</div>`+
+  `<label class="cfl" for="cr-ea">Area</label><div class="absel"><select id="cr-ea" class="cin" onchange="crEd.d.a=this.value;abRe()"><option value=""${d.a?"":" selected"}>Choose…</option>${AB_AREAS.map(([k,n])=>`<option value="${k}"${d.a===k?" selected":""}>${n}</option>`).join("")}</select></div>`+
+  (d.a==="other"?`<label class="cfl" for="cr-ex">Where?</label><input id="cr-ex" class="cin" maxlength="60" value="${esc(d.ax)}" oninput="crEd.d.ax=this.value">`:"")+
+  `<label class="cfl" for="cr-es">You were</label><div class="absel"><select id="cr-es" class="cin" onchange="crEd.d.st=this.value">${stOpt(d.st)}</select></div>`+
+  `<div class="crrow"><div><label class="cfl" for="cr-ef">Started</label><input id="cr-ef" class="cin" type="month" value="${esc(d.f)}" oninput="crEd.d.f=this.value"></div><div><label class="cfl" for="cr-et">Finished</label><input id="cr-et" class="cin" type="month" value="${esc(d.t)}" oninput="crEd.d.t=this.value"></div></div>`}
+ else h+=`<div class="crft">${E.id?"Edit band or role change":"Add a band or role change"}</div>`+
+  `<label class="cfl" for="cr-ms">Started as</label><div class="absel"><select id="cr-ms" class="cin" onchange="crEd.d.st=this.value">${stOpt(d.st)}</select></div>`+
+  `<label class="cfl" for="cr-md">From</label><input id="cr-md" class="cin" type="month" value="${esc(d.d)}" oninput="crEd.d.d=this.value">`;
+ h+=(E.err?`<div class="fb bad" role="alert"><b>${esc(E.err)}</b></div>`:"")+`<button class="go" onclick="crEdSave()">Save</button><button class="opt crcx" onclick="crEd=null;abRe()">Cancel</button>`+
+  (E.id?`<button class="lnk crdel" onclick="crEdDel()">${E.k==="e"?"Delete this entry":"Delete this change"}</button>`:"")+`</div>`;
+ return h}
+function crEdSave(){const E=crEd;if(!E)return;const d=E.d;
+ if(E.k==="e"){if(!d.a){E.err="Choose the area.";abRe();return}if(!CR_STAGES.some(x=>x[0]===d.st)){E.err="Choose what you were at the time.";abRe();return}
+  if(!crOkM(d.f)||!crOkM(d.t)){E.err="Add the month it started and the month it finished.";abRe();return}if(d.f>d.t){E.err="The finish month is before the start month.";abRe();return}
+  const v={a:d.a,ax:d.a==="other"?String(d.ax||"").slice(0,60):undefined,f:d.f,t:d.t,st:d.st};const H=crH(),x=E.id&&H.find(z=>z.id===E.id);if(x)Object.assign(x,v);else H.push(Object.assign({id:crId()},v))}
+ else{if(!CR_STAGES.some(x=>x[0]===d.st)){E.err="Choose the band or role.";abRe();return}if(!crOkM(d.d)){E.err="Add the month it started.";abRe();return}
+  const M=crMs(),x=E.id&&M.find(z=>z.id===E.id);if(x){x.st=d.st;x.d=d.d}else M.push({id:crId(),st:d.st,d:d.d})}
+ crEd=null;abSave();abRe()}
+function crEdDel(){const E=crEd;if(!E||!E.id)return;if(!E.sure){E.sure=1;const b=document.querySelector(".crdel");if(b){b.textContent="Tap again to delete";b.classList.add("crsure")}return}
+ const L=E.k==="e"?crH():crMs(),i=L.findIndex(z=>z.id===E.id);if(i>=0)L.splice(i,1);if(crJust===E.id)crJust=null;crEd=null;abSave();abRe();try{toast("Deleted")}catch(e){}}
+function crGo(){abPg="career";abOn=true;crEd=null;try{pzlPg=null}catch(e){}try{meSub=null}catch(e){}openMe();window.scrollTo(0,0)}
+{const g0=abGo;abGo=function(){abPg="about";crFin=null;crMsg="";crEd=null;return g0.apply(this,arguments)}}
+{const b0=abBack;abBack=function(){crFin=null;crMsg="";crEd=null;crJust=null;abPg="about";return b0.apply(this,arguments)}}
+{const h0=abHtml;abHtml=function(){return abPg==="career"?crPage():h0.apply(this,arguments)}}
+{const f0=abAfter;abAfter=function(){const r=f0.apply(this,arguments);const A=document.getElementById("app");if(!A)return r;
+ if(abOn&&abPg==="career"){const h1=A.querySelector(".nvsubpg h1,#app>h1");if(h1)h1.textContent="Career history";const c=A.querySelector(".abc");if(c)c.classList.add("crc");return r}
+ const g=A.querySelector(".abg + .mgrp");if(g&&!g.querySelector(".crrowp")){const ch=(g.querySelector(".mchv")||{}).outerHTML||"",n=crCount();
+  g.insertAdjacentHTML("beforeend",`<button class="mrow crrowp" onclick="crGo()"><span class="msq" style="background:#2F4A8A"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3v18M6 6h12l-2.5 3.5L18 13H6"/></svg></span><span class="mtx"><span class="mlb">Career history</span></span><span class="mval">${n?n+(n===1?" entry":" entries"):""}</span>${ch}</button>`)}
+ return r}}
 
 
 /* ---------- Phyzly Portfolio (early access): Portfolio and Profile only, plus Quick ref and feedback ---------- */
