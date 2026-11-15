@@ -3213,8 +3213,8 @@ function preScreen(){
   return `<details class="ksg pdn"${preDoneOpen?" open":""} ontoggle="preDoneOpen=this.open"><summary>Completed (${dn.length})</summary>`+dn.map(x=>`<button class="ock on" role="checkbox" aria-checked="true" onclick="preAct('${x[0].id}','${x[1].id}')"><i>✓</i><span>${esc(x[1].t)}<br><small style="color:var(--mute)">From ${esc(dFmt(x[0].d,{day:"numeric",month:"short"}))}${x[1].dn?" · done "+esc(dFmt(x[1].dn,{day:"numeric",month:"short"})):""}</small></span></button>`).join("")+`<p class="tag" style="margin:2px 0 6px">Tap one to move it back to open.</p></details>`})()+
  `<div class="sec">Meetings</div><button class="go" style="margin:0 0 10px" onclick="preMtNew()">+ Log a meeting</button>`+
  mt.map(m=>{const no=(m.ac||[]).filter(a=>!a.done).length;const rv=m.rv&&preRv().find(x=>x.id===m.rv);return `<button class="opt" onclick="preMtEdit('${m.id}')"><div class="row"><b>${esc(dFmt(m.d))}${rv?" · "+esc(rv.n):""}${(m.ph||[]).length?" · "+m.ph.length+" attached":""}</b>${no?`<span class="bd s">${no} open</span>`:""}</div><small style="color:var(--mute)">${esc((m.n||"No notes").slice(0,90))}</small></button>`}).join("")+
- preCmH()+`<div class="sec">My goals</div>`+(P.gl||[]).map(g=>`<div class="grow"><button class="ock${g.done?" on":""}" role="checkbox" aria-checked="${!!g.done}" onclick="preGoalT('${g.id}')"><i>${g.done?"✓":""}</i><span>${esc(g.t)}</span></button><button class="gx" aria-label="Remove goal" onclick="preGoalX('${g.id}')">✕</button></div>`).join("")+
- `<div class="grow"><input id="pg-t" class="cin" maxlength="160" placeholder="Add a goal" aria-label="New goal"><button class="gx" style="width:auto;padding:0 14px;color:var(--pri-ink);background:var(--pri);border-color:var(--pri);font-weight:700" onclick="preGoalAdd()">Add</button></div>`;
+ preCmH()+`<div class="sec">My goals</div>`+preGl().map(g=>`<div class="grow"><button class="ock${g.done?" on":""}" role="checkbox" aria-checked="${!!g.done}" onclick="preGoalT('${g.id}')"><i>${g.done?"✓":""}</i><span>${esc(g.t)}${g.by&&!g.done?`<br><small style="color:var(--mute)">By ${esc(dFmt(g.by))}</small>`:""}</span></button><button class="gx" aria-label="Open goal: ${esc(g.t)}" onclick="grGlOpen('${g.id}','pre')">›</button></div>`).join("")+
+ `<div class="grow"><input id="pg-t" class="cin" maxlength="160" placeholder="Add a goal" aria-label="New goal"><button class="gx" style="width:auto;padding:0 14px;color:var(--pri-ink);background:var(--pri);border-color:var(--pri);font-weight:700" onclick="preGoalAdd()">Add</button></div><p class="tag" style="margin:4px 0 0">These goals are also in your development plan, under Feedback and SWOC. Open one to add a date, steps and how you'll know you've done it.</p>`;
  app.innerHTML=h+`<div class="sec">Export</div><button class="opt" style="text-align:center" onclick="cp.x='all';cp.v='export';pf='cpd';tab='cpd';pe=null;cp.xp=Object.assign(xpSel(),{pr:true,fmt:cp.xp&&cp.xp.fmt==='xlsx'?'xlsx':'pdf'});XP.ready=null;home();window.scrollTo(0,0)">Export my preceptorship record<small style="display:block;color:var(--mute);font-size:.8rem;font-weight:500">PDF or Excel, with your CPD log</small></button><p class="tag">Not an official record. Keep your trust's preceptorship paperwork up to date too.</p>`;
 }
 const preIn=d=>{const P=S.pre;return !!(P&&P.start&&d&&d>=P.start&&d<=addM(P.start,P.len||12))};
@@ -3251,9 +3251,9 @@ function preMs(k){preEd=preEd===k?null:k;cfRe()}
 function preMsSet(k,d){S.pre.ms=S.pre.ms||{};preAsk=null;if(d===null)delete S.pre.ms[k];else{if(!preMtFor(k))preAsk=k;if(!/^\d{4}-\d{2}-\d{2}$/.test(d||""))d=isoD(new Date());if(d>isoD(new Date()))d=isoD(new Date());S.pre.ms[k]=d;hap("ok")}preEd=null;save();cfRe()}
 let preDoneOpen=false;
 function preAct(mid,aid){const m=(S.pre.mt||[]).find(x=>x.id===mid),a=m&&(m.ac||[]).find(x=>x.id===aid);if(a){a.done=!a.done;if(a.done){a.dn=isoD(new Date());hap("ok")}else delete a.dn;save()}cfRe()}
-function preGoalT(id){const g=(S.pre.gl||[]).find(x=>x.id===id);if(g){g.done=!g.done;save()}home()}
-function preGoalX(id){S.pre.gl=(S.pre.gl||[]).filter(x=>x.id!==id);save();home()}
-function preGoalAdd(){const e=document.getElementById("pg-t"),t=e?e.value.trim():"";if(!t)return;S.pre.gl=S.pre.gl||[];S.pre.gl.push({id:cpId(),t:t.slice(0,160),done:false});save();home()}
+function preGoalT(id){const g=preGl().find(x=>x.id===id);if(g){g.done=!g.done;g.dn=g.done?isoD(new Date()):"";if(g.done)try{hap("ok")}catch(e){}save()}home()}
+function preGoalX(id){const G=grS();G.gl=G.gl.filter(x=>x.id!==id);save();home()}
+function preGoalAdd(){const e=document.getElementById("pg-t"),t=e?e.value.replace(/\s+/g," ").trim():"";if(!t)return;const G=grS();if(G.gl.length>=GL_MAX||!grRoom(800)){try{toast("Your plan is full. Delete a goal you don't need first.")}catch(x){}return}G.gl.push({id:cpId(),t:t.slice(0,200),m:"",by:"",st:[],hp:"",sw:[],ev:[],pre:true,done:false,dn:"",oc:"",d:isoD(new Date())});save();home()}
 function preMtNew(rv){const h=rv&&(S.pre.ms||{})[rv];pe={v:"mt",f:{id:null,d:typeof h==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(h)?h:isoD(new Date()),n:"",ac:"",rv:rv||"",ph:[]}};preAsk=null;home();window.scrollTo(0,0)}
 function preMtEdit(id){const m=(S.pre.mt||[]).find(x=>x.id===id);if(!m)return;pe={v:"mt",f:{id:m.id,d:m.d,n:m.n||"",ac:(m.ac||[]).map(a=>a.t).join("\n"),rv:m.rv||"",ph:(m.ph||[]).slice(),m:Math.round(+m.m||0)||""}};home();window.scrollTo(0,0)}
 function mtRead(){const f=pe.f,g=k=>document.getElementById(k);if(g("pm-d")&&/^\d{4}-\d{2}-\d{2}$/.test(g("pm-d").value))f.d=g("pm-d").value;if(g("pm-n"))f.n=g("pm-n").value;if(g("pm-a"))f.ac=g("pm-a").value;if(g("pm-rv"))f.rv=g("pm-rv").value;if(g("pm-m"))f.m=g("pm-m").value}
@@ -3339,7 +3339,7 @@ function compSave(){
 function compDel(){if(!cmf.del){cmf.del=true;return home()}S.cm.x=(S.cm.x||[]).filter(x=>x.id!==cmf.id);((S.cm.v[cmf.id]||{}).ph||[]).forEach(i=>phDel(i).catch(()=>{}));delete S.cm.v[cmf.id];save();cmf=null;home();window.scrollTo(0,0)}
 function pfText(){
  let t="";const P=S.pre;
- if(P&&P.start){t+="PRECEPTORSHIP\nStart: "+P.start+" · "+P.len+" months"+(P.who?" · Preceptor: "+P.who:"")+"\n\nReview points:\n"+preRvL().map(x=>"- "+x.n+" ("+preDue(x)+"): "+((P.ms||{})[x.id]?(typeof P.ms[x.id]==="string"?"held "+P.ms[x.id]:"done"):"not marked done")).join("\n")+"\n\nMeetings:\n"+((P.mt||[]).slice().sort((a,b)=>a.d.localeCompare(b.d)).map(m=>m.d+"\n"+(m.n||"-")+((m.ac||[]).length?"\nActions:\n"+m.ac.map(a=>"  ["+(a.done?"x":" ")+"] "+a.t).join("\n"):"")).join("\n\n")||"-")+"\n\nProgramme sessions:\n"+(preSess().slice().reverse().map(e=>"- "+e.d+": "+e.t+" ("+fmtH(e.m||0)+")"+(cpHas(e)?", reflected":"")+((e.ph||[]).length?", "+e.ph.length+" attachment"+(e.ph.length>1?"s":""):"")).join("\n")||"-")+"\n\nGoals:\n"+(((P.gl||[]).map(g=>"["+(g.done?"x":" ")+"] "+g.t).join("\n"))||"-")+"\n\n"}
+ if(P&&P.start){t+="PRECEPTORSHIP\nStart: "+P.start+" · "+P.len+" months"+(P.who?" · Preceptor: "+P.who:"")+"\n\nReview points:\n"+preRvL().map(x=>"- "+x.n+" ("+preDue(x)+"): "+((P.ms||{})[x.id]?(typeof P.ms[x.id]==="string"?"held "+P.ms[x.id]:"done"):"not marked done")).join("\n")+"\n\nMeetings:\n"+((P.mt||[]).slice().sort((a,b)=>a.d.localeCompare(b.d)).map(m=>m.d+"\n"+(m.n||"-")+((m.ac||[]).length?"\nActions:\n"+m.ac.map(a=>"  ["+(a.done?"x":" ")+"] "+a.t).join("\n"):"")).join("\n\n")||"-")+"\n\nProgramme sessions:\n"+(preSess().slice().reverse().map(e=>"- "+e.d+": "+e.t+" ("+fmtH(e.m||0)+")"+(cpHas(e)?", reflected":"")+((e.ph||[]).length?", "+e.ph.length+" attachment"+(e.ph.length>1?"s":""):"")).join("\n")||"-")+"\n\nGoals:\n"+((preGl().map(g=>"["+(g.done?"x":" ")+"] "+g.t+(g.by&&!g.done?" (by "+g.by+")":"")).join("\n"))||"-")+"\n\n"}
  const V=cmV(),cp2=S.cpd||[],rows=[];
  CG.forEach(g=>{compAll().filter(c=>c.g===g[0]).forEach(c=>{const v=V[c.id];if(!v||(!v.l&&!v.n&&!v.so&&!(v.ev||[]).length&&!(v.ph||[]).length))return;rows.push("- "+g[1]+": "+c.t+" — "+LVN[v.l||0]+(v.d?" ("+v.d+")":"")+(v.so?", signed off in trust paperwork":"")+(v.n?"\n  Notes: "+v.n:"")+((v.ev||[]).length?"\n  Evidence: "+v.ev.map(i=>(cp2.find(e=>e.id===i)||{t:"(removed entry)"}).t).join("; "):"")+((v.ph||[]).length?"\n  Files attached in Phyzly: "+v.ph.length:""))})});
  t+="COMPETENCIES (self-recorded)\n"+(rows.join("\n")||"-");return t}
@@ -12877,7 +12877,7 @@ function xpPreData(){const P=S.pre,ms=P.ms||{},td=isoD(new Date()),len=P.len||12
  const RV=typeof preRvL==="function"?preRvL():preReviewPts(len).map(x=>({id:x[0],n:x[1],m:x[2]})),due0=x=>typeof preDue==="function"?preDue(x):addM(P.start,x.m);
  const pts=RV.map(x=>{const due=due0(x),h=ms[x.id];return [x.n,xpNice(due),h?(typeof h==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(h)?"Held "+xpNice(h):"Done"):(due<td?"Not marked as held":"Not yet due")]});
  const ses=(S.cpd||[]).filter(e=>e&&e.pre).sort((a,b)=>a.d.localeCompare(b.d));
- return {P,len,RV,end:addM(P.start,len),pts,ses,mt:(P.mt||[]).slice().sort((a,b)=>String(a.d).localeCompare(String(b.d))),gl:P.gl||[]}}
+ return {P,len,RV,end:addM(P.start,len),pts,ses,mt:(P.mt||[]).slice().sort((a,b)=>String(a.d).localeCompare(String(b.d))),gl:preGl()}}
 async function xpPrePdf(L,apps,inc){const D=xpPreData(),P=D.P,rvN=id=>{const x=(D.RV||[]).find(r=>r.id===id);return x?x.n:""};L.page();L.text("Preceptorship record",{sz:13.5,w:"bold",lh:1.25,gap:2});L.rule();L.y+=12;
  L.table([{t:"",w:.3},{t:"",w:.7}],[["Programme",xpNice(P.start)+" to "+xpNice(D.end)+" ("+D.len+" months)"]].concat(xpPreWho()),{noHead:true});
  L.need(110);L.h2("Review points");L.table([{t:"Review",w:.4},{t:"Suggested date",w:.26},{t:"Status",w:.34}],D.pts);
@@ -13785,24 +13785,25 @@ function grS(){let G=S.gr;if(!G||typeof G!=="object"||Array.isArray(G))G=S.gr={f
  G.rq=A(G.rq).filter(x=>x&&typeof x==="object"&&okid(x.id)).slice(0,60);
  G.rq.forEach(x=>{x.id=String(x.id);x.who=str(x.who,60);x.fn=str(x.fn,40);x.ctx=str(x.ctx,80);if(!day(x.d))x.d=today;if(!day(x.x))x.x=x.d;delete x.tk;delete x.token});
  G.gone=A(G.gone).filter(okid).map(String).slice(-200);G.seen=A(G.seen).filter(okid).map(String).slice(-100);
+ grGlNorm(G);
  return G}
 /* what an evidence link points at now (null if it has gone) */
 function grEv(e){if(e.k==="fb"){const f=grFbAll().find(x=>x.id===e.id);return f?{t:"Feedback from "+(f.who||grRn(f.rel).toLowerCase()),s:dFmt(f.d),go:"grFb('"+f.id+"')"}:null}
  const c=(typeof cpdAll==="function"?cpdAll():(S.cpd||[])).find(x=>x&&x.id===e.id);return c?{t:c.t,s:dFmt(c.d)+" · CPD entry",go:""}:null}
 const grBacked=x=>(x.ev||[]).filter(e=>grEv(e)).length;
-function openGr(t){tab="cpd";pf="gr";grf=null;gv={v:"home",tab:t==="fb"?"fb":"sw"};home();window.scrollTo(0,0)}
+function openGr(t){tab="cpd";pf="gr";grf=null;gv={v:"home",tab:t==="fb"||t==="pl"?t:"sw"};home();window.scrollTo(0,0)}
 function grGo(v,extra){grf=null;gv=Object.assign({v:v||"home",tab:gv.tab||"sw"},extra||{});home();window.scrollTo(0,0)}
 function grTab(t){gv.tab=t;gv.just=null;home()}
-function grPortSt(){const G=S.gr;let nw=0,nv=0;try{nw=grNew().length;nv=grV().length}catch(e){}if(nw)return nw+" new";const n=(G&&typeof G==="object"?((Array.isArray(G.sw)?G.sw.length:0)+(Array.isArray(G.fb)?G.fb.length:0)):0)+nv;return n?n+(n===1?" item":" items"):"Start"}
+function grPortSt(){const G=S.gr;let nw=0,nv=0;try{nw=grNew().length;nv=grV().length}catch(e){}if(nw)return nw+" new";try{const od=S.gr&&typeof S.gr==="object"?grGlOver().length:0;if(od)return od+(od===1?" goal past its date":" goals past their date")}catch(e){}const n=(G&&typeof G==="object"?((Array.isArray(G.sw)?G.sw.length:0)+(Array.isArray(G.fb)?G.fb.length:0)):0)+nv;return n?n+(n===1?" item":" items"):"Start"}
 
 function grScreen(){
- if(grf&&grf.k==="use")return grUseForm();if(grf&&grf.k==="sw")return grItemForm();if(grf&&grf.k==="fb")return grFbForm();if(gv.v==="snf")return grSnapForm();if(gv.v==="snap")return grSnapView();if(gv.v==="exp")return grExport();if(gv.v==="fbv")return grFbView();if(gv.v==="ask")return grAskForm();if(gv.v==="lnk")return grAskLink();
- const G=grS(),sw=gv.tab!=="fb";
- let h=head()+tabs()+bk("pf='home';home()","Portfolio")+`<h1 style="font-size:1.6rem;margin:6px 0 2px">Feedback and SWOC</h1><p class="tag" style="margin:0 0 10px">What colleagues say about your practice, and your own view of where you're strong and where you're growing. Private to you.</p>`+
-  `<div class="seg" role="tablist"><button role="tab" aria-selected="${sw}" class="${sw?"on":""}" onclick="grTab('sw')">SWOC</button><button role="tab" aria-selected="${!sw}" class="${sw?"":"on"}" onclick="grTab('fb')">Feedback log${grFbAll().length?" ("+grFbAll().length+")":""}</button></div>`;
- app.innerHTML=h+(sw?grSwocH(G):grFbH(G))}
+ if(grf&&grf.k==="gl")return grGlForm();if(grf&&grf.k==="use")return grUseForm();if(grf&&grf.k==="sw")return grItemForm();if(grf&&grf.k==="fb")return grFbForm();if(gv.v==="snf")return grSnapForm();if(gv.v==="snap")return grSnapView();if(gv.v==="exp")return grExport();if(gv.v==="fbv")return grFbView();if(gv.v==="ask")return grAskForm();if(gv.v==="lnk")return grAskLink();
+ const G=grS(),T=gv.tab==="fb"?"fb":gv.tab==="pl"?"pl":"sw",sw=T==="sw";
+ let h=head()+tabs()+bk("pf='home';home()","Portfolio")+`<h1 style="font-size:1.6rem;margin:6px 0 2px">Feedback and SWOC</h1><p class="tag" style="margin:0 0 10px">What colleagues say about your practice, your own view of where you're strong and where you're growing, and your plan. Private to you.</p>`+
+  `<div class="seg" role="tablist">${[["sw","SWOC"],["fb","Feedback log"+(grFbAll().length?" ("+grFbAll().length+")":"")],["pl","Plan"]].map(([k,l])=>`<button role="tab" aria-selected="${T===k}" class="${T===k?"on":""}" onclick="grTab('${k}')">${l}</button>`).join("")}</div>`;
+ app.innerHTML=h+(T==="pl"?grPlH(G):sw?grSwocH(G):grFbH(G))}
 
-function grItemH(x){const n=grBacked(x);return `<button class="gri" onclick="grItem('${esc(x.id)}')"><b>${esc(x.t)}</b><small>${x.pil?esc(grPn(x.pil))+" · ":""}${n?"Backed by "+n+(n===1?" piece":" pieces")+" of evidence":"My view"}</small></button>`}
+function grItemH(x){const n=grBacked(x);return `<button class="gri" onclick="grItem('${esc(x.id)}')"><b>${esc(x.t)}</b><small>${x.pil?esc(grPn(x.pil))+" · ":""}${n?"Backed by "+n+(n===1?" piece":" pieces")+" of evidence":"My view"}${(()=>{const g=grGl().filter(z=>z.sw.includes(x.id)&&!z.done).length;return g?" · "+g+(g===1?" goal":" goals"):""})()}</small></button>`}
 function grSwocH(G){
  let h=G.sw.length?"":`<div class="note">A SWOC is a picture of you as a clinician: your strengths, weaknesses, opportunities and challenges. Start with your own view, then back it up with feedback and reflections as they come.</div>`;
  h+=`<div class="grm">`+GRQ.map(q=>{const L=G.sw.filter(x=>x.q===q[0]);return `<section class="grq" aria-label="${q[1]}"><div class="grh" role="heading" aria-level="2">${q[1]}</div><small>${q[2]}</small>${L.map(grItemH).join("")}<button class="lnk gra" onclick="grItem(null,'${q[0]}')">+ Add ${q[0]==="o"?"an":"a"} ${q[3]}</button></section>`}).join("")+`</div>`;
@@ -13843,7 +13844,7 @@ function grItemForm(){const f=grf,G=grS(),linked=f.ev.map(e=>({e,v:grEv(e)})).fi
  (fbs.length?`<details class="grd"><summary class="lnk" style="cursor:pointer">Link feedback</summary><div style="margin-top:6px">${fbs.map(x=>`<button class="opt" style="margin:0 0 6px" onclick="grRd();grEvT('fb','${esc(x.id)}')"><div class="row"><b style="font-weight:600">${esc(x.who||grRn(x.rel))}</b><span>+ Link</span></div><small style="color:var(--mute)">${esc(dFmt(x.d))}${x.txt?" · "+esc(x.txt.slice(0,60))+(x.txt.length>60?"…":""):""}</small></button>`).join("")}</div></details>`:"")+
  (cps.length?`<details class="grd"><summary class="lnk" style="cursor:pointer">Link a CPD entry</summary><div style="margin-top:6px">${cps.map(e=>`<button class="opt" style="margin:0 0 6px" onclick="grRd();grEvT('cpd','${esc(e.id)}')"><div class="row"><b style="font-weight:600">${esc(e.t)}</b><span>+ Link</span></div><small style="color:var(--mute)">${esc(dFmt(e.d))}</small></button>`).join("")}</div></details>`:"")+
  (!fbs.length&&!grFbAll().length?`<p class="tag" style="margin:6px 0 0">Feedback you add to your feedback log can be linked here.</p>`:"")+
- `<button class="go" onclick="grItemSave()">Save</button>`+(f.id?`<button class="opt" style="text-align:center;margin-top:10px;${f.del?"border-color:var(--bad);color:var(--bad)":""}" onclick="grItemDel()">${f.del?"Tap again to delete":"Delete"}</button>`:"")}
+ `<button class="go" onclick="grItemSave()">Save</button>`+(f.id?grGlForPt(f.id):"")+(f.id?`<button class="opt" style="text-align:center;margin-top:10px;${f.del?"border-color:var(--bad);color:var(--bad)":""}" onclick="grItemDel()">${f.del?"Tap again to delete":"Delete"}</button>`:"")}
 function grRd(){const el=document.getElementById("gr-t");if(el&&grf&&grf.k==="sw"){grf.t=el.value;grf.err=""}}
 function grEvT(k,id){if(!grf||grf.k!=="sw")return;const i=grf.ev.findIndex(e=>e.k===k&&e.id===id);if(i>=0)grf.ev.splice(i,1);else if(grf.ev.length<20)grf.ev.push({k,id});cfRe()}
 function grItemSave(){grRd();const f=grf,G=grS(),t=String(f.t||"").replace(/\s+/g," ").trim().slice(0,200);if(!t){f.err="Say what it is in a few words.";return home()}
@@ -13897,10 +13898,11 @@ function grSnapDel(){if(!gv.del){gv.del=true;if(armTap(/^Delete snapshot$/,"Tap 
 /* ----- export ----- */
 function grText(){const G=grS();let t="Feedback and SWOC\nExported "+dFmt(isoD(new Date()))+"\nMy own record of my practice. It is not a formal assessment.\n";
  GRQ.forEach(q=>{const L=G.sw.filter(x=>x.q===q[0]);t+="\n"+q[1].toUpperCase()+"\n";if(!L.length)t+="-\n";L.forEach(x=>{const ev=x.ev.map(e=>({e,v:grEv(e)})).filter(z=>z.v);t+="- "+x.t+(x.pil?" ("+grPn(x.pil)+")":"")+"\n"+(ev.length?ev.map(z=>"    Evidence: "+z.v.t+", "+z.v.s+(z.e.n?": \u201c"+z.e.n+"\u201d":"")+"\n").join(""):"    My view\n")})});
+ t+=grGlText();
  if(grFbAll().length){t+="\nFEEDBACK LOG\n";grFbAll().slice().sort((a,b)=>a.d.localeCompare(b.d)).forEach(f=>{t+="\n"+dFmt(f.d)+" · "+(f.who?f.who+" ("+grRn(f.rel).toLowerCase()+")":grRn(f.rel))+(f.ctx?" · "+f.ctx:"")+(f.v?" · sent by them through a Phyzly feedback link":"")+"\n"+(f.txt||"(attached)")+(f.ph.length?"\n["+f.ph.length+(f.ph.length===1?" file":" files")+" attached in Phyzly]":"")+"\n"})}
  return t}
 function grMsg(m){const e=document.getElementById("grm");if(e)e.textContent=m}
-function grExport(){app.innerHTML=head()+tabs()+bk("grGo('home')","SWOC")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">Export</h1><p class="tag" style="margin:0 0 8px">Your SWOC and feedback log as text, for supervision or appraisal. Check it before you share it.</p><button class="go" onclick="grDl()">Download text file</button><button class="opt" style="text-align:center;margin-top:10px" onclick="grCopy()">Copy as text</button><p id="grm" class="tag" role="status"></p><textarea id="grx" class="cin" rows="14" readonly aria-label="Your SWOC and feedback log as text">${esc(grText())}</textarea>`}
+function grExport(){app.innerHTML=head()+tabs()+bk("grGo('home')","SWOC")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">Export</h1><p class="tag" style="margin:0 0 8px">Your SWOC, plan and feedback log as text, for supervision or appraisal. Check it before you share it.</p><button class="go" onclick="grDl()">Download text file</button><button class="opt" style="text-align:center;margin-top:10px" onclick="grCopy()">Copy as text</button><p id="grm" class="tag" role="status"></p><textarea id="grx" class="cin" rows="14" readonly aria-label="Your SWOC and feedback log as text">${esc(grText())}</textarea>`}
 async function grDl(){const name="phyzly-swoc-"+isoD(new Date())+".txt",blob=new Blob([grText()],{type:"text/plain"});
  try{if(window.claude&&claude.use){const dl=await claude.use("downloads");if(dl){await dl.save({filename:name,data:blob});return grMsg("Saved.")}}}catch(e){if(e&&e.code==="declined")return grMsg("Not saved.")}
  try{const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=name;a.rel="noopener";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>{try{URL.revokeObjectURL(u)}catch(e){}},4000);grMsg("Saved.")}catch(e){grMsg("Saving a file isn't available here. Use Copy instead.")}}
@@ -14198,8 +14200,9 @@ function grUseSrc(src,keep){
  return {t:e.t||"CPD entry",s:dFmt(e.d)+" · CPD entry",parts}}
 function grUse(k,id,keep){const G=grS(),lk={};
  G.sw.forEach(x=>{const e=x.ev.find(e=>e.k===k&&e.id===id);if(e)lk[x.id]={on:true,n:e.n||""}});
+ const lg={};(G.gl||[]).forEach(g=>{const e=g.ev.find(e=>e.k===k&&e.id===id);if(e)lg[g.id]={on:true,n:e.n||""}});
  const src=grUseSrc({k,id},keep),q0=src&&src.parts[0]?src.parts[0][2]:"s";
- grf={k:"use",src:{k,id},pts:[{q:q0,t:"",pil:"",n:""}],lk,keepCf:keep||null,err:""};gv.just=null;tab="cpd";pf="gr";home();window.scrollTo(0,0)}
+ grf={k:"use",src:{k,id},pts:[{q:q0,t:"",pil:"",n:""}],lk,lg,keepCf:keep||null,err:""};gv.just=null;tab="cpd";pf="gr";home();window.scrollTo(0,0)}
 /* the points that use a source, for the line under its button */
 function grUsedBy(k,id){return grS().sw.filter(x=>x.ev.some(e=>e.k===k&&e.id===id))}
 function grUsedH(k,id){const L=grUsedBy(k,id);if(!L.length)return "";
@@ -14227,10 +14230,17 @@ function grUseForm(){const f=grf,G=grS(),src=grUseSrc(f.src,f.keepCf);
    return `<div class="cfl">${q[1]}</div>`+L.map(x=>{const l=f.lk[x.id]||{},on=!!l.on,full=!on&&x.ev.length>=20;
     return `<button class="ock${on?" on":""}" role="checkbox" aria-checked="${on}" ${full?"disabled":""} onclick="grUseRd();grUseLk('${esc(x.id)}')"><i>${on?"✓":""}</i><span>${esc(x.t)}${full?`<br><small style="color:var(--mute)">Already has the most evidence a point can hold</small>`:""}</span></button>`+
      (on?`<input id="gu-l${esc(x.id)}" class="cin gul" maxlength="120" value="${esc(l.n||"")}" placeholder="What in it backs this up? (optional)" aria-label="What in it backs up: ${esc(x.t)}" oninput="grf.lk['${esc(x.id)}'].n=this.value">`:"")}).join("")}).join("")}
+ const GL=(G.gl||[]).filter(g=>!g.done||(f.lg[g.id]&&f.lg[g.id].on));
+ if(GL.length){h+=`<div class="grh2" role="heading" aria-level="2">Progress on a goal</div><p class="tag" style="margin:0 0 8px">Tick the goals in your plan this shows progress on.</p>`+
+  GL.map(g=>{const l=f.lg[g.id]||{},on=!!l.on,full=!on&&g.ev.length>=20;
+   return `<button class="ock${on?" on":""}" role="checkbox" aria-checked="${on}" ${full?"disabled":""} onclick="grUseRd();grUseLkG('${esc(g.id)}')"><i>${on?"✓":""}</i><span>${esc(g.t)}${full?`<br><small style="color:var(--mute)">Already has the most progress a goal can hold</small>`:""}</span></button>`+
+    (on?`<input id="gu-g${esc(g.id)}" class="cin gul" maxlength="120" value="${esc(l.n||"")}" placeholder="What progress does it show? (optional)" aria-label="What progress it shows: ${esc(g.t)}" oninput="grf.lg['${esc(g.id)}'].n=this.value">`:"")}).join("")}
  h+=`<button class="go" onclick="grUseSave()">Save</button>`;
  app.innerHTML=h}
+function grUseLkG(id){const f=grf,l=f.lg[id];if(l&&l.on)l.on=false;else f.lg[id]={on:true,n:(l&&l.n)||""};cfRe()}
 function grUseRd(){if(!grf||grf.k!=="use")return;grf.pts.forEach((p,i)=>{const t=document.getElementById("gu-t"+i),n=document.getElementById("gu-n"+i),s=document.getElementById("gu-p"+i);if(t)p.t=t.value;if(n)p.n=n.value;if(s)p.pil=s.value});
- Object.keys(grf.lk).forEach(id=>{const e=document.getElementById("gu-l"+id);if(e&&grf.lk[id])grf.lk[id].n=e.value});grf.err=""}
+ Object.keys(grf.lk).forEach(id=>{const e=document.getElementById("gu-l"+id);if(e&&grf.lk[id])grf.lk[id].n=e.value});
+ Object.keys(grf.lg||{}).forEach(id=>{const e=document.getElementById("gu-g"+id);if(e&&grf.lg[id])grf.lg[id].n=e.value});grf.err=""}
 function grUseClr(){if(grf&&grf.err){grf.err="";const e=document.querySelector("#app .fb.bad");if(e)e.remove()}}
 function grUseAdd(q){grUseRd();const f=grf;if(f.pts.length>=GRU_MAX)return;
  /* a part's button fills an empty point first, so the starting row isn't wasted */
@@ -14244,20 +14254,157 @@ function grUseSave(){grUseRd();const f=grf,G=grS(),k=f.src.k,id=f.src.id,clean=(
  const add=P.filter(p=>p.t);
  const before=G.sw.filter(x=>x.ev.some(e=>e.k===k&&e.id===id)).map(x=>x.id).sort().join(),after=G.sw.filter(x=>f.lk[x.id]&&f.lk[x.id].on).map(x=>x.id).sort().join();
  const notesChanged=G.sw.some(x=>{const e=x.ev.find(e=>e.k===k&&e.id===id),l=f.lk[x.id];return e&&l&&l.on&&(e.n||"")!==clean(l.n,120)});
- if(!add.length&&before===after&&!notesChanged){f.err="Write a point, or tick a point it backs up.";return cfRe()}
+ const GLs=G.gl||[],lg=f.lg||{},gBefore=GLs.filter(g=>g.ev.some(e=>e.k===k&&e.id===id)).map(g=>g.id).sort().join(),gAfter=GLs.filter(g=>lg[g.id]&&lg[g.id].on).map(g=>g.id).sort().join();
+ const gNotes=GLs.some(g=>{const e=g.ev.find(e=>e.k===k&&e.id===id),l=lg[g.id];return e&&l&&l.on&&(e.n||"")!==clean(l.n,120)});
+ if(!add.length&&before===after&&!notesChanged&&gBefore===gAfter&&!gNotes){f.err="Write a point, or tick a point or goal it supports.";return cfRe()}
  if(G.sw.length+add.length>200||!grRoom(add.length*700+400)){f.err="That's more than a SWOC can hold. Remove some points first.";return cfRe()}
  let linked=0,unlinked=0;
  G.sw.forEach(x=>{const i=x.ev.findIndex(e=>e.k===k&&e.id===id),l=f.lk[x.id],want=!!(l&&l.on);
   if(want&&i<0&&x.ev.length<20){x.ev.push(Object.assign({k,id},clean(l.n,120)?{n:clean(l.n,120)}:{}));linked++}
   else if(want&&i>=0){const n=clean(l.n,120);if(n)x.ev[i].n=n;else delete x.ev[i].n}
   else if(!want&&i>=0){x.ev.splice(i,1);unlinked++}});
+ let gl=0;GLs.forEach(g=>{const i=g.ev.findIndex(e=>e.k===k&&e.id===id),l=lg[g.id],want=!!(l&&l.on);
+  if(want&&i<0&&g.ev.length<20){g.ev.push(Object.assign({k,id},clean(l.n,120)?{n:clean(l.n,120)}:{}));gl++}
+  else if(want&&i>=0){const n=clean(l.n,120);if(n)g.ev[i].n=n;else delete g.ev[i].n}
+  else if(!want&&i>=0)g.ev.splice(i,1)});
  const d=isoD(new Date());add.forEach(p=>G.sw.push({id:cpId(),q:p.q,t:p.t,pil:p.pil,ev:[Object.assign({k,id},p.n?{n:p.n}:{})],d}));
- save();const bits=[add.length?"Added "+add.length+(add.length===1?" point":" points"):"",linked?"backed up "+linked:"",unlinked?"unlinked "+unlinked:""].filter(Boolean);
+ save();const bits=[add.length?"Added "+add.length+(add.length===1?" point":" points"):"",linked?"backed up "+linked:"",gl?"progress on "+gl+(gl===1?" goal":" goals"):"",unlinked?"unlinked "+unlinked:""].filter(Boolean);
  try{toast(bits.length?bits.join(", ").replace(/^./,c=>c.toUpperCase()):"Saved")}catch(e){}
  grUseBack()}
 (function(){const st=document.createElement("style");st.textContent=`.grh2{font-weight:800;font-size:1.05rem;margin:18px 0 6px;color:var(--ink)}
 .gup1{border:2px solid var(--line);border-radius:14px;padding:10px 12px 12px;margin:0 0 10px;background:var(--card)}.gup1 .chipw{flex:1}.gup1 .row{display:flex;gap:8px}
 .gus .gup{display:inline-block;margin:0 0 4px}.gul{margin:-2px 0 10px}.gru small{display:block;margin-top:2px}`;document.head.appendChild(st)})();
+
+
+/* ---------- v489: Development plan (goals), the third tab of Feedback and SWOC ----------
+   S.gr.gl=[{id,t,m,by,st:[{id,t,done,dn}],hp,sw:[swId],ev:[{k,id,n?}],pre,done,dn,oc,d}]
+   Only "what" is required; the SMART parts are optional and a gentle check says what's missing.
+   Preceptorship goals live here too (pre:true); the preceptorship page shows them. */
+const GL_MAX=100;
+function grGlNorm(G){const A=x=>Array.isArray(x)?x:[],str=(x,n)=>String(x==null?"":x).slice(0,n),okid=x=>/^[A-Za-z0-9_-]{1,40}$/.test(String(x==null?"":x)),day=x=>/^\d{4}-\d{2}-\d{2}$/.test(String(x)),today=isoD(new Date());
+ G.gl=A(G.gl).filter(g=>g&&typeof g==="object"&&okid(g.id)).slice(0,GL_MAX);
+ G.gl.forEach(g=>{g.id=String(g.id);g.t=str(g.t,200);g.m=str(g.m,300);g.by=day(g.by)?g.by:"";g.hp=str(g.hp,300);g.oc=str(g.oc,300);g.pre=!!g.pre;g.done=!!g.done;g.dn=g.done&&day(g.dn)?g.dn:(g.done?today:"");if(!day(g.d))g.d=today;
+  g.st=A(g.st).filter(x=>x&&typeof x==="object"&&okid(x.id)).slice(0,20).map(x=>Object.assign({id:String(x.id),t:str(x.t,160),done:!!x.done},x.done&&day(x.dn)?{dn:x.dn}:{}));
+  g.sw=A(g.sw).filter(okid).map(String).slice(0,10);
+  g.ev=A(g.ev).filter(e=>e&&(e.k==="fb"||e.k==="cpd")&&okid(e.id)).slice(0,20).map(e=>Object.assign({k:e.k,id:String(e.id)},e.n?{n:str(e.n,120)}:{}))});
+ /* preceptorship goals made before v489 move here once, keeping their ids */
+ try{const P=S.pre;if(P&&Array.isArray(P.gl)&&P.gl.length){P.gl.forEach(x=>{if(x&&okid(x.id)&&!G.gl.some(g=>g.id===String(x.id))&&G.gl.length<GL_MAX)G.gl.push({id:String(x.id),t:str(x.t,200),m:"",by:"",st:[],hp:"",sw:[],ev:[],pre:true,done:!!x.done,dn:x.done?today:"",oc:"",d:today})});P.gl=[];setTimeout(()=>{try{save()}catch(e){}},0)}}catch(e){}
+ return G}
+const grGl=()=>grS().gl;
+function grGlMiss(g){const m=[];if(!String(g.m||"").trim())m.push("how you'll know you've done it");if(!g.by)m.push("a date");if(!(g.st||[]).some(x=>String(x.t||"").trim()))m.push("the steps you'll take");return m}
+const grGlSmart=g=>!grGlMiss(g).length;
+function grGlMissTxt(g){const m=grGlMiss(g);if(!m.length)return "";return "Not SMART yet: add "+(m.length===1?m[0]:m.slice(0,-1).join(", ")+" and "+m[m.length-1])+"."}
+function grGlOver(){const t=isoD(new Date());return grGl().filter(g=>!g.done&&g.by&&g.by<t)}
+function grGlLine(g){const n=g.st.length,d=g.st.filter(x=>x.done).length,ev=g.ev.filter(e=>grEv(e)).length;
+ return [g.done?"Done "+dFmt(g.dn):g.by?"By "+dFmt(g.by):"No date",n?d+" of "+n+(n===1?" step":" steps"):"",ev?ev+(ev===1?" piece":" pieces")+" of progress":"",g.pre?"Preceptorship":""].filter(Boolean).join(" · ")}
+function grGlRow(g,back){return `<button class="opt grgl" onclick="grGlOpen('${esc(g.id)}','${back||"pl"}')"><div class="row"><b>${esc(g.t)}</b>${grGlSmart(g)?`<span class="bd t">SMART</span>`:""}</div><small style="color:var(--mute)">${esc(grGlLine(g))}</small></button>`}
+/* the Plan tab */
+function grPlH(G){const t=isoD(new Date()),open=G.gl.filter(g=>!g.done).sort((a,b)=>(a.by||"9999").localeCompare(b.by||"9999")||a.d.localeCompare(b.d)),done=G.gl.filter(g=>g.done).sort((a,b)=>String(b.dn).localeCompare(String(a.dn)));
+ let h=`<button class="go" onclick="grGlNew()">+ Add a goal</button>`;
+ const od=open.find(g=>g.by&&g.by<t);
+ if(od)h+=`<div class="note grod" role="status"><b>${esc(od.t)}</b> was due on ${esc(dFmt(od.by))}. Change the date, or mark it done.<button class="opt" style="text-align:center;margin:8px 0 0" onclick="grGlOpen('${esc(od.id)}','pl')">Open goal</button></div>`;
+ if(!G.gl.length)h+=`<div class="note">Turn what you've learned about your practice into goals. Start from a point in your SWOC, or write your own. Only the goal itself is needed; add a date, steps and how you'll know you've done it when you're ready.</div>`;
+ h+=open.map(g=>grGlRow(g,"pl")).join("");
+ if(done.length)h+=`<div class="sec">Done</div>`+done.map(g=>grGlRow(g,"pl")).join("");
+ if(G.gl.length)h+=`<div class="note">A development plan for supervision and appraisal. It's included when you export from the SWOC tab.</div>`;
+ return h}
+/* goals linked to a SWOC point, shown on the point */
+function grGlForPt(id){const L=grGl().filter(g=>g.sw.includes(id));
+ return `<div class="cfl" style="margin-top:14px">Goals</div>`+L.map(g=>grGlRow(g,"sw:"+id)).join("")+`<button class="opt" style="text-align:center" onclick="grGlFromPt('${esc(id)}')">+ Make a goal from this</button>`}
+function grGlFromPt(id){try{grRd();const f=grf,G=grS(),x=G.sw.find(i=>i.id===id),t=String(f&&f.t||"").replace(/\s+/g," ").trim().slice(0,200);
+  if(x&&f&&f.id===id&&t){x.t=t;x.q=f.q;x.pil=f.pil||"";x.ev=f.ev.filter(e=>grEv(e)).slice(0,20);save()}}catch(e){}
+ grGlNew({sw:[id],back:"sw:"+id})}
+function grGlNew(o){o=o||{};grf={k:"gl",id:null,t:"",m:"",by:"",st:[],hp:"",sw:o.sw||[],ev:o.ev||[],pre:!!o.pre,done:false,dn:"",oc:"",back:o.back||"pl",err:"",dv:false};tab="cpd";pf="gr";home();window.scrollTo(0,0)}
+function grGlOpen(id,back){const g=grGl().find(x=>x.id===id);if(!g)return;grf=Object.assign(JSON.parse(JSON.stringify(g)),{k:"gl",back:back||"pl",err:"",dv:false});tab="cpd";pf="gr";home();window.scrollTo(0,0)}
+function grGlBack(){const b=(grf&&grf.back)||"pl";grf=null;
+ if(b==="pre"){tab="cpd";pf="pre";home();window.scrollTo(0,0);return}
+ if(b.indexOf("sw:")===0){const id=b.slice(3);if(grS().sw.some(x=>x.id===id))return grItem(id)}
+ gv={v:"home",tab:"pl"};tab="cpd";pf="gr";home();window.scrollTo(0,0)}
+function grGlRd(){const f=grf;if(!f||f.k!=="gl")return;const g=id=>document.getElementById(id);
+ if(g("gl-t"))f.t=g("gl-t").value;if(g("gl-m"))f.m=g("gl-m").value;if(g("gl-by"))f.by=g("gl-by").value;if(g("gl-hp"))f.hp=g("gl-hp").value;if(g("gl-oc"))f.oc=g("gl-oc").value;
+ f.st.forEach((x,i)=>{const e=g("gl-s"+i);if(e)x.t=e.value});f.ev.forEach((e,i)=>{const n=g("gl-n"+i);if(n)e.n=n.value})}
+function grGlCk(){grGlRd();const e=document.getElementById("gl-ck");if(!e)return;const m=grGlMissTxt(grf);e.textContent=m||"SMART: specific, measurable, with steps and a date.";e.className="tag glck"+(m?"":" ok")}
+function grGlForm(){const f=grf,G=grS(),cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+ if(f.dv)return grGlDoneForm();
+ const back=f.back==="pre"?"Preceptorship":f.back.indexOf("sw:")===0?"Back to the point":"Plan";
+ const pts=f.sw.map(id=>G.sw.find(x=>x.id===id)).filter(Boolean),more=G.sw.filter(x=>!f.sw.includes(x.id)).sort((a,b)=>"wocs".indexOf(a.q)-"wocs".indexOf(b.q));
+ const has=(k,id)=>f.ev.some(e=>e.k===k&&e.id===id),linked=f.ev.map((e,i)=>({e,i,v:grEv(e)})).filter(x=>x.v);
+ const cps=(S.cpd||[]).filter(e=>e&&!e.auto&&!has("cpd",e.id)).slice().sort((a,b)=>String(b.d).localeCompare(String(a.d))).slice(0,40),fbs=grFbAll().filter(x=>!has("fb",x.id)).sort((a,b)=>b.d.localeCompare(a.d));
+ const miss=grGlMissTxt(f);
+ let h=head()+tabs()+bk("grGlRd();grGlBack()",back)+`<h1 style="font-size:1.5rem;margin:6px 0 2px">${f.id?"Goal":"New goal"}</h1>`+
+  (f.done?`<div class="note"><b>Done on ${esc(dFmt(f.dn))}.</b>${f.oc?`<br>${esc(f.oc)}`:""}</div>`:"")+
+  (f.err?`<div class="fb bad" role="alert"><b>${esc(f.err)}</b></div>`:"")+
+  `<label class="cfl" for="gl-t">What do you want to achieve?</label><input id="gl-t" class="cin" maxlength="200" value="${esc(f.t)}" placeholder="e.g. Manage tracheostomy care on my own" oninput="grGlCk()">`+
+  `<p id="gl-ck" class="tag glck${miss?"":" ok"}" aria-live="polite">${esc(miss||"SMART: specific, measurable, with steps and a date.")}</p>`+
+  `<label class="cfl" for="gl-m">How will you know you've done it? <span class="glop">(optional)</span></label><textarea id="gl-m" class="cin" rows="2" maxlength="300" placeholder="e.g. Signed off by my senior on three suction and tube changes" oninput="grGlCk()">${esc(f.m)}</textarea>`+
+  `<label class="cfl" for="gl-by">By when? <span class="glop">(optional)</span></label><input id="gl-by" class="cin" type="date" value="${esc(f.by)}" oninput="grGlCk()" onchange="grGlCk()">`+
+  `<div class="cfl">What will you do? <span class="glop">(optional)</span></div>`+
+  f.st.map((x,i)=>`<div class="grow glst"><button class="ock${x.done?" on":""}" role="checkbox" aria-checked="${!!x.done}" aria-label="Step ${i+1} done" onclick="grGlRd();grGlStT(${i})"><i>${x.done?"✓":""}</i></button><input id="gl-s${i}" class="cin" maxlength="160" value="${esc(x.t)}" aria-label="Step ${i+1}" oninput="grGlCk()"><button class="gx" aria-label="Remove step ${i+1}" onclick="grGlRd();grf.st.splice(${i},1);cfRe()">✕</button></div>`).join("")+
+  (f.st.length<20?`<div class="grow"><input id="gl-sn" class="cin" maxlength="160" placeholder="${f.st.length?"Add another step":"e.g. Shadow the respiratory team twice"}" aria-label="New step" onkeydown="if(event.key==='Enter'){event.preventDefault();grGlStAdd()}"><button class="gx gladd" onclick="grGlStAdd()">Add</button></div>`:"")+
+  `<label class="cfl" for="gl-hp">What help do you need? <span class="glop">(optional)</span></label><textarea id="gl-hp" class="cin" rows="2" maxlength="300" placeholder="e.g. Time with the respiratory team, and a supervisor to sign off" >${esc(f.hp)}</textarea>`+
+  (f.pre||showPre()?`<button class="ock${f.pre?" on":""}" role="checkbox" aria-checked="${!!f.pre}" style="margin-top:12px" onclick="grGlRd();grf.pre=!grf.pre;cfRe()"><i>${f.pre?"✓":""}</i><span>Part of my preceptorship</span></button>`:"")+
+  `<div class="cfl">SWOC points it works on <span class="glop">(optional)</span></div>`+
+  (pts.length?pts.map(x=>`<div class="grow"><div class="opt" style="margin:0;flex:1;cursor:default"><b style="font-weight:600;display:block">${esc(x.t)}</b><small style="color:var(--mute)">${esc(cap(grQ(x.q)[3]))}</small></div><button class="gx" aria-label="Unlink ${esc(x.t)}" onclick="grGlRd();grf.sw=grf.sw.filter(i=>i!=='${esc(x.id)}');cfRe()">✕</button></div>`).join(""):`<p class="tag" style="margin:0 0 6px">Link the weakness or opportunity this goal works on, and you can update it when you're done.</p>`)+
+  (more.length&&f.sw.length<10?`<details class="grd"><summary class="lnk" style="cursor:pointer">Link a SWOC point</summary><div style="margin-top:6px">${more.map(x=>`<button class="opt" style="margin:0 0 6px" onclick="grGlRd();grf.sw.push('${esc(x.id)}');cfRe()"><div class="row"><b style="font-weight:600">${esc(x.t)}</b><span>${esc(cap(grQ(x.q)[3]))}</span></div></button>`).join("")}</div></details>`:"")+
+  `<div class="cfl">Progress <span class="glop">(optional)</span></div>`+
+  (linked.length?linked.map(x=>`<div class="grow"><div class="opt" style="margin:0;flex:1;cursor:default"><b style="font-weight:600;display:block">${esc(x.v.t)}</b><small style="color:var(--mute)">${esc(x.v.s)}</small><input id="gl-n${x.i}" class="cin" maxlength="120" value="${esc(x.e.n||"")}" placeholder="What progress does it show? (optional)" aria-label="What progress ${esc(x.v.t)} shows" style="margin-top:6px"></div><button class="gx" aria-label="Unlink ${esc(x.v.t)}" onclick="grGlRd();grf.ev.splice(${x.i},1);cfRe()">✕</button></div>`).join(""):`<p class="tag" style="margin:0 0 6px">Link CPD entries or feedback that show your progress.</p>`)+
+  (f.ev.length<20&&cps.length?`<details class="grd"><summary class="lnk" style="cursor:pointer">Link a CPD entry</summary><div style="margin-top:6px">${cps.map(e=>`<button class="opt" style="margin:0 0 6px" onclick="grGlRd();grf.ev.push({k:'cpd',id:'${esc(e.id)}'});cfRe()"><div class="row"><b style="font-weight:600">${esc(e.t)}</b><span>${esc(dFmt(e.d))}</span></div></button>`).join("")}</div></details>`:"")+
+  (f.ev.length<20&&fbs.length?`<details class="grd"><summary class="lnk" style="cursor:pointer">Link feedback</summary><div style="margin-top:6px">${fbs.map(x=>`<button class="opt" style="margin:0 0 6px" onclick="grGlRd();grf.ev.push({k:'fb',id:'${esc(x.id)}'});cfRe()"><div class="row"><b style="font-weight:600">${esc(grWho(x))}</b><span>${esc(dFmt(x.d))}</span></div></button>`).join("")}</div></details>`:"")+
+  `<button class="go" onclick="grGlSave()">Save</button>`+
+  (f.id&&!f.done?`<button class="opt" style="text-align:center;margin-top:10px" onclick="grGlRd();grGlDoneStart()">Mark as done</button>`:"")+
+  (f.id&&f.done?`<button class="opt" style="text-align:center;margin-top:10px" onclick="grGlRd();grf.done=false;grf.dn='';grf.oc='';grGlSave()">Reopen</button>`:"")+
+  (f.id?`<button class="opt" style="text-align:center;margin-top:10px;${f.del?"border-color:var(--bad);color:var(--bad)":""}" onclick="grGlDel()">${f.del?"Tap again to delete":"Delete goal"}</button>`:"");
+ app.innerHTML=h}
+function grGlStT(i){const x=grf.st[i];if(!x)return;x.done=!x.done;if(x.done){x.dn=isoD(new Date());try{hap("ok")}catch(e){}}else delete x.dn;cfRe()}
+function grGlStAdd(){grGlRd();const e=document.getElementById("gl-sn"),t=e?e.value.replace(/\s+/g," ").trim().slice(0,160):"";if(!t||grf.st.length>=20)return;grf.st.push({id:cpId(),t,done:false});cfRe();setTimeout(()=>{const n=document.getElementById("gl-sn");if(n)n.focus()},30)}
+/* a step typed but not added yet is kept */
+function grGlTidy(f){const e=document.getElementById("gl-sn"),t=e?e.value.replace(/\s+/g," ").trim().slice(0,160):"";if(t&&f.st.length<20)f.st.push({id:cpId(),t,done:false});
+ const c=(s,n)=>String(s||"").replace(/\s+/g," ").trim().slice(0,n);
+ return {id:f.id||cpId(),t:c(f.t,200),m:String(f.m||"").trim().slice(0,300),by:/^\d{4}-\d{2}-\d{2}$/.test(f.by)?f.by:"",st:f.st.map(x=>Object.assign({id:x.id||cpId(),t:c(x.t,160),done:!!x.done},x.done&&x.dn?{dn:x.dn}:{})).filter(x=>x.t),hp:String(f.hp||"").trim().slice(0,300),
+  sw:f.sw.filter(id=>grS().sw.some(x=>x.id===id)).slice(0,10),ev:f.ev.filter(e=>grEv(e)).slice(0,20).map(e=>Object.assign({k:e.k,id:e.id},c(e.n,120)?{n:c(e.n,120)}:{})),pre:!!f.pre,done:!!f.done,dn:f.done?(f.dn||isoD(new Date())):"",oc:String(f.oc||"").trim().slice(0,300),d:f.d||isoD(new Date())}}
+function grGlPut(){grGlRd();const f=grf,G=grS(),o=grGlTidy(f);
+ if(!o.t){f.err="Say what you want to achieve.";cfRe();setTimeout(()=>{const e=document.getElementById("gl-t");if(e)e.focus()},30);return null}
+ const i=G.gl.findIndex(x=>x.id===o.id);
+ if(i<0&&(G.gl.length>=GL_MAX||!grRoom(1500))){f.err="Your plan is full. Delete a goal you don't need first.";cfRe();return null}
+ if(i>=0){o.d=G.gl[i].d;G.gl[i]=o}else G.gl.push(o);save();return {o,isNew:i<0}}
+function grGlSave(){const r=grGlPut();if(!r)return;try{toast(r.isNew?"Goal added":"Saved")}catch(e){}grGlBack()}
+function grGlDel(){const f=grf;if(!f.del){f.del=true;grGlRd();if(typeof armTap==="function"&&armTap(/^Delete goal$/,"Tap again to delete"))return;return cfRe()}const G=grS();G.gl=G.gl.filter(x=>x.id!==f.id);save();try{toast("Goal deleted")}catch(e){}grGlBack()}
+/* marking done: an optional outcome, and the chance to update the SWOC points it worked on */
+function grGlDoneStart(){const f=grf;if(!String(f.t||"").trim()){f.err="Say what you want to achieve.";return cfRe()}
+ f.dv=true;f.up={};f.sw.forEach(id=>{f.up[id]={ev:f.ev.some(e=>grEv(e)),s:false}});cfRe();window.scrollTo(0,0)}
+function grGlDoneForm(){const f=grf,G=grS(),cap=s=>s.charAt(0).toUpperCase()+s.slice(1),pts=f.sw.map(id=>G.sw.find(x=>x.id===id)).filter(Boolean),hasEv=f.ev.some(e=>grEv(e));
+ let h=head()+tabs()+bk("grGlRd();grf.dv=false;cfRe()","Goal")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">Mark as done</h1><p class="tag" style="margin:0 0 10px">${esc(f.t)}</p>`+
+  `<label class="cfl" for="gl-oc">What did you achieve? <span class="glop">(optional)</span></label><textarea id="gl-oc" class="cin" rows="3" maxlength="300" placeholder="e.g. Signed off on tracheostomy care on 12 March">${esc(f.oc)}</textarea>`;
+ if(pts.length){h+=`<div class="grh2" role="heading" aria-level="2">Update your SWOC</div>`+pts.map(x=>{const u=f.up[x.id]||{};
+   return `<div class="gup1"><b>${esc(x.t)}</b><small style="display:block;color:var(--mute);margin:0 0 6px">${esc(cap(grQ(x.q)[3]))}</small>`+
+    (hasEv?`<button class="ock${u.ev?" on":""}" role="checkbox" aria-checked="${!!u.ev}" onclick="grGlRd();grf.up['${esc(x.id)}'].ev=!grf.up['${esc(x.id)}'].ev;cfRe()"><i>${u.ev?"✓":""}</i><span>Add this goal's progress to it as evidence</span></button>`:"")+
+    (x.q==="w"?`<button class="ock${u.s?" on":""}" role="checkbox" aria-checked="${!!u.s}" onclick="grGlRd();grf.up['${esc(x.id)}'].s=!grf.up['${esc(x.id)}'].s;cfRe()"><i>${u.s?"✓":""}</i><span>It's a strength now: move it to strengths</span></button>`:"")+
+    (!hasEv&&x.q!=="w"?`<p class="tag" style="margin:0">Nothing to update. Link progress to the goal to add it here.</p>`:"")+`</div>`}).join("")}
+ else h+=`<p class="tag">Link a SWOC point to a goal, and you can update it here when you finish.</p>`;
+ h+=`<button class="go" onclick="grGlDone()">Mark as done</button><button class="opt" style="text-align:center;margin-top:10px" onclick="grGlRd();grf.dv=false;cfRe()">Cancel</button>`;
+ app.innerHTML=h}
+function grGlDone(){grGlRd();const f=grf,G=grS();f.done=true;f.dn=isoD(new Date());const up=f.up||{},evs=f.ev.filter(e=>grEv(e));
+ const r=grGlPut();if(!r)return;let moved=0,added=0;
+ f.sw.forEach(id=>{const x=G.sw.find(i=>i.id===id),u=up[id];if(!x||!u)return;
+  if(u.ev)evs.forEach(e=>{if(x.ev.length<20&&!x.ev.some(z=>z.k===e.k&&z.id===e.id)){x.ev.push(Object.assign({k:e.k,id:e.id},e.n?{n:e.n}:{}));added++}});
+  if(u.s&&x.q==="w"){x.q="s";moved++}});
+ save();try{toast(["Goal done",moved?(moved===1?"1 point moved to strengths":moved+" points moved to strengths"):"",added?"evidence added":""].filter(Boolean).join(", "))}catch(e){}
+ grGlBack()}
+/* export */
+function grGlText(){const G=grS();if(!G.gl.length)return "";const L=G.gl.slice().sort((a,b)=>(a.done-b.done)||((a.by||"9999").localeCompare(b.by||"9999")));
+ let t="\nDEVELOPMENT PLAN\n";L.forEach(g=>{t+="\n- "+g.t+(g.done?" (done "+dFmt(g.dn)+")":g.by?" (by "+dFmt(g.by)+")":"")+(g.pre?" [preceptorship]":"")+"\n";
+  if(g.m)t+="    How I'll know: "+g.m+"\n";
+  if(g.st.length)t+=g.st.map(x=>"    ["+(x.done?"x":" ")+"] "+x.t+"\n").join("");
+  if(g.hp)t+="    Help needed: "+g.hp+"\n";
+  const pts=g.sw.map(id=>G.sw.find(x=>x.id===id)).filter(Boolean);if(pts.length)t+="    Works on: "+pts.map(x=>x.t+" ("+grQ(x.q)[3]+")").join("; ")+"\n";
+  g.ev.map(e=>({e,v:grEv(e)})).filter(z=>z.v).forEach(z=>{t+="    Progress: "+z.v.t+", "+z.v.s+(z.e.n?": “"+z.e.n+"”":"")+"\n"});
+  if(g.done&&g.oc)t+="    Outcome: "+g.oc+"\n"});
+ return t}
+/* preceptorship shows its goals from here */
+function preGl(){try{return grGl().filter(g=>g.pre)}catch(e){return []}}
+(function(){const st=document.createElement("style");st.textContent=`.glop{font-weight:500;color:var(--mute)}.glck{margin:6px 0 0}.glck.ok{color:var(--ok)}
+.glst .ock{flex:none;width:44px;margin:0;padding:0;justify-content:center;align-items:center}.glst .cin{flex:1;margin:0}.gladd{width:auto!important;padding:0 14px;color:var(--pri-ink)!important;background:var(--pri)!important;border-color:var(--pri)!important;font-weight:700}
+.grgl .bd{flex:none}#app .go+.grgl,#app .grod+.grgl{margin-top:12px}`;document.head.appendChild(st)})();
 
 
 /* ---------- Phyzly Portfolio (early access): Portfolio and Profile only, plus Quick ref and feedback ---------- */
