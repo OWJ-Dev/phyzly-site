@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Give feedback · Phyzly</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#0A1F3D">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<style>
+@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format("woff2")}
+@font-face{font-family:Inter;font-style:normal;font-weight:800;font-display:swap;src:url(/fonts/inter-latin-800-normal.woff2) format("woff2")}
+:root{--navy:#0A1F3D;--coral:#FF6B57;--blue:#1A6BFF;--ink:#0A1F3D;--mute:#5B6B82;--line:#DCE4F0;--bg:#F4F6FA;--bad:#C0392B;--badbg:#FBE4E0}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;font-size:17px;line-height:1.5;-webkit-font-smoothing:antialiased}
+header{background:var(--navy);color:#fff;padding:22px 16px 30px;border-radius:0 0 28px 28px}
+.in{max-width:620px;margin:0 auto}
+.wm{font-weight:800;font-size:1.35rem;letter-spacing:-.02em}.wm span{color:var(--coral)}
+h1{font-size:1.75rem;line-height:1.2;font-weight:800;letter-spacing:-.02em;margin:18px 0 6px;overflow-wrap:anywhere}
+header p{margin:0;color:rgba(255,255,255,.72);overflow-wrap:anywhere}
+main{padding:16px 16px 40px}
+label,.lab{display:block;font-weight:800;margin:18px 0 6px}
+.opt{font-weight:400;color:var(--mute)}
+.hint{color:var(--mute);font-size:.92rem;margin:-2px 0 6px}
+input[type=text],textarea{width:100%;font:inherit;color:var(--ink);background:#fff;border:2px solid var(--line);border-radius:14px;padding:12px 14px}
+textarea{min-height:120px;resize:vertical}
+input:focus-visible,textarea:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid #8FB4FF;outline-offset:2px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips label{margin:0;font-weight:600;font-size:.95rem;cursor:pointer}
+.chips input{position:absolute;opacity:0;width:1px;height:1px}
+.chips span{display:inline-block;border:2px solid var(--line);background:#fff;border-radius:999px;padding:8px 14px}
+.chips input:checked+span{background:var(--blue);border-color:var(--blue);color:#fff}
+.chips input:focus-visible+span{outline:3px solid #8FB4FF;outline-offset:2px}
+.note{background:#fff;border:2px solid var(--line);border-radius:14px;padding:12px 14px;margin:20px 0 0}
+.note b{display:block}
+.ck{display:flex;gap:12px;align-items:flex-start;background:#fff;border:2px solid var(--line);border-radius:14px;padding:12px 14px;margin:12px 0 0;font-weight:600;cursor:pointer}
+.ck input{width:22px;height:22px;margin:2px 0 0;flex:none;accent-color:var(--blue)}
+button.go{display:block;width:100%;margin:18px 0 0;border:0;border-radius:999px;background:var(--navy);color:#fff;font:inherit;font-weight:800;padding:16px;cursor:pointer}
+button.go[disabled]{opacity:.55;cursor:default}
+.err{background:var(--badbg);color:var(--bad);font-weight:800;border-radius:14px;padding:12px 14px;margin:16px 0 0}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+details{margin:26px 0 0;color:var(--mute);font-size:.92rem}
+details summary{cursor:pointer;font-weight:600;color:var(--ink)}
+details p{margin:8px 0 0}
+a{color:var(--blue)}
+.big{font-size:1.1rem}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<header><div class="in">
+<div class="wm" aria-label="Phyzly">Phy<span>z</span>ly</div>
+<h1 id="h">Give feedback</h1>
+<p id="sub">One moment…</p>
+</div></header>
+<main><div class="in">
+
+<div id="bad" hidden>
+<p class="big" id="badt"></p>
+<p id="badd" style="color:var(--mute)"></p>
+</div>
+
+<form id="f" hidden novalidate>
+<label for="role">Your role</label>
+<input type="text" id="role" maxlength="80" autocomplete="organization-title" placeholder="e.g. Band 7 respiratory physiotherapist">
+
+<label for="name">Your name <span class="opt">(optional)</span></label>
+<p class="hint">Leave this blank if you'd rather give your role only.</p>
+<input type="text" id="name" maxlength="80" autocomplete="name">
+
+<div class="lab" id="rl">You are their…</div>
+<div class="chips" role="radiogroup" aria-labelledby="rl">
+<label><input type="radio" name="rel" value="sen" checked><span>Senior or supervisor</span></label>
+<label><input type="radio" name="rel" value="peer"><span>Peer</span></label>
+<label><input type="radio" name="rel" value="jun"><span>Student or junior they supervised</span></label>
+<label><input type="radio" name="rel" value="mdt"><span>Colleague from another profession</span></label>
+<label><input type="radio" name="rel" value="oth"><span>Someone else</span></label>
+</div>
+
+<label for="well">What do they do well?</label>
+<textarea id="well" maxlength="2000"></textarea>
+
+<label for="work">What could they work on?</label>
+<textarea id="work" maxlength="2000"></textarea>
+
+<label for="other">Anything else? <span class="opt">(optional)</span></label>
+<textarea id="other" maxlength="2000" style="min-height:90px"></textarea>
+
+<div class="hp" aria-hidden="true"><label for="website">Leave this empty</label><input type="text" id="website" tabindex="-1" autocomplete="off"></div>
+
+<div class="note"><b>Before you send</b><span id="n1"></span></div>
+<label class="ck"><input type="checkbox" id="agree"><span id="agl"></span></label>
+
+<div class="err" id="err" role="alert" hidden></div>
+<button class="go" id="go" type="submit">Send feedback</button>
+
+<details>
+<summary>How your information is used</summary>
+<!-- Address: the owner's current address (14 Nov 2026). Change it here, in pz_legal.js (PZL_ADDR) and at the ICO when the service address is ready. -->
+<p>Phyzly is run by Oliver Jones, trading as Phyzly, <span id="addr">13 Naseby House, Rothwell Road, Kettering, NN16 8WB</span>, who is responsible for the information on this page (ICO registration ZC298395). Contact: <a href="mailto:hello@phyzly.app">hello@phyzly.app</a>.</p>
+<p><b>What is kept:</b> your role, your name if you give it, your relationship to the person who asked, and what you write. No email address is collected. This page has no cookies, no tracking and no analytics.</p>
+<p><b>Why, and our lawful basis:</b> so the person who asked can read your feedback and use it for their professional development. We rely on legitimate interests: theirs in getting feedback from colleagues, and ours in providing the tool.</p>
+<p><b>Who sees it:</b> only the person who sent you this link, in their own Phyzly account. Phyzly's owner can access the database to keep the service running, and looks at content only to fix a reported problem or when the law requires it.</p>
+<p><b>How long:</b> until that person deletes it or closes their account.</p>
+<p><b>Where:</b> in London, with our database provider, Supabase, which acts only on our instructions. Its support staff and technical logs may be outside the UK, under safeguards approved for that purpose.</p>
+<p><b>Your rights:</b> you can ask for a copy of your feedback, or for it to be corrected or deleted, and you can object to it being kept. Ask the person you sent it to, or email us with their first name and the date you sent it. We'll reply within one month.</p>
+<p><b>Complaints:</b> email <a href="mailto:hello@phyzly.app">hello@phyzly.app</a> and we'll acknowledge within 30 days. You can also complain to the Information Commissioner's Office at ico.org.uk.</p>
+<p><b>Rules:</b> don't write anything abusive, threatening or illegal, and don't include web addresses. The person you send it to can report feedback to us. See the <a href="/terms.html">Terms</a> and the <a href="/privacy.html">Privacy policy</a>.</p>
+</details>
+</form>
+
+<div id="done" hidden>
+<p class="big" id="donet"></p>
+<p style="color:var(--mute)">You can close this page now.</p>
+</div>
+
+</div></main>
+<script>
+(function(){
+  "use strict";
+  var CFG = window.PZ_CFG || { url: "https://lrbxghrhxabnqvfgxrad.supabase.co", key: "sb_publishable_XjivnIAnqcuxpwN5j18Bpw_HnaazWPf" };
+  var $ = function(id){ return document.getElementById(id); };
+  var m = /(?:^#|[#&])t=([0-9a-f]{64})(?:&|$)/.exec(location.hash || ""), token = m ? m[1] : "", name = "", busy = false;
+  function show(id){ ["bad", "f", "done"].forEach(function(k){ $(k).hidden = k !== id; }); }
+  function bad(title, detail){ $("h").textContent = "Give feedback"; $("sub").textContent = ""; $("badt").textContent = title; $("badd").textContent = detail || ""; show("bad"); document.title = "Give feedback · Phyzly"; }
+  function rpc(fn, body){
+    var ac = new AbortController(), t = setTimeout(function(){ ac.abort(); }, 20000);
+    return fetch(CFG.url + "/rest/v1/rpc/" + fn, { method: "POST", signal: ac.signal, cache: "no-store", credentials: "omit", referrerPolicy: "no-referrer",
+      headers: { "Content-Type": "application/json", "apikey": CFG.key, "Authorization": "Bearer " + CFG.key }, body: JSON.stringify(body) })
+      .then(function(r){ clearTimeout(t); if (!r.ok) throw new Error("http " + r.status); return r.json(); }, function(e){ clearTimeout(t); throw e; });
+  }
+  var WHY = {
+    missing: ["This link isn't valid.", "Check you copied the whole link, or ask the person who sent it for a new one."],
+    used: ["This link has already been used.", "Each link takes one piece of feedback. If you'd like to add more, ask them for a new link."],
+    expired: ["This link has expired.", "Links work for 30 days. Ask the person who sent it for a new one."]
+  };
+  function why(k){ var w = WHY[k] || WHY.missing; bad(w[0], w[1]); }
+  function err(t){ var e = $("err"); e.textContent = t; e.hidden = !t; }
+  if (!token) return why("missing");
+  rpc("feedback_request_open", { p_token: token }).then(function(d){
+    if (!d || d.ok !== true) return why(d && d.why);
+    name = String(d.first_name || "").slice(0, 40) || "your colleague";
+    var ctx = String(d.context || "").slice(0, 80);
+    document.title = "Feedback for " + name + " · Phyzly";
+    $("h").textContent = "Feedback for " + name;
+    $("sub").textContent = name + " has asked for your feedback on their practice" + (ctx ? ": " + ctx : "") + ". It takes a few minutes.";
+    $("n1").textContent = "Please don't include patient names or details, or web addresses. Your feedback goes to " + name + " only. They'll see your role, and your name if you give it. They may keep it in their portfolio and share it for their development, for example at supervision, at appraisal or in a job application.";
+    $("agl").textContent = "I'm happy for " + name + " to keep and use my feedback in this way.";
+    show("f");
+  }, function(){ bad("We couldn't open this link just now.", "Check your connection, then reload the page. Your link hasn't been used."); });
+  $("f").addEventListener("submit", function(ev){
+    ev.preventDefault(); if (busy) return;
+    var v = function(id){ return $(id).value.replace(/\s+$/, "").replace(/^\s+/, ""); };
+    var role = v("role"), well = v("well"), work = v("work"), other = v("other"), rel = (document.querySelector('input[name=rel]:checked') || {}).value || "oth";
+    if ($("website").value) return;                                   /* filled only by automated form-fillers */
+    if (!role){ err("Add your role, so " + name + " knows who the feedback is from."); $("role").focus(); return; }
+    if (!well && !work && !other){ err("Write something in at least one of the boxes."); $("well").focus(); return; }
+    if (/(https?:|www\.|[a-z0-9-]\.(com|net|org|uk|io|info|biz|xyz|ru|cn|onion|gov|edu)(\/|\b))/i.test([v("name"), role, well, work, other].join(" "))){ err("Please take out any web or email addresses. Feedback can't include them."); return; }
+    if (!$("agree").checked){ err("Tick the box to say you're happy for " + name + " to keep your feedback."); $("agree").focus(); return; }
+    err(""); busy = true; $("go").disabled = true; $("go").textContent = "Sending…";
+    rpc("feedback_request_answer", { p_token: token, p_name: v("name"), p_role: role, p_rel: rel, p_well: well, p_work: work, p_other: other }).then(function(d){
+      if (d && d.ok === true){
+        try{ history.replaceState(null, "", location.pathname); }catch(e){}
+        $("h").textContent = "Thank you"; $("sub").textContent = ""; $("donet").textContent = "Your feedback has been sent to " + name + "."; show("done"); window.scrollTo(0, 0); return;
+      }
+      busy = false; $("go").disabled = false; $("go").textContent = "Send feedback";
+      var k = d && d.why;
+      if (k === "used" || k === "expired" || k === "missing") return why(k);
+      err(k === "link" ? "Please take out any web or email addresses. Feedback can't include them." : k === "role" ? "Add your role (up to 80 characters)." : k === "long" ? "One of the boxes is too long. Shorten it to 2,000 characters." : k === "empty" ? "Write something in at least one of the boxes." : "That didn't send. Try again.");
+    }, function(){ busy = false; $("go").disabled = false; $("go").textContent = "Send feedback"; err("That didn't send. Check your connection and try again. Nothing you've written has been lost."); });
+  });
+})();
+</script>
+</body>
+</html>
