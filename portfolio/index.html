@@ -14613,12 +14613,12 @@ function abAfter(){const A=document.getElementById("app");if(!A||tab!=="me")retu
  A.querySelectorAll(".mgrp").forEach(g=>{if(!g.querySelector(".mrow")&&!g.classList.contains("mraw")){const h=g.previousElementSibling;if(h&&h.classList.contains("mgh"))h.remove();g.remove()}});
  if(abOn){const band=A.querySelector(".nvband");
   if(band){[...A.children].forEach(e=>{if(e!==band)e.remove()});[...band.children].forEach(e=>{if(!e.matches(".top"))e.remove()});band.classList.remove("nvtab","nvme");band.classList.add("nvsubpg");
-   band.insertAdjacentHTML("beforeend",`<button class="lnk" onclick="abBack()">‹ Profile</button><h1>About you</h1>`);const c=document.createElement("div");c.className="mcard abc";c.innerHTML=abHtml();band.after(c)}
-  else{const top=A.querySelector(".top");A.innerHTML=(top?top.outerHTML:"")+`<button class="lnk" onclick="abBack()">‹ Profile</button><h1 style="font-size:1.5rem;margin:6px 0 10px">About you</h1><div class="abc">${abHtml()}</div>`}
+   band.insertAdjacentHTML("beforeend",`<button class="lnk" onclick="abBack()">‹ Profile</button><h1>Your details</h1>`);const c=document.createElement("div");c.className="mcard abc";c.innerHTML=abHtml();band.after(c)}
+  else{const top=A.querySelector(".top");A.innerHTML=(top?top.outerHTML:"")+`<button class="lnk" onclick="abBack()">‹ Profile</button><h1 style="font-size:1.5rem;margin:6px 0 10px">Your details</h1><div class="abc">${abHtml()}</div>`}
   return}
  if(A.querySelector(".abg")||A.querySelector(".nvsubpg"))return;try{if(typeof meV!=="undefined"&&meV==="kit")return}catch(e){}
  const first=A.querySelector(".mgh,.mgrp");if(!first||!S.role)return;const ch=(A.querySelector(".mrow .mchv")||{}).outerHTML||"";
- first.insertAdjacentHTML("beforebegin",`<div class="mgh abg">About you</div><div class="mgrp"><button class="mrow" onclick="abGo()"><span class="msq" style="background:#0A1F3D"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${AB_IC}</svg></span><span class="mtx"><span class="mlb">Role, area and HCPC details</span></span><span class="mval">${esc(abSum())}</span>${ch}</button></div>`);
+ first.insertAdjacentHTML("beforebegin",`<div class="mgh abg">About you</div><div class="mgrp"><button class="mrow" onclick="abGo()"><span class="msq" style="background:#0A1F3D"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${AB_IC}</svg></span><span class="mtx"><span class="mlb">Your details</span></span><span class="mval">${esc(abSum())}</span>${ch}</button></div>`);
 }
 {const msA=meScreen;meScreen=function(){const r=msA.apply(this,arguments);try{abAfter()}catch(e){console.error("v494",e)}return r}}
 {const ngA=window.navGo;if(typeof ngA==="function")window.navGo=function(){abOn=false;return ngA.apply(this,arguments)}}
@@ -14670,8 +14670,8 @@ function crItems(){const a=S.about||{},E=(Array.isArray(a.hist)?a.hist:[]).map(e
  return E.concat(M).sort((p,q)=>p.s!==q.s?(p.s<q.s?1:-1):p.k!==q.k?(p.k==="e"?-1:1):0)}
 function crCount(){const a=S.about||{};return (Array.isArray(a.hist)?a.hist.length:0)+(Array.isArray(a.ms)?a.ms.length:0)}
 function crPage(){const a=S.about||{},now=abStage(),cur=a.area?crAreaL(a.area,a.areaTx):"",W=crWord();let h="";
- h+=`<p class="tag crin">Your ${W==="placement"?"placements":"rotations and posts"}, and when you moved band. Finish your current ${W} in About you to add it here, or add past ones yourself.</p>`;
- h+=`<div class="crnow"><div class="crnl">Now</div><div class="crnb">${esc(crStLbl(now)||"Not set")}</div><div class="crna">${cur?esc(cur)+(a.since?" · since "+esc(crML(a.since)):""):`No current ${W} set. <button class="lnk aul" onclick="abGo()">Add it in About you</button>`}</div></div>`;
+ h+=`<p class="tag crin">Your ${W==="placement"?"placements":"rotations and posts"}, and when you moved band. Finish your current ${W} in Your details to add it here, or add past ones yourself.</p>`;
+ h+=`<div class="crnow"><div class="crnl">Now</div><div class="crnb">${esc(crStLbl(now)||"Not set")}</div><div class="crna">${cur?esc(cur)+(a.since?" · since "+esc(crML(a.since)):""):`No current ${W} set. <button class="lnk aul" onclick="abGo()">Add it in Your details</button>`}</div></div>`;
  if(crEd)h+=crEdHtml();
  else h+=`<div class="crbtns"><button class="opt" onclick="crEdNew('e')">Add a past ${W==="placement"?"placement":"rotation or post"}</button><button class="opt" onclick="crEdNew('m')">Add a band or role change</button></div>`;
  const I=crItems();
@@ -14745,7 +14745,7 @@ function crRotBack(){crV=null;abPg="career";abOn=true;meScreen();window.scrollTo
 function crNote(v){v=String(v||"").slice(0,2000);const id=crV&&crV.id;if(!id)return;if(id==="cur")abA().n=v||undefined;else{const e=crH().find(x=>x.id===id);if(e)e.n=v||undefined}abSave()}
 function crRotHtml(){const R=crRotGet(crV&&crV.id);if(!R)return `<p class="tag">This has been deleted.</p>`;const D=crData(R),W=R.w,len=crLen(R);let h="";
  h+=`<p class="crrs">${esc(crStLbl(R.st))} · ${esc(crDates(R))}${len?" · "+esc(len):""}</p>`;
- if(R.cur&&!R.f)h+=`<div class="note">Add the month this ${W} started in <button class="lnk aul" onclick="abGo()">About you</button> to see what you've done in it.</div>`;
+ if(R.cur&&!R.f)h+=`<div class="note">Add the month this ${W} started in <button class="lnk aul" onclick="abGo()">Your details</button> to see what you've done in it.</div>`;
  h+=`<div class="crst">${[[D.cpd.length,D.cpd.length===1?"CPD activity":"CPD activities"],[crHrs(D.min),"hours of CPD"],[D.fb.length,D.fb.length===1?"piece of feedback":"pieces of feedback"],[D.gl.length,D.gl.length===1?"plan goal":"plan goals"]].map(x=>`<div><b>${esc(String(x[0]))}</b><span>${x[1]}</span></div>`).join("")}</div>`;
  h+=`<label class="abh" for="cr-n" style="display:block">What you learnt</label><p class="tag abp">Optional. A few lines in your own words. It goes in the summary you download.</p><textarea id="cr-n" class="cin crn" rows="4" maxlength="2000" placeholder="e.g. Confident with suction and airway clearance. Led my first MDT discussion." oninput="crNote(this.value)">${esc(R.n||"")}</textarea>`;
  h+=`<div class="abh">CPD</div>`+(D.cpd.length?`<div class="mgrp crl">${D.cpd.slice().reverse().map(e=>`<div class="mrow crro"><span class="mtx"><span class="mlb">${esc(e.t||"Untitled")}</span><span class="crd">${esc(xpNice(e.d))} · ${esc(cptn(e.ty))} · ${esc(fmtH(+e.m||0))}</span></span></div>`).join("")}</div>`:`<p class="tag">No CPD logged in these dates.</p>`);
