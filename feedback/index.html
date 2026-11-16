@@ -73,7 +73,7 @@ a{color:var(--blue)}
 
 <div class="lab" id="rl">You are their…</div>
 <div class="chips" role="radiogroup" aria-labelledby="rl">
-<label><input type="radio" name="rel" value="sen" checked><span>Senior or supervisor</span></label>
+<label><input type="radio" name="rel" value="sen"><span>Senior or supervisor</span></label>
 <label><input type="radio" name="rel" value="peer"><span>Peer</span></label>
 <label><input type="radio" name="rel" value="jun"><span>Student or junior they supervised</span></label>
 <label><input type="radio" name="rel" value="mdt"><span>Colleague from another profession</span></label>
@@ -109,7 +109,7 @@ a{color:var(--blue)}
 <p><b>Where:</b> in London, with our database provider, Supabase, which acts only on our instructions. Its support staff and technical logs may be outside the UK, under safeguards approved for that purpose.</p>
 <p><b>Your rights:</b> you can ask for a copy of your feedback, or for it to be corrected or deleted, and you can object to it being kept. Ask the person you sent it to, or email us with their first name and the date you sent it. We'll reply within one month.</p>
 <p><b>Complaints:</b> email <a href="mailto:hello@phyzly.app">hello@phyzly.app</a> and we'll acknowledge within 30 days. You can also complain to the Information Commissioner's Office at ico.org.uk.</p>
-<p><b>Rules:</b> don't write anything abusive, threatening or illegal, and don't include web addresses. The person you send it to can report feedback to us. See the <a href="/terms.html">Terms</a> and the <a href="/privacy.html">Privacy policy</a>.</p>
+<p><b>Rules:</b> don't write anything abusive, threatening or illegal, and don't include web or email addresses. The person you send it to can report feedback to us. See the <a href="/terms.html">Terms</a> and the <a href="/privacy.html">Privacy policy</a>.</p>
 </details>
 </form>
 
@@ -148,18 +148,24 @@ a{color:var(--blue)}
     document.title = "Feedback for " + name + " · Phyzly";
     $("h").textContent = "Feedback for " + name;
     $("sub").textContent = name + " has asked for your feedback on their practice" + (ctx ? ": " + ctx : "") + ". It takes a few minutes.";
-    $("n1").textContent = "Please don't include patient names or details, or web addresses. Your feedback goes to " + name + " only. They'll see your role, and your name if you give it. They may keep it in their portfolio and share it for their development, for example at supervision, at appraisal or in a job application.";
+    $("n1").textContent = "Please don't include patient names or details, or web or email addresses. Your feedback goes to " + name + " only. They'll see your role, and your name if you give it. They may keep it in their portfolio and share it for their development, for example at supervision, at appraisal or in a job application.";
     $("agl").textContent = "I'm happy for " + name + " to keep and use my feedback in this way.";
     show("f");
   }, function(){ bad("We couldn't open this link just now.", "Check your connection, then reload the page. Your link hasn't been used."); });
+  /* web or email addresses: the same rules as the database (backend/012, public.fb_has_link). Lower-case only for a
+     bare domain, so a missing space ("Handover.Info") isn't mistaken for one. */
+  var TLD = "com|net|org|uk|io|info|biz|xyz|ru|cn|onion|gov|edu|scot|wales|cymru|ie|app|ly|co|me|dev|ai|tv|us|eu|nz|au|ca|link|site|online|page|gl|gd|ws";
+  function hasLink(t){ t = String(t || ""); return /(https?:|www\.)/i.test(t) || /[^\s@]@[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}/i.test(t) ||
+    new RegExp("[a-z0-9-]\\.(" + TLD + ")(\\/|\\b)").test(t) || new RegExp("[a-z0-9-]\\.(" + TLD + ")\\/", "i").test(t); }
   $("f").addEventListener("submit", function(ev){
     ev.preventDefault(); if (busy) return;
     var v = function(id){ return $(id).value.replace(/\s+$/, "").replace(/^\s+/, ""); };
-    var role = v("role"), well = v("well"), work = v("work"), other = v("other"), rel = (document.querySelector('input[name=rel]:checked') || {}).value || "oth";
+    var role = v("role"), well = v("well"), work = v("work"), other = v("other"), rel = (document.querySelector('input[name=rel]:checked') || {}).value || "";
     if ($("website").value) return;                                   /* filled only by automated form-fillers */
     if (!role){ err("Add your role, so " + name + " knows who the feedback is from."); $("role").focus(); return; }
+    if (!rel){ err("Choose how you know " + name + "."); document.querySelector('input[name=rel]').focus(); return; }
     if (!well && !work && !other){ err("Write something in at least one of the boxes."); $("well").focus(); return; }
-    if (/(https?:|www\.|[a-z0-9-]\.(com|net|org|uk|io|info|biz|xyz|ru|cn|onion|gov|edu)(\/|\b))/i.test([v("name"), role, well, work, other].join(" "))){ err("Please take out any web or email addresses. Feedback can't include them."); return; }
+    if (hasLink([v("name"), role, well, work, other].join(" "))){ err("Please take out any web or email addresses. Feedback can't include them."); return; }
     if (!$("agree").checked){ err("Tick the box to say you're happy for " + name + " to keep your feedback."); $("agree").focus(); return; }
     err(""); busy = true; $("go").disabled = true; $("go").textContent = "Sending…";
     rpc("feedback_request_answer", { p_token: token, p_name: v("name"), p_role: role, p_rel: rel, p_well: well, p_work: work, p_other: other }).then(function(d){

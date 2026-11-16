@@ -8055,7 +8055,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
  }catch(e){console.error("v281",e)}
 
  /* ---------- v282: tester version: report a problem, feedback, welcome note ---------- */
- const RP_VER="v509";let rpCtx=null,rpCat=null;
+ const RP_VER="v510";let rpCtx=null,rpCat=null;
  function rpBtn(kind,id,i){return `<button class="rpb" onclick="rpOpen('${kind}','${id}',${i})">⚑ Report a problem with this card</button>`}
  function rpCtxFor(kind,id,i){try{
   if(kind==="c"){const c=LEARN[id][i],cd=typeof COND!=="undefined"&&COND.find(x=>x.id===id);return {kind:"card",layer:id,card:i,title:c.t,where:(cd?"Condition: "+cd.n:(typeof tn==="function"?tn(id):id))+" · card "+(i+1)+": "+c.t}}
@@ -12889,7 +12889,7 @@ function pzlTerms(inApp){const L=pzlLinks();let n=0;const H=t=>pzlH((++n)+". "+t
  H("Your content")+pzlP("Everything you add to your portfolio stays yours. You give us permission to store it, back it up and show it to you on your devices, and nothing more. We don't use it for advertising or to train AI.")+pzlP("You're responsible for what you add. You can export it or delete it at any time.")+
  H("Rules for using Phyzly")+pzlP("You agree that you won't:")+pzlU(["add patient names, dates of birth, NHS or hospital numbers, photos of patients or anything else that could identify a patient;","add confidential information that belongs to your employer, university or placement provider unless you're allowed to keep it;","add more about another person than you need. Use a role instead of a name where you can;","add anything unlawful, abusive or misleading, or anything that infringes someone else's rights;","try to get into anyone else's account, interfere with how Phyzly works or copy it for another product."])+pzlP("You remain responsible for following your regulator's standards and your employer's or university's policies, including on confidentiality and record keeping.")+
  (L?H("Asking for feedback")+pzlP("You can make a link to ask someone for feedback on your practice.")+pzlU(["Send each link only to the one person you're asking, and only to people who know you through your work or study.","Don't send links to patients or their families.","What they write is their own view. We don't check it and aren't responsible for it.","You can't edit feedback that arrives this way. You can delete it.","If the person asks you to delete their feedback, please do. If they ask us, we may remove it and will tell you.","If feedback is abusive, or includes something it shouldn't, use Report this feedback. We'll look at it and may remove it."])+
- H("Illegal content and reports")+pzlU(["Feedback sent through a link must not contain anything illegal, abusive or threatening, and must not contain web addresses.","We don't read feedback before it reaches you, and we don't use automated tools to scan it.","If you report a piece of feedback, Oliver reads that piece only, usually within 48 hours. If it is illegal or breaks these terms, we delete it.","We email you the outcome, within 30 days at most.",`If we remove something you wrote, or restrict your account, and you think we got it wrong, email ${pzlM}. We'll decide within 14 days and put it right where we can.`,"We report child sexual abuse material to the National Crime Agency, as the law requires."]):"")+
+ H("Illegal content and reports")+pzlU(["Feedback sent through a link must not contain anything illegal, abusive or threatening, and must not contain web or email addresses.","We don't read feedback before it reaches you, and we don't use automated tools to scan it.","If you report a piece of feedback, Oliver reads that piece only, usually within 48 hours. If it is illegal or breaks these terms, we delete it.","We email you the outcome, within 30 days at most.",`If we remove something you wrote, or restrict your account, and you think we got it wrong, email ${pzlM}. We'll decide within 14 days and put it right where we can.`,"We report child sexual abuse material to the National Crime Agency, as the law requires."]):"")+
  H("What Phyzly is not")+pzlU(["<b>Not clinical advice.</b> Phyzly helps you learn and keep records. It doesn't replace your training, your clinical judgement, supervision, local policies or national guidance.","<b>Not an official record.</b> Your employer's, university's and the HCPC's records are the official ones. Phyzly isn't endorsed by or connected to the HCPC, the NHS or the Chartered Society of Physiotherapy.","<b>No guarantee of an outcome.</b> We can't promise that using Phyzly will meet any audit, appraisal, course or job requirement. Check what your regulator, employer or university asks for."])+
  H("Our content")+pzlP("The Phyzly name, design, software and written content belong to us or to those who license them to us. You may use Phyzly for your own learning and professional development. You may not copy, sell or republish it.")+
  H("Price")+pzlP("Early access is free. If we introduce paid plans, we'll tell you the price and the terms first. You'll never be charged unless you choose a paid plan.")+
@@ -12910,7 +12910,7 @@ function pzcId(){try{if(crypto.randomUUID)return crypto.randomUUID()}catch(e){}c
 function pzcHtml(){pzcMine();const inn=pzlIn(),L=pzlLinks(),mail=`<a class="go pzcm" href="mailto:${PZL_MAIL}?subject=Complaint">Email ${PZL_MAIL}</a>`;
  const ico=`<p class="tag" style="margin-top:14px">You can also complain to the Information Commissioner's Office at ico.org.uk or on 0303 123 1113, at any time.</p>`;
  if(!inn)return `<div class="pzl"><p>Tell us what went wrong. We'll confirm we've received it, look into it and tell you the outcome as soon as we can.</p>${mail}<p class="tag" style="margin-top:10px">${S.acct&&!S.acct.guest?"You're not connected, so complaints can't be sent from here at the moment.":"Sign in to send a complaint from here."}</p>${ico}</div>`;
- if(pzc.sent){const s=pzc.sent;return `<div class="pzl"><div class="note pzcok" role="status"><b>We've received your complaint</b><p style="margin:6px 0 0">Sent on ${esc(pzcDay(s.at))}. Reference ${esc(pzcRef(s.id))}.</p></div><p>Oliver, who runs Phyzly, will look into it and email you the outcome at ${esc((S.acct&&S.acct.email)||"your sign-in address")} as soon as he can.</p>${s.ab==="feedback"?`<p>Please keep the feedback until we've replied, so we can look at it.</p>`:""}<button class="go" onclick="pzlBack()">Done</button>${ico}</div>`}
+ if(pzc.sent){const s=pzc.sent;return `<div class="pzl"><div class="note pzcok" role="status"><b>We've received your ${s.ab==="feedback"&&pzc.back?"report":"complaint"}</b><p style="margin:6px 0 0">Sent on ${esc(pzcDay(s.at))}. Reference ${esc(pzcRef(s.id))}.</p></div><p>Oliver, who runs Phyzly, will look into it and email you the outcome at ${esc((S.acct&&S.acct.email)||"your sign-in address")} as soon as he can.</p>${s.ab==="feedback"?`<p>Please keep the feedback until we've replied, so we can look at it.</p>`:""}<button class="go" onclick="pzlBack()">Done</button>${ico}</div>`}
  const abs=PZC_AB.filter(x=>x[0]!=="feedback"||L||pzc.ab==="feedback");
  let h=`<div class="pzl"><p>Tell us what went wrong. We'll email you to confirm we've received it, look into it and tell you the outcome as soon as we can.</p><p class="tag">For ideas, questions or something not working in the app, use <button class="lnk aul" onclick="rpOpen('g')">Message Phyzly</button> instead.</p>`+
   (pzc.ref?`<div class="note"><b>You're reporting feedback from ${esc(pzc.who||"a colleague")}.</b> <span>We'll look at that piece of feedback only. Please keep it until we've replied.</span></div>`:"")+
@@ -12918,7 +12918,7 @@ function pzcHtml(){pzcMine();const inn=pzlIn(),L=pzlLinks(),mail=`<a class="go p
   `<label class="cfl" for="pzc-t" style="display:block;margin-top:14px">What happened?</label><textarea id="pzc-t" class="cin" rows="6" maxlength="3000" placeholder="What happened, and what you'd like us to do about it" oninput="pzc.tx=this.value;pzcClr()" onfocus="pzc.foc=true" onblur="if(this.isConnected)pzc.foc=false">${esc(pzc.tx)}</textarea>`+
   `<p class="tag" style="margin-top:6px">Don't include patient details. We'll reply to ${esc((S.acct&&S.acct.email)||"your sign-in address")}.</p>`+
   (pzc.err?`<div class="fb bad" role="alert"><b>${esc(pzc.err)}</b></div>`:"")+
-  `<button class="go" onclick="pzcSend()" ${pzc.busy?"disabled":""}>${pzc.busy?"Sending…":"Send complaint"}</button>`+
+  `<button class="go" onclick="pzcSend()" ${pzc.busy?"disabled":""}>${pzc.busy?"Sending…":pzc.back&&pzc.ab==="feedback"?"Send report":"Send complaint"}</button>`+
   `<p class="tag" style="margin-top:10px">Or email ${pzlM}.</p>`;
  if(Array.isArray(pzc.list)&&pzc.list.length)h+=pzlH("Your complaints")+pzc.list.map(c=>`<div class="pzlr"><b>${esc(pzcAb(c.about))}</b><div><span>Sent:</span> ${esc(pzcDay(c.created_at))} · ${esc(pzcRef(c.id))}</div><div>${c.closed_at?`<span>Closed:</span> ${esc(pzcDay(c.closed_at))}. We emailed you the outcome.`:"Received. We're looking into it."}</div></div>`).join("");
  return h+ico+`</div>`}
@@ -12942,9 +12942,9 @@ function pzcReport(id){let f=null;try{f=grV().find(x=>x.id===id)}catch(e){}if(!f
 function pzlGo(k){pzlPg=k;try{meSub=null}catch(e){}if(k==="complaint"){pzcMine();if(pzc.sent&&Date.now()-pzc.sent.at>6e5)pzc.sent=null;if(!pzc.list||Date.now()-pzc.at>60000)setTimeout(pzcLoad,0)}openMe();window.scrollTo(0,0)}
 function pzlBack(){pzlPg=null;if(pzc.sent)pzc.sent=null;meScreen();window.scrollTo(0,0)}
 function pzlAfter(){const A=document.getElementById("app");if(!A||tab!=="me")return;
- if(pzlPg){const title=pzlPg==="terms"?"Terms of use":pzlPg==="complaint"?"Make a complaint":"Privacy policy",body=pzlPg==="complaint"?pzcHtml():pzlDoc(pzlPg,true),band=A.querySelector(".nvband");
+ if(pzlPg){const title=pzlPg==="terms"?"Terms of use":pzlPg==="complaint"?(pzc.back?"Report feedback":"Make a complaint"):"Privacy policy",body=pzlPg==="complaint"?pzcHtml():pzlDoc(pzlPg,true),band=A.querySelector(".nvband");
   if(band){[...A.children].forEach(e=>{if(e!==band)e.remove()});[...band.children].forEach(e=>{if(!e.matches(".top"))e.remove()});band.classList.remove("nvtab","nvme");band.classList.add("nvsubpg");
-   band.insertAdjacentHTML("beforeend",`<button class="lnk" onclick="pzlBack()">‹ Profile</button><h1>${title}</h1>`);const c=document.createElement("div");c.className="mcard";c.innerHTML=body;band.after(c)}
+   band.insertAdjacentHTML("beforeend",`<button class="lnk" onclick="pzlBack()">‹ ${pzlPg==="complaint"&&pzc.back?"Feedback":"Profile"}</button><h1>${title}</h1>`);const c=document.createElement("div");c.className="mcard";c.innerHTML=body;band.after(c)}
   else{const top=A.querySelector(".top");A.innerHTML=(top?top.outerHTML:"")+`<button class="lnk" onclick="pzlBack()">‹ Profile</button><h1 style="font-size:1.5rem;margin:6px 0 10px">${title}</h1>${body}`}
   if(pzlPg==="complaint"&&pzc.foc){const t=document.getElementById("pzc-t");if(t){try{t.focus();t.setSelectionRange(t.value.length,t.value.length)}catch(e){}}}
   return}
@@ -12986,7 +12986,7 @@ function grUse(k,id,keep){const G=grS(),lk={};
  G.sw.forEach(x=>{const e=x.ev.find(e=>e.k===k&&e.id===id);if(e)lk[x.id]={on:true,n:e.n||""}});
  const lg={};(G.gl||[]).forEach(g=>{const e=g.ev.find(e=>e.k===k&&e.id===id);if(e)lg[g.id]={on:true,n:e.n||""}});
  const src=grUseSrc({k,id},keep),q0=src&&src.parts[0]?src.parts[0][2]:"s";
- grf={k:"use",src:{k,id},pts:[{q:q0,t:"",pil:"",n:""}],lk,lg,keepCf:keep||null,err:""};gv.just=null;tab="cpd";pf="gr";home();window.scrollTo(0,0)}
+ grf={k:"use",from:(grf&&grf.k==="fb")?"form":(gv&&gv.v==="fbv")?"fbv":(k==="fb"&&pf==="gr")?"log":"",src:{k,id},pts:[{q:q0,t:"",pil:"",n:""}],lk,lg,keepCf:keep||null,err:""};gv.just=null;tab="cpd";pf="gr";home();window.scrollTo(0,0)}
 /* the points that use a source, for the line under its button */
 function grUsedBy(k,id){return grS().sw.filter(x=>x.ev.some(e=>e.k===k&&e.id===id))}
 function grUsedH(k,id){const L=grUsedBy(k,id);if(!L.length)return "";
@@ -12998,7 +12998,7 @@ function grUseBack(){const f=grf||{},src=f.src||{};grf=null;
 function grUseForm(){const f=grf,G=grS(),src=grUseSrc(f.src,f.keepCf);
  if(!src){grf=null;gv={v:"home",tab:"sw"};return home()}
  const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
- let h=head()+tabs()+bk("grUseBack()",f.keepCf?"Back to your entry":src.sent||f.src.k==="fb"?"Back to the feedback":"SWOC")+
+ let h=head()+tabs()+bk("grUseBack()",f.keepCf?"Back to your entry":f.from==="log"?"Feedback log":src.sent||f.src.k==="fb"?"Back to the feedback":"SWOC")+
   `<h1 style="font-size:1.5rem;margin:6px 0 2px">Use in my SWOC</h1><p class="tag" style="margin:0 0 10px">Make new points from it, say which points it backs up, or both.</p>`+
   `<div class="note gus"><b>${esc(src.t)}</b><small style="display:block;color:var(--mute);margin:2px 0 6px">${esc(src.s)}</small>`+
   (src.parts.length?src.parts.map((p,i)=>`<div class="cfl" style="margin-top:8px">${esc(p[0])}</div><p class="grt">${esc(p[1])}</p>${f.pts.length<GRU_MAX?`<button class="lnk aul gup" onclick="grUseAdd('${p[2]}')">+ Make a point from this</button>`:""}`).join(""):`<p class="tag" style="margin:4px 0 0">Nothing written yet.</p>`)+`</div>`+
@@ -13886,6 +13886,19 @@ function xpMoreText(){let t="";try{if(xpGrOn()){const g=grText();t+="\n\n"+g.spl
 document.addEventListener("keydown",e=>{if(e.key!=="Escape"||e.defaultPrevented)return;try{if(typeof cp==="undefined"||cp.v!=="form"||!cf)return;
  if(document.querySelector('[aria-modal="true"],.ifbg,#rpov,.twov,.phv,.cpc'))return;
  const b=document.querySelector('#app button[onclick="cpdCancel()"]');if(!b)return;e.preventDefault();b.click()}catch(er){}});
+
+
+/* ---------- v510: batch K, feedback area routes ---------- */
+/* GRO-05: back from Use in my SWOC to the Feedback log when that's where it started */
+{const b0=grUseBack;grUseBack=function(){const f=grf||{};if(!f.keepCf&&f.src&&f.src.k==="fb"&&f.from==="log"){grf=null;gv={v:"home",tab:"fb"};tab="cpd";pf="gr";home();window.scrollTo(0,0);return}return b0.apply(this,arguments)}}
+/* GRO-04: Report this feedback remembers the feedback, and back (or Done) returns to it */
+let pzcRepOn=false;
+{const g0=pzlGo;pzlGo=function(k){if(!pzcRepOn)try{pzc.back=null}catch(e){}return g0.apply(this,arguments)}}
+{const r0=pzcReport;pzcReport=function(id){pzcRepOn=true;try{pzcMine();pzc.back={fb:String(id)}}catch(e){}try{return r0.apply(this,arguments)}finally{pzcRepOn=false}}}
+{const b0=pzlBack;pzlBack=function(){let bk=null;try{bk=pzlPg==="complaint"&&pzc.back}catch(e){}
+ if(bk&&bk.fb){pzlPg=null;pzc.sent=null;pzc.back=null;const f=(()=>{try{return grFbAll().find(x=>x.id===bk.fb)}catch(e){return null}})();
+  if(f)return grFb(f.id);return grGo("home",{tab:"fb"})}
+ return b0.apply(this,arguments)}}
 
 
 /* ---------- Phyzly Portfolio (early access): Portfolio and Profile only, plus Quick ref and feedback ---------- */
