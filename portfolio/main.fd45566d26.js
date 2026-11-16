@@ -2198,7 +2198,7 @@ function cpdNew(o){cf={id:null,d:isoD(new Date()),t:"",ty:"course",m:60,tm:"",ot
 function cpdEdit(id,from){if(/^pm_/.test(String(id)))return pmOpen(String(id).slice(3),from);const e=(S.cpd||[]).find(x=>x.id===id);if(!e)return;cf=JSON.parse(JSON.stringify(e));cf.r=cf.r||{l:"",c:"",b:""};cf.from=from||"";cf.ks=cf.ks||[];cf.otj=!!cf.otj;cf.tm=cf.tm||"";cp.v="form";tab="cpd";pf="cpd";home();window.scrollTo(0,0)}
 function cpdSave(){
  if(!cf.t.trim()&&cf.ty==="mentor")cf.t=svClean(cf.sv).k||"Supervision";if(!cf.t.trim()){cf.err="Add a title.";return home()}
- const m=Math.max(0,Math.min(1440,Math.round(+cf.m||0)));if(!/^\d{4}-\d{2}-\d{2}$/.test(cf.d)){cf.err="Choose a date.";return home()}
+ if(cf.mErr){cf.err=cf.mErr;return home()}if(Math.round(+cf.m||0)>1440){cf.err=CF_MAXT;return home()}const m=Math.max(0,Math.min(1440,Math.round(+cf.m||0)));if(!/^\d{4}-\d{2}-\d{2}$/.test(cf.d)){cf.err="Choose a date.";return home()}
  S.cpd=S.cpd||[];const r={};Object.keys(FW).forEach(k=>FW[k].f.forEach(x=>{const v=cf.r[x[0]];if(v&&String(v).trim())r[x[0]]=String(v).slice(0,6000)}));
  const e={id:cf.id||cpId(),d:cf.d,t:cf.t.trim().slice(0,120),ty:cf.ty,m,fw:FW[cf.fw]?cf.fw:"std",r,tm:/^\d{2}:\d{2}$/.test(cf.tm||"")?cf.tm:"",otj:!!cf.otj,ks:(cf.ks||[]).slice(0,60)};if((cf.ph||[]).length)e.ph=cf.ph.slice(0,12);if(cf.auto)e.auto=1;if((cf.ss||[]).length)e.ss=cf.ss.slice(0,50);if(cf.pre)e.pre=1;if(e.ty==="mentor"&&cf.sv)e.sv=svClean(cf.sv);if(cf.ns)e.ns=1;{const tg=tgClean(cf.tg);if(tg.length)e.tg=tg}
  const i=S.cpd.findIndex(x=>x.id===e.id),old=i>=0?S.cpd[i]:null;if(i>=0)S.cpd[i]=e;else S.cpd.unshift(e);try{if(!old&&!e.auto&&!e.ns)fdPost("📒","Logged CPD: "+cptn(e.ty)+" · "+fmtH(e.m||0),"cpd:"+e.id)}catch(er){}try{const ci=cpdXpCalc(old,e);if(ci){S.xpT=(S.xpT||0)+ci.xp;S.xpW=(S.xpW||0)+ci.xp;save();setTimeout(()=>cpdCelebrate(ci),60)}}catch(er){}const fr=cf.from;if(fr==="cm"){const nid=e.id;S.cpd=S.cpd||[];const i2=S.cpd.findIndex(x=>x.id===e.id);if(i2>=0)S.cpd[i2]=e;else S.cpd.unshift(e);save();cf=null;return cmBack(nid)}if(fr==="hc"){pf="hc";hc.v="ev"}if(fr==="pre"){tab="cpd";pf="pre";pe=null}(cf.phGone||[]).forEach(id=>phDel(id).catch(()=>{}));if(e.otj)om=String(e.d).slice(0,7);save();cf=null;cp.v="list";if(fr==="otj")pf="otj";if(fr==="hc"){tab="cpd";pf="hc";hc.v="ev"}if(fr==="pre"){tab="cpd";pf="pre";pe=null}home();window.scrollTo(0,0)}
@@ -2233,11 +2233,11 @@ function cpdForm(){
  `<div class="note"><b>No patient details.</b> Don't include names, dates of birth, NHS numbers or anything that could identify a patient.</div>`+
  (cf.err?`<div class="fb bad" id="cf-err" role="alert" tabindex="-1"><b>${esc(cf.err)}</b></div>`:"")+
  `<label class="cfl" for="cf-t">Title</label><input id="cf-t" class="cin" maxlength="120" value="${esc(cf.t)}" oninput="cf.t=this.value" placeholder="e.g. Respiratory study day">`+
- `<div class="cr"><div><label class="cfl" for="cf-d">Date</label><input id="cf-d" class="cin" type="date" value="${esc(cf.d)}" oninput="cf.d=this.value" onchange="cf.d=this.value;if(showPre()&&!!S.pre&&!!S.pre.start)cfRe()"></div><div><label class="cfl" for="cf-m">Minutes</label><input id="cf-m" class="cin" type="number" inputmode="numeric" min="0" max="1440" value="${esc(cf.m)}" oninput="cf.m=this.value;document.getElementById('cf-mh').textContent='= '+fmtH(Math.max(0,Math.round(+this.value||0)))"><div class="tag" id="cf-mh" style="margin:2px 0 0">= ${fmtH(Math.max(0,Math.round(+cf.m||0)))}</div></div></div>`+
+ `<div class="cr"><div><label class="cfl" for="cf-d">Date</label><input id="cf-d" class="cin" type="date" value="${esc(cf.d)}" oninput="cf.d=this.value" onchange="cf.d=this.value;if(showPre()&&!!S.pre&&!!S.pre.start)cfRe()"></div></div><div class="cfhmw">${cfHmHtml()}</div>`+
  `<div class="cr"><div><label class="cfl" for="cf-tm">${(cf.ss||[]).length?"First start time":"Start time (optional)"}</label><input id="cf-tm" class="cin" type="time" value="${esc(cf.tm||"")}" oninput="cf.tm=this.value"></div>${showApp()?`<div><div class="cfl">Off-the-job</div><div class="chipw"><button class="chipb${cf.otj?" on":""}" onclick="cf.otj=true;cfRe()">Yes</button><button class="chipb${!cf.otj?" on":""}" onclick="cf.otj=false;cfRe()">No</button></div></div>`:""}</div>`+ssBlock()+phBlock()+
  (S.feedOn&&!cf.auto?`<div class="cfl">Activity feed</div><button class="ock${cf.ns?" on":""}" role="checkbox" aria-checked="${!!cf.ns}" onclick="cf.ns=!cf.ns;cfRe()"><i>${cf.ns?"✓":""}</i><span>Don't share this one<br><small style="color:var(--mute)">Friends only ever see the type and time, never the title or reflection.</small></span></button>`:"")+(showPre()&&(cf.pre||preIn(cf.d))?`<div class="cfl">Part of your preceptorship programme?</div><div class="chipw"><button class="chipb${cf.pre?" on":""}" onclick="cf.pre=true;cfRe()">Yes</button><button class="chipb${!cf.pre?" on":""}" onclick="cf.pre=false;cfRe()">No</button></div>`:"")+`<div class="cfl">Type</div><div class="chipw">${CPT.map(x=>`<button class="chipb${cf.ty===x[0]?" on":""}" onclick="cfTy('${x[0]}')">${esc(x[1])}</button>`).join("")}</div>${cf.ty==="refl"?`<p class="tag" style="margin:6px 0 0">Learning from a case, an incident, a conversation or feedback you've thought through. The reflection below is the main part of this entry.</p>`:""}`+(cf.ty==="mentor"?svBlock():"")+tgBlock()+
  (showApp()?ksbPick():"")+
- `<div class="cfl">Reflection model</div><div class="chipw">${Object.keys(FW).filter(k=>(k!=="otj"||showApp()||cf.fw==="otj")&&(k!=="sup"||cf.ty==="mentor"||cf.fw==="sup")&&k!=="pm").map(k=>`<button class="chipb${(cf.fw||"std")===k?" on":""}" onclick="cf.fw='${k}';cfRe()">${esc(FW[k].n)}</button>`).join("")}</div><p class="tag" style="margin:6px 0 0">${esc(F.d)}</p>`+
+ `<div class="cfl">Reflection model</div><div class="chipw">${Object.keys(FW).filter(k=>(k!=="otj"||showApp()||cf.fw==="otj")&&(k!=="sup"||cf.ty==="mentor"||cf.fw==="sup")&&k!=="pm").map(k=>`<button class="chipb${(cf.fw||"std")===k?" on":""}" onclick="cfFw('${k}')">${esc(FW[k].n)}</button>`).join("")}</div><p class="tag" style="margin:6px 0 0">${esc(F.d)}</p>`+cfFwNote()+
  F.f.map(x=>`<label class="cfl" for="cf-${x[0]}">${esc(x[1])}</label>${x[2]?`<div class="tag" style="margin:0 0 4px">${esc(x[2])}</div>`:""}<textarea id="cf-${x[0]}" class="cin" rows="4" maxlength="6000" oninput="cf.r.${x[0]}=this.value;cpWc(this)">${esc(cf.r[x[0]]||"")}</textarea><small class="cfwc" data-wc="cf-${x[0]}">${cpWn(cf.r[x[0]]||"")}</small>`).join("")+
  `<button class="go" onclick="cpdSave()">Save entry</button>`+(cf.id?`<button class="opt" style="text-align:center;margin-top:10px;${cf.del?"border-color:var(--bad);color:var(--bad)":""}" onclick="cpdDel()">${cf.del?"Yes, delete":"Delete entry"}</button>`:"")+(cf.id&&!cf.auto?`<button class="lnk" style="display:block;margin:16px auto 0" onclick="grFromCpd()">Use this in my SWOC${(()=>{try{const n=grUsedBy("cpd",cf.id).length;return n?" ("+n+(n===1?" point)":" points)"):""}catch(e){return ""}})()}</button>`:"");setTimeout(phFill,0);
 }
@@ -2331,14 +2331,14 @@ function cpdScreen(){
  `<button class="go" onclick="cpdNew()">+ Add entry</button><label class="opt phb" style="margin-top:10px">📷 Add a photo<small>Notes, a certificate or other evidence. Write it up later</small><input type="file" accept="image/*" capture="environment" onchange="cpdSnap(this.files)"></label><button class="opt" style="text-align:center;margin-top:10px" onclick="cp.x='cpd';cp.v='export';home()" ${all.length?"":"disabled"}>Export my log</button><button class="opt" style="text-align:center;margin-top:10px" onclick="imOpen()">Import existing CPD<small style="display:block;color:var(--mute);font-size:.8rem;font-weight:500">From Excel, CSV or a pasted table</small></button>`;
  if(todo)h+=`<div class="note">${todo} ${todo===1?"entry needs":"entries need"} a reflection. The HCPC asks how your CPD helped your practice and the people you treat. A couple of lines is enough. <button class="lnk" style="padding:0;text-decoration:underline" onclick="cp.nf=!cp.nf;home()">${cp.nf?"Show all entries":"Show only these"}</button></div>`;
  if(!all.length)h+=`<div class="note">${window.PZ_ONLY==="portfolio"?"Nothing logged yet. Add a course, an in-service, some reading, supervision or anything else you've learned from.":"Nothing here yet. Finish a quiz or a bleep guide and an entry appears. Add courses, reading and shadowing yourself."}<br><br>Already keep a CPD log in a spreadsheet? <button class="lnk" style="padding:0;text-decoration:underline" onclick="imOpen()">Import it</button></div>`;
- if(all.length)h+=tgFilter();if(all.some(e=>!e.pm))h+=`<p class="tag" style="margin:8px 0 0">Swipe left on an entry to delete it.</p>`;
- const lst=(cp.nf?all.filter(e=>!cpHas(e)):all).filter(e=>!cp.tf||(e.tg||[]).includes(cp.tf)),ad={};lst.forEach(e=>{if(e.auto)ad[e.d]=(ad[e.d]||[]).concat([e])});cp.og=cp.og||{};
+ if(all.length)h+=cpSearch(all.length)+tgFilter();if(all.some(e=>!e.pm))h+=`<p class="tag" style="margin:8px 0 0">Swipe left on an entry to delete it.</p>`;
+ const lst=(cp.nf?all.filter(e=>!cpHas(e)):all).filter(e=>!cp.tf||(e.tg||[]).includes(cp.tf)).filter(cpQm),ad={};if(cp.q&&String(cp.q).trim())h+=cpQCount(lst.length);lst.forEach(e=>{if(e.auto)ad[e.d]=(ad[e.d]||[]).concat([e])});cp.og=cp.og||{};
  const rowH=e=>`<div class="swp" data-id="${esc(e.id)}">${e.pm?"":`<button class="swd" onclick="swAsk('${esc(e.id)}')" aria-label="Delete entry">Delete</button>`}<button class="opt ${e.pm?"pmr":"swr"}" onclick="${e.pm?`cpdEdit('${esc(e.id)}')`:`swTap(event,'${esc(e.id)}','')`}"><div class="row"><b>${esc(e.t)}</b>${e.pm?`<span class="bd t">Preceptorship</span>`:cpHas(e)?`<span class="bd t">Reflected</span>`:`<span class="bd s">Add reflection</span>`}</div><small style="color:var(--mute)">${esc(new Date(e.d+"T12:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"short"}))}${(e.ss||[]).length>1?" · "+e.ss.length+" sessions from "+esc(ssSort(e.ss)[0].tm):e.tm?" "+esc(e.tm):""}${e.pm?(e.m?" · "+fmtH(e.m):""):" · "+esc(cpTy(e))+" · "+fmtH(e.m||0)}${e.otj?" · Off-the-job":""}${e.pre?" · Preceptorship":""}${e.auto?" · auto-logged":""}${(e.ph||[]).length?" · "+e.ph.length+" attached":""}</small>${tgPills(e)}</button></div>`;
  const cpMonths=L=>{let mo="",gd={};L.forEach(e=>{const m=new Date(e.d+"T12:00:00").toLocaleDateString("en-GB",{month:"long",year:"numeric"});if(m!==mo){mo=m;h+=`<div class="sec">${esc(m)}</div>`}
   const g=e.auto?ad[e.d]:null;if(!g||g.length<2){h+=rowH(e);return}if(gd[e.d])return;gd[e.d]=1;const op=!!cp.og[e.d],mn=g.reduce((a,x)=>a+(x.m||0),0),nr=g.filter(x=>!cpHas(x)).length;
   h+=`<button class="opt cpg" aria-expanded="${op}" onclick="cp.og['${e.d}']=!cp.og['${e.d}'];cfRe()"><div class="row"><b>🎓 Phyzly learning</b><span>${op?"Hide ▴":"Show ▾"}</span></div><small style="color:var(--mute)">${esc(dFmt(e.d,{day:"numeric",month:"short"}))} · ${g.length} activities · ${fmtH(mn)}${nr?" · "+nr+" to reflect on":""}</small></button>`+(op?`<div class="cpgi">${g.map(rowH).join("")}</div>`:"")})};
- /* v476: this calendar year by month; earlier years collapse into one row each */
- {const cy=String(new Date().getFullYear()),flt=!!(cp.nf||cp.tf);cp.oy=cp.oy||{};
+ /* v476: this calendar year by month; earlier years collapse into one row each (v509: one flat list while searching or oldest first) */
+ if((cp.q&&String(cp.q).trim())||cp.so==="old")cpMonths(cp.so==="old"?lst.slice().reverse():lst);else{const cy=String(new Date().getFullYear()),flt=!!(cp.nf||cp.tf);cp.oy=cp.oy||{};
   const yk=e=>/^\d{4}-/.test(String(e.d))?String(e.d).slice(0,4):cy;/* a malformed date stays in this year's list */
   const cur=lst.filter(e=>yk(e)>=cy),old=lst.filter(e=>yk(e)<cy),yrs=[...new Set(old.map(yk))];
   cpMonths(cur);
@@ -8055,7 +8055,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
  }catch(e){console.error("v281",e)}
 
  /* ---------- v282: tester version: report a problem, feedback, welcome note ---------- */
- const RP_VER="v508";let rpCtx=null,rpCat=null;
+ const RP_VER="v509";let rpCtx=null,rpCat=null;
  function rpBtn(kind,id,i){return `<button class="rpb" onclick="rpOpen('${kind}','${id}',${i})">⚑ Report a problem with this card</button>`}
  function rpCtxFor(kind,id,i){try{
   if(kind==="c"){const c=LEARN[id][i],cd=typeof COND!=="undefined"&&COND.find(x=>x.id===id);return {kind:"card",layer:id,card:i,title:c.t,where:(cd?"Condition: "+cd.n:(typeof tn==="function"?tn(id):id))+" · card "+(i+1)+": "+c.t}}
@@ -11771,7 +11771,7 @@ function xpExcel(rows,all){const W=xpWho(),st=xpStats(rows),H=v=>({v,s:"h"});
  const log={name:"CPD log",freeze:1,cols:[13,40,24,22,9,8,10,16,70,14],land:true,
   rows:[[H("Date"),H("Activity"),H("Type"),H("Tags"),H("Minutes"),H("Hours"),H("Start time"),H("Reflection model"),H("Reflection"),H("Evidence")]].concat(rows.map(e=>[{v:e.d,s:"d"},{v:e.t,s:"w"},{v:cpTy(e),s:"w"},{v:(e.tg||[]).join(", "),s:"w"},{v:e.m||0,s:"i"},{v:Math.round((e.m||0)/6)/10,s:"n1"},e.tm||"",{v:fwOf(e).n,s:"w"},{v:xpRefl(e).map(r=>r[0]+"\n"+r[1]).join("\n\n"),s:"w"},xpEvStr(e)]))};
  log.filter="A1:J"+(rows.length+1);
- const sum=[[{v:"CPD record",s:"t"}],W.name?[{v:W.name+(W.prof?" · "+W.prof:""),s:"b"}]:null,[{v:xpPeriod(rows)+" · Exported "+xpLong(isoD(new Date())),s:"m"}],[],
+ const sum=[[{v:all?"Portfolio":"CPD record",s:"t"}],W.name?[{v:W.name+(W.prof?" · "+W.prof:""),s:"b"}]:null,[{v:xpPeriod(rows)+" · Exported "+xpLong(isoD(new Date())),s:"m"}],[],
   [H("Activities"),H("Hours"),H("Reflected"),H("Types of learning")],[st.n,{v:Math.round(st.min/6)/10,s:"n1"},st.refl,Object.keys(st.ty).length],[],
   [H("Type of learning"),H("Activities"),H("Hours")]].concat(Object.keys(st.ty).sort((a,b)=>st.ty[b].m-st.ty[a].m).map(k=>[k,st.ty[k].n,{v:Math.round(st.ty[k].m/6)/10,s:"n1"}]));
  const tgs=Object.keys(st.tg).sort((a,b)=>st.tg[b].m-st.tg[a].m);if(tgs.length){sum.push([],[H("Tag"),H("Activities"),H("Hours")]);tgs.forEach(k=>sum.push([k,st.tg[k].n,{v:Math.round(st.tg[k].m/6)/10,s:"n1"}]))}
@@ -11779,6 +11779,7 @@ function xpExcel(rows,all){const W=xpWho(),st=xpStats(rows),H=v=>({v,s:"h"});
  const out=[{name:"Summary",cols:[34,14,12,18],grid:false,rows:sum},log];
  if(xpSel().hc&&xpHcOk()){const C=hcChecks();out.push({name:"HCPC audit pack",cols:[46,14,60],freeze:1,rows:[[H("Check"),H("Status"),H("Detail")]].concat(C.map(c=>[{v:c[1],s:"w"},c[0]?"Done":"To do",{v:String(c[2]).replace(/<[^>]+>/g,"").replace(/&amp;/g,"&").replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&lt;/g,"<").replace(/&gt;/g,">"),s:"w"}]))})}
  if(xpSel().pr&&xpPreOk())out.push(xpPreSheet());
+ if(all&&xpGrOn())xpGrSheets().forEach(x=>out.push(x));if(all&&xpCrOn())out.push(xpCrSheet());
  return xpXlsx(out)}
 
 /* ---------- PDF ---------- */
@@ -11824,7 +11825,7 @@ async function xpEvidence(e,inc){const img=[],pdf=[];if(!inc)return {img,pdf};fo
 function xpLetter(i){let s="";i++;while(i){const m=(i-1)%26;s=String.fromCharCode(65+m)+s;i=Math.floor((i-1)/26)}return s}
 async function xpCpdPdf(rows,all){const W=xpWho(),st=xpStats(rows),inc=xpSel().ph!==false,apps=[];
  return xpPdf(async L=>{const {doc}=L;
-  L.h1("CPD record");if(W.name)L.text(W.name+(W.prof?" · "+W.prof:""),{sz:12,w:"bold",gap:1});if(W.reg)L.text("HCPC registration number "+W.reg,{sz:10,c:L.mute});
+  L.h1(all?"Portfolio":"CPD record");if(W.name)L.text(W.name+(W.prof?" · "+W.prof:""),{sz:12,w:"bold",gap:1});if(W.reg)L.text("HCPC registration number "+W.reg,{sz:10,c:L.mute});
   L.text(xpPeriod(rows)+" · Exported "+xpLong(isoD(new Date()))+(xpSel().ty?" · Type: "+xpSel().ty:"")+(xpSel().tg?" · Tag: "+xpSel().tg:""),{sz:9.5,c:L.mute,gap:14});
   L.stats([[String(st.n),st.n===1?"entry":"entries"],[String(stN(st.min)),stL(st.min)],[String(st.refl),"reflected"],[String(Object.keys(st.ty).length),Object.keys(st.ty).length===1?"type of learning":"types of learning"]]);
   if(st.n){L.h2("By type of learning");L.table([{t:"Type",w:.62},{t:"Activities",w:.19,a:"r"},{t:"Hours",w:.19,a:"r"}],Object.keys(st.ty).sort((a,b)=>st.ty[b].m-st.ty[a].m).map(k=>[k,String(st.ty[k].n),((st.ty[k].m)/60).toFixed(1)]));
@@ -11839,14 +11840,15 @@ async function xpCpdPdf(rows,all){const W=xpWho(),st=xpStats(rows),inc=xpSel().p
     ev.pdf.forEach(p=>{const a=xpLetter(apps.length);apps.push({a,e,p});L.text("Attached document: "+p.name+" (Appendix "+a+")",{sz:9.5,c:L.mute,gap:4})});
     if(!inc&&(e.ph||[]).length)L.text("Evidence attached in the app: "+xpEvStr(e),{sz:9.5,c:L.mute,gap:4});
     L.y+=6;L.rule();L.y+=16}}
-  else L.text("No entries match what you chose to include.",{c:L.mute});
+  else L.text(all?"No CPD entries in this period.":"No entries match what you chose to include.",{c:L.mute});
   if(xpSel().hc&&xpHcOk()){const Hc=S.hc,C=hcChecks();L.page();L.text("HCPC audit pack",{sz:13.5,w:"bold",lh:1.25,gap:2});L.rule();L.y+=12;
    L.table([{t:"Check",w:.5},{t:"Status",w:.14},{t:"Detail",w:.36}],C.map(c=>[c[1],c[0]?"Done":"To do",String(c[2]).replace(/<[^>]+>/g,"").replace(/&amp;/g,"&").replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&lt;/g,"<").replace(/&gt;/g,">")]));
    if(String(Hc.hist||"").trim()){L.h2("Summary of recent work or practice");L.text(Hc.hist,{gap:6})}if(String(Hc.stmt||"").trim()){L.h2("Personal statement");L.text(Hc.stmt,{gap:6})}}
   if(xpSel().pr&&xpPreOk())await xpPrePdf(L,apps,inc);
+  if(all&&xpGrOn())xpGrPdf(L);if(all&&xpCrOn())xpCrPdf(L);
   if(all&&!xpLocal()&&typeof pfText==="function"){let t=pfText();if(xpSel().pr&&xpPreOk()&&t.indexOf("COMPETENCIES")>=0)t=t.slice(t.indexOf("COMPETENCIES"));if(t.trim()){L.page();L.text("Other records",{sz:13.5,w:"bold",gap:2});L.rule();L.y+=12;L.text(t,{sz:9.5})}}
   for(const x of apps){const bytes=await x.p.b.arrayBuffer();L.insert(bytes,()=>{L.y=L.PH/2-60;L.text("Appendix "+x.a,{sz:22,w:"bold",gap:6});L.text(x.p.name,{sz:12,gap:4});L.text("Attached to: "+x.e.t+", "+xpLong(x.e.d),{sz:10,c:L.mute})})}
- },(W.name?W.name+" · ":"")+"CPD record")}
+ },(W.name?W.name+" · ":"")+(all?"Portfolio":"CPD record"))}
 /* the HCPC profile, laid out like the HCPC template, evidence after it */
 async function xpHcPdf(){const H=hcS(),ev=hcEv(),Lst=hcList(),g=hcGaps().filter(x=>(H.gap[x.k]||"").trim());
  return xpPdf(async L=>{
@@ -11868,7 +11870,7 @@ async function hcEvPage(L,x,alone){const e=x.e;
  else if(x.f){const b=await xpBlob(x.f);if(b)await L.images([b],()=>"");else L.text("Image not found on this device.",{c:L.mute})}}
 /* ---------- the export screen ---------- */
 function xpScreen(){const P=xpSel(),rows=xpRows(),st=xpStats(rows),all=cp.x==="all",used={};(S.cpd||[]).forEach(e=>(e.tg||[]).forEach(t=>used[t]=1));const tags=Object.keys(used).sort();if(P.tg&&!used[P.tg])P.tg=null;const tyu=[...new Set((S.cpd||[]).filter(e=>e).map(e=>cptn(e.ty)))],ord=CPT.map(x=>x[1]),tys=tyu.sort((a,b)=>(ord.indexOf(a)<0?99:ord.indexOf(a))-(ord.indexOf(b)<0?99:ord.indexOf(b)));if(P.ty&&!tys.includes(P.ty))P.ty=null;const bad=P.per==="custom"&&xpDay(P.df)&&xpDay(P.dt)&&P.df>P.dt;
- const chip=(on,lab,go)=>`<button class="chipb${on?" on":""}" aria-pressed="${on}" onclick="${go}">${lab}</button>`,none=!rows.length;
+ const chip=(on,lab,go)=>`<button class="chipb${on?" on":""}" aria-pressed="${on}" onclick="${go}">${lab}</button>`,none=!xpAny(rows);
  const card=(k,t,s)=>{const on=P.fmt===k;return `<button class="opt xpf${on?" on":""}" role="radio" aria-checked="${on}" onclick="cp.xp.fmt='${k}';XP.ready=null;home()"><span class="xpt"><b>${t}</b><small>${s}</small></span><i class="xpk" aria-hidden="true">${on?"✓":""}</i></button>`};
  const GO={pdf:"Create PDF",xlsx:"Create spreadsheet",csv:"Create CSV file",txt:"Copy text"};
  app.innerHTML=head()+`<button class="lnk" onclick="cp.v='list';XP.ready=null;${all?"pf='home';":""}home()">‹ ${all?"Portfolio":"CPD log"}</button><h1 style="font-size:1.5rem;margin:6px 0 2px">${all?"Export everything":"Export"}</h1><p class="tag" style="margin:0 0 6px">Choose what to include, then a format. Check the file before you share it.</p>`+
@@ -11885,16 +11887,16 @@ function xpScreen(){const P=xpSel(),rows=xpRows(),st=xpStats(rows),all=cp.x==="a
 ((st.ph||st.pd)&&P.fmt==="pdf"?`<button class="ock${P.ph!==false?" on":""}" role="checkbox" aria-checked="${P.ph!==false}" onclick="cp.xp.ph=cp.xp.ph===false;XP.ready=null;home()" style="margin-top:12px"><i>${P.ph!==false?"✓":""}</i><span>Include photos and attached PDFs<br><small style="color:var(--mute)">Photos go with each entry. Attached PDFs, like certificates, are added at the end.</small></span></button>`:"")+
   (xpHcOk()&&(P.fmt==="pdf"||P.fmt==="xlsx")?`<button class="ock${P.hc?" on":""}" role="checkbox" aria-checked="${!!P.hc}" onclick="cp.xp.hc=!cp.xp.hc;XP.ready=null;home()" style="margin-top:12px"><i>${P.hc?"✓":""}</i><span>Include my HCPC audit pack<br><small style="color:var(--mute)">Adds your audit pack checks, summary of recent work and personal statement at the end.</small></span></button>`:"")+
   (xpPreOk()&&(P.fmt==="pdf"||P.fmt==="xlsx")?`<button class="ock${P.pr?" on":""}" role="checkbox" aria-checked="${!!P.pr}" onclick="cp.xp.pr=!cp.xp.pr;XP.ready=null;home()" style="margin-top:12px"><i>${P.pr?"✓":""}</i><span>Include my preceptorship record<br><small style="color:var(--mute)">Adds your review points, programme sessions, meetings and actions, and goals at the end.</small></span></button>`:"")+
-  `<button class="go xpgo" ${none||XP.busy?"disabled":""} onclick="xpGo(cp.xp.fmt)">${GO[P.fmt]||"Create PDF"}</button>`+
+  (all?xpMoreTicks(P):"")+`<button class="go xpgo" ${none||XP.busy?"disabled":""} onclick="xpGo(cp.xp.fmt)">${GO[P.fmt]||"Create PDF"}</button>`+
   `<p id="cpm" class="tag" role="status">${esc(XP.msg||"")}</p><div id="xprw">${xpReadyHtml("cpd")}</div><div class="note">Saved files leave Phyzly. Check them for patient details before you send them anywhere.</div>`;
 }
 /* v463: iPhone fills an empty date field (and fires change) as soon as its picker opens, so redrawing the screen on change
    closed the picker. Date changes now update only the summary and the button, never the fields themselves. */
-const xpSumHtml=(rows,st)=>!rows.length?"No entries match. Try a different period, type or tag.":`<b>${st.n} ${st.n===1?"entry":"entries"}</b> · ${esc(fmtH(st.min))} · ${st.refl} reflected${st.ph||st.pd?" · "+xpEvStr({ph:Array(st.ph).fill("x").concat(Array(st.pd).fill("pd"))}):""}`;
+const xpSumHtml=(rows,st)=>!rows.length?(cp.x==="all"&&xpAny(rows)?"No CPD entries in this period. The other records you ticked are still included.":"No entries match. Try a different period, type or tag."):`<b>${st.n} ${st.n===1?"entry":"entries"}</b> · ${esc(fmtH(st.min))} · ${st.refl} reflected${st.ph||st.pd?" · "+xpEvStr({ph:Array(st.ph).fill("x").concat(Array(st.pd).fill("pd"))}):""}`;
 function xpDateHint(){const P=xpSel();return P.per==="custom"&&xpDay(P.df)&&xpDay(P.dt)&&P.df>P.dt?`<span style="color:var(--bad)">The From date is after the To date.</span>`:"Leave either date empty to include everything before or after."}
-function xpLive(){XP.ready=null;const rows=xpRows(),st=xpStats(rows),q=x=>document.querySelector(x);if(q(".xpsum"))q(".xpsum").innerHTML=xpSumHtml(rows,st);if(q("#xp-dw"))q("#xp-dw").innerHTML=xpDateHint();const g=q(".xpgo");if(g)g.disabled=!rows.length||XP.busy;const w=q("#xprw");if(w)w.innerHTML=""}
-function xpGo(k){const rows=xpRows(),all=cp.x==="all",d=isoD(new Date());if(!rows.length)return;
- if(k==="txt"){const t=xpText(rows);const done=()=>{S.cpdX=d;save();xpSay("Copied. Paste it wherever you need it.")};
+function xpLive(){XP.ready=null;const rows=xpRows(),st=xpStats(rows),q=x=>document.querySelector(x);if(q(".xpsum"))q(".xpsum").innerHTML=xpSumHtml(rows,st);if(q("#xp-dw"))q("#xp-dw").innerHTML=xpDateHint();const g=q(".xpgo");if(g)g.disabled=!xpAny(rows)||XP.busy;const w=q("#xprw");if(w)w.innerHTML=""}
+function xpGo(k){const rows=xpRows(),all=cp.x==="all",d=isoD(new Date());if(!xpAny(rows,k))return;
+ if(k==="txt"){const t=(all?xpText(rows).replace(/^CPD record/,"Portfolio"):xpText(rows))+(all?xpMoreText():"");const done=()=>{S.cpdX=d;save();xpSay("Copied. Paste it wherever you need it.")};
   try{navigator.clipboard.writeText(t).then(done,()=>xpCopyBox(t))}catch(e){xpCopyBox(t)}return}
  xpRun(k,async()=>{if(k==="pdf")return [{name:xpFileBase()+".pdf",blob:await xpCpdPdf(rows,all)}];
   if(k==="xlsx")return [{name:xpFileBase()+".xlsx",blob:xpExcel(rows,all)}];
@@ -13785,6 +13787,107 @@ function pzWords(){try{const A=document.getElementById("app");if(!A)return;
 {const w0=welcome;welcome=function(){const r=w0.apply(this,arguments);pzWords();return r}}
 
 
+/* ---------- v509: batch J, CPD log usability ---------- */
+/* CPD-08: search and order */
+const cpQw=()=>String(cp.q||"").toLowerCase().split(/\s+/).filter(Boolean);
+function cpQm(e){const W=cpQw();if(!W.length)return true;let h="";try{h=[e.t,cpTy(e),(e.tg||[]).join(" "),Object.values(e.r||{}).join(" "),e.sv&&e.sv.k||"",e.d,dFmt(e.d,{day:"numeric",month:"long",year:"numeric"})].join(" ").toLowerCase()}catch(er){h=String(e.t||"").toLowerCase()}
+ return W.every(w=>h.indexOf(w)>=0)}
+function cpSearch(n){if(n<2&&!cp.q&&!cp.so)return "";
+ return `<div class="cpqw"><div class="cpqi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="cp-q" class="cin" type="search" enterkeyhint="search" autocomplete="off" placeholder="Search your entries" aria-label="Search your entries" value="${esc(cp.q||"")}" oninput="cpQ(this.value)"></div>`+
+  `<label class="sr" for="cp-so">Order</label><select id="cp-so" class="cin" onchange="cp.so=this.value;cfRe()"><option value=""${cp.so==="old"?"":" selected"}>Newest first</option><option value="old"${cp.so==="old"?" selected":""}>Oldest first</option></select></div>`}
+function cpQCount(n){return `<p class="tag cpqn" role="status">${n?n+(n===1?" entry matches":" entries match"):"No entries match"} “${esc(String(cp.q).trim())}”. <button class="lnk aul" onclick="cpQ('',1)">Clear search</button></p>`}
+let cpQt=0;
+function cpQ(v,now){cp.q=String(v||"").slice(0,80);clearTimeout(cpQt);const go=()=>{const a=document.activeElement,keep=a&&a.id==="cp-q",pos=keep?a.selectionStart:null;cfRe();
+  const i=document.getElementById("cp-q");if(i&&(keep||now)){try{i.focus({preventScroll:true});const p=now?i.value.length:pos;i.setSelectionRange(p,p)}catch(e){}}};
+ if(now)go();else cpQt=setTimeout(go,180)}
+
+/* CPD-09: switching reflection model moves what's typed, never hides it */
+let cfFwN=null;
+const cfFwCur=()=>cf&&cf.fw&&FW[cf.fw]?cf.fw:"std";
+const cfFwTxt=(F,r)=>{const had=F.f.filter(x=>String(r[x[0]]||"").trim());return had.length===1?String(r[had[0][0]]).trim():had.map(x=>x[1]+"\n"+String(r[x[0]]).trim()).join("\n\n")};
+function cfFwMove(srcKeys,dstK){const r=cf.r=cf.r||{},F1=FW[dstK],own=new Set(F1.f.map(x=>x[0]));let moved=[];
+ srcKeys.forEach(k=>{const t=cfFwTxt(FW[k],r);if(!t)return;moved.push(FW[k].n);
+  const k1=F1.f[0][0],cur=String(r[k1]||"").trim(),nx=cur?cur+"\n\n"+t:t;
+  if(nx.length<=6000)r[k1]=nx;else{/* too long for one box: one answer per box, the rest in the last */
+   const parts=FW[k].f.filter(x=>String(r[x[0]]||"").trim()).map(x=>x[1]+"\n"+String(r[x[0]]).trim());
+   parts.forEach((p,i)=>{const kk=F1.f[Math.min(i,F1.f.length-1)][0],c=String(r[kk]||"").trim();r[kk]=c?c+"\n\n"+p:p})}
+  FW[k].f.forEach(x=>{if(!own.has(x[0]))delete r[x[0]]})});
+ return moved}
+function cfFw(k){if(!cf||!FW[k])return;const cur=cfFwCur();if(k===cur)return;const snap={fw:cf.fw,r:JSON.parse(JSON.stringify(cf.r||{}))};
+ const moved=cfFwMove([cur],k);cf.fw=k;
+ cfFwN=moved.length?{cf,msg:"Your "+moved[0]+" answers are now in “"+FW[k].f[0][1]+"”. Edit them to fit the new prompts.",undo:snap}:null;cfRe()}
+function cfFwUndo(){if(!cfFwN||cfFwN.cf!==cf)return;cf.fw=cfFwN.undo.fw;cf.r=cfFwN.undo.r;cfFwN=null;cfRe()}
+function cfFwHidden(){if(!cf||!cf.r)return [];const cur=cfFwCur(),own=new Set(FW[cur].f.map(x=>x[0]));
+ return Object.keys(FW).filter(k=>k!==cur&&FW[k].f.some(x=>!own.has(x[0])&&String(cf.r[x[0]]||"").trim()))}
+function cfFwPull(){const hid=cfFwHidden();if(!hid.length)return;const snap={fw:cf.fw,r:JSON.parse(JSON.stringify(cf.r||{}))},cur=cfFwCur(),moved=cfFwMove(hid,cur);
+ cfFwN={cf,msg:"Moved into “"+FW[cur].f[0][1]+"”. Edit it to fit.",undo:snap};cfRe()}
+function cfFwNote(){try{if(cfFwN&&cfFwN.cf===cf)return `<p class="tag cffw" role="status">${esc(cfFwN.msg)} <button class="lnk aul" onclick="cfFwUndo()">Undo</button></p>`;
+ const hid=cfFwHidden();if(!hid.length)return "";
+ return `<div class="note cffw">This entry also has text from the ${esc(hid.map(k=>FW[k].n).join(" and "))} reflection. It isn't shown here or included in exports. <button class="lnk aul" onclick="cfFwPull()">Move it here</button></div>`}catch(e){return ""}}
+
+/* CPD-10: time spent in hours and minutes */
+const CF_MAXT="Up to 24 hours per entry. For a longer course, add an entry for each day.";
+function cfHmParse(h,m){const H=String(h||"").trim().replace(",","."),M=String(m||"").trim();
+ if(H&&!/^-?\d*\.?\d+$/.test(H)||M&&!/^-?\d+$/.test(M))return {err:"Enter the time as numbers, for example 1 hr 30 min."};
+ const hv=H?parseFloat(H):0,mv=M?parseInt(M,10):0;if(hv<0||mv<0)return {err:"Time spent can't be negative."};
+ const t=Math.round(hv*60)+mv;if(t>1440)return {err:CF_MAXT,t};return {t,odd:/\./.test(H)||mv>59}}
+function cfHmMsg(){if(cf.mErr)return `<span class="cfbad">${esc(cf.mErr)}</span>`;const P=cf.mRaw?cfHmParse(cf.mRaw.h,cf.mRaw.m):null;return P&&P.odd?"= "+esc(fmtH(P.t)):""}
+function cfHmHtml(){const t=Math.max(0,Math.round(+cf.m||0)),R=cf.mRaw||{h:String(Math.floor(t/60)),m:String(t%60)};
+ return `<span class="cfl" id="cf-tl">Time spent</span><div class="cfhm" role="group" aria-labelledby="cf-tl"><input id="cf-h" class="cin" type="text" inputmode="decimal" autocomplete="off" aria-label="Hours" value="${esc(R.h)}" oninput="cfHm()"><span aria-hidden="true">hr</span><input id="cf-m" class="cin" type="text" inputmode="numeric" autocomplete="off" aria-label="Minutes" value="${esc(R.m)}" oninput="cfHm()"><span aria-hidden="true">min</span></div><div class="tag" id="cf-mh" role="status" aria-live="polite">${cfHmMsg()}</div>`}
+function cfHm(){if(!cf)return;const h=(document.getElementById("cf-h")||{}).value,m=(document.getElementById("cf-m")||{}).value;cf.mRaw={h:String(h||""),m:String(m||"")};
+ const P=cfHmParse(h,m);cf.mErr=P.err||"";if(!P.err)cf.m=P.t;const o=document.getElementById("cf-mh");if(o)o.innerHTML=cfHmMsg();
+ const w=document.querySelector(".cfhm");if(w)w.classList.toggle("bad",!!P.err)}
+{const e0=cpdEdit;cpdEdit=function(){cfFwN=null;return e0.apply(this,arguments)}}
+{const n0=cpdNew;cpdNew=function(){cfFwN=null;return n0.apply(this,arguments)}}
+
+/* CPD-11: Export everything is everything */
+function grHas(){try{const G=grS();return !!(G.sw.length||(G.gl||[]).length||grFbAll().length)}catch(e){return false}}
+function crHas(){try{return crItems().some(it=>it&&(it.k==="m"||it.k==="e"))||!!(S.about&&S.about.area)}catch(e){return false}}
+const xpGrOn=()=>xpSel().gr!==false&&grHas(),xpCrOn=()=>xpSel().cr!==false&&crHas();
+function xpAny(rows,k){if(rows.length)return true;if(cp.x!=="all")return false;const f=k||xpSel().fmt;if(f==="csv")return false;const P=xpSel();
+ return xpGrOn()||xpCrOn()||(f!=="txt"&&(!!P.pr&&xpPreOk()||!!P.hc&&xpHcOk()))}
+function xpMoreTicks(P){const t=(on,k,lab,sub)=>`<button class="ock${on?" on":""}" role="checkbox" aria-checked="${on}" onclick="cp.xp.${k}=!(cp.xp.${k}!==false);XP.ready=null;home()" style="margin-top:12px"><i>${on?"✓":""}</i><span>${lab}<br><small style="color:var(--mute)">${sub}</small></span></button>`;
+ if(P.fmt==="csv")return `<p class="tag" style="margin:12px 0 0">The CSV file has your CPD entries only. Choose PDF, Excel or text for everything else.</p>`;
+ return (grHas()?t(P.gr!==false,"gr","Include my feedback, SWOC and development plan","Your feedback log, strengths, weaknesses, opportunities and challenges, and your goals."):"")+
+  (crHas()?t(P.cr!==false,"cr","Include my career history","Your posts, rotations and band changes."):"")}
+const xpQ=v=>String(v==null?"":v);
+function xpCrRows(){const a=S.about||{},out=[];let I=[];try{I=crItems()}catch(e){}
+ try{const now=abStage(),cur=a.area?crAreaL(a.area,a.areaTx):"";if(now||cur)out.push(["Now"+(a.since?", since "+crML(a.since):""),[cur,crStLbl(now)].filter(Boolean).join(" · "),orgW(orgCur())])}catch(e){}
+ I.forEach(it=>{try{if(it.k==="m")out.push([crML(it.x.d),crStPh(it.x.st),""]);else if(it.k==="e"){const e=it.x,n=crN(e.f,e.t);out.push([crML(e.f)+" to "+crML(e.t),crAreaL(e.a,e.ax)+(crStLbl(e.st)?" · "+crStLbl(e.st):""),[n+(n===1?" month":" months"),orgW(e)].filter(Boolean).join(" · ")])}}catch(er){}});
+ return out}
+function xpFbRows(){return grFbAll().slice().sort((a,b)=>String(a.d).localeCompare(String(b.d))).map(f=>{let t="";try{t=typeof crFbTxt==="function"?crFbTxt(f):f.txt}catch(e){t=f.txt}
+ return {d:f.d,who:xpQ(grWho(f)),rel:xpQ(grRn(f.rel)),ctx:xpQ(f.ctx),t:xpQ(t)||((f.ph||[]).length?"(attached)":""),n:(f.ph||[]).length,v:!!f.v}})}
+function xpSwRows(){const G=grS(),out=[];GRQ.forEach(q=>G.sw.filter(x=>x.q===q[0]).forEach(x=>{const ev=x.ev.map(e=>({e,v:grEv(e)})).filter(z=>z.v);
+ out.push({q:q[1],t:x.t,pil:x.pil?grPn(x.pil):"",ev:ev.map(z=>z.v.t+", "+z.v.s+(z.e.n?": “"+z.e.n+"”":"")).join("\n")||"Your view only (no evidence yet)"})}));return out}
+function xpGlRows(){const G=grS();return (G.gl||[]).slice().sort((a,b)=>(a.done-b.done)||((a.by||"9999").localeCompare(b.by||"9999"))).map(g=>({t:g.t,st:g.done?"Done"+(g.dn?" "+xpNice(g.dn):""):g.by?"By "+xpNice(g.by):"Open",
+ m:xpQ(g.m),steps:(g.st||[]).map(x=>(x.done?"Done: ":"To do: ")+x.t).join("\n"),hp:xpQ(g.hp),oc:g.done?xpQ(g.oc):"",pre:!!g.pre,
+ on:(g.sw||[]).map(id=>G.sw.find(x=>x.id===id)).filter(Boolean).map(x=>x.t+" ("+grQ(x.q)[3]+")").join("; "),
+ pr:(g.ev||[]).map(e=>({e,v:grEv(e)})).filter(z=>z.v).map(z=>z.v.t+", "+z.v.s+(z.e.n?": “"+z.e.n+"”":"")).join("\n")}))}
+function xpGrPdf(L){const FB=xpFbRows(),SW=xpSwRows(),GL=xpGlRows();
+ L.page();L.text("Feedback, SWOC and development plan",{sz:13.5,w:"bold",gap:2});L.rule();L.y+=12;L.text("My own record of my practice, not a formal assessment.",{sz:9.5,c:L.mute,gap:10});
+ if(SW.length){L.h2("SWOC");GRQ.forEach(q=>{const I=SW.filter(x=>x.q===q[1]);if(!I.length)return;L.need(40);L.text(q[1],{sz:11,w:"bold",gap:4});
+  I.forEach(x=>{L.need(30);L.text("• "+x.t+(x.pil?" ("+x.pil+")":""),{sz:10.5,gap:2});L.text(x.ev,{sz:9.5,c:L.mute,gap:6})})})}
+ if(GL.length){L.h2("Development plan");GL.forEach(g=>{L.need(40);L.text(g.t+(g.pre?" (preceptorship)":""),{sz:10.5,w:"bold",gap:1});L.text(g.st,{sz:9.5,c:L.mute,gap:3});
+  if(g.m)L.text("How I'll know: "+g.m,{sz:10,gap:2});if(g.steps)L.text(g.steps,{sz:10,gap:2});if(g.hp)L.text("Help needed: "+g.hp,{sz:10,gap:2});if(g.on)L.text("Works on: "+g.on,{sz:10,gap:2});if(g.pr)L.text("Progress: "+g.pr,{sz:10,gap:2});if(g.oc)L.text("Outcome: "+g.oc,{sz:10,gap:2});L.y+=6})}
+ if(FB.length){L.h2("Feedback log");FB.forEach(f=>{L.need(40);L.text(xpNice(f.d)+" · "+f.who+(f.ctx?" · "+f.ctx:""),{sz:10,w:"bold",c:L.mute,gap:2});
+  L.text(f.t||"-",{sz:10.5,gap:2});if(f.n)L.text(f.n+(f.n===1?" file":" files")+" attached in Phyzly",{sz:9.5,c:L.mute,gap:2});L.y+=6})}}
+function xpCrPdf(L){const R=xpCrRows();if(!R.length)return;L.need(120);L.y+=8;L.h2("Career history");
+ L.table([{t:"When",w:.26},{t:"Post",w:.44},{t:"Details",w:.30}],R)}
+function xpGrSheets(){const H=v=>({v,s:"h"}),w=v=>({v:xpQ(v),s:"w"}),out=[];const FB=xpFbRows(),SW=xpSwRows(),GL=xpGlRows();
+ if(SW.length)out.push({name:"SWOC",cols:[16,50,22,60],freeze:1,rows:[[H("Section"),H("Point"),H("Area"),H("Evidence")]].concat(SW.map(x=>[x.q,w(x.t),w(x.pil),w(x.ev)]))});
+ if(GL.length)out.push({name:"Development plan",cols:[40,18,36,40,30,36,40,30],freeze:1,rows:[[H("Goal"),H("Status"),H("How I'll know"),H("Steps"),H("Help needed"),H("Works on"),H("Progress"),H("Outcome")]].concat(GL.map(g=>[w(g.t+(g.pre?" (preceptorship)":"")),w(g.st),w(g.m),w(g.steps),w(g.hp),w(g.on),w(g.pr),w(g.oc)]))});
+ if(FB.length)out.push({name:"Feedback log",cols:[13,26,20,24,70,8],freeze:1,rows:[[H("Date"),H("From"),H("Relationship"),H("Context"),H("Feedback"),H("Files")]].concat(FB.map(f=>[{v:f.d,s:"d"},w(f.who),w(f.rel),w(f.ctx),w(f.t),f.n]))});
+ return out}
+function xpCrSheet(){const H=v=>({v,s:"h"}),w=v=>({v:xpQ(v),s:"w"});return {name:"Career history",cols:[24,44,40],freeze:1,rows:[[H("When"),H("Post"),H("Details")]].concat(xpCrRows().map(r=>r.map(w)))}}
+function xpMoreText(){let t="";try{if(xpGrOn()){const g=grText();t+="\n\n"+g.split("\n").slice(3).join("\n").trim()+"\n"}}catch(e){}
+ try{if(xpCrOn()){const R=xpCrRows();if(R.length)t+="\n\nCAREER HISTORY\n"+R.map(r=>r.filter(Boolean).join(" · ")).join("\n")+"\n"}}catch(e){}return t.replace(/\n{3,}/g,"\n\n")}
+
+/* CPD-12: Escape leaves the CPD editor, through the same unsaved-changes question as the back link */
+document.addEventListener("keydown",e=>{if(e.key!=="Escape"||e.defaultPrevented)return;try{if(typeof cp==="undefined"||cp.v!=="form"||!cf)return;
+ if(document.querySelector('[aria-modal="true"],.ifbg,#rpov,.twov,.phv,.cpc'))return;
+ const b=document.querySelector('#app button[onclick="cpdCancel()"]');if(!b)return;e.preventDefault();b.click()}catch(er){}});
+
+
 /* ---------- Phyzly Portfolio (early access): Portfolio and Profile only, plus Quick ref and feedback ---------- */
 try{(function(){
  if(window.PZ_ONLY!=="portfolio")return;
@@ -13877,6 +13980,9 @@ try{(function(){
  /* ---------- computer layout (style guide: 1024px and wider) ---------- */
  const DESK=window.matchMedia?matchMedia("(min-width:1024px)"):{matches:false};
  const isDesk=()=>!!DESK.matches;
+ /* v509 (FMT-11): the list and the editor sit side by side only from 1200 px; narrower computers show one at a time, like tablets */
+ const SPLIT=window.matchMedia?matchMedia("(min-width:1200px)"):{matches:false};
+ const isSplit=()=>!!SPLIT.matches;
  const ds=document.createElement("style");ds.textContent=`
   #nav .sbwm{display:none}
   html.pzo .cpc .cpcx,html.pzo .cpc .cpcp{display:none!important}
@@ -13919,19 +14025,37 @@ try{(function(){
    html.pzo #app .dkempty b{font-size:19px;color:var(--ink)}
    html.pzo #app .dkempty .go{width:auto;height:50px;padding:0 28px;min-width:160px;font-size:17px}
    html.pzo #app textarea{min-height:140px}
+   html.pzo #app .dkbt{display:flex;gap:12px;align-items:stretch}html.pzo #app .dkbt .go{flex:1;margin-top:8px}html.pzo #app .dkbt .dkcx{flex:0 0 auto;width:auto;min-width:120px;margin-top:8px;text-align:center}
+  }
+  @media (min-width:1200px) and (max-width:1439px){html.pzo #app .dkr{top:84px;max-height:calc(100vh - 108px)}}
+  /* v509 (FMT-12): a phone on its side keeps most of the height for content */
+  @media (max-height:500px) and (orientation:landscape){
+   html.pzo #app .nvband{padding-top:6px!important;padding-bottom:12px!important;min-height:0!important}
+   html.pzo #app .nvband .top{margin-bottom:0!important}
+   html.pzo #app .nvband h1{font-size:1.35rem!important;margin:0!important;line-height:1.2}
+   html.pzo #app .nvband>p.tag,html.pzo #app .nvband .cpsl{display:none!important}
+   html.pzo #app .nvband .bkl{min-height:32px;padding-top:2px!important;padding-bottom:2px!important}
+   html.pzo #app .nvband .cstrip{margin-top:8px!important}html.pzo #app .nvband .cs b{font-size:1.25rem!important;line-height:1.2}
+   html.pzo #nav .nf{display:none!important}
+   html.pzo #nav{padding-top:4px!important}html.pzo #nav .nb{flex-direction:row!important;gap:8px;padding-top:6px!important;padding-bottom:6px!important;min-height:44px}
+   html.pzo body:has(#app :is(input:not([type=checkbox]):not([type=radio]):not([type=file]),textarea,select):focus) #nav{display:none!important}
   }`;document.body.appendChild(ds);
  let dkK=null;
+ /* v509 (CPD-12): a Cancel button beside Save in the computer editor; it goes through the same unsaved-changes question */
+ const dkCancel=p=>{if(!p||p.querySelector(".dkcx"))return;const sv=p.querySelector('.go[onclick="cpdSave()"]');if(!sv)return;
+  const w=document.createElement("div");w.className="dkbt";sv.replaceWith(w);w.appendChild(sv);
+  const c=document.createElement("button");c.className="opt dkcx";c.setAttribute("onclick","cpdCancel()");c.textContent="Cancel";w.appendChild(c)};
  if(typeof cpdScreen==="function"){const cs0=cpdScreen;cpdScreen=function(){
-  if(!isDesk()||(cp.v!=="form"&&cp.v!=="list")||(cp.v==="form"&&!cf))return cs0.apply(this,arguments);
+  if(!isSplit()||(cp.v!=="form"&&cp.v!=="list")||(cp.v==="form"&&!cf))return cs0.apply(this,arguments);
   /* v508 (FMT-20): while an entry is open, the list beside it stays exactly as it is (not rebuilt, not even re-attached),
      unless the entries or the list's filters change; only the editor panel is redrawn, so taps stay quick with a long log */
-  let right,K=null;try{K=JSON.stringify([cpdAll(),cp.nf||0,cp.tf||"",cp.og||{},cp.oy||{}])}catch(e){}
+  let right,K=null;try{K=JSON.stringify([cpdAll(),cp.nf||0,cp.tf||"",cp.og||{},cp.oy||{},cp.q||"",cp.so||""])}catch(e){}
   const old=app.querySelector(":scope>.dk2>.dkl"),dkr=app.querySelector(":scope>.dk2>.dkr");
   if(cp.v==="form"&&K&&K===dkK&&old&&dkr){
    let done=false;
    try{Object.defineProperty(app,"innerHTML",{configurable:true,get(){return dkr.innerHTML},set(v){dkr.innerHTML=v}});cs0.apply(this,arguments);done=true}
    catch(e){console.error("dk",e)}finally{delete app.innerHTML}
-   if(done&&cp.v==="form"&&cf){dkr.setAttribute("aria-label","Entry");old.querySelectorAll(".dksel").forEach(b=>b.classList.remove("dksel"));
+   if(done&&cp.v==="form"&&cf){dkr.setAttribute("aria-label","Entry");dkCancel(dkr);old.querySelectorAll(".dksel").forEach(b=>b.classList.remove("dksel"));
     try{if(cf.id)old.querySelectorAll("[onclick*=\"'"+cf.id+"'\"]").forEach(b=>b.classList.add("dksel"))}catch(e){}
     try{setTimeout(phFill,0)}catch(e){}
     return}
@@ -13941,10 +14065,12 @@ try{(function(){
   const left=app.innerHTML;
   app.innerHTML=`<div class="dk2"><section class="dkl" aria-label="CPD entries">${left}</section><section class="dkr" aria-label="${cp.v==="form"?"Entry":"Details"}">${right}</section></div>`;
   dkK=K;
+  try{if(cp.v==="form")dkCancel(app.querySelector(":scope>.dk2>.dkr"))}catch(e){}
   try{if(cp.v==="form"&&cf&&cf.id)document.querySelectorAll(".dkl [onclick*=\"'"+cf.id+"'\"]").forEach(b=>b.classList.add("dksel"))}catch(e){}
   try{if(cp.v==="form")setTimeout(phFill,0)}catch(e){}
  }}
  if(DESK.addEventListener)DESK.addEventListener("change",()=>{try{home()}catch(e){}});
+ if(SPLIT.addEventListener)SPLIT.addEventListener("change",()=>{try{home()}catch(e){}});
  const sbwm=()=>{const n=document.getElementById("nav");if(n&&!n.querySelector(".sbwm")){const d=document.createElement("div");d.className="sbwm";d.innerHTML='<span class="wm">Phy<i>z</i>ly</span><span class="pill">Early access</span>';n.prepend(d)}};
  let tq=0;new MutationObserver(()=>{if(tq)return;tq=1;requestAnimationFrame(()=>{tq=0;tidy();tidyXp();sbwm()})}).observe(document.body,{childList:true,subtree:true});
  sbwm();
