@@ -12029,15 +12029,15 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
    preceptorship:()=>({pre:S.pre||null}),
    competencies:()=>({cm:S.cm||null}),
    interview:()=>({iv:S.iv||null}),
-   tools:()=>({gr:S.gr||null,about:S.about||null,role:S.role||null,band:S.band==null?null:S.band,nq:!!S.nq,oth:S.oth||null})};
+   tools:()=>({gr:S.gr||null,about:S.about||null,role:S.role||null,band:S.band==null?null:S.band,nq:!!S.nq,oth:S.oth||null,yr:S.yr==null?null:S.yr,crs:S.crs||null})};
   /* per-group checks for values screens use as numbers */
   const FIX={
    tools:v=>{if("about" in v){const A=v.about,o={};if(A&&typeof A==="object"&&!Array.isArray(A)){if(typeof A.area==="string"&&/^[a-z]{2,12}$/.test(A.area))o.area=A.area;if(typeof A.areaTx==="string")o.areaTx=A.areaTx.slice(0,60);if(typeof A.since==="string"&&/^\d{4}-\d{2}$/.test(A.since))o.since=A.since;if(typeof A.nf==="string"&&/^\d{4}-\d{2}$/.test(A.nf))o.nf=A.nf;if(typeof A.n==="string"&&A.n)o.n=A.n.slice(0,2000);if(typeof A.org==="string"&&A.org)o.org=A.org.slice(0,100);if(typeof A.uni==="string"&&A.uni)o.uni=A.uni.slice(0,100);
      const M=/^\d{4}-(0[1-9]|1[0-2])$/,ST=["stu","app","q","5n","5","6","7","8","nb","oth"],ID=/^[a-z0-9]{4,24}$/;
      if(Array.isArray(A.hist))o.hist=A.hist.filter(e=>e&&typeof e==="object"&&ID.test(String(e.id))&&/^[a-z]{2,12}$/.test(String(e.a))&&M.test(e.f)&&M.test(e.t)&&e.f<=e.t&&ST.includes(e.st)).slice(0,200).map(e=>{const x={id:e.id,a:e.a,f:e.f,t:e.t,st:e.st};if(typeof e.ax==="string")x.ax=e.ax.slice(0,60);if(["rotation","placement","post"].includes(e.w))x.w=e.w;if(typeof e.n==="string"&&e.n)x.n=e.n.slice(0,2000);if(typeof e.o==="string"&&e.o)x.o=e.o.slice(0,100);if(typeof e.u==="string"&&e.u)x.u=e.u.slice(0,100);return x});
      if(Array.isArray(A.ms))o.ms=A.ms.filter(m=>m&&typeof m==="object"&&ID.test(String(m.id))&&M.test(m.d)&&ST.includes(m.st)).slice(0,100).map(m=>{const x={id:m.id,d:m.d,st:m.st};if(ST.includes(m.from))x.from=m.from;return x})}v.about=o}
-    if(!["stu","app","sta","rot","oth"].includes(v.role)){delete v.role;delete v.band;delete v.nq;delete v.oth}
-    else{if(!(v.band==="nb"||[5,6,7,8].includes(v.band)))delete v.band;v.nq=!!v.nq&&v.band===5;if(v.oth!=null&&!["sw","edu","ahp","else"].includes(v.oth))delete v.oth}},
+    if(!["stu","app","sta","rot","oth"].includes(v.role)){delete v.role;delete v.band;delete v.nq;delete v.oth;delete v.yr;delete v.crs}
+    else{if(!(Number.isInteger(v.yr)&&v.yr>=1&&v.yr<=6))delete v.yr;if(!(typeof v.crs==="string"&&/^[a-z0-9_-]{1,24}$/.test(v.crs)))delete v.crs;if(!(v.band==="nb"||[5,6,7,8].includes(v.band)))delete v.band;v.nq=!!v.nq&&v.band===5;if(v.oth!=null&&!["sw","edu","ahp","else"].includes(v.oth))delete v.oth}},
    apprenticeship:v=>{const T=v.otjT,o={};if(T&&typeof T==="object"&&!Array.isArray(T))Object.keys(T).forEach(k=>{const n=+T[k];if(/^\d{4}-\d{2}$/.test(k)&&isFinite(n)&&n>0)o[k]=Math.min(300,n)});if("otjT" in v)v.otjT=o},
    preceptorship:v=>{const P=v.pre;if(P&&typeof P==="object"&&!Array.isArray(P)){const n=Math.round(+P.len);P.len=n>=1&&n<=36?n:12;if(P.start!=null&&!DAY.test(String(P.start)))P.start=""}}};
   /* the Portfolio keeps these tools off whatever an account says. v466: preceptorship is back in the Portfolio. Accounts
@@ -12076,11 +12076,11 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
   const run=async function(why){const g=gen,sy=SY(),sb=PZ.sb,uid=PZ.user.id;let changed=false;
    const live=()=>{if(g!==gen||!PZ.user||PZ.user.id!==uid)throw STALE};
    try{
-    if(sy.uid&&sy.uid!==uid){sy.ent={};sy.st={};sy.ph={};sy.pull=null;sy.pullS=null;sy.prof=null}sy.uid=uid;
+    if(sy.uid&&sy.uid!==uid){sy.ent={};sy.st={};sy.ph={};sy.pull=null;sy.pullS=null;sy.prof=null;sy.base={};sy.sat={}}sy.uid=uid;sy.base=sy.base||{};sy.sat=sy.sat||{};
     /* 0. first sync for this account on this device: the account's saved profile and Portfolio items come first */
     if(!sy.pull){const p=await sb.from("profiles").select("*").eq("id",uid).maybeSingle();live();if(p.error)throw p.error;if(p.data){const had=!!S.role;applyProf(p.data);if(!had&&S.role)changed=true;if(p.data.role)sy.prof=hsh(profRow())}
      const gs=await sb.from("user_state").select("key,value,updated_at").eq("user_id",uid);live();if(gs.error)throw gs.error;
-     (gs.data||[]).forEach(r=>{if(r.user_id&&r.user_id!==uid)return;const G=GROUPS[r.key];if(!G)return;const v=r.value||{},empty=Object.values(v).every(x=>x==null||(Array.isArray(x)&&!x.length)||(typeof x==="object"&&!Array.isArray(x)&&!Object.keys(x).length));if(empty)return;applyGroup(r.key,v);sy.st[r.key]=hsh(G());changed=true})}
+     (gs.data||[]).forEach(r=>{if(r.user_id&&r.user_id!==uid)return;const G=GROUPS[r.key];if(!G)return;const v=r.value||{},empty=Object.values(v).every(x=>x==null||(Array.isArray(x)&&!x.length)||(typeof x==="object"&&!Array.isArray(x)&&!Object.keys(x).length));if(empty)return;applyGroup(r.key,v);sy.st[r.key]=hsh(G());sy.base[r.key]=mgCl(v);sy.sat[r.key]=r.updated_at||null;changed=true})}
     /* 1. push entries that changed, and deletions (entries still waiting for "Add to my account?" stay put) */
     const ask=askSet(sy);
     const lo=new Set(sy.lo||[]),now=Date.now(),list=(S.cpd||[]).filter(e=>e&&e.id&&!lo.has(e.id)&&!(ask&&ask.has(e.id)));
@@ -12089,8 +12089,28 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
      const {error}=await sb.from("cpd_entries").upsert(chunk,{onConflict:"user_id,id"});live();if(error)throw error;part.forEach(e=>{sy.ent[e.id]=hsh(e)})}
     const ids=new Set((S.cpd||[]).map(e=>e&&e.id)),gone=Object.keys(sy.ent).filter(id=>!ids.has(id));
     if(gone.length){const {error}=await sb.from("cpd_entries").update({deleted_at:new Date().toISOString()}).eq("user_id",uid).in("id",gone);live();if(error)throw error;gone.forEach(id=>delete sy.ent[id])}
-    /* 2. push saved groups and profile */
-    for(const k of Object.keys(GROUPS)){const v=GROUPS[k](),h=hsh(v);if(sy.st[k]!==h){const {error}=await sb.from("user_state").upsert({user_id:uid,key:k,value:v},{onConflict:"user_id,key"});live();if(error)throw error;sy.st[k]=h}}
+    /* 2. saved groups (v500): bring in what changed elsewhere and merge it item by item with this device's changes, then
+       save with a check that nobody saved in between (if they did: fetch, merge again, retry). Then the profile. */
+    const sinceS=sy.pullS||sy.pull||"1970-01-01T00:00:00Z";let maxS=sinceS,big="";
+    for(const k of Object.keys(GROUPS)){if(sy.base[k]===undefined&&sy.st[k]&&sy.st[k]===hsh(GROUPS[k]()))sy.base[k]=mgCl(GROUPS[k]())}
+    const take=(k,val,at)=>{const G=GROUPS[k],loc=G(),lh=hsh(loc),rh=hsh(val);sy.sat[k]=at||null;
+     if(lh===rh){sy.st[k]=rh;sy.base[k]=mgCl(val);return}
+     if(!sy.st[k]||sy.st[k]===lh){applyGroup(k,val);sy.st[k]=hsh(G());sy.base[k]=mgCl(val);changed=true;return}
+     const m=mg3(sy.base[k],loc,val);applyGroup(k,m);sy.base[k]=mgCl(val);sy.st[k]=rh;changed=true};
+    const r2=await sb.from("user_state").select("key,value,updated_at").eq("user_id",uid).gt("updated_at",sinceS);live();if(r2.error)throw r2.error;
+    (r2.data||[]).forEach(r=>{if(r.updated_at>maxS)maxS=r.updated_at;if(r.user_id&&r.user_id!==uid)return;if(!GROUPS[r.key])return;take(r.key,r.value||{},r.updated_at)});
+    for(const k of Object.keys(GROUPS)){
+     for(let tries=0;tries<4;tries++){const v=GROUPS[k](),h=hsh(v);if(sy.st[k]===h)break;
+      if(JSON.stringify(v).length>180000){big=k;break}
+      const res=sy.sat[k]?await sb.from("user_state").update({value:v}).eq("user_id",uid).eq("key",k).eq("updated_at",sy.sat[k]).select("updated_at")
+                         :await sb.from("user_state").insert({user_id:uid,key:k,value:v}).select("updated_at");
+      live();const dup=!!(res.error&&(res.error.code==="23505"||/duplicate/i.test(String(res.error.message||""))));if(res.error&&!dup)throw res.error;
+      const row=!res.error&&Array.isArray(res.data)&&res.data[0];
+      if(row){sy.sat[k]=row.updated_at||null;sy.st[k]=h;sy.base[k]=mgCl(v);break}
+      /* saved elsewhere in between (or this device didn't know the account's copy yet): fetch it and merge */
+      const f=await sb.from("user_state").select("value,updated_at").eq("user_id",uid).eq("key",k).maybeSingle();live();if(f.error)throw f.error;
+      if(!f.data){sy.sat[k]=null;continue}
+      take(k,f.data.value||{},f.data.updated_at)}}
     let pr=profRow(),ph=hsh(pr);if(sy.prof!==ph&&S.role){if(S.acct&&!S.acct.newsCh){const q=await sb.from("profiles").select("marketing_opt_in,marketing_opt_in_at").eq("id",uid).maybeSingle();live();if(q.error)throw q.error;if(q.data&&q.data.marketing_opt_in!=null){S.acct.news=!!q.data.marketing_opt_in;S.acct.newsAt=q.data.marketing_opt_in?(q.data.marketing_opt_in_at||new Date().toISOString()):null;pr=profRow();ph=hsh(pr)}}const {error}=await sb.from("profiles").update(pr).eq("id",uid);live();if(error)throw error;sy.prof=ph;if(S.acct&&S.acct.newsCh){delete S.acct.newsCh;save()}}
     /* 3. photos: upload new, remove ones no longer used */
     const want=photoIds();
@@ -12109,11 +12129,8 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
       if(r.deleted_at){if(i>=0){S.cpd.splice(i,1);changed=true}delete sy.ent[r.id];return}
       const e=toEntry(r);delete e.u;const h=hsh(e);if(i>=0){if(hsh(S.cpd[i])===h){sy.ent[r.id]=h;return}if(sy.ent[r.id]!==hsh(S.cpd[i])){return}S.cpd[i]=e}else S.cpd.unshift(e);sy.ent[r.id]=h;changed=true});
      if(rows.length<1000)break}
-    const sinceS=sy.pullS||sy.pull||"1970-01-01T00:00:00Z";let maxS=sinceS;
-    const r2=await sb.from("user_state").select("key,value,updated_at").eq("user_id",uid).gt("updated_at",sinceS);live();if(r2.error)throw r2.error;
-    (r2.data||[]).forEach(r=>{if(r.updated_at>maxS)maxS=r.updated_at;if(r.user_id&&r.user_id!==uid)return;const G=GROUPS[r.key];if(!G)return;const h=hsh(r.value);if(hsh(G())===h){sy.st[r.key]=h;return}if(sy.st[r.key]&&sy.st[r.key]!==hsh(G()))return;applyGroup(r.key,r.value);sy.st[r.key]=hsh(GROUPS[r.key]());changed=true});
     if(changed)(S.cpd||[]).sort((a,b)=>String(b.d).localeCompare(String(a.d)));
-    sy.pull=maxAt;sy.pullS=maxS;PZ.last=Date.now();PZ.err="";PZ.pending=0;
+    sy.pull=maxAt;sy.pullS=maxS;PZ.last=Date.now();PZ.err=big?(big==="tools"?"Feedback, SWOC and your plan are too large to back up. Export them, then delete some older items.":"Some of your saved items are too large to back up."):"";PZ.pending=0;
    }catch(e){if(e===STALE||g!==gen){PZ.busy=false;return false}PZ.err=nice(e);console.error("PZ sync",e)}
    PZ.busy=false;if(g!==gen)return false;try{localStorage.setItem("shoulder-v2",JSON.stringify(S))}catch(e){}
    if(changed&&why!=="quiet"){try{const y=window.scrollY;if(typeof LES==="undefined"||!LES){if(document.getElementById("obtr")==null&&!document.querySelector(".cin:focus"))home();window.scrollTo(0,y)}}catch(e){}}
@@ -12158,7 +12175,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
    PZ.user=u;const prev=(S.acct&&(S.acct.uid===u.id||S.acct.guest))?S.acct:{},sy=SY();
    S.acct=Object.assign({},prev.uid===u.id?prev:{},{uid:u.id,method:method(u),email:u.email||"",name:(extra&&extra.name)||prev.name||((u.user_metadata||{}).first_name)||((u.user_metadata||{}).given_name)||((u.user_metadata||{}).full_name||"").split(" ")[0]||"",at:prev.at||Date.now()},extra&&extra.news!=null?{news:!!extra.news,newsAt:extra.news?new Date().toISOString():null,newsCh:1}:{});
    delete S.signedOut;delete S.acct.guest;
-   if(sy.uid&&sy.uid!==u.id){sy.ent={};sy.st={};sy.ph={};sy.pull=null;sy.pullS=null;sy.prof=null;sy.lo=[]}
+   if(sy.uid&&sy.uid!==u.id){sy.base={};sy.sat={};sy.ent={};sy.st={};sy.ph={};sy.pull=null;sy.pullS=null;sy.prof=null;sy.lo=[]}
    const localOnly=(S.cpd||[]).filter(e=>e&&!sy.ent[e.id]&&!(sy.lo||[]).includes(e.id));if(!sy.uid&&localOnly.length&&!S.pzAsk){S.pzAsk=localOnly.length;S.pzAskIds=localOnly.map(e=>e.id)}
    save();await PZ.sync("quiet");return u};
   PZ.keepLocal=function(add){const sy=SY();if(!add){const ids=S.pzAskIds||(S.cpd||[]).filter(e=>e&&!sy.ent[e.id]).map(e=>e.id);sy.lo=Array.from(new Set((sy.lo||[]).concat(ids)))}delete S.pzAsk;delete S.pzAskIds;save();PZ.sync()};
@@ -14824,6 +14841,46 @@ function crCareerPdfGo(){xpRun("pdf",async()=>[{name:"career-history-"+isoD(new 
 {const fz=crFinish;crFinish=function(){const a=abA(),n=a.n,before=crH().length;const r=fz.apply(this,arguments);if(crH().length>before&&n){crH()[crH().length-1].n=n;delete a.n;abSave()}return r}}
 {const gA=abGo;abGo=function(){crV=null;return gA.apply(this,arguments)}}
 {const gC=crGo;crGo=function(){crV=null;return gC.apply(this,arguments)}}
+
+
+/* ---------- v500: merging saved groups between devices ---------- */
+/* mg3(base, mine, theirs): base is what both devices last agreed on. Objects merge key by key; lists of items with an id
+   merge item by item (new items on either side are kept; an item deleted on one side goes, unless the other side edited
+   it since, then the edit is kept); lists of plain values merge as sets; anything else: if only one side changed it,
+   that change is taken; if both did, this device's wins. Nothing here talks to the network. */
+function mgCl(v){try{return v==null?v:JSON.parse(JSON.stringify(v))}catch(e){return v}}
+function mgEq(a,b){if(a===b)return true;try{return JSON.stringify(a)===JSON.stringify(b)}catch(e){return false}}
+const mgObj=x=>!!x&&typeof x==="object"&&!Array.isArray(x);
+const mgIdd=a=>Array.isArray(a)&&a.length>0&&a.every(x=>mgObj(x)&&(typeof x.id==="string"||typeof x.id==="number"));
+const mgPrim=a=>Array.isArray(a)&&a.every(x=>x==null||typeof x!=="object");
+function mg3(b,l,r){
+ if(mgEq(l,r))return mgCl(l);
+ if(b!==undefined&&mgEq(b,l))return mgCl(r);
+ if(b!==undefined&&mgEq(b,r))return mgCl(l);
+ if(mgObj(l)&&mgObj(r)){const B=mgObj(b)?b:{},o={},ks=new Set(Object.keys(l).concat(Object.keys(r)));
+  ks.forEach(k=>{const inL=Object.prototype.hasOwnProperty.call(l,k),inR=Object.prototype.hasOwnProperty.call(r,k),inB=Object.prototype.hasOwnProperty.call(B,k);
+   if(inL&&inR){o[k]=mg3(inB?B[k]:undefined,l[k],r[k]);return}
+   if(inL){if(inB&&mgEq(B[k],l[k]))return;o[k]=mgCl(l[k]);return}
+   if(inB&&mgEq(B[k],r[k]))return;o[k]=mgCl(r[k])});
+  return o}
+ if(Array.isArray(l)&&Array.isArray(r)){const Ba=Array.isArray(b)?b:[];
+  if((mgIdd(l)||!l.length)&&(mgIdd(r)||!r.length)&&(l.length||r.length)){
+   const key=x=>String(x.id),mB=new Map(),mL=new Map(),mR=new Map();Ba.forEach(x=>{if(mgObj(x)&&x.id!=null)mB.set(key(x),x)});l.forEach(x=>mL.set(key(x),x));r.forEach(x=>mR.set(key(x),x));
+   const out=[];
+   r.forEach(ri=>{const id=key(ri),li=mL.get(id),bi=mB.get(id);
+    if(li){out.push(mg3(bi,li,ri));return}
+    if(bi&&mgEq(bi,ri))return;               /* deleted here, untouched there: stays deleted */
+    out.push(mgCl(ri))});                      /* new there, or edited there after being deleted here: kept */
+   l.forEach((li,i)=>{const id=key(li);if(mR.has(id))return;const bi=mB.get(id);
+    if(bi&&mgEq(bi,li))return;               /* deleted there, untouched here: stays deleted */
+    out.splice(Math.min(i,out.length),0,mgCl(li))});   /* new here (or edited here): kept, near its place */
+   return out}
+  if(mgPrim(l)&&mgPrim(r)){const inB=new Set(Ba.map(x=>JSON.stringify(x))),inR=new Set(r.map(x=>JSON.stringify(x))),inL=new Set(l.map(x=>JSON.stringify(x)));
+   const out=l.filter(x=>!(inB.has(JSON.stringify(x))&&!inR.has(JSON.stringify(x))));
+   r.forEach(x=>{const j=JSON.stringify(x);if(!inL.has(j)&&!inB.has(j))out.push(x)});
+   return out}
+  return mgCl(l)}
+ return mgCl(l)}
 
 
 /* ---------- Phyzly Portfolio (early access): Portfolio and Profile only, plus Quick ref and feedback ---------- */
