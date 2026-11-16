@@ -770,6 +770,16 @@ html.clin .mcard>.opt.crfb{border:1.5px solid var(--line)!important;background:v
 
 /* v501: the streak flame is gold, not coral */
 html.clin .nvband .pfst b svg,html.clin .nvhd .cstrip b svg{color:#E0A800!important}
+
+/* v502: discard prompt, draft note, sign-out warning */
+#pzdisc .twbx{width:100%}#pzdisc .twbx p{margin:0 0 14px}#pzdisc .go{margin:0}#pzdisc .opt{text-align:center;margin-top:8px;width:100%}
+.pzdraft{border:2px solid var(--line);border-radius:14px;padding:12px;margin:14px 0 12px;background:var(--card);color:var(--ink)}
+.pzdraft p{margin:0 0 10px;color:var(--ink)}.pzdraft b{color:var(--ink)}.pzdraft .tabs{margin:0}
+#pzoutw{margin:10px 0 0}#pzoutw p{margin:4px 0 0}#pzoutw .lnk{padding:0;margin-top:6px;text-decoration:underline}
+
+/* v503: the one-time 18+ and Terms question */
+#pzage .twbx{width:100%}#pzage .twbx p{margin:0 0 12px}#pzage .ock{margin:0 0 12px}#pzage .opt{text-align:center;margin-top:8px;width:100%}
+#pzage a{color:inherit;text-decoration:underline}
 </style>
 <style>
 .cpsl{font-size:.78rem;font-weight:600;color:var(--mute);margin:4px 0 6px}
@@ -3014,7 +3024,7 @@ function cpdForm(){
  app.innerHTML=head()+`<button class="lnk" onclick="cpdCancel()">‹ ${cf.from==="onc"?"Skip for now":cf.from==="cm"?"Competency":cf.from==="hc"?"Evidence":cf.from==="pre"?"Preceptorship":"CPD log"}</button><h1 style="font-size:1.5rem;margin:6px 0 2px">${cf.id?"Edit entry":"New entry"}</h1>`+
  (cf.from==="onc"?`<div class="note">Quick reflection while it is fresh. Two minutes is plenty.</div>`:"")+
  `<div class="note"><b>No patient details.</b> Do not include names, dates of birth, NHS numbers or anything that could identify someone.</div>`+
- (cf.err?`<div class="fb bad"><b>${esc(cf.err)}</b></div>`:"")+
+ (cf.err?`<div class="fb bad" id="cf-err" role="alert" tabindex="-1"><b>${esc(cf.err)}</b></div>`:"")+
  `<label class="cfl" for="cf-t">Title</label><input id="cf-t" class="cin" maxlength="120" value="${esc(cf.t)}" oninput="cf.t=this.value" placeholder="e.g. Respiratory study day">`+
  `<div class="cr"><div><label class="cfl" for="cf-d">Date</label><input id="cf-d" class="cin" type="date" value="${esc(cf.d)}" oninput="cf.d=this.value" onchange="cf.d=this.value;if(showPre()&&!!S.pre&&!!S.pre.start)cfRe()"></div><div><label class="cfl" for="cf-m">Minutes</label><input id="cf-m" class="cin" type="number" inputmode="numeric" min="0" max="1440" value="${esc(cf.m)}" oninput="cf.m=this.value;document.getElementById('cf-mh').textContent='= '+fmtH(Math.max(0,Math.round(+this.value||0)))"><div class="tag" id="cf-mh" style="margin:2px 0 0">= ${fmtH(Math.max(0,Math.round(+cf.m||0)))}</div></div></div>`+
  `<div class="cr"><div><label class="cfl" for="cf-tm">${(cf.ss||[]).length?"First start time":"Start time (optional)"}</label><input id="cf-tm" class="cin" type="time" value="${esc(cf.tm||"")}" oninput="cf.tm=this.value"></div>${showApp()?`<div><div class="cfl">Off-the-job</div><div class="chipw"><button class="chipb${cf.otj?" on":""}" onclick="cf.otj=true;cfRe()">Yes</button><button class="chipb${!cf.otj?" on":""}" onclick="cf.otj=false;cfRe()">No</button></div></div>`:""}</div>`+ssBlock()+phBlock()+
@@ -3155,9 +3165,9 @@ const phDel=id=>phTx("readwrite",s=>s.delete(id));
 const phKeys=()=>phTx("readonly",s=>s.getAllKeys());
 async function phUrl(id){if(PHU[id])return PHU[id];const b=await phGet(id);if(!b)return null;return PHU[id]=URL.createObjectURL(b)}
 function phShrink(file){return new Promise((res,rej)=>{const u=URL.createObjectURL(file),im=new Image();im.onload=()=>{const mx=1600,k=Math.min(1,mx/Math.max(im.naturalWidth,im.naturalHeight)),w=Math.round(im.naturalWidth*k),h=Math.round(im.naturalHeight*k),c=document.createElement("canvas");c.width=w;c.height=h;c.getContext("2d").drawImage(im,0,0,w,h);URL.revokeObjectURL(u);c.toBlob(b=>b?res(b):rej(new Error("encode")),"image/jpeg",0.72)};im.onerror=()=>{URL.revokeObjectURL(u);rej(new Error("load"))};im.src=u})}
-async function phAdd(files){if(!cf||!files||!files.length)return;cf.ph=cf.ph||[];cf.phMsg="Adding…";cfRe();let n=0;
- for(const f of Array.from(files).slice(0,12-cf.ph.length)){try{if(f.type==="application/pdf"||/\.pdf$/i.test(f.name||"")){if(f.size>15e6){cf.phMsg="That PDF is over 15 MB. Try a smaller copy.";continue}const id="pd"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);await phPut(id,f);cf.ph.push(id);n++;continue}const b=await phShrink(f),id="ph"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);await phPut(id,b);cf.ph.push(id);n++}catch(e){}}
- cf.phMsg=n?"":cf.phMsg&&cf.phMsg!=="Adding…"?cf.phMsg:"That file couldn't be added. Try a photo or a PDF.";if(n&&!cpHas({r:cf.r,fw:cf.fw}))cf.nr=true;cfRe();hap("tap")}
+async function phAdd(files){if(!cf||!files||!files.length)return;const cf0=cf;cf.ph=cf.ph||[];cf.phMsg="Adding…";cfRe();let n=0;
+ for(const f of Array.from(files).slice(0,12-cf.ph.length)){try{if(f.type==="application/pdf"||/\.pdf$/i.test(f.name||"")){if(f.size>15e6){cf0.phMsg="That PDF is over 15 MB. Try a smaller copy.";continue}const id="pd"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);await phPut(id,f);cf0.ph.push(id);n++;continue}const b=await phShrink(f),id="ph"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);await phPut(id,b);cf0.ph.push(id);n++}catch(e){}}
+ if(cf!==cf0){cf0.phMsg="";return}cf.phMsg=n?"":cf.phMsg&&cf.phMsg!=="Adding…"?cf.phMsg:"That file couldn't be added. Try a photo or a PDF.";if(n&&!cpHas({r:cf.r,fw:cf.fw}))cf.nr=true;cfRe();hap("tap")}
 function phFill(){document.querySelectorAll("img[data-ph]").forEach(async im=>{const u=await phUrl(im.dataset.ph);if(u)im.src=u});document.querySelectorAll("[data-pn]").forEach(async el=>{try{const b=await phGet(el.dataset.pn);if(b&&b.name)el.textContent=b.name}catch(e){}});document.querySelectorAll("iframe[data-pf]").forEach(async f=>{const u=await phUrl(f.dataset.pf);if(u)f.src=u})}
 function phView(id){const d=document.createElement("div");d.className="phv";d.innerHTML=`${isPdf(id)?`<iframe title="Attached PDF" data-pf="${esc(id)}" style="width:100%;flex:1;min-height:60vh;border:0;background:#fff;border-radius:10px"></iframe>`:`<img alt="Photo attached to this entry" data-ph="${esc(id)}">`}<div class="phvb"><button class="opt" onclick="this.closest('.phv').remove()">Close</button>${cf||cmf||(typeof pe!=="undefined"&&pe&&pe.v==="mt")||(typeof grf!=="undefined"&&grf&&grf.k==="fb")?`<button class="opt" style="color:var(--bad)" onclick="${cf?"phRm":cmf?"cmPhRm":(typeof grf!=="undefined"&&grf&&grf.k==="fb")?"grPhRm":"mtPhRm"}('${esc(id)}');this.closest('.phv').remove()">${isPdf(id)?"Delete PDF":"Delete photo"}</button>`:""}</div>`;d.onclick=e=>{if(e.target===d)d.remove()};document.body.appendChild(d);phFill()}
 function phRm(id){if(!cf)return;cf.ph=(cf.ph||[]).filter(x=>x!==id);cf.phGone=(cf.phGone||[]).concat([id]);cfRe()}
@@ -8165,7 +8175,7 @@ function auMe(){const a=S.acct;
  if(!a||a.guest)return `<div class="sec">Account</div><div class="note"><b>You're using Phyzly without an account.</b> Create one to back up your progress and use it on other devices.</div><button class="go" style="margin-top:0" onclick="au.v='form';au.mode='up';delete S.acct;S.acctLater=1;save();welcome()">Create an account</button><button class="opt" style="text-align:center;margin-top:8px" onclick="au.v='form';au.mode='in';delete S.acct;save();welcome()">Sign in</button>`;
  const how=a.method==="apple"?"Signed in with Apple":a.method==="google"?"Signed in with Google":"Signed in with email";
  return `<div class="sec">Account</div><div class="lr me"><span class="av">${esc((a.name||"🙂").slice(0,1).toUpperCase())}</span><div class="nm">${esc(a.name||"Your account")}<small>${esc(a.email||how)}${a.email?" · "+how.replace("Signed in with ","via "):""}</small></div></div>`+
- `<button class="opt" style="text-align:center;margin-top:8px;${au.oc?"border-color:var(--bad);color:var(--bad)":""}" onclick="auOut()">${au.oc?"Tap again to sign out":"Sign out"}</button><p class="tag">In this prototype your progress stays on this device when you sign out.</p>`}
+ `${pzOutWarn()}<button class="opt" style="text-align:center;margin-top:8px;${(au.oc||pzOutOn())?"border-color:var(--bad);color:var(--bad)":""}" onclick="auOut()">${au.oc?"Tap again to sign out":"Sign out"}</button><p class="tag">In this prototype your progress stays on this device when you sign out.</p>`}
 
 function setRole(id){S.role=id;S.obFlow=1;delete S.band;delete S.nq;delete S.oth;if(!S.style)S.style="clinical";save();if(id==="stu"||id==="app"){delete S.crs;delete S.yr;delete S.cov;welcome("course")}else welcome(id==="oth"?"oth":id==="sta"||id==="rot"?"band":"start")}
 const CRS=[["bsc3","3-year degree","BSc in England, Wales or Northern Ireland",3],["bsc4","4-year degree","BSc in Scotland",4],["msc","2-year master's","Pre-registration MSc",2]];
@@ -8815,7 +8825,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
  }catch(e){console.error("v281",e)}
 
  /* ---------- v282: tester version: report a problem, feedback, welcome note ---------- */
- const RP_VER="v501";let rpCtx=null,rpCat=null;
+ const RP_VER="v503";let rpCtx=null,rpCat=null;
  function rpBtn(kind,id,i){return `<button class="rpb" onclick="rpOpen('${kind}','${id}',${i})">⚑ Report a problem with this card</button>`}
  function rpCtxFor(kind,id,i){try{
   if(kind==="c"){const c=LEARN[id][i],cd=typeof COND!=="undefined"&&COND.find(x=>x.id===id);return {kind:"card",layer:id,card:i,title:c.t,where:(cd?"Condition: "+cd.n:(typeof tn==="function"?tn(id):id))+" · card "+(i+1)+": "+c.t}}
@@ -12056,8 +12066,8 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
   /* v452: what belongs to an account on this device. Removed when you sign out, and before a different
      account is used here, so one person's Portfolio can never be read by, or copied into, another's
      (security pass 10 Nov 2026, findings 1 and 3). v454: rotation, qualification and export dates added (R9). */
-  const ACCT_K=["cpd","plc","hc","otj","otjT","ksb","pre","cm","iv","gr","grV","rqT","pfp","role","band","nq","oth","crs","yr","pzAsk","pzAskIds","qualAt","prevRole","rot","rotDate","cpdX","about"];
-  const dropAcct=()=>{ACCT_K.forEach(k=>delete S[k]);delete S.sy};
+  const ACCT_K=["cpd","plc","hc","otj","otjT","ksb","pre","cm","iv","gr","grV","rqT","pfp","role","band","nq","oth","crs","yr","pzAsk","pzAskIds","qualAt","prevRole","rot","rotDate","cpdX","about","cfDraft"];
+  const dropAcct=()=>{ACCT_K.forEach(k=>delete S[k]);delete S.sy;try{pzDevReset()}catch(e){}};
   const photosIn=o=>{const out=new Set();(JSON.stringify(o||null).match(/"(?:ph|pd)[a-z0-9]{8,}"/g)||[]).forEach(x=>out.add(x.slice(1,-1)));return out};
   const wipePhotos=async()=>{try{const ks=await phKeys();for(const k of ks)await phDel(k)}catch(e){}};
 
@@ -12150,7 +12160,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
    try{const d=await PZ.sb.storage.from("evidence").download(phPath(id));if(!same()||d.error||!d.data)return null;await phPut(id,d.data);if(!same()){try{await phDel(id)}catch(e){}return null}SY().ph[id]=1;return await phUrl0(id)}catch(e){return null}};
 
   /* ---------- sign in ---------- */
-  PZ.sendCode=async function(email,name,inv,up){unfence();const {error}=await PZ.sb.auth.signInWithOtp({email,options:{shouldCreateUser:true,data:Object.assign({first_name:(name||"").slice(0,40)},inv?{invite_code:inv}:{},up?{age_18_confirmed:true}:{})}});if(error)throw error};
+  PZ.sendCode=async function(email,name,inv,up){unfence();const {error}=await PZ.sb.auth.signInWithOtp({email,options:{shouldCreateUser:!!up,data:Object.assign({first_name:(name||"").slice(0,40)},inv?{invite_code:inv}:{},up?{age_18_confirmed:true}:{})}});if(error)throw error};
    /* true = good, false = not valid or used up, null = could not check */
    PZ.invCheck=async function(code){try{const r=await PZ.sb.rpc("invite_check",{p_code:code});if(!r||r.error)return null;return r.data===true}catch(e){return null}};
   PZ.verify=async function(email,code){unfence();const {data,error}=await PZ.sb.auth.verifyOtp({email,token:code,type:"email"});if(error)throw error;return data.user};
@@ -12254,31 +12264,31 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
     if(au.err){welcome();return}au.busy=true;welcome();
     const inv=au.mode==="up"&&pzInv()?pzInvN(au.inv):"";
      if(inv){const ck=await PZ.invCheck(inv);if(ck!==true){au.busy=false;au.err=ck===false?"That invite code isn't valid or has been used up. Check it, or ask for a new one.":"We couldn't check your invite code. Check your connection and try again.";welcome();return}}
-     try{await PZ.sendCode(au.email.trim().toLowerCase(),au.mode==="up"?au.name.trim():"",inv,au.mode==="up")}catch(e){au.busy=false;const m=String((e&&e.message)||"");au.err=/invitation only/i.test(m)&&au.mode!=="up"?"We couldn't find an account with that email. Phyzly is invitation only at the moment, so a new account needs an invite code.":/invite code/i.test(m)?m:nice(e);welcome();return}
+     try{await PZ.sendCode(au.email.trim().toLowerCase(),au.mode==="up"?au.name.trim():"",inv,au.mode==="up")}catch(e){au.busy=false;const m=String((e&&e.message)||"");au.err=au.mode!=="up"&&/signups? not allowed|otp_disabled|user not found/i.test(m+" "+((e&&e.code)||""))?(pzInv()?"We couldn't find an account with that email. Phyzly is invitation only at the moment, so a new account needs an invite code.":"We couldn't find an account with that email. Check it, or create an account."):/invitation only/i.test(m)&&au.mode!=="up"?"We couldn't find an account with that email. Phyzly is invitation only at the moment, so a new account needs an invite code.":/invite code/i.test(m)?m:nice(e);welcome();return}
     au.busy=false;au.code="";au.t=Date.now();au.v="code";welcome();window.scrollTo(0,0);setTimeout(()=>{const i=document.getElementById("au-c");if(i)i.focus()},100);
     clearInterval(au.iv);au.iv=setInterval(()=>{const r=document.getElementById("au-rs");if(!r||au.v!=="code"){clearInterval(au.iv);return}const left=Math.max(0,30-Math.floor((Date.now()-au.t)/1000));if(left)r.textContent="Resend code in "+left+"s";else{clearInterval(au.iv);welcome()}},1000)};
    auVerify=async function(){if(au.v!=="code"||au.code.length!==6||au.busy)return;au.busy=true;const b=document.querySelector(".auf .go");if(b){b.disabled=true;b.textContent="Checking…"}
     try{const u=await PZ.verify(au.email.trim().toLowerCase(),au.code);const wasUp=au.mode==="up";await PZ.adopt(u,{name:wasUp?au.name.trim():"",news:wasUp?!!au.news:null});au.busy=false;au.v="land";au.code="";
      if(S.role){celebrate(wasUp?"Account created":"Welcome back"+(S.acct.name?", "+S.acct.name:""));home()}else{welcome();if(wasUp)setTimeout(()=>celebrate("Account created"),100)}window.scrollTo(0,0)}
     catch(e){au.busy=false;au.err=nice(e);au.code="";welcome();setTimeout(()=>{const i=document.getElementById("au-c");if(i)i.focus()},60)}};
-   auSso=async function(m){unfence();const P=(CFG.providers||{});if(!P[m]){au.err=(m==="apple"?"Sign in with Apple":"Google sign-in")+" is coming soon. Use your email for now.";welcome();return}
+   auSso=async function(m){if(au.v==="form"&&au.mode==="up"&&!au.agree){au.err="Please confirm you're 18 or over and agree to the Terms first.";welcome();return}unfence();const P=(CFG.providers||{});if(!P[m]){au.err=(m==="apple"?"Sign in with Apple":"Google sign-in")+" is coming soon. Use your email for now.";welcome();return}
     try{await PZ.oauth(m)}catch(e){au.err=nice(e);welcome()}};
-   const resendClick=()=>{au.t=Date.now();PZ.sendCode(au.email.trim().toLowerCase(),"").then(()=>toast("Code sent again")).catch(e=>toast(nice(e)));welcome()};window.pzResend=resendClick;
+   const resendClick=()=>{au.t=Date.now();const up=au.mode==="up";PZ.sendCode(au.email.trim().toLowerCase(),up?au.name.trim():"",up&&pzInv()?pzInvN(au.inv):"",up).then(()=>toast("Code sent again")).catch(e=>toast(nice(e)));welcome()};window.pzResend=resendClick;
    auOut=async function(){if(au.ob)return;const fp=()=>hsh([S.cpd,localOnlyN(),S.sy&&S.sy.ent,S.plc,S.iv]);const anyway=au.oc2&&au.oc2.fp===fp()&&Date.now()-au.oc2.at<120000;
     if(!anyway&&!au.oc){au.oc2=0;au.oc=1;meScreen();return}au.oc=0;au.ob=1;meScreen();let r;
     if(anyway){au.oc2=0;try{await PZ.signOut(true)}finally{au.ob=0}r="ok"}
     else{au.oc2=0;try{r=await PZ.signOut(false)}finally{au.ob=0}}
     if(r==="other")return;
-    if(r!=="ok"){if(!au.oc2){au.oc2={fp:fp(),at:Date.now()};const n=/^local:(\d+)$/.exec(r);toast(n?(n[1]==="1"?"1 entry is":n[1]+" entries are")+" kept on this phone only and will be deleted. Export first, or tap Sign out again to sign out anyway.":"Some changes aren't backed up yet. Tap Sign out again to sign out anyway.");meScreen();return}au.oc2=0;await PZ.signOut(true)}
+    if(r!=="ok"){if(!au.oc2){const n=/^local:(\d+)$/.exec(r);au.oc2={fp:fp(),at:Date.now(),loc:!!n,msg:n?(n[1]==="1"?"1 entry is":n[1]+" entries are")+" kept on this phone only and will be deleted from this phone if you sign out. Export them first, or choose Sign out anyway.":"Some changes aren't backed up yet. Wait a moment for them to back up, or choose Sign out anyway."};meScreen();setTimeout(()=>{const w=document.getElementById("pzoutw");if(w)w.scrollIntoView({block:"center"})},30);return}au.oc2=0;await PZ.signOut(true)}
     au.oc2=0;delete S.acct;S.signedOut=1;save();au.v="land";tab="found";welcome();window.scrollTo(0,0)};
    /* v454: no session confirmed yet on this device (usually no connection): say so plainly and keep Sign out (R1b) */
    const me0=auMe;auMe=function(){const a=S.acct;if(a&&!a.guest&&!PZ.user)return `<div class="sec">Account</div><div class="note"><b>Not connected.</b> Your Portfolio is on this device and will back up when you're connected again.</div>`+
-     `<button class="opt" style="text-align:center;margin-top:8px;${au.oc?"border-color:var(--bad);color:var(--bad)":""}" onclick="auOut()"${au.ob?" disabled":""}>${au.ob?"Signing out…":au.oc?"Tap again to sign out":"Sign out"}</button><p class="tag">Signing out removes your Portfolio from this device.</p>`;if(!a||a.guest)return me0.apply(this,arguments);
+     `${pzOutWarn()}<button class="opt" style="text-align:center;margin-top:8px;${(au.oc||pzOutOn())?"border-color:var(--bad);color:var(--bad)":""}" onclick="auOut()"${au.ob?" disabled":""}>${au.ob?"Signing out…":pzOutOn()?"Sign out anyway":au.oc?"Tap again to sign out":"Sign out"}</button><p class="tag">Signing out removes your Portfolio from this device.</p>`;if(!a||a.guest)return me0.apply(this,arguments);
     const how=a.method==="apple"?"Signed in with Apple":a.method==="google"?"Signed in with Google":"Signed in with email";
     const st=PZ.err==="offline"?"Offline. Changes will back up when you're connected.":PZ.err?"Backup problem: "+esc(PZ.err):PZ.last?"Backed up "+new Date(PZ.last).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}):"Backing up…";
     return `<div class="sec">Account</div><div class="lr me"><span class="av">${esc((a.name||"🙂").slice(0,1).toUpperCase())}</span><div class="nm">${esc(a.name||"Your account")}<small>${esc(a.email||how)}${a.email?" · "+how.replace("Signed in with ","via "):""}</small></div></div>`+
      `<p class="tag pzst">${st}</p><button class="opt" style="text-align:center;margin-top:8px" onclick="PZ.sync().then(()=>meScreen())">Back up now</button>`+
-     `<button class="opt" style="text-align:center;margin-top:8px;${au.oc?"border-color:var(--bad);color:var(--bad)":""}" onclick="auOut()"${au.ob?" disabled":""}>${au.ob?"Signing out…":au.oc?"Tap again to sign out":"Sign out"}</button>`+
+     `${pzOutWarn()}<button class="opt" style="text-align:center;margin-top:8px;${(au.oc||pzOutOn())?"border-color:var(--bad);color:var(--bad)":""}" onclick="auOut()"${au.ob?" disabled":""}>${au.ob?"Signing out…":pzOutOn()?"Sign out anyway":au.oc?"Tap again to sign out":"Sign out"}</button>`+
      `<p class="tag">Signing out removes your Portfolio from this device. It stays safe in your account.</p>`+
      `<div class="cfl" style="margin-top:16px">Emails from Phyzly</div><button class="ock pznews${a.news?" on":""}" role="checkbox" aria-checked="${!!a.news}" onclick="pzNews()"><i>${a.news?"✓":""}</i><span>Email me occasional Phyzly news<br><small style="color:var(--mute)">Change this whenever you like. Sign-in codes are always sent.</small></span></button>`+
      `<button class="opt" style="text-align:center;margin-top:8px;border-color:var(--bad);color:var(--bad)" onclick="pzDel()">${au.del?"Tap again to delete your account and everything in it":"Delete my account"}</button>`};
@@ -14429,7 +14439,7 @@ function grGlBack(){const b=(grf&&grf.back)||"pl";grf=null;
  gv={v:"home",tab:"pl"};tab="cpd";pf="gr";home();window.scrollTo(0,0)}
 function grGlRd(){const f=grf;if(!f||f.k!=="gl")return;const g=id=>document.getElementById(id);
  if(g("gl-t"))f.t=g("gl-t").value;if(g("gl-m"))f.m=g("gl-m").value;if(g("gl-by"))f.by=g("gl-by").value;if(g("gl-hp"))f.hp=g("gl-hp").value;if(g("gl-oc"))f.oc=g("gl-oc").value;
- f.st.forEach((x,i)=>{const e=g("gl-s"+i);if(e)x.t=e.value});f.ev.forEach((e,i)=>{const n=g("gl-n"+i);if(n)e.n=n.value})}
+ if(g("gl-sn"))f.sn=g("gl-sn").value;f.st.forEach((x,i)=>{const e=g("gl-s"+i);if(e)x.t=e.value});f.ev.forEach((e,i)=>{const n=g("gl-n"+i);if(n)e.n=n.value})}
 function grGlCk(){grGlRd();const e=document.getElementById("gl-ck");if(!e)return;const m=grGlMissTxt(grf);e.textContent=m||"SMART: specific, measurable, with steps and a date.";e.className="tag glck"+(m?"":" ok")}
 function grGlForm(){const f=grf,G=grS(),cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
  if(f.dv)return grGlDoneForm();
@@ -14447,7 +14457,7 @@ function grGlForm(){const f=grf,G=grS(),cap=s=>s.charAt(0).toUpperCase()+s.slice
   `<label class="cfl" for="gl-by">By when? <span class="glop">(optional)</span></label><input id="gl-by" class="cin" type="date" value="${esc(f.by)}" oninput="grGlCk()" onchange="grGlCk()">`+
   `<div class="cfl">What will you do? <span class="glop">(optional)</span></div>`+
   f.st.map((x,i)=>`<div class="grow glst"><button class="ock${x.done?" on":""}" role="checkbox" aria-checked="${!!x.done}" aria-label="Step ${i+1} done" onclick="grGlRd();grGlStT(${i})"><i>${x.done?"✓":""}</i></button><input id="gl-s${i}" class="cin" maxlength="160" value="${esc(x.t)}" aria-label="Step ${i+1}" oninput="grGlCk()"><button class="gx" aria-label="Remove step ${i+1}" onclick="grGlRd();grf.st.splice(${i},1);cfRe()">✕</button></div>`).join("")+
-  (f.st.length<20?`<div class="grow"><input id="gl-sn" class="cin" maxlength="160" placeholder="${f.st.length?"Add another step":"e.g. Shadow the respiratory team twice"}" aria-label="New step" onkeydown="if(event.key==='Enter'){event.preventDefault();grGlStAdd()}"><button class="gx gladd" onclick="grGlStAdd()">Add</button></div>`:"")+
+  (f.st.length<20?`<div class="grow"><input id="gl-sn" class="cin" maxlength="160" value="${esc(f.sn||"")}" oninput="grf.sn=this.value" placeholder="${f.st.length?"Add another step":"e.g. Shadow the respiratory team twice"}" aria-label="New step" onkeydown="if(event.key==='Enter'){event.preventDefault();grGlStAdd()}"><button class="gx gladd" onclick="grGlStAdd()">Add</button></div>`:"")+
   `<label class="cfl" for="gl-hp">What help do you need? <span class="glop">(optional)</span></label><textarea id="gl-hp" class="cin" rows="2" maxlength="300" placeholder="e.g. Time with the respiratory team, and a supervisor to sign off" >${esc(f.hp)}</textarea>`+
   (f.pre||showPre()?`<button class="ock${f.pre?" on":""}" role="checkbox" aria-checked="${!!f.pre}" style="margin-top:12px" onclick="grGlRd();grf.pre=!grf.pre;cfRe()"><i>${f.pre?"✓":""}</i><span>Part of my preceptorship</span></button>`:"")+
   `<div class="cfl">SWOC points it works on <span class="glop">(optional)</span></div>`+
@@ -14463,9 +14473,9 @@ function grGlForm(){const f=grf,G=grS(),cap=s=>s.charAt(0).toUpperCase()+s.slice
   (f.id?`<button class="opt" style="text-align:center;margin-top:10px;${f.del?"border-color:var(--bad);color:var(--bad)":""}" onclick="grGlDel()">${f.del?"Tap again to delete":"Delete goal"}</button>`:"");
  app.innerHTML=h}
 function grGlStT(i){const x=grf.st[i];if(!x)return;x.done=!x.done;if(x.done){x.dn=isoD(new Date());try{hap("ok")}catch(e){}}else delete x.dn;cfRe()}
-function grGlStAdd(){grGlRd();const e=document.getElementById("gl-sn"),t=e?e.value.replace(/\s+/g," ").trim().slice(0,160):"";if(!t||grf.st.length>=20)return;grf.st.push({id:cpId(),t,done:false});cfRe();setTimeout(()=>{const n=document.getElementById("gl-sn");if(n)n.focus()},30)}
+function grGlStAdd(){grGlRd();const e=document.getElementById("gl-sn"),t=e?e.value.replace(/\s+/g," ").trim().slice(0,160):"";if(!t||grf.st.length>=20)return;grf.st.push({id:cpId(),t,done:false});grf.sn="";cfRe();setTimeout(()=>{const n=document.getElementById("gl-sn");if(n)n.focus()},30)}
 /* a step typed but not added yet is kept */
-function grGlTidy(f){const e=document.getElementById("gl-sn"),t=e?e.value.replace(/\s+/g," ").trim().slice(0,160):"";if(t&&f.st.length<20)f.st.push({id:cpId(),t,done:false});
+function grGlTidy(f){const e=document.getElementById("gl-sn"),t=e?e.value.replace(/\s+/g," ").trim().slice(0,160):"";if(t&&f.st.length<20)f.st.push({id:cpId(),t,done:false});f.sn="";
  const c=(s,n)=>String(s||"").replace(/\s+/g," ").trim().slice(0,n);
  return {id:f.id||cpId(),t:c(f.t,200),m:String(f.m||"").trim().slice(0,300),by:/^\d{4}-\d{2}-\d{2}$/.test(f.by)?f.by:"",st:f.st.map(x=>Object.assign({id:x.id||cpId(),t:c(x.t,160),done:!!x.done},x.done&&x.dn?{dn:x.dn}:{})).filter(x=>x.t),hp:String(f.hp||"").trim().slice(0,300),
   sw:f.sw.filter(id=>grS().sw.some(x=>x.id===id)).slice(0,10),ev:f.ev.filter(e=>grEv(e)).slice(0,20).map(e=>Object.assign({k:e.k,id:e.id},c(e.n,120)?{n:c(e.n,120)}:{})),pre:!!f.pre,done:!!f.done,dn:f.done?(f.dn||isoD(new Date())):"",oc:String(f.oc||"").trim().slice(0,300),d:f.d||isoD(new Date())}}
@@ -14903,6 +14913,142 @@ function pzFormOpen(){try{if(typeof cp!=="undefined"&&cp&&cp.v==="form")return t
   const m=ci&&ci.isNew?(ci.refNow?"Entry saved with a reflection":"Entry saved. Add a reflection while it's fresh"):(ci&&ci.refNow?"Reflection added. That's the part an HCPC audit looks for":"Changes saved");
   try{toast(m+xp)}catch(e){}try{hap("tap")}catch(e){}
  }catch(e){return c0.apply(this,arguments)}}}
+
+
+/* ---------- v502: typed work is never lost; Back stays in the app ---------- */
+/* What a form held when it was opened, so a change can be noticed. Keys that are only screen state are left out. */
+const PZ_UI_K=new Set(["err","phMsg","nr","del","dv","phGone","ai","ns","ko","up","from","back","keepCf","just","busy"]);
+const pzSnap=new WeakMap();
+function pzSer(o){try{return JSON.stringify(o,(k,v)=>PZ_UI_K.has(k)?undefined:v)}catch(e){return ""}}
+function pzGrRead(){try{if(typeof grf==="undefined"||!grf)return;if(grf.k==="gl")grGlRd();else if(grf.k==="fb")grFbRd();else if(grf.k==="sw")grRd();else if(grf.k==="use")grUseRd()}catch(e){}}
+function pzSnapTake(){try{if(typeof cf!=="undefined"&&cf&&cp.v==="form"&&!pzSnap.has(cf))pzSnap.set(cf,pzSer(cf));
+  if(typeof grf!=="undefined"&&grf&&!pzSnap.has(grf)){const e=grf.err;pzGrRead();grf.err=e;pzSnap.set(grf,pzSer(grf))}}catch(e){}}
+function pzCfDirty(){return !!(typeof cf!=="undefined"&&cf&&cp.v==="form"&&pzSnap.has(cf)&&pzSnap.get(cf)!==pzSer(cf))}
+function pzGrDirty(){if(typeof grf==="undefined"||!grf||!pzSnap.has(grf)||grf.dv)return false;const e=grf.err;pzGrRead();grf.err=e;return pzSnap.get(grf)!==pzSer(grf)}
+function pzDirtyForm(){return pzCfDirty()||pzGrDirty()}
+
+/* the draft: the CPD entry being written, kept on this device so a reload or a closed app doesn't lose it */
+let pzDrT=0;
+function pzDraftNow(){clearTimeout(pzDrT);pzDrT=0;try{if(pzCfDirty()){const c=JSON.parse(pzSer(cf));S.cfDraft={at:Date.now(),cf:c,base:pzSnap.get(cf)};save()}}catch(e){}}
+function pzDraftSoon(){if(typeof cf==="undefined"||!cf||cp.v!=="form")return;clearTimeout(pzDrT);pzDrT=setTimeout(pzDraftNow,700)}
+function pzDraftClear(){clearTimeout(pzDrT);pzDrT=0;if(S.cfDraft){delete S.cfDraft;save()}}
+document.addEventListener("input",pzDraftSoon,true);document.addEventListener("change",pzDraftSoon,true);
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")pzDraftNow()});
+window.addEventListener("pagehide",pzDraftNow);
+function pzDraftGo(){const d=S.cfDraft;if(!d||!d.cf)return;const c=d.cf;c.r=c.r||{};pzSnap.set(c,d.base||"");cf=c;cp.v="form";tab="cpd";pf="cpd";home();window.scrollTo(0,0)}
+function pzDraftDrop(){pzDraftClear();home()}
+function pzDraftNote(){const d=S.cfDraft;if(!d||!d.cf)return "";const t=String(d.cf.t||"").trim(),when=(()=>{try{const x=new Date(d.at);return x.toDateString()===new Date().toDateString()?"today at "+x.toTimeString().slice(0,5):x.toLocaleDateString("en-GB",{day:"numeric",month:"long"})}catch(e){return ""}})();
+ return `<div class="pzdraft" id="pzdraft" role="region" aria-label="Unsaved entry"><p><b>You have an entry that wasn't saved</b><br>${t?"&ldquo;"+esc(t.slice(0,80))+"&rdquo;, ":""}${d.cf.id?"changes made ":"started "}${esc(when)}.</p><div class="tabs"><button class="opt" style="text-align:center" onclick="pzDraftDrop()">Discard</button><button class="go" onclick="pzDraftGo()">Carry on</button></div></div>`}
+
+/* after each screen: remember the form as opened, and offer the draft on the Portfolio home and CPD log */
+{const h0=home;home=function(){const r=h0.apply(this,arguments);pzSnapTake();
+  try{if(S.cfDraft&&tab==="cpd"&&(typeof cf==="undefined"||!cf)&&(pf==="home"||(pf==="cpd"&&cp.v==="list"))&&!document.getElementById("pzdraft")){
+    const a=document.getElementById("app"),hr=a&&a.querySelector(":scope>.pfhero"),bd=a&&a.querySelector(":scope>.nvband"),h=a&&a.querySelector("h1"),at=hr||bd||h;if(at)at.insertAdjacentHTML("afterend",pzDraftNote())}}catch(e){}
+  return r}}
+
+/* saving: wait for photos; show the error where you are; a saved, cancelled or deleted entry has no draft */
+{const s0=cpdSave;cpdSave=function(){if(cf&&cf.phMsg==="Adding…"){try{toast("Wait a moment: your photos are still being added.")}catch(e){}return}
+  const r=s0.apply(this,arguments);
+  if(!cf){pzDraftClear();return r}
+  if(cf.err)setTimeout(()=>{const f=cf&&cf.err==="Add a title."?document.getElementById("cf-t"):cf&&cf.err==="Pick a date."?document.getElementById("cf-d"):null,b=document.getElementById("cf-err");
+   const el=f||b;if(!el)return;try{el.scrollIntoView({block:"center"})}catch(e){}try{el.focus({preventScroll:true})}catch(e){}},30);
+  return r}}
+{const c0=cpdCancel;cpdCancel=function(){pzDraftClear();return c0.apply(this,arguments)}}
+{const d0=cpdDel;cpdDel=function(){const r=d0.apply(this,arguments);if(!cf)pzDraftClear();return r}}
+
+/* asking before discarding */
+const PZ_LEAVE=/\b(cpdCancel|cpdEdit|cpdNew|swTap|navGo|openSub|openHc|openGr|grGo|grGlBack|grItemBack|grUseBack|pzlGo|abGo|crGo|openPlc|openIv|ivGo|imOpen|planGo|openMe|meScreen|welcome)\(|grf=null|pf='home'|tab=prevTab/;
+let pzDisc=null,pzDiscarding=false,pzInBack=false;
+function pzLeaves(el){if(!el)return false;if(el.closest("#nav"))return true;if(el.closest("#pzdisc,.twov,.ifbg,#rpov,.xpv"))return false;
+ const on=el.getAttribute("onclick")||"";return PZ_LEAVE.test(on)}
+document.addEventListener("click",e=>{
+ try{if(!pzInBack&&!(history.state&&history.state.pzg))pzGuard()}catch(x){}
+ if(pzDiscarding)return;const el=e.target&&e.target.closest&&e.target.closest("button,a,[onclick]");if(!el||!pzLeaves(el))return;
+ if(!pzDirtyForm())return;
+ e.preventDefault();e.stopImmediatePropagation();pzDiscAsk(el)},true);
+function pzDiscAsk(el){document.querySelectorAll("#pzdisc").forEach(x=>x.remove());pzDisc=el;
+ const d=document.createElement("div");d.className="twov";d.id="pzdisc";d.setAttribute("role","alertdialog");d.setAttribute("aria-modal","true");d.setAttribute("aria-labelledby","pzdisc-h");d.setAttribute("aria-describedby","pzdisc-p");
+ d.innerHTML=`<div class="twbx"><h2 id="pzdisc-h">Discard this entry?</h2><p id="pzdisc-p">What you've typed hasn't been saved.</p><button class="go" onclick="pzDiscKeep()">Keep editing</button><button class="opt" onclick="pzDiscGo()">Discard</button></div>`;
+ d.addEventListener("click",ev=>{if(ev.target===d)pzDiscKeep()});d.addEventListener("keydown",ev=>{if(ev.key==="Escape"){ev.preventDefault();pzDiscKeep()}});
+ document.body.appendChild(d);setTimeout(()=>{const b=d.querySelector(".go");if(b)b.focus()},20)}
+function pzDiscKeep(){document.querySelectorAll("#pzdisc").forEach(x=>x.remove());const el=pzDisc;pzDisc=null;
+ setTimeout(()=>{if(el&&document.contains(el)&&!el.closest("#nav"))try{el.focus({preventScroll:true})}catch(e){}},20)}
+function pzDiscGo(){document.querySelectorAll("#pzdisc").forEach(x=>x.remove());const el=pzDisc;pzDisc=null;
+ const on=el?(el.getAttribute("onclick")||""):"",own=/cpdCancel|grGlBack|grItemBack|grUseBack|grf=null/.test(on);
+ if(typeof cf!=="undefined"&&cf&&cp.v==="form"){pzSnap.set(cf,pzSer(cf));pzDraftClear();if(!own){cf=null;cp.v="list"}}
+ if(typeof grf!=="undefined"&&grf){pzSnap.set(grf,pzSer(grf));if(!own)grf=null}
+ if(el&&document.contains(el)){pzDiscarding=true;try{el.click()}finally{pzDiscarding=false}}else home()}
+
+/* Back (browser, Android, iPhone swipe): one step back inside the app */
+function pzGuard(){try{history.pushState({pzg:1},"")}catch(e){}}
+function pzBack(){
+ const q=x=>document.querySelector(x);
+ if(q("#pzdisc")){pzDiscKeep();return true}
+ if(q(".xpv")){xpPrevClose();return true}
+ const cel=document.querySelectorAll(".cpc,.lvc,.stkov,.achov");if(cel.length){cel.forEach(x=>x.remove());return true}
+ const rp=q("#rpov");if(rp){try{rpClose()}catch(e){rp.remove()}return true}
+ const ifb=q(".ifbg");if(ifb){const x=ifb.querySelector(".ifx");if(x)x.click();else ifb.remove();return true}
+ if(q(".twov"))return true;                                 /* a question that needs an answer stays */
+ const A=document.getElementById("app");if(!A)return false;
+ const links=[...A.querySelectorAll("button.lnk")].filter(b=>/^\s*‹/.test(b.textContent||""));
+ const pick=links.find(b=>b.closest(".dkr")&&/cpdCancel/.test(b.getAttribute("onclick")||""))||links.find(b=>b.offsetParent!==null)||links[0];
+ if(pick){pick.click();return true}
+ const cl=A.querySelector('[aria-label="Close"],[aria-label="Leave"]');if(cl){cl.click();return true}
+ if(typeof tab!=="undefined"&&tab==="me"){const t=(typeof prevTab!=="undefined"&&prevTab&&prevTab!=="me")?prevTab:"cpd";tab=t;if(t==="cpd"){pf="home";cp.v="list"}home();window.scrollTo(0,0);return true}
+ if(typeof tab!=="undefined"&&tab==="cpd"&&typeof pf!=="undefined"&&pf&&pf!=="home"){pf="home";home();window.scrollTo(0,0);return true}
+ return false}
+try{window.pzUrl0=location.href;const u0=new URL(location.href),hp=new URLSearchParams((u0.hash||"").replace(/^#/,""));let cl=false;["error","error_code","error_description"].forEach(k=>{if(u0.searchParams.has(k)){u0.searchParams.delete(k);cl=true}});if(hp.has("error")||hp.has("error_description")){u0.hash="";cl=true}
+ const nu=u0.pathname+u0.search+u0.hash;if(!(history.state&&history.state.pzg)){history.replaceState({pzb:1},"",cl?nu:location.href);pzGuard()}else if(cl)history.replaceState(history.state,"",nu)}catch(e){}
+window.addEventListener("popstate",e=>{if(e.state&&e.state.pzg)return;let h=false;pzInBack=true;try{h=pzBack()}catch(x){}finally{pzInBack=false}
+ if(h)pzGuard();else{try{history.back()}catch(x){}}});
+
+/* the sign-out warning */
+function pzOutOn(){return !!(typeof au!=="undefined"&&au.oc2&&au.oc2.msg&&Date.now()-au.oc2.at<120000)}
+function pzOutWarn(){if(!pzOutOn())return "";const o=au.oc2;
+ return `<div class="fb bad" id="pzoutw" role="alert"><b>Not signed out yet</b><p>${esc(o.msg)}</p>${o.loc?`<button class="lnk" onclick="pzOutExport()">Export them first</button>`:""}</div>`}
+function pzOutExport(){au.oc2=0;au.oc=0;tab="cpd";pf="cpd";cf=null;cp.x="cpd";cp.v="export";home();window.scrollTo(0,0)}
+
+
+/* ---------- v503: sign-in and invites ---------- */
+/* what a new device starts with; anything else a person chose goes when they sign out */
+const PZ_DEV_K=new Set(["style","snd","hap","theme","mt0","tw2","tw3","mig53","ro243","lsSig","lsN1","lsN2","signedOut","acct","pzHold","pzOut","vivaMute"]);
+const PZ_FRESH=()=>({dh:{},dx:{},_xs:0,bestStreak:0,kitAch:{},bbx:{},alE:0,ivTools:false,plcTools:false,appTools:false,pre466:1,lvSeen:1});
+function pzDevReset(){if(window.PZ_ONLY!=="portfolio")return;Object.keys(S).forEach(k=>{if(!PZ_DEV_K.has(k))delete S[k]});Object.assign(S,PZ_FRESH());
+ try{localStorage.removeItem("phyzly-sync")}catch(e){}}
+
+/* Apple (or another provider) came back with an error */
+(function(){try{if(!(window.PZ&&PZ.on))return;const u=new URL(window.pzUrl0||location.href),h=new URLSearchParams((u.hash||"").replace(/^#/,""));
+ const g=k=>u.searchParams.get(k)||h.get(k)||"",er=g("error"),ed=g("error_description").replace(/\+/g," "),ec=g("error_code");if(!er&&!ed&&!ec)return;
+ const m=/invitation only|invite code/i.test(ed)?"We couldn't find a Phyzly account for that Apple ID. Phyzly is invitation only at the moment, so a new account needs an invite code and your email."
+  :(er==="access_denied"&&!/hook|database|server/i.test(ed+" "+ec))?""
+  :"That sign-in didn't finish. Please try again, or use your email.";
+ const show=()=>{try{if(PZ.user||(S.acct&&!S.acct.guest&&S.acct.uid))return;au.v="form";au.mode="in";au.err=m;au.busy=false;welcome();window.scrollTo(0,0)}catch(e){}};
+ setTimeout(show,400);setTimeout(()=>{if(au.v!=="form"||au.err!==m)show()},1800)}catch(e){console.error("v503 url",e)}})();
+
+/* every account confirms 18+ and the Terms once */
+function pzAgeOk(){try{if(!(window.PZ&&PZ.user))return true;const md=PZ.user.user_metadata||{};return md.age_18_confirmed===true||md.age_18_confirmed==="true"||!!(S.acct&&S.acct.age18)}catch(e){return true}}
+let pzAgeOn=false,pzAgeErr="",pzAgeBusy=false;
+function pzAgeHtml(){return `<div class="twbx"><h2 id="pzage-h">Before you carry on</h2><p id="pzage-p">Phyzly is for people aged 18 and over. Please confirm this and agree to the <a href="/terms.html" target="_blank" rel="noopener">Terms</a> and <a href="/privacy.html" target="_blank" rel="noopener">Privacy policy</a>.</p>`+
+ `<button class="ock${pzAgeOn?" on":""}" role="checkbox" aria-checked="${pzAgeOn}" onclick="pzAgeOn=!pzAgeOn;pzAgeErr='';pzAgeDraw()"><i>${pzAgeOn?"✓":""}</i><span>I'm 18 or over and I agree to the Terms</span></button>`+
+ (pzAgeErr?`<div class="fb bad" role="alert"><b>${esc(pzAgeErr)}</b></div>`:"")+
+ `<button class="go" onclick="pzAgeGo()"${pzAgeBusy?" disabled":""}>${pzAgeBusy?"Saving…":"Continue"}</button><button class="opt" onclick="pzAgeOut()">Sign out</button></div>`}
+function pzAgeDraw(){const d=document.getElementById("pzage");if(d){d.innerHTML=pzAgeHtml();const c=d.querySelector(".ock");if(c)c.focus()}}
+function pzAgeCheck(){try{if(pzAgeOk()){document.querySelectorAll("#pzage").forEach(x=>x.remove());return}if(document.getElementById("pzage"))return;
+  const d=document.createElement("div");d.className="twov";d.id="pzage";d.setAttribute("role","dialog");d.setAttribute("aria-modal","true");d.setAttribute("aria-labelledby","pzage-h");d.setAttribute("aria-describedby","pzage-p");
+  d.innerHTML=pzAgeHtml();document.body.appendChild(d);setTimeout(()=>{const c=d.querySelector(".ock");if(c)c.focus()},30)}catch(e){}}
+async function pzAgeGo(){if(pzAgeBusy)return;if(!pzAgeOn){pzAgeErr="Please confirm you're 18 or over and agree to the Terms.";return pzAgeDraw()}
+ pzAgeBusy=true;pzAgeErr="";pzAgeDraw();
+ try{const {data,error}=await PZ.sb.auth.updateUser({data:{age_18_confirmed:true}});if(error)throw error;if(data&&data.user)PZ.user=data.user;
+  if(S.acct){S.acct.age18=1;delete S.acct.age18p;save()}}
+ catch(e){const off=!navigator.onLine||/fetch|network|failed/i.test(String((e&&e.message)||e));
+  if(off&&S.acct){S.acct.age18=1;S.acct.age18p=1;save()}else{pzAgeBusy=false;pzAgeErr="We couldn't save that. Check your connection and try again.";return pzAgeDraw()}}
+ pzAgeBusy=false;pzAgeOn=false;document.querySelectorAll("#pzage").forEach(x=>x.remove());try{toast("Thanks")}catch(e){}}
+async function pzAgeOut(){document.querySelectorAll("#pzage").forEach(x=>x.remove());try{await PZ.signOut(true)}catch(e){}try{delete S.acct;S.signedOut=1;save()}catch(e){}au.v="land";tab="found";welcome();window.scrollTo(0,0)}
+/* a confirmation made offline is sent when there's a connection */
+let pzAgeT=0;function pzAgeSend(){try{if(!(S.acct&&S.acct.age18p&&window.PZ&&PZ.user&&navigator.onLine)||Date.now()-pzAgeT<60000)return;pzAgeT=Date.now();
+ PZ.sb.auth.updateUser({data:{age_18_confirmed:true}}).then(({data,error})=>{if(!error){if(data&&data.user)PZ.user=data.user;delete S.acct.age18p;save()}}).catch(()=>{})}catch(e){}}
+{const h0=home;home=function(){const r=h0.apply(this,arguments);pzAgeCheck();pzAgeSend();return r}}
+{const w0=welcome;welcome=function(){const r=w0.apply(this,arguments);if(window.PZ&&PZ.user)pzAgeCheck();return r}}
 
 
 /* ---------- Phyzly Portfolio (early access): Portfolio and Profile only, plus Quick ref and feedback ---------- */
