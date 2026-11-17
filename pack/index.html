@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Appraisal pack · Phyzly</title>
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="referrer" content="no-referrer">
+<meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; font-src 'self'; img-src 'self'; connect-src https://lrbxghrhxabnqvfgxrad.supabase.co; form-action 'none'; base-uri 'none'">
+<meta name="theme-color" content="#0A1F3D">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<style>
+@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/inter-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:Inter;font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/inter-latin-600-normal.woff2) format("woff2")}
+@font-face{font-family:Inter;font-style:normal;font-weight:800;font-display:swap;src:url(/fonts/inter-latin-800-normal.woff2) format("woff2")}
+:root{--navy:#0A1F3D;--coral:#FF6B57;--blue:#1A6BFF;--ink:#0A1F3D;--mute:#5B6B82;--line:#DCE4F0;--bg:#F4F6FA}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;font-size:17px;line-height:1.5;-webkit-font-smoothing:antialiased}
+header{background:var(--navy);color:#fff;padding:22px 16px 30px;border-radius:0 0 28px 28px}
+.in{max-width:720px;margin:0 auto}
+.wm{font-weight:800;font-size:1.35rem;letter-spacing:-.02em}.wm span{color:var(--coral)}
+h1{font-size:1.75rem;line-height:1.2;font-weight:800;letter-spacing:-.02em;margin:18px 0 6px;overflow-wrap:anywhere}
+header p{margin:0;color:rgba(255,255,255,.72);overflow-wrap:anywhere}
+main{padding:16px 16px 40px}
+.big{font-size:1.1rem}
+.note{background:#fff;border:2px solid var(--line);border-radius:14px;padding:12px 14px;margin:4px 0 0}
+.note b{display:block}
+.who{margin:20px 0 0;font-weight:800;font-size:1.15rem;overflow-wrap:anywhere}
+.meta{margin:2px 0 0;color:var(--mute);overflow-wrap:anywhere}
+.conf{margin:10px 0 0;font-weight:600;white-space:pre-wrap;overflow-wrap:anywhere}
+.conf small{display:block;font-weight:400;color:var(--mute);font-size:.86rem;margin-top:4px}
+h2{font-size:1.25rem;font-weight:800;letter-spacing:-.01em;margin:28px 0 8px;padding-top:14px;border-top:2px solid var(--line);overflow-wrap:anywhere}
+.p{margin:0 0 8px;white-space:pre-wrap;overflow-wrap:anywhere}
+.p.m{color:var(--mute);font-size:.92rem}
+.q{margin:14px 0 2px;font-weight:600;color:var(--mute);font-size:.95rem;overflow-wrap:anywhere}
+.a{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+dl{margin:0;display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:6px 14px}
+dt{color:var(--mute);overflow-wrap:anywhere}dd{margin:0;font-weight:600;overflow-wrap:anywhere}
+ul{margin:0;padding-left:22px}li{margin:0 0 6px;white-space:pre-wrap;overflow-wrap:anywhere}
+.rows{margin:6px 0 0;background:#fff;border:2px solid var(--line);border-radius:14px;overflow:hidden}
+.row{padding:10px 14px;border-top:1px solid var(--line)}.row:first-child{border-top:0}
+.row b{display:block;font-weight:600;overflow-wrap:anywhere}.row span{display:block;color:var(--mute);font-size:.9rem;overflow-wrap:anywhere}
+.foot{margin:28px 0 0;color:var(--mute);font-size:.92rem;overflow-wrap:anywhere}
+button.pr{display:inline-block;margin:18px 0 0;border:2px solid var(--line);border-radius:999px;background:#fff;color:var(--ink);font:inherit;font-weight:600;padding:10px 18px;cursor:pointer}
+button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid #8FB4FF;outline-offset:2px}
+details{margin:26px 0 0;color:var(--mute);font-size:.92rem}
+details summary{cursor:pointer;font-weight:600;color:var(--ink)}
+details p{margin:8px 0 0}
+a{color:var(--blue)}
+[hidden]{display:none!important}
+@media print{body{background:#fff;font-size:11pt}header{background:none;color:#000;padding:0 0 8px;border-radius:0}header p{color:#333}.wm span{color:inherit}button.pr,details,.rep{display:none!important}.rows,.note{border-width:1px}main{padding:8px 0}}
+</style>
+</head>
+<body>
+<header><div class="in">
+<div class="wm" aria-label="Phyzly">Phy<span>z</span>ly</div>
+<h1 id="h">Appraisal pack</h1>
+<p id="sub">One moment…</p>
+</div></header>
+<main><div class="in">
+
+<div id="bad" hidden>
+<p class="big" id="badt"></p>
+<p id="badd" style="color:var(--mute)"></p>
+</div>
+
+<div id="pk" hidden>
+<div class="note"><b>Read only</b><span id="n1"></span></div>
+<p class="who" id="who"></p>
+<p class="meta" id="meta"></p>
+<p class="conf" id="conf" hidden></p>
+<div id="secs"></div>
+<p class="foot" id="foot"></p>
+<button class="pr" type="button" id="pr">Print</button>
+<p class="foot rep">If anything here is abusive or shouldn't have been sent to you, email <a href="mailto:hello@phyzly.app" id="repa">hello@phyzly.app</a><span id="repr"></span>.</p>
+</div>
+
+<details>
+<summary>How your information is used</summary>
+<!-- Address: the owner's current address (14 Nov 2026). Change it here, in pz_legal.js (PZL_ADDR), in feedback/index.html, in signoff/index.html and at the ICO when the service address is ready. -->
+<p>Phyzly is run by Oliver Jones, trading as Phyzly, <span id="addr">13 Naseby House, Rothwell Road, Kettering, NN16 8WB</span>, who is responsible for the information on this page (ICO registration ZC298395). Contact: <a href="mailto:hello@phyzly.app">hello@phyzly.app</a>.</p>
+<p><b>What is kept about you:</b> nothing you type, because this page asks you for nothing. Each time this link is opened, a count goes up and the time is noted. The person who shared the pack can see the count and the last time, not who opened it. The count and the time are deleted with the shared copy. Like any website, the companies that host this page and our database record your IP address briefly in their security logs. This page has no cookies, no tracking and no analytics.</p>
+<p><b>Why, and our lawful basis:</b> the count lets the person who shared their pack see that it has been read, and notice if it has been opened more often than they expect. We rely on legitimate interests: theirs in keeping control of what they've shared, and ours in providing the tool.</p>
+<p><b>What you're reading:</b> a copy of that person's own record, shared by them. It is stored in London with our database provider, Supabase, which acts only on our instructions, and is deleted when they stop sharing, or within a day of the link ending. This page is hosted by GitHub in the United States. Both are covered by safeguards approved for that purpose.</p>
+<p><b>If the pack mentions you:</b> you can ask for a copy of what it says about you, or for it to be corrected or removed, and you can object to it being shared. Ask the person who shared it, or email us. You can also ask us what the count shows, or object to it, by emailing us. We'll reply within one month, and it's free.</p>
+<p><b>Complaints:</b> email <a href="mailto:hello@phyzly.app">hello@phyzly.app</a> and we'll acknowledge within 30 days. You can also complain to the Information Commissioner's Office at ico.org.uk.</p>
+<p><b>Rules:</b> this pack was shared with you by the person it belongs to. Please don't pass the link on. If you print or save the pack, keep it as you would any appraisal paperwork. See the <a href="/terms.html">Terms</a> and the <a href="/privacy.html">Privacy policy</a>.</p>
+</details>
+
+</div></main>
+<script>
+(function(){
+  "use strict";
+  var CFG = window.PZ_CFG || { url: "https://lrbxghrhxabnqvfgxrad.supabase.co", key: "sb_publishable_XjivnIAnqcuxpwN5j18Bpw_HnaazWPf" };
+  var $ = function(id){ return document.getElementById(id); };
+  var m = /(?:^#|[#&])t=([0-9a-f]{64})(?:&|$)/.exec(location.hash || ""), token = m ? m[1] : "";
+  var MON = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  function longDate(d){ var x = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(d || "")); return x ? (+x[3]) + " " + MON[+x[2] - 1] + " " + x[1] : ""; }
+  function when(t){ var d = new Date(t); if (isNaN(d)) return ""; var p = function(n){ return (n < 10 ? "0" : "") + n; };
+    return d.getDate() + " " + MON[d.getMonth()] + " " + d.getFullYear() + " at " + p(d.getHours()) + ":" + p(d.getMinutes()); }
+  function show(id){ ["bad", "pk"].forEach(function(k){ $(k).hidden = k !== id; }); }
+  function bad(title, detail){ $("h").textContent = "Appraisal pack"; $("sub").textContent = ""; $("badt").textContent = title; $("badd").textContent = detail || ""; show("bad"); }
+  function str(x, n){ return (typeof x === "string" || typeof x === "number") ? String(x).slice(0, n) : ""; }
+  function el(tag, cls, text){ var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  function arr(x, n){ return Array.isArray(x) ? x.slice(0, n) : []; }
+  /* everything is written as text: nothing in the pack can become a link, an image or markup */
+  function block(b){
+    if (!b || typeof b !== "object") return null;
+    var t = b.t, w;
+    if (t === "p"){ return el("p", "p" + (b.m ? " m" : ""), str(b.x, 6000)); }
+    if (t === "qa"){ w = document.createDocumentFragment(); w.appendChild(el("p", "q", str(b.q, 300))); w.appendChild(el("p", "a", str(b.a, 8000))); return w; }
+    if (t === "kv"){ w = el("dl"); arr(b.r, 60).forEach(function(r){ if (!Array.isArray(r)) return; w.appendChild(el("dt", "", str(r[0], 300))); w.appendChild(el("dd", "", str(r[1], 600))); }); return w.childNodes.length ? w : null; }
+    if (t === "ul"){ w = el("ul"); arr(b.i, 400).forEach(function(x){ var s = str(x, 3000); if (s) w.appendChild(el("li", "", s)); }); return w.childNodes.length ? w : null; }
+    if (t === "rows"){ w = el("div", "rows"); arr(b.r, 3000).forEach(function(r){ if (!r || typeof r !== "object") return; var d = el("div", "row"); d.appendChild(el("b", "", str(r.a, 600))); var s = str(r.b, 1200); if (s) d.appendChild(el("span", "", s)); w.appendChild(d); }); return w.childNodes.length ? w : null; }
+    return null;
+  }
+  var WHY = {
+    missing: ["This link isn't valid, or sharing has been stopped.", "Check you copied the whole link, or ask the person who sent it for a new one. If you reloaded this page, open the link from your message again."],
+    expired: ["This link has ended.", "Shared packs can be read for a set time only. Ask the person who sent it for a new link."]
+  };
+  function why(k){ var w = WHY[k] || WHY.missing; bad(w[0], w[1]); }
+  $("pr").addEventListener("click", function(){ try{ window.print(); }catch(e){} });
+  if (window.top !== window.self) return why("missing");          /* never shown inside another page */
+  if (!token) return why("missing");
+  var ac = new AbortController(), timer = setTimeout(function(){ ac.abort(); }, 20000);
+  fetch(CFG.url + "/rest/v1/rpc/pack_share_open", { method: "POST", signal: ac.signal, cache: "no-store", credentials: "omit", referrerPolicy: "no-referrer",
+    headers: { "Content-Type": "application/json", "apikey": CFG.key, "Authorization": "Bearer " + CFG.key }, body: JSON.stringify({ p_token: token }) })
+  .then(function(r){ clearTimeout(timer); if (!r.ok) throw new Error("http " + r.status); return r.json(); }, function(e){ clearTimeout(timer); throw e; })
+  .then(function(d){
+    if (!d || d.ok !== true) return why(d && d.why);
+    var c = d.content && typeof d.content === "object" ? d.content : {};
+    var name = str(d.first_name, 40) || "Your colleague", title = str(c.title, 80) || "Appraisal pack";
+    document.title = name + "'s appraisal pack · Phyzly";
+    $("h").textContent = name + "'s appraisal pack";
+    var ends = when(d.expires_at), upd = when(d.updated_at);
+    $("sub").textContent = "Shared by " + name + " through Phyzly." + (ends ? " This link works until " + ends + "." : "") + (upd ? " Last updated " + upd + "." : "");
+    $("n1").textContent = "This is " + name + "'s own record, put together by them and shared with you. It isn't your employer's appraisal form, and Phyzly hasn't checked it, including who gave any feedback in it. " + name + " can see how many times this link has been opened, and when it was last opened. Please don't pass the link on.";
+    var who = str(c.name, 80), prof = str(c.prof, 80);
+    $("who").textContent = title + (who ? ": " + who + (prof ? ", " + prof : "") : "");
+    var f = longDate(c.from), t = longDate(c.to), on = longDate(c.on);
+    $("meta").textContent = (f && t ? f + " to " + t : "") + (on ? (f && t ? " · " : "") + "Appraisal on " + on : "");
+    var conf = str(c.conf, 1600);
+    if (conf){ $("conf").textContent = conf; var cn = str(c.confNote, 600); if (cn) $("conf").appendChild(el("small", "", cn)); $("conf").hidden = false; }
+    var secs = $("secs");
+    arr(c.sections, 20).forEach(function(s){
+      if (!s || typeof s !== "object") return;
+      var kids = arr(s.b, 3200).map(block).filter(Boolean); if (!kids.length) return;
+      secs.appendChild(el("h2", "", str(s.h, 80))); kids.forEach(function(k){ secs.appendChild(k); });
+    });
+    $("foot").textContent = str(c.foot, 400);
+    var ref = /^[0-9a-f-]{36}$/.test(String(d.ref || "")) ? String(d.ref) : "";
+    if (ref){ $("repr").textContent = " and quote the reference " + ref; $("repa").href = "mailto:hello@phyzly.app?subject=" + encodeURIComponent("Report a shared pack (" + ref + ")"); }
+    show("pk");
+    /* the code is taken out of the address bar and this tab's history, so it isn't left behind on a shared computer */
+    try{ history.replaceState(null, "", location.pathname); }catch(e){}
+  }, function(){ bad("We couldn't open this link just now.", "Check your connection, then reload the page."); });
+})();
+</script>
+</body>
+</html>
