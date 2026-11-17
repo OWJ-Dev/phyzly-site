@@ -8055,7 +8055,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
  }catch(e){console.error("v281",e)}
 
  /* ---------- v282: tester version: report a problem, feedback, welcome note ---------- */
- const RP_VER="v518";let rpCtx=null,rpCat=null;
+ const RP_VER="v519";let rpCtx=null,rpCat=null;
  function rpBtn(kind,id,i){return `<button class="rpb" onclick="rpOpen('${kind}','${id}',${i})">⚑ Report a problem with this card</button>`}
  function rpCtxFor(kind,id,i){try{
   if(kind==="c"){const c=LEARN[id][i],cd=typeof COND!=="undefined"&&COND.find(x=>x.id===id);return {kind:"card",layer:id,card:i,title:c.t,where:(cd?"Condition: "+cd.n:(typeof tn==="function"?tn(id):id))+" · card "+(i+1)+": "+c.t}}
@@ -12511,7 +12511,7 @@ function portHome(){
   (showHc()?card("🛡️","HCPC audit pack","","openHc()","Build your CPD profile if you're picked for audit"):"")+
   card("🎯","Feedback and SWOC",esc(grPortAl()),"openGr()","Feedback from colleagues, and your own view of your strengths")+(showIv()?card("💼","Interview prep",esc(ivPortSt()),"openIv()","Band 5 and band 6 interviews"):"")+
   (S.qualAt&&!showPlc()&&(plcL().length||(S.otj||[]).length||Object.keys(S.ksb||{}).length)?(plcL().length?card("🏥","Placements",fmtHr(plcTot())+"h logged","pl.stg=null;openPlc('list')","Kept from your training"):"")+(!showApp()&&((S.otj||[]).length||Object.keys(S.ksb||{}).length)?card("🧾","Off-the-job log and KSBs","kept","pf='otj';kz=null;home()","Kept from your apprenticeship"):""):"");
- app.innerHTML=head()+tabs()+`<h1 style="font-size:1.6rem;margin:6px 0 2px">Portfolio</h1><p class="tag" style="margin:0 0 10px">Your learning, competencies and career in one place.</p>`+pfStrip()+pfHero()+
+ app.innerHTML=head()+tabs()+`<h1 style="font-size:1.6rem;margin:6px 0 2px">Portfolio</h1><p class="tag" style="margin:0 0 10px">Your learning, competencies and career in one place.</p>`+pfStrip()+pfHero()+apRem()+
  (tools?`<div class="sec">Your tools</div>`+tools:"")+
  `${card("📄","Appraisal pack","","apOpen()","Your year in one document, for your appraisal or PADR")}<button class="opt" style="text-align:center;margin-top:14px" ${n||P||Object.keys(V).length?"":"disabled"} onclick="cp.x='all';cp.v='export';pf='cpd';home()">Export everything</button><div class="note">Your own tracker. Your trust's records are the official ones, and sign-off has to come from a supervisor.</div><p class="tag">${showApp()&&showPre()&&showIv()?"":"Looking for "+[showApp()?"":"the off-the-job log",showPre()?"":"preceptorship",showIv()?"":"interview prep"].filter(Boolean).join(" or ")+"? Turn it on in Profile, under Portfolio tools."}</p><p class="tag">Saved on this device only. Export a copy now and then.</p>`;
 }
@@ -13352,7 +13352,7 @@ const crId=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 function abStage(){const r=S.role;if(r==="stu"||r==="app"||r==="oth")return r;if(r==="sta"||r==="rot")return abBandK()||"q";return ""}
 const crStLbl=k=>(CR_STAGES.find(x=>x[0]===k)||[0,""])[1];
 /* v507: a change in plain words: "Became a qualified physio", "Started at Band 6", "Started as a student" */
-const crStPh=k=>k==="q"?"Became a qualified physio":k==="stu"?"Started as a student":k==="app"?"Started as an apprentice":k==="oth"?"Changed to another role":k==="nb"?"Started a post off NHS bands":/^(5n|5|6|7|8|8a|8b|8c|8d|9)$/.test(String(k))?"Started at "+crStLbl(k):"Started as "+crStLbl(k);
+const crStPh=k=>k==="q"?"Became a qualified physio":k==="stu"?"Started as a student":k==="app"?"Started as an apprentice":k==="oth"?"Changed to another role":k==="nb"?"Started a post off NHS bands":k==="5n"?"Started as a newly qualified Band 5":/^(5|6|7|8|8a|8b|8c|8d|9)$/.test(String(k))?"Started as a "+crStLbl(k):"Started as "+crStLbl(k);
 function crWord(r){r=r||S.role;return r==="rot"||r==="app"?"rotation":r==="stu"?"placement":"post"}
 function crH(){const a=abA();if(!Array.isArray(a.hist))a.hist=[];return a.hist}
 function crMs(){const a=abA();if(!Array.isArray(a.ms))a.ms=[];return a.ms}
@@ -14197,6 +14197,25 @@ function apHelp(k){const A=apS(),tr=k==="tr",w=A.k==="wal",ap=w?"PADR":"appraisa
  infoSheet(`<h2 style="margin:6px 0 10px;font-size:1.25rem">${t}</h2><div class="aphb">${h}</div>`,"Why this is asked")}
 
 
+/* ---------- v519 (R13): appraisal date reminder ---------- */
+/* from 14 days before the appraisal date in the pack until the day itself; the cross hides it for that date only */
+function apRemInfo(){try{const A0=S.ap;if(!A0||typeof A0!=="object"||Array.isArray(A0))return null;const on=A0.on;
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(on||"")||A0.nz===on)return null;const d=daysTo(on);if(!(d>=0&&d<=14))return null;
+  const A=apS(),miss=[],k=A.k;
+  const w=AP_Q.filter(q=>String(A[q[0]]||"").trim()).length;if(w<AP_Q.length)miss.push(w?`${AP_Q.length-w} of your ${AP_Q.length} notes not written yet`:"Your notes on the year not written yet");
+  const tk=k==="eng"||k==="wal"?["lt","tr"]:k==="sco"?["lt"]:[];const tl=tk.filter(x=>!A[x]).length;if(tl)miss.push(tl===1&&tk.length===2?"One pay progression question not answered":tl===1?"The pay progression question not answered":"The pay progression questions not answered");
+  if(!k)miss.push("Which appraisal it is not chosen");
+  let n=0;try{n=xpStats(apRows()).n}catch(e){}if(!n)miss.push("No CPD logged since "+dFmt(apFrom(),{day:"numeric",month:"long",year:"numeric"}));
+  return {on,d,k,miss}}catch(e){return null}}
+const apNm=k=>k==="wal"?"PADR":k==="sco"?"PDP&R":"appraisal";
+function apRem(){const r=apRemInfo();if(!r)return "";const nm=apNm(r.k),when=r.d===0?"is today":r.d===1?"is tomorrow":"is in "+r.d+" days";
+ return `<div class="opt fbn aprem" style="cursor:default" role="region" aria-label="Your ${esc(nm)} is coming up"><div class="row"><b>Your ${esc(nm)} ${when}</b><button class="gx" aria-label="Hide this reminder" onclick="apRemHide()">✕</button></div>`+
+  `<p class="tag" style="margin:4px 0 6px">${esc(dFmt(r.on,{weekday:"long",day:"numeric",month:"long"}))}.${r.miss.length?" Still to do in your appraisal pack:":" Your notes are written. Make the pack to take with you, or to share with your appraiser."}</p>`+
+  (r.miss.length?`<ul class="apremu">${r.miss.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:"")+
+  `<button class="go" style="margin:6px 0 0" onclick="apOpen()">Open appraisal pack</button></div>`}
+function apRemHide(){const A=apS();A.nz=A.on;save();home();try{toast("Hidden for this date. Change the date and it comes back.")}catch(e){}}
+
+
 /* ---------- Phyzly Portfolio (early access): Portfolio and Profile only, plus Quick ref and feedback ---------- */
 try{(function(){
  if(window.PZ_ONLY!=="portfolio")return;
@@ -14216,6 +14235,11 @@ try{(function(){
   html.pzo .auf .pzmini{margin:0 0 18px}
   html.pzo .auf .pzmini .hero{padding:22px 20px 20px;text-align:center}
   html.pzo .auf .pzmini .hero .wm{font-size:40px;line-height:1}
+  /* v519: on the sign-in and create-account pages, the name sits on the page background (no banner) */
+  html.pzo .auf .pzwm{text-align:center;margin:10px 0 22px;font:800 44px/1 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;letter-spacing:-.04em;color:var(--ink)}
+  html.pzo .auf .pzwm i{font-style:normal;color:#D4432C}
+  @media (prefers-color-scheme:dark){html.pzo:not([data-theme="light"]) .auf .pzwm i{color:#FF8467}}
+  html.pzo[data-theme="dark"] .auf .pzwm i{color:#FF8467}
   /* v469: headers fit their content, with the same spacing on every page (they were a fixed 300px with the title pushed down) */
   html.pzo.clin #app>.nvtab{padding-bottom:28px}
   html.pzo.clin #app>.nvtab:has(+.nvfl){padding-bottom:70px}
@@ -14246,7 +14270,7 @@ try{(function(){
  window.navGo&&(()=>{const n0=navGo;navGo=function(k,el){if(k!=="cpd"&&k!=="me")k="cpd";return n0.call(this,k,el)}})();
  /* sign-in pages speak about the Portfolio */
  const as1=auScreen;auScreen=function(){let h=as1.apply(this,arguments);
-  h=h.replace(/<div class="auf"><div style="text-align:center[^"]*">[\s\S]*?<\/div><h1>/,'<div class="auf"><div class="auh pzmini"><div class="hero"><div class="wm">Phy<i>z</i>ly</div></div></div><h1>');
+  h=h.replace(/<div class="auf"><div style="text-align:center[^"]*">[\s\S]*?<\/div><h1>/,'<div class="auf"><div class="pzwm" role="img" aria-label="Phyzly"><span aria-hidden="true">Phy<i>z</i>ly</span></div><h1>');
   return h.replace(/(<div class="pzsg"[^>]*>(?:<span><i><\/i><\/span>){5}<\/div>)/,'$1<p class="pzea">Phyzly Portfolio · early access</p>')
    .replace("Five-minute lessons, from anatomy to on call","Log CPD as you go, with photos as evidence")
    .replace("Daily review that brings things back before you forget","Backed up, and on every device you use")};
@@ -14348,8 +14372,7 @@ try{(function(){
   @media (min-width:900px) and (max-width:1279px){
    html.pzo #nav{width:88px;padding:20px 8px 16px}
    html.pzo #nav .sbwm{justify-content:center;padding:0}
-   html.pzo #nav .sbwm .wm{font-size:0!important;letter-spacing:0}
-   html.pzo #nav .sbwm .wm i{font-size:32px;line-height:1}
+   html.pzo #nav .sbwm .wm{font-size:20px!important}
    html.pzo #nav .sbwm .pill{display:none}
    html.pzo #nav .row{margin-top:24px;gap:6px}
    html.pzo #nav .nb,html.pzo.clin body #nav .nb{flex-direction:column;justify-content:center;align-items:center;gap:4px;padding:10px 4px;font-size:12px!important;text-align:center}
