@@ -6,6 +6,7 @@
 <title>Give feedback · Phyzly</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; font-src 'self'; img-src 'self'; connect-src https://lrbxghrhxabnqvfgxrad.supabase.co; form-action 'none'; base-uri 'none'">
 <meta name="theme-color" content="#0A1F3D">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <style>
@@ -64,6 +65,7 @@ a{color:var(--blue)}
 </div>
 
 <form id="f" hidden novalidate>
+<p class="hint" style="margin:4px 0 0">If anything shown above is abusive or shouldn't have been sent to you, email <a href="mailto:hello@phyzly.app">hello@phyzly.app</a>.</p>
 <label for="role">Your role</label>
 <input type="text" id="role" maxlength="80" autocomplete="organization-title" placeholder="e.g. Band 7 respiratory physiotherapist">
 
@@ -98,25 +100,26 @@ a{color:var(--blue)}
 <div class="err" id="err" role="alert" hidden></div>
 <button class="go" id="go" type="submit">Send feedback</button>
 
-<details>
-<summary>How your information is used</summary>
-<!-- Address: the owner's current address (14 Nov 2026). Change it here, in pz_legal.js (PZL_ADDR) and at the ICO when the service address is ready. -->
-<p>Phyzly is run by Oliver Jones, trading as Phyzly, <span id="addr">13 Naseby House, Rothwell Road, Kettering, NN16 8WB</span>, who is responsible for the information on this page (ICO registration ZC298395). Contact: <a href="mailto:hello@phyzly.app">hello@phyzly.app</a>.</p>
-<p><b>What is kept:</b> your role, your name if you give it, your relationship to the person who asked, and what you write. No email address is collected. This page has no cookies, no tracking and no analytics.</p>
-<p><b>Why, and our lawful basis:</b> so the person who asked can read your feedback and use it for their professional development. We rely on legitimate interests: theirs in getting feedback from colleagues, and ours in providing the tool.</p>
-<p><b>Who sees it:</b> only the person who sent you this link, in their own Phyzly account. Phyzly's owner can access the database to keep the service running, and looks at content only to fix a reported problem or when the law requires it.</p>
-<p><b>How long:</b> until that person deletes it or closes their account.</p>
-<p><b>Where:</b> in London, with our database provider, Supabase, which acts only on our instructions. Its support staff and technical logs may be outside the UK, under safeguards approved for that purpose.</p>
-<p><b>Your rights:</b> you can ask for a copy of your feedback, or for it to be corrected or deleted, and you can object to it being kept. Ask the person you sent it to, or email us with their first name and the date you sent it. We'll reply within one month.</p>
-<p><b>Complaints:</b> email <a href="mailto:hello@phyzly.app">hello@phyzly.app</a> and we'll acknowledge within 30 days. You can also complain to the Information Commissioner's Office at ico.org.uk.</p>
-<p><b>Rules:</b> don't write anything abusive, threatening or illegal, and don't include web or email addresses. The person you send it to can report feedback to us. See the <a href="/terms.html">Terms</a> and the <a href="/privacy.html">Privacy policy</a>.</p>
-</details>
 </form>
 
 <div id="done" hidden>
 <p class="big" id="donet"></p>
-<p style="color:var(--mute)">You can close this page now.</p>
+<p style="color:var(--mute)">You can close this page now. To see, correct or remove your feedback later, ask them or email <a href="mailto:hello@phyzly.app">hello@phyzly.app</a>.</p>
 </div>
+
+<details>
+<summary>How your information is used</summary>
+<!-- Address: the owner's current address (14 Nov 2026). Change it here, in pz_legal.js (PZL_ADDR) and at the ICO when the service address is ready. -->
+<p>Phyzly is run by Oliver Jones, trading as Phyzly, <span id="addr">13 Naseby House, Rothwell Road, Kettering, NN16 8WB</span>, who is responsible for the information on this page (ICO registration ZC298395). Contact: <a href="mailto:hello@phyzly.app">hello@phyzly.app</a>.</p>
+<p><b>What is kept:</b> your role, your name if you give it, your relationship to the person who asked, and what you write. No email address is collected. Like any website, the companies that host this page and our database record your IP address briefly in their security logs. This page has no cookies, no tracking and no analytics.</p>
+<p><b>Why, and our lawful basis:</b> so the person who asked can read your feedback and use it for their professional development. We rely on legitimate interests: theirs in getting feedback from colleagues, and ours in providing the tool.</p>
+<p><b>Who sees it:</b> only the person who sent you this link, in their own Phyzly account. Phyzly's owner can access the database to keep the service running, and looks at content only to fix a reported problem or when the law requires it.</p>
+<p><b>How long:</b> until that person deletes it or closes their account.</p>
+<p><b>Where:</b> your feedback is stored in London, with our database provider, Supabase, which acts only on our instructions. Its support staff and technical logs may be outside the UK, and this page is hosted by GitHub in the United States; both are covered by safeguards approved for that purpose.</p>
+<p><b>Your rights:</b> you can ask for a copy of your feedback, or for it to be corrected or deleted, and you can object to it being kept. Ask the person you sent it to, or email us with their first name and the date you sent it. We'll reply within one month, and it's free.</p>
+<p><b>Complaints:</b> email <a href="mailto:hello@phyzly.app">hello@phyzly.app</a> and we'll acknowledge within 30 days. You can also complain to the Information Commissioner's Office at ico.org.uk.</p>
+<p><b>Rules:</b> don't write anything abusive, threatening or illegal, and don't include web or email addresses. The person you send it to can report feedback to us, and you can report what you were sent by emailing <a href="mailto:hello@phyzly.app">hello@phyzly.app</a>. See the <a href="/terms.html">Terms</a> and the <a href="/privacy.html">Privacy policy</a>.</p>
+</details>
 
 </div></main>
 <script>
