@@ -8055,7 +8055,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
  }catch(e){console.error("v281",e)}
 
  /* ---------- v282: tester version: report a problem, feedback, welcome note ---------- */
- const RP_VER="v520";let rpCtx=null,rpCat=null;
+ const RP_VER="v521";let rpCtx=null,rpCat=null;
  function rpBtn(kind,id,i){return `<button class="rpb" onclick="rpOpen('${kind}','${id}',${i})">⚑ Report a problem with this card</button>`}
  function rpCtxFor(kind,id,i){try{
   if(kind==="c"){const c=LEARN[id][i],cd=typeof COND!=="undefined"&&COND.find(x=>x.id===id);return {kind:"card",layer:id,card:i,title:c.t,where:(cd?"Condition: "+cd.n:(typeof tn==="function"?tn(id):id))+" · card "+(i+1)+": "+c.t}}
@@ -12845,8 +12845,8 @@ function pzlPrivacy(inApp){const L=pzlLinks(),SO=pzlSo();return `<p class="tag">
  pzlH("The short version")+pzlU(["Your portfolio is yours. Only you can see it.","We keep what you add so you can use it on any device. We don't sell it, share it for advertising or use it to train AI.","Phyzly has no advertising, no tracking and no analytics.","You can export or delete everything at any time.","Please don't put patient details in Phyzly."])+
  pzlH("What we collect")+
  pzlS("When you create an account")+pzlU(["Your email address and first name.","How you sign in: a code sent by email, or Sign in with Apple. If you use Apple, Apple gives us your name and an email address, which may be a private relay address.","Your role, for example student, apprentice or registered physiotherapist, your band or year of study, whether you're newly qualified, and whether you're in a static or rotational post.","The area you work in or your current rotation, and your career history (your rotations, placements and posts, and when you moved band or role, with their dates, where you worked or studied, and any notes you add on what you learnt), if you add them in Your details.","That you confirmed you're 18 or over, and whether you asked to receive news by email.","The invite code you used, while Phyzly is invitation only."])+
- pzlS("What you add to your portfolio")+pzlU(["CPD entries: dates, titles, types, time spent, reflections, tags and supervision details.","Photos and PDFs you attach as evidence.","Your HCPC audit pack: your summary of recent work and your personal statement. Your HCPC registration number, in Your details, if you choose to add it.","Preceptorship records: dates, goals, meetings, actions and your preceptor's name and role.","Placement records and apprenticeship records, if you use those tools.",...(SO?["Links you make to ask for a sign-off: your first name, the review, the date it was held and your note, which the person you send the link to will see, and the name of the person you're asking, which only you see."]:[]),"Feedback and SWOC: feedback you type in, your SWOC and snapshots"+(L?", and links you make to ask for feedback.":".")])+
- (L?pzlS("What other people send you")+pzlU(["If you ask a colleague for feedback by link, we store what they write, their role and their name if they give it, so that you can read it."].concat(SO?["If you ask your preceptor or supervisor to confirm a review by link, we store their name, their role, their answer, any comment and the date they answered, so that it shows in your record."]:[])):"")+
+ pzlS("What you add to your portfolio")+pzlU(["CPD entries: dates, titles, types, time spent, reflections, tags and supervision details.","Photos and PDFs you attach as evidence.","Your HCPC audit pack: your summary of recent work and your personal statement. Your HCPC registration number, in Your details, if you choose to add it.","Preceptorship records: dates, goals, meetings, actions and your preceptor's name and role.","Placement records and apprenticeship records, if you use those tools.",...(SO?["Links you make to ask for a sign-off: your first name, the review or appraisal, the date it was held and your note, which the person you send the link to will see, and the name of the person you're asking, which only you see."]:[]),"Feedback and SWOC: feedback you type in, your SWOC and snapshots"+(L?", and links you make to ask for feedback.":".")])+
+ (L?pzlS("What other people send you")+pzlU(["If you ask a colleague for feedback by link, we store what they write, their role and their name if they give it, so that you can read it."].concat(SO?["If you ask your preceptor, supervisor or appraiser to confirm a review or your appraisal by link, we store their name, their role, their answer, any comment and the date they answered, so that it shows in your record."]:[])):"")+
  pzlS("When you contact us")+pzlU(["Messages you send with Message Phyzly, with the screen you were on, the app version and your browser and device type, so we can find and fix problems.","Complaints you send us, in the app or by email.","Emails you send us."])+
  pzlS("Technical records")+pzlU(["Our database provider records sign-ins, including the time, your IP address and your browser type, to keep accounts secure.","The company that hosts our website records visitors' IP addresses for security."])+
  pzlP("We don't collect your location, your contacts or anything about how you use other apps or websites.")+
@@ -12857,7 +12857,7 @@ function pzlPrivacy(inApp){const L=pzlLinks(),SO=pzlSo();return `<p class="tag">
   ["Running your account and keeping your portfolio available on your devices","Account details and everything you add","Contract: we need it to provide the service you signed up for"],
   ["Sending sign-in codes and essential messages about your account","Email address","Contract"],
   L?["Showing you feedback a colleague sent through your link","The colleague's role, optional name and words","Legitimate interests: yours in getting feedback for your development, and ours in providing the tool"]:null,
-  SO?["Showing you a sign-off your preceptor or supervisor gave through your link","Their name, role, answer and comment","Legitimate interests: yours in keeping a record of your preceptorship, and ours in providing the tool"]:null,
+  SO?["Showing you a sign-off your preceptor, supervisor or appraiser gave through your link","Their name, role, answer and comment","Legitimate interests: yours in keeping a record of your preceptorship or appraisal, and ours in providing the tool"]:null,
   ["Keeping accounts and the service secure","Sign-in records","Legitimate interests: preventing misuse"],
   ["Fixing problems and improving Phyzly","Messages you send us; counts of accounts and entries, never their content","Legitimate interests: running a working service"],
   ["Dealing with complaints","What you tell us in the complaint, and your email address so we can reply","Legal obligation"],
@@ -12892,7 +12892,7 @@ function pzlTerms(inApp){const L=pzlLinks(),SO=pzlSo();let n=0;const H=t=>pzlH((
  H("Your content")+pzlP("Everything you add to your portfolio stays yours. You give us permission to store it, back it up and show it to you on your devices, and nothing more. We don't use it for advertising or to train AI.")+pzlP("You're responsible for what you add. You can export it or delete it at any time.")+
  H("Rules for using Phyzly")+pzlP("You agree that you won't:")+pzlU(["add patient names, dates of birth, NHS or hospital numbers, photos of patients or anything else that could identify a patient;","add confidential information that belongs to your employer, university or placement provider unless you're allowed to keep it;","add more about another person than you need. Use a role instead of a name where you can;","add anything unlawful, abusive or misleading, or anything that infringes someone else's rights;","try to get into anyone else's account, interfere with how Phyzly works or copy it for another product."])+pzlP("You remain responsible for following your regulator's standards and your employer's or university's policies, including on confidentiality and record keeping.")+
  (L?H("Asking for feedback")+pzlP("You can make a link to ask someone for feedback on your practice.")+pzlU(["Send each link only to the one person you're asking, and only to people who know you through your work or study.","Don't send links to patients or their families.","What they write is their own view. We don't check it and aren't responsible for it.","You can't edit feedback that arrives this way. You can delete it.","If the person asks you to delete their feedback, please do. If they ask us, we may remove it and will tell you.","If feedback is abusive, or includes something it shouldn't, use Report this feedback. We'll look at it and may remove it."])+
- H("Illegal content and reports")+pzlU([(SO?"Feedback, sign-off answers and the notes you send with a link":"Feedback sent through a link")+" must not contain anything illegal, abusive or threatening, and must not contain web or email addresses.",(SO?"We don't read feedback or sign-off answers before they reach you, and we don't use automated tools to scan them.":"We don't read feedback before it reaches you, and we don't use automated tools to scan it."),(SO?"If you report a piece of feedback or a sign-off answer, Oliver reads that piece only,":"If you report a piece of feedback, Oliver reads that piece only,")+" usually within 48 hours. If it is illegal or breaks these terms, we delete it.","We email you the outcome, within 30 days at most.",`If we remove something you wrote, or restrict your account, and you think we got it wrong, email ${pzlM}. We'll decide within 14 days and put it right where we can.`,"We report child sexual abuse material to the National Crime Agency, as the law requires."]):"")+(SO?H("Asking for a sign-off")+pzlP("You can make a link to ask your preceptor or supervisor to confirm a review point, for example your 6-month review.")+pzlU(["Send each link only to the person who should confirm it.","Their answer is a record in your own portfolio. It doesn't replace your employer's paperwork, and Phyzly doesn't check who answers a link.","Don't answer your own link, and don't ask anyone to answer as someone they aren't.","You can't edit an answer that arrives this way. You can delete it.","If the person asks you to delete their answer, please do. If they ask us, we may remove it and will tell you.","Don't present an answer as something it isn't, for example by changing an exported record.","If an answer is abusive, or includes something it shouldn't, use Report this answer. We deal with reports as set out under Illegal content and reports."]):"")+
+ H("Illegal content and reports")+pzlU([(SO?"Feedback, sign-off answers and the notes you send with a link":"Feedback sent through a link")+" must not contain anything illegal, abusive or threatening, and must not contain web or email addresses.",(SO?"We don't read feedback or sign-off answers before they reach you, and we don't use automated tools to scan them.":"We don't read feedback before it reaches you, and we don't use automated tools to scan it."),(SO?"If you report a piece of feedback or a sign-off answer, Oliver reads that piece only,":"If you report a piece of feedback, Oliver reads that piece only,")+" usually within 48 hours. If it is illegal or breaks these terms, we delete it.","We email you the outcome, within 30 days at most.",`If we remove something you wrote, or restrict your account, and you think we got it wrong, email ${pzlM}. We'll decide within 14 days and put it right where we can.`,"We report child sexual abuse material to the National Crime Agency, as the law requires."]):"")+(SO?H("Asking for a sign-off")+pzlP("You can make a link to ask your preceptor or supervisor to confirm a review point, for example your 6-month review, or to ask your appraiser to confirm that your appraisal took place.")+pzlU(["Send each link only to the person who should confirm it.","Their answer is a record in your own portfolio. It doesn't replace your employer's paperwork, and Phyzly doesn't check who answers a link.","An appraiser's answer confirms only that your appraisal took place on the date shown. It isn't your employer's appraisal record, and it doesn't approve your pack, your objectives or pay progression. It counts only while the appraisal date in your pack is the date they confirmed.","Don't answer your own link, and don't ask anyone to answer as someone they aren't.","You can't edit an answer that arrives this way. You can delete it.","If the person asks you to delete their answer, please do. If they ask us, we may remove it and will tell you.","Don't present an answer as something it isn't, for example by changing an exported record.","If an answer is abusive, or includes something it shouldn't, use Report this answer. We deal with reports as set out under Illegal content and reports."]):"")+
  H("What Phyzly is not")+pzlU(["<b>Not clinical advice.</b> Phyzly helps you learn and keep records. It doesn't replace your training, your clinical judgement, supervision, local policies or national guidance.","<b>Not an official record.</b> Your employer's, university's and the HCPC's records are the official ones. Phyzly isn't endorsed by or connected to the HCPC, the NHS or the Chartered Society of Physiotherapy.","<b>No guarantee of an outcome.</b> We can't promise that using Phyzly will meet any audit, appraisal, course or job requirement. Check what your regulator, employer or university asks for."])+
  H("Our content")+pzlP("The Phyzly name, design, software and written content belong to us or to those who license them to us. You may use Phyzly for your own learning and professional development. You may not copy, sell or republish it.")+
  H("Price")+pzlP("Early access is free. If we introduce paid plans, we'll tell you the price and the terms first. You'll never be charged unless you choose a paid plan.")+
@@ -12947,7 +12947,7 @@ function pzlBack(){pzlPg=null;if(pzc.sent)pzc.sent=null;meScreen();window.scroll
 function pzlAfter(){const A=document.getElementById("app");if(!A||tab!=="me")return;
  if(pzlPg){const title=pzlPg==="terms"?"Terms of use":pzlPg==="complaint"?(pzc.back?(pzc.back.so?"Report an answer":"Report feedback"):"Make a complaint"):"Privacy policy",body=pzlPg==="complaint"?pzcHtml():pzlDoc(pzlPg,true),band=A.querySelector(".nvband");
   if(band){[...A.children].forEach(e=>{if(e!==band)e.remove()});[...band.children].forEach(e=>{if(!e.matches(".top"))e.remove()});band.classList.remove("nvtab","nvme");band.classList.add("nvsubpg");
-   band.insertAdjacentHTML("beforeend",`<button class="lnk" onclick="pzlBack()">‹ ${pzlPg==="complaint"&&pzc.back?(pzc.back.so?"Preceptorship":"Feedback"):"Profile"}</button><h1>${title}</h1>`);const c=document.createElement("div");c.className="mcard";c.innerHTML=body;band.after(c)}
+   band.insertAdjacentHTML("beforeend",`<button class="lnk" onclick="pzlBack()">‹ ${pzlPg==="complaint"&&pzc.back?(pzc.back.ap?"Appraisal pack":pzc.back.so?"Preceptorship":"Feedback"):"Profile"}</button><h1>${title}</h1>`);const c=document.createElement("div");c.className="mcard";c.innerHTML=body;band.after(c)}
   else{const top=A.querySelector(".top");A.innerHTML=(top?top.outerHTML:"")+`<button class="lnk" onclick="pzlBack()">‹ Profile</button><h1 style="font-size:1.5rem;margin:6px 0 10px">${title}</h1>${body}`}
   if(pzlPg==="complaint"&&pzc.foc){const t=document.getElementById("pzc-t");if(t){try{t.focus();t.setSelectionRange(t.value.length,t.value.length)}catch(e){}}}
   return}
@@ -13999,7 +13999,7 @@ function apScreen(){const A=apS(),rows=apRows(),st=xpStats(rows),f=apFrom(),fb=(
   AP_Q.map(([k,q,hint])=>`<label class="cfl" for="ap-${k}">${q}</label>${hint?`<div class="tag" style="margin:0 0 4px">${hint}</div>`:""}<textarea id="ap-${k}" class="cin" rows="3" maxlength="2000" oninput="apSet('${k}',this.value)">${esc(A[k]||"")}</textarea>`).join("")+
   (A.k==="eng"?`<div class="sec">Pay progression</div><p class="tag" style="margin:0 0 6px">At a pay step, your manager checks that you've had an appraisal in the last 12 months and done your statutory and mandatory training (and that you have no formal capability process or live disciplinary sanction). Your manager confirms it, not Phyzly. These are just your own notes.</p>`+tri("lt","Statutory and mandatory training done?")+tri("tr","Appraisal in the last 12 months?"):
    A.k==="wal"?`<div class="sec">Pay progression</div><p class="tag" style="margin:0 0 6px">At a pay step, your manager checks that you've had a PADR in the last 12 months and done your statutory and mandatory training (and that you have no formal capability process or live disciplinary sanction). Your manager confirms it, not Phyzly. These are just your own notes.</p>`+tri("lt","Statutory and mandatory training done?")+tri("tr","PADR in the last 12 months?"):A.k==="sco"?`<div class="sec">Pay progression</div><p class="tag" style="margin:0 0 6px">In NHS Scotland your increment is normally automatic. It can be paused only if you're at stage 2 or beyond of a formal capability process, or if you've chosen not to do required statutory and mandatory training in time. Your appraisal should happen at least once a year and is recorded on Turas Appraisal, but it isn't a pay condition. Your employer decides this, not Phyzly. These are just your own notes.</p>`+tri("lt","Statutory and mandatory training done?"):A.k==="ni"?`<div class="sec">Pay progression</div><p class="tag" style="margin:0 0 6px">In Health and Social Care, you move up a pay point once you've served the set time, as long as your performance is satisfactory and you show the knowledge and skills for your post (your KSF outline). There's no fixed checklist to tick here. Your employer decides this, not Phyzly.</p>`:"")+
-  `<div class="cfl">Format</div><div class="xpfs" role="radiogroup" aria-label="Format">`+chip(fmt==="pdf","PDF document","To read, print or send to your appraiser.","apSet('fmt','pdf');XP.ready=null;home()")+chip(fmt==="txt","Copy as text","To paste into your employer's appraisal form.","apSet('fmt','txt');XP.ready=null;home()")+`</div>`+
+  apSoH()+`<div class="cfl">Format</div><div class="xpfs" role="radiogroup" aria-label="Format">`+chip(fmt==="pdf","PDF document","To read, print or send to your appraiser.","apSet('fmt','pdf');XP.ready=null;home()")+chip(fmt==="txt","Copy as text","To paste into your employer's appraisal form.","apSet('fmt','txt');XP.ready=null;home()")+`</div>`+
   `<button class="go xpgo" ${XP.busy?"disabled":""} onclick="apGo()">${GO[fmt]}</button><p id="cpm" class="tag" role="status">${esc(XP.msg||"")}</p><div id="xprw">${xpReadyHtml("ap")}</div>`+
   `<div class="note">Your employer's appraisal form is the official record. Check the pack for patient details before you share it.</div>`;
  app.innerHTML=h}
@@ -14007,7 +14007,7 @@ function apData(){const A=apS(),f=apFrom(),rows=apRows(),st=xpStats(rows);let fb
  try{fb=xpFbRows().filter(x=>x.d>=f)}catch(e){}try{sw=xpSwRows()}catch(e){}try{gl=xpGlRows()}catch(e){}try{cr=xpCrRows()}catch(e){}
  return {A,f,to:isoD(new Date()),rows,st,fb,sw,gl,cr,pre:(()=>{try{return xpPreOk()&&S.pre&&S.pre.start}catch(e){return false}})()}}
 const apTri=v=>v==="y"?"Yes":v==="n"?"Not yet":v==="u"?"Not sure":"Not answered";
-function apText(){const D=apData(),A=D.A,W=xpWho();let t=apTitle(A.k)+(W.name?"\n"+W.name+(W.prof?" · "+W.prof:""):"")+"\n"+xpLong(D.f)+" to "+xpLong(D.to)+(A.on?" · Appraisal on "+xpLong(A.on):"")+"\n";
+function apText(){const D=apData(),A=D.A,W=xpWho();let t=apTitle(A.k)+(W.name?"\n"+W.name+(W.prof?" · "+W.prof:""):"")+"\n"+xpLong(D.f)+" to "+xpLong(D.to)+(A.on?" · Appraisal on "+xpLong(A.on):"")+"\n"+apSoXpT();
  const notes=AP_Q.filter(q=>String(A[q[0]]||"").trim());if(notes.length){t+="\nMY NOTES\n";notes.forEach(q=>{t+="\n"+q[1]+"\n"+String(A[q[0]]).trim()+"\n"})}
  if(A.k==="eng")t+="\nPAY PROGRESSION (my notes; my manager confirms)\nStatutory and mandatory training done: "+apTri(A.lt)+"\nAppraisal in the last 12 months: "+apTri(A.tr)+"\n";
  if(A.k==="sco")t+="\nPAY PROGRESSION (my notes; normally automatic in NHS Scotland)\nStatutory and mandatory training done: "+apTri(A.lt)+"\n";if(A.k==="ni")t+="\nPAY PROGRESSION\nIn Health and Social Care, pay progression depends on satisfactory performance and the knowledge and skills for my post. My employer decides.\n";if(A.k==="wal")t+="\nPAY PROGRESSION (my notes; my manager confirms)\nStatutory and mandatory training done: "+apTri(A.lt)+"\nPADR in the last 12 months: "+apTri(A.tr)+"\n";
@@ -14017,10 +14017,10 @@ function apText(){const D=apData(),A=D.A,W=xpWho();let t=apTitle(A.k)+(W.name?"\
  if(D.gl.length)t+="\nDEVELOPMENT PLAN\n"+D.gl.map(g=>"- "+g.t+" ("+g.st+")"+(g.m?"\n  How I'll know: "+g.m:"")).join("\n")+"\n";
  if(D.cr.length)t+="\nCAREER\n"+D.cr.map(r=>r.filter(Boolean).join(" · ")).join("\n")+"\n";
  if(D.pre)try{t+="\nPRECEPTORSHIP\n"+preXpSum().map(x=>x[0]+": "+x[1]).join("\n")+"\n"}catch(e){}
- return t+"\nMy own record. My employer's appraisal form is the official record.\n"}
+ return t+"\nMy own record. My employer's appraisal form is the official record."+(apSoConf()?" "+AP_SO_FOOT:"")+"\n"}
 async function apPdf(){const D=apData(),A=D.A,W=xpWho();
  return xpPdf(async L=>{L.h1(apTitle(A.k));if(W.name)L.text(W.name+(W.prof?" · "+W.prof:""),{sz:12,w:"bold",gap:1});
-  L.text(xpLong(D.f)+" to "+xpLong(D.to)+(A.on?" · Appraisal on "+xpLong(A.on):"")+" · Exported "+xpLong(isoD(new Date())),{sz:9.5,c:L.mute,gap:14});
+  L.text(xpLong(D.f)+" to "+xpLong(D.to)+(A.on?" · Appraisal on "+xpLong(A.on):"")+" · Exported "+xpLong(isoD(new Date())),{sz:9.5,c:L.mute,gap:14});apSoXpPdf(L);
   L.stats([[String(D.st.n),D.st.n===1?"CPD entry":"CPD entries"],[String(stN(D.st.min)),stL(D.st.min)],[String(D.st.refl),"reflected"],[String(D.fb.length),D.fb.length===1?"piece of feedback":"pieces of feedback"]]);
   const notes=AP_Q.filter(q=>String(A[q[0]]||"").trim());if(notes.length){L.h2("My notes");notes.forEach(q=>{L.need(40);L.text(q[1],{sz:10,w:"bold",c:L.mute,gap:2});L.text(String(A[q[0]]).trim(),{sz:10.5,gap:8})})}
   if(A.k==="eng"){L.need(80);L.h2("Pay progression (my notes)");L.table([{t:"",w:.62},{t:"",w:.38}],[["Statutory and mandatory training done",apTri(A.lt)],["Appraisal in the last 12 months",apTri(A.tr)]],{noHead:true});L.text("My manager confirms these at a pay step.",{sz:9,c:L.mute,gap:6})}
@@ -14072,9 +14072,12 @@ function preSoFoot(){return soXpAny()?"Sign-offs marked \u201crecorded by me\u20
 /* bring answers in from the account */
 async function soSync(force){if(!soOn()||soBusy)return;const now=Date.now();if(!force&&now<soNext)return;soNext=now+60000;soBusy=true;const uid=PZ.user.id,sb=PZ.sb;
  try{const rs=await sb.from("signoff_responses").select("id,request_id,created_at,signer_name,signer_role,outcome,comment").eq("user_id",uid);if(rs.error)throw rs.error;
-  const rq=await sb.from("signoff_requests").select("id,item,held_on,expires_at,answered_at").eq("user_id",uid);if(rq.error)throw rq.error;
+  let rq=await sb.from("signoff_requests").select("id,item,held_on,expires_at,answered_at,kind").eq("user_id",uid);
+  if(rq.error&&/kind|schema cache|PGRST20|42703/i.test(String(rq.error.message||"")+" "+String(rq.error.code||"")))rq=await sb.from("signoff_requests").select("id,item,held_on,expires_at,answered_at").eq("user_id",uid);
+  if(rq.error)throw rq.error;
   if(!soOn()||PZ.user.id!==uid)return;
-  const dOf=t=>{const d=new Date(t);return isNaN(d)?isoD(new Date()):isoD(d)},before=JSON.stringify([S.soV,S.pre&&S.pre.sl]);
+  const dOf=t=>{const d=new Date(t);return isNaN(d)?isoD(new Date()):isoD(d)},before=JSON.stringify([S.soV,S.pre&&S.pre.sl,S.ap&&S.ap.sl]);
+  const RA=(rq.data||[]).filter(r=>r&&soOk(r.id)&&r.kind==="ap");rq.data=(rq.data||[]).filter(r=>!(r&&r.kind==="ap"));
   S.soV={u:uid,l:(rs.data||[]).filter(r=>r&&soOk(r.id)&&soOk(r.request_id)&&(!r.user_id||r.user_id===uid)).map(r=>({id:String(r.id),rq:String(r.request_id),nm:String(r.signer_name||"").replace(/\s+/g," ").trim().slice(0,80),ro:String(r.signer_role||"").replace(/\s+/g," ").trim().slice(0,80),out:r.outcome==="confirmed"?"confirmed":"not_yet",c:String(r.comment||"").slice(0,1000),at:String(r.created_at||""),d:dOf(r.created_at)}))};
   if(S.pre&&typeof S.pre==="object"){const R=(rq.data||[]).filter(r=>r&&soOk(r.id)),ids=new Set(R.map(r=>r.id)),fresh=Date.now()-120000;
    /* cancelled or cleared away elsewhere: gone here too (one made in the last two minutes may not be in this answer yet) */
@@ -14085,8 +14088,9 @@ async function soSync(force){if(!soOn()||soBusy)return;const now=Date.now();if(!
       so they can be seen and removed without detaching anything another device knows about */
    S.soV.o=R.filter(r=>!S.pre.sl.some(q=>q.id===r.id)).slice(0,60).map(r=>({id:r.id,rv:"",it:String(r.item||"").replace(/\s+/g," ").trim().slice(0,80),h:soDay(r.held_on)?r.held_on:"",x:soDay(String(r.expires_at||"").slice(0,10))?String(r.expires_at).slice(0,10):td,a:r.answered_at?1:0,t:0}));
    /* a link's code is only needed while it can still be answered */
-   if(S.soT&&typeof S.soT==="object")Object.keys(S.soT).forEach(k=>{const q=S.pre.sl.find(x=>x.id===k);if(!q||q.a||q.x<td)delete S.soT[k]})}
-  if(JSON.stringify([S.soV,S.pre&&S.pre.sl])!==before){save();if(tab==="cpd"&&pf==="pre"&&!pe)cfRe()}
+   if(S.soT&&typeof S.soT==="object")Object.keys(S.soT).forEach(k=>{const q=S.pre.sl.find(x=>x.id===k)||apSoL().find(x=>x.id===k);if(!q||q.a||q.x<td)delete S.soT[k]})}
+  apSoMerge(RA);
+  if(JSON.stringify([S.soV,S.pre&&S.pre.sl,S.ap&&S.ap.sl])!==before){save();if(tab==="cpd"&&pf==="pre"&&!pe)cfRe();else if(apSoHere()&&!apSo)cfRe()}
  }catch(e){}finally{soBusy=false}}
 /* the panel under an open review point */
 function soDelH(a){return soDelAsk===a.rq?`<br>Remove this answer from your record? <button class="lnk aul" style="padding:0;color:var(--bad)" onclick="soDel('${esc(a.rq)}')">Yes, remove</button> · <button class="lnk aul" style="padding:0" onclick="soDelAsk=null;cfRe()">Keep</button>`
@@ -14107,7 +14111,7 @@ function soOrphH(){if(!soOn())return "";const ids=new Set(preRvL().map(x=>x.id))
  const rows=L.map(q=>{const a=V.find(x=>x.rq===q.id);if(a)return soAnsH(Object.assign(a,{ok:false,it:q.it||"",h:q.h||""}),false,true);
   return !q.a&&q.x>=td?`<p class="tag sopn">A link for “${esc(q.it||"a review")}” is waiting for an answer. <button class="lnk aul" style="padding:0" onclick="soShow('${esc(q.id)}')">Show the link</button></p>`:""}).join("");
  return rows?`<div class="note sopn"><b>Answers that no longer match a review point</b><p class="tag" style="margin:2px 0 0">They aren't in your exports. If you've just signed in on this device, they may match up in a moment. Remove any you don't need.</p>${rows}</div>`:""}
-function soReport(rq){const a=soV().find(x=>x.rq===rq);if(!a)return;pzcRepOn=true;try{pzcMine();pzc.sent=null;pzc.err="";pzc.ab="feedback";pzc.ref=a.rq;pzc.who=String(a.nm||"the person who answered").slice(0,60);pzc.back={so:a.rq};pzlGo("complaint")}finally{pzcRepOn=false}}
+function soReport(rq){const a=soV().find(x=>x.rq===rq);if(!a)return;pzcRepOn=true;try{pzcMine();pzc.sent=null;pzc.err="";pzc.ab="feedback";pzc.ref=a.rq;pzc.who=String(a.nm||"the person who answered").slice(0,60);pzc.back={so:a.rq};try{if(apSoL().some(q=>q.id===a.rq))pzc.back.ap=1}catch(e){}pzlGo("complaint")}finally{pzcRepOn=false}}
 {const b0=pzlBack;pzlBack=function(){let bk=null;try{bk=pzlPg==="complaint"&&pzc.back}catch(e){}
  if(bk&&bk.so){pzlPg=null;pzc.sent=null;pzc.back=null;tab="cpd";pf="pre";pe=null;home();window.scrollTo(0,0);return}
  return b0.apply(this,arguments)}}
@@ -14163,9 +14167,9 @@ function soCopyMsg(){const q=soRq(),u=q&&soUrl(q);if(u)soCopyTxt(soMsg(q,u),"Mes
 function soMail(){const q=soRq(),u=q&&soUrl(q);if(!u)return;location.href="mailto:?subject="+encodeURIComponent("Could you confirm my review?"+(q.fn?" ("+q.fn+")":""))+"&body="+encodeURIComponent(soMsg(q,u))}
 function soShare(){const q=soRq(),u=q&&soUrl(q);if(!u||!navigator.share)return;navigator.share({title:"Confirm my review",text:soMsg(q,u).replace(u,"").replace(/\n{3,}/g,"\n\n"),url:u}).catch(()=>{})}
 async function soCancel(id){if(!soOn())return;const uid=PZ.user.id;try{const r=await PZ.sb.from("signoff_requests").delete().eq("user_id",uid).eq("id",id);if(r.error)throw r.error}catch(e){soSay("That didn't work. Check your connection and try again.");return}
- if(S.pre)S.pre.sl=soL().filter(q=>q.id!==id);if(S.soV&&Array.isArray(S.soV.o))S.soV.o=S.soV.o.filter(q=>q.id!==id);if(S.soT)delete S.soT[id];save();pe=null;home();window.scrollTo(0,0);try{toast("Link cancelled")}catch(e){}}
+ if(S.pre)S.pre.sl=soL().filter(q=>q.id!==id);if(S.ap&&Array.isArray(S.ap.sl))S.ap.sl=apSoL().filter(q=>q.id!==id);apSo=null;if(S.soV&&Array.isArray(S.soV.o))S.soV.o=S.soV.o.filter(q=>q.id!==id);if(S.soT)delete S.soT[id];save();pe=null;home();window.scrollTo(0,0);try{toast("Link cancelled")}catch(e){}}
 async function soDel(rq){if(!soOn())return;const uid=PZ.user.id;try{const r=await PZ.sb.from("signoff_requests").delete().eq("user_id",uid).eq("id",rq);if(r.error)throw r.error}catch(e){try{toast("That didn't work. Check your connection.")}catch(x){}return}
- soDelAsk=null;if(S.soV&&Array.isArray(S.soV.l))S.soV.l=S.soV.l.filter(a=>a.rq!==rq);if(S.soV&&Array.isArray(S.soV.o))S.soV.o=S.soV.o.filter(q=>q.id!==rq);if(S.pre)S.pre.sl=soL().filter(q=>q.id!==rq);if(S.soT)delete S.soT[rq];save();cfRe()}
+ soDelAsk=null;if(S.soV&&Array.isArray(S.soV.l))S.soV.l=S.soV.l.filter(a=>a.rq!==rq);if(S.soV&&Array.isArray(S.soV.o))S.soV.o=S.soV.o.filter(q=>q.id!==rq);if(S.pre)S.pre.sl=soL().filter(q=>q.id!==rq);if(S.ap&&Array.isArray(S.ap.sl))S.ap.sl=apSoL().filter(q=>q.id!==rq);if(S.soT)delete S.soT[rq];save();cfRe()}
 
 
 /* ---------- v516: owner's review of v515 ---------- */
@@ -14243,6 +14247,92 @@ function apPpT(rows){try{const P=ppStats(rows);if(!P.any)return "";return "\nFOU
 function apPpPdf(L,rows){try{const P=ppStats(rows);if(!P.any)return;L.need(110);
  L.table([{t:"Pillar of practice",w:.62},{t:"Activities",w:.19,a:"r"},{t:"Hours",w:.19,a:"r"}],PP.map(p=>[p[1],String(P[p[0]].n),(P[p[0]].m/60).toFixed(1)]).concat(P.none?[["No pillar chosen",String(P.none),(P.nm/60).toFixed(1)]]:[]));
  L.text("An activity can count towards more than one pillar.",{sz:9,c:L.mute,gap:6});L.y+=6}catch(e){}}
+
+
+/* ---------- v521 (R15): the appraiser confirms the appraisal by one-time link ---------- */
+let apSo=null;
+const AP_SO_FOOT="“Confirmed by link” means the person named answered a one-time link I sent them, to confirm that my appraisal took place on that date. They weren't shown this pack and haven't approved anything in it. The name and role are as they typed them. Phyzly doesn't check who answers a link.";
+const apSoIt=k=>k==="wal"?"PADR":k==="sco"?"PDP&R":"Appraisal";
+function apSoHere(){try{return tab==="cpd"&&cp.v==="export"&&cp.x==="ap"}catch(e){return false}}
+/* requests made for the appraisal (kept with the pack, so every device knows them) */
+function apSoL(){const A=S.ap;if(!A||typeof A!=="object"||Array.isArray(A))return [];if(!Array.isArray(A.sl))A.sl=[];
+ A.sl=A.sl.filter(q=>q&&typeof q==="object"&&soOk(q.id)&&soDay(q.x)).slice(-20);return A.sl}
+function apSoMerge(R){if(!S.ap||typeof S.ap!=="object"||Array.isArray(S.ap))return;const ids=new Set(R.map(r=>r.id)),fresh=Date.now()-120000;
+ S.ap.sl=apSoL().filter(q=>ids.has(q.id)||(+q.t||0)>fresh).map(q=>{const r=R.find(x=>x.id===q.id);
+  if(r){if(r.answered_at)q.a=1;q.it=String(r.item||"").replace(/\s+/g," ").trim().slice(0,80);q.h=soDay(r.held_on)?r.held_on:""}return q})}
+/* answers to those requests; one counts only while the pack's appraisal date is the date that was confirmed */
+function apSoAns(){const M=new Map(apSoL().map(q=>[q.id,q])),on=(S.ap&&S.ap.on)||"";
+ return soV().filter(a=>M.has(a.rq)).map(a=>{const q=M.get(a.rq);return Object.assign(a,{ok:!!q.h&&q.h===on,it:q.it||"",h:q.h||""})}).sort((a,b)=>b.at.localeCompare(a.at))}
+function apSoConf(){try{return apSoAns().find(a=>a.out==="confirmed"&&a.ok)||null}catch(e){return null}}
+function apSoWait(){if(!soOn())return null;const td=isoD(new Date()),got=new Set(soV().map(a=>a.rq)),on=(S.ap&&S.ap.on)||"";
+ return apSoL().slice().reverse().find(q=>!q.a&&!got.has(q.id)&&q.x>=td&&q.h===on)||null}
+function apSoAnsH(a,cur){const nm=esc(apNm((S.ap||{}).k)),dt=esc(dFmt(a.h));
+ const head=a.out==="confirmed"?(a.ok?`<b>Confirmed by link.</b> ${esc(a.nm)} (${esc(a.ro)}) confirmed that your ${nm} took place on ${dt}. They answered on ${esc(dFmt(a.d))}. This confirms the date only, not what's in your pack.`:`<b>This was confirmed for a different date.</b> ${esc(a.nm)} confirmed that your ${nm} took place on ${dt}, which isn't the appraisal date in your pack now, so it isn't counted or exported. Change the date back, ask again, or remove this answer.`)
+  :`<b>Not confirmed yet.</b> ${esc(a.nm)} (${esc(a.ro)}) answered on ${esc(dFmt(a.d))}${a.c?":":"."}`;
+ return `<div class="${cur?"note ":"tag "}sopn"${cur?' role="status"':""}>${head}${a.c?`<br><span class="soc">${esc(a.c)}</span>`:""}${soDelH(a)}</div>`}
+function apSoH(){if(!soOn())return "";const A=S.ap||{},on=soDay(A.on)?A.on:"",td=isoD(new Date()),nm=apNm(A.k);
+ try{if(soOn())setTimeout(()=>{soSync(false)},0)}catch(e){}
+ let h=`<div class="sec">Appraiser's confirmation by link</div>`;
+ const L=apSoAns(),cf=L.find(a=>a.out==="confirmed"&&a.ok)||null,top=cf||L[0],w=apSoWait();
+ if(top)h+=apSoAnsH(top,true);
+ const older=L.filter(a=>!top||a.id!==top.id);if(older.length)h+=`<p class="tag sopn"><b>Earlier answers</b></p>`+older.map(a=>apSoAnsH(a,false)).join("");
+ if(cf)return h;
+ if(w)return h+`<p class="tag sopn">Waiting for ${esc(w.who||"your appraiser")} to confirm. The link works until ${esc(dFmt(w.x))}. <button class="lnk aul" style="padding:0" onclick="apSoShow('${esc(w.id)}')">Show the link</button></p>`;
+ if(!on)return h+`<p class="tag" style="margin:0">Add your appraisal date above. Once your ${esc(nm)} has happened, you can ask your appraiser to confirm it by link.</p>`;
+ if(on>td)return h+`<p class="tag" style="margin:0">After your ${esc(nm)} on ${esc(dFmt(on))}, you can ask your appraiser to confirm it took place, by link.</p>`;
+ return h+`<button class="opt" style="text-align:center;margin-top:${top?12:0}px" onclick="apSoAsk()">${top?"Ask again":"Ask your appraiser to confirm by link"}</button><p class="tag" style="margin:4px 0 0">They confirm your ${esc(nm)} took place on ${esc(dFmt(on))}. They don't need an account, and their answer shows here and in your pack as “Confirmed by link”.</p>`}
+function apSoAsk(){const A=apS();if(!soOn()||!soDay(A.on)||A.on>isoD(new Date()))return;const last=apSoL().slice().reverse().find(q=>q.who);
+ apSo={v:"so",f:{fn:String((S.acct&&S.acct.name)||"").trim().split(/\s+/)[0].slice(0,40),who:last?String(last.who).slice(0,60):"",note:""}};home();window.scrollTo(0,0)}
+function apSoBack(){apSo=null;home();window.scrollTo(0,0)}
+function apSoForm(){const f=apSo.f,A=apS(),nm=apNm(A.k);
+ app.innerHTML=head()+tabs()+bk("apSoBack()","Appraisal pack")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">Ask your appraiser to confirm</h1><p class="tag" style="margin:0 0 8px">Make a link to send to your appraiser. They don't need an account. They'll see what you're asking them to confirm, and their answer comes straight into your appraisal pack.</p>`+
+ (f.err?`<div class="fb bad" role="alert"><b>${esc(f.err)}</b></div>`:"")+
+ `<div class="note"><b>${esc(apSoIt(A.k))}</b><br>Held ${esc(dFmt(A.on))}</div>`+
+ `<label class="cfl" for="aso-n">Your first name</label><input id="aso-n" class="cin" maxlength="40" value="${esc(f.fn)}" autocomplete="given-name" oninput="apSo.f.fn=this.value">`+
+ `<label class="cfl" for="aso-w">Who are you asking? <span style="font-weight:500;color:var(--mute)">(optional)</span></label><input id="aso-w" class="cin" maxlength="60" value="${esc(f.who)}" autocomplete="off" oninput="apSo.f.who=this.value"><p class="tag" style="margin:4px 0 0">Only you see this.</p>`+
+ `<label class="cfl" for="aso-m">A note for them <span style="font-weight:500;color:var(--mute)">(optional)</span></label><textarea id="aso-m" class="cin" maxlength="300" rows="3" placeholder="e.g. Thanks for my ${esc(nm)} on Tuesday" oninput="apSo.f.note=this.value">${esc(f.note)}</textarea><p class="tag" style="margin:4px 0 0">They'll see this, with your first name and the date.</p>`+
+ `<div class="note">They're asked only to confirm that your ${esc(nm)} took place on that date. They don't see your notes or your pack. The link works once and for 30 days. Anyone who has it can answer, so send it straight to the person. Don't answer it yourself. Your pack shows the name and role typed by whoever answers.</div>`+
+ `<button class="go" ${f.busy?"disabled":""} onclick="apSoMake()">${f.busy?"Making your link…":"Make the link"}</button>`}
+async function apSoMake(){const f=apSo&&apSo.v==="so"&&apSo.f;if(!f||f.busy||!soOn())return;const A=apS(),cl=(x,n)=>String(x||"").replace(/\s+/g," ").trim().slice(0,n),fn=cl(f.fn,40),who=cl(f.who,60),note=cl(f.note,300),on=A.on,it=apSoIt(A.k);
+ if(!soDay(on)||on>isoD(new Date())){apSo=null;return home()}
+ if(!fn){f.err="Add your first name, so they know who it's for.";return home()}
+ if(soHasLink(fn+" "+note)){f.err="Take out any web or email addresses from your name and the note.";return home()}
+ if(!(window.crypto&&crypto.subtle&&crypto.getRandomValues)){f.err="This browser can't make a secure link. Try another browser.";return home()}
+ f.err="";f.busy=true;home();const uid=PZ.user.id;
+ try{const tk=grHex(crypto.getRandomValues(new Uint8Array(32))),hash=grHex(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(tk))),id=grUuid();
+  const r=await PZ.sb.from("signoff_requests").insert({id,token_hash:hash,first_name:fn,item:it,held_on:on,note,kind:"ap"});
+  if(!soOn()||PZ.user.id!==uid)return;
+  if(r.error)throw r.error;
+  apSoL().push({id,who,fn,it,h:on,d:isoD(new Date()),x:isoD(new Date(Date.now()+30*864e5)),t:Date.now()});S.soT=(S.soT&&typeof S.soT==="object")?S.soT:{};S.soT[id]=tk;save();
+  if(apSo&&apSo.v==="so"){apSo={v:"sol",id,isNew:1};home();window.scrollTo(0,0)}
+ }catch(e){const m=String((e&&e.message)||e||"");f.busy=false;
+  f.err=/5 links are already waiting/.test(m)?"You already have 5 sign-off links waiting for an answer. Cancel one you don't need first.":/20 links made/.test(m)?"You've made a lot of sign-off links this month. Try again in a few days.":/web and email addresses/.test(m)?"Take out any web or email addresses from your name and the note.":/check the date/.test(m)?"Check your appraisal date, then try again.":/kind|does not exist|schema cache|PGRST20|42P01|42703|permission denied/i.test(m)?"Asking your appraiser by link isn't switched on yet.":(PZ.nice?PZ.nice(e):"That didn't work. Check your connection and try again.");
+  if(apSo&&apSo.v==="so")home()}}
+function apSoRq(){const id=apSo&&apSo.id;return apSoL().find(q=>q.id===id)||null}
+function apSoMsg(q,url){return "Hi,\n\nCould you confirm my "+apNm((S.ap||{}).k)+" on "+dFmt(q.h,{day:"numeric",month:"long",year:"numeric"})+" for my portfolio? It takes a minute and you don't need an account:\n\n"+url+"\n\nThe link works once, until "+dFmt(q.x)+".\n\nThank you"+(q.fn?",\n"+q.fn:"")}
+function apSoShow(id){apSo={v:"sol",id};home();window.scrollTo(0,0)}
+function apSoLinkScr(){const q=apSoRq();if(!q){apSo=null;return home()}const url=soUrl(q),ex=q.x<isoD(new Date());
+ const B=(f,l,go)=>`<button class="${go?"go":"opt"}" style="text-align:center${go?"":";margin-top:10px"}" onclick="${f}()">${l}</button>`;
+ app.innerHTML=head()+tabs()+bk("apSoBack()","Appraisal pack")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">${apSo.isNew?"Your link is ready":"Appraisal link"}</h1><p class="tag" style="margin:0 0 10px">${esc(q.it||"Appraisal")}, held ${esc(dFmt(q.h))}. ${q.who?"For "+esc(q.who)+". ":""}${ex?"This link has expired.":"Works once, until "+esc(dFmt(q.x))+"."}</p>`+
+ (ex?`<div class="note">Nobody answered before it expired. Cancel it, then make a new link if you still want it confirmed.</div>`
+  :url?`<label class="cfl" for="aso-u">The link</label><input id="aso-u" class="cin" readonly value="${esc(url)}" onfocus="this.select()">`+B("apSoCopyMsg","Copy message",1)+B("apSoMail","Email it")+(navigator.share?B("apSoShare","Share…"):"")+B("apSoCopy","Copy link")+
+   `<p id="som" class="tag" role="status"></p><div class="note">Send it to your appraiser only. Anyone who has the link can answer it once, so don't post it in a group chat.</div>`
+  :`<div class="note">This link was made on another device, so it can't be shown here. Open it there, or cancel it and make a new one.</div>`)+
+ `<button class="opt" style="text-align:center;margin-top:14px;color:var(--bad)" onclick="soCancel('${esc(q.id)}')">Cancel this link</button>`}
+function apSoCopy(){const q=apSoRq(),u=q&&soUrl(q);if(u)soCopyTxt(u,"Copied.")}
+function apSoCopyMsg(){const q=apSoRq(),u=q&&soUrl(q);if(u)soCopyTxt(apSoMsg(q,u),"Message copied. Paste it into a new email or message.")}
+function apSoMail(){const q=apSoRq(),u=q&&soUrl(q);if(!u)return;location.href="mailto:?subject="+encodeURIComponent("Could you confirm my "+apNm((S.ap||{}).k)+"?"+(q.fn?" ("+q.fn+")":""))+"&body="+encodeURIComponent(apSoMsg(q,u))}
+function apSoShare(){const q=apSoRq(),u=q&&soUrl(q);if(!u||!navigator.share)return;navigator.share({title:"Confirm my "+apNm((S.ap||{}).k),text:apSoMsg(q,u).replace(u,"").replace(/\n{3,}/g,"\n\n"),url:u}).catch(()=>{})}
+{const a0=apScreen;apScreen=function(){if(apSo&&apSo.v==="so"&&apSo.f)return apSoForm();if(apSo&&apSo.v==="sol")return apSoLinkScr();return a0.apply(this,arguments)}}
+{const o0=apOpen;apOpen=function(){apSo=null;return o0.apply(this,arguments)}}
+{const b0=apBack;apBack=function(){apSo=null;return b0.apply(this,arguments)}}
+/* reporting an answer from the pack: the report screen goes back to the pack */
+{const b0=pzlBack;pzlBack=function(){let bk=null;try{bk=pzlPg==="complaint"&&pzc.back}catch(e){}
+ if(bk&&bk.ap){pzlPg=null;pzc.sent=null;pzc.back=null;apOpen();return}
+ return b0.apply(this,arguments)}}
+/* exports */
+function apSoXpT(){const c=apSoConf();if(!c)return "";return "Appraisal held on "+xpNice(c.h)+": confirmed by link by "+c.nm+", "+c.ro+", who answered on "+xpNice(c.d)+"."+(c.c?"\nComment from "+c.nm+": "+c.c:"")+"\n"}
+function apSoXpPdf(L){try{const c=apSoConf();if(!c)return;L.y-=8;L.text("Appraisal held on "+xpLong(c.h)+": confirmed by link by "+c.nm+", "+c.ro+", who answered on "+xpLong(c.d)+".",{sz:10,w:"bold",gap:2});if(c.c)L.text("Comment from "+c.nm+": "+c.c,{sz:9.5,gap:2});L.text(AP_SO_FOOT,{sz:8.5,c:L.mute,gap:12})}catch(e){}}
 
 
 /* ---------- Phyzly Portfolio (early access): Portfolio and Profile only, plus Quick ref and feedback ---------- */

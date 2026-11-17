@@ -107,8 +107,8 @@ a{color:var(--blue)}
 <!-- Address: the owner's current address (14 Nov 2026). Change it here, in pz_legal.js (PZL_ADDR), in feedback/index.html and at the ICO when the service address is ready. -->
 <p>Phyzly is run by Oliver Jones, trading as Phyzly, <span id="addr">13 Naseby House, Rothwell Road, Kettering, NN16 8WB</span>, who is responsible for the information on this page (ICO registration ZC298395). Contact: <a href="mailto:hello@phyzly.app">hello@phyzly.app</a>.</p>
 <p><b>What is kept:</b> your name, your role, your answer, your comment if you write one, and the date you sent it. No email address is collected. Like any website, the companies that host this page and our database record your IP address briefly in their security logs. This page has no cookies, no tracking and no analytics.</p>
-<p><b>Why, and our lawful basis:</b> so the person who asked has a record that you confirmed (or haven't yet confirmed) this part of their preceptorship, for their professional development. We rely on legitimate interests: theirs in keeping a record of their preceptorship, and ours in providing the tool.</p>
-<p><b>Who sees it:</b> only the person who sent you this link, in their own Phyzly account, and anyone they choose to share their record with, such as a manager at appraisal. Phyzly's owner can access the database to keep the service running, and looks at content only to fix a reported problem or when the law requires it.</p>
+<p><b>Why, and our lawful basis:</b> <span id="why">so the person who asked has a record that you confirmed (or haven't yet confirmed) this part of their preceptorship, for their professional development. We rely on legitimate interests: theirs in keeping a record of their preceptorship, and ours in providing the tool.</span></p>
+<p><b>Who sees it:</b> only the person who sent you this link, in their own Phyzly account, and anyone they choose to share their record with, such as a manager or a future employer, including in a PDF or text copy of their record. Phyzly's owner can access the database to keep the service running, and looks at content only to fix a reported problem or when the law requires it.</p>
 <p><b>How long:</b> until that person deletes it or closes their account.</p>
 <p><b>Where:</b> your answer is stored in London, with our database provider, Supabase, which acts only on our instructions. Its support staff and technical logs may be outside the UK, and this page is hosted by GitHub in the United States; both are covered by safeguards approved for that purpose.</p>
 <p><b>Your rights:</b> you can ask for a copy of your answer, or for it to be corrected or deleted, and you can object to it being kept. An answer can't be edited, so to correct one we delete it and they send you a new link. Ask the person you sent it to, or email us with their first name, the name you gave and the date you sent it. We'll reply within one month, and it's free.</p>
@@ -122,7 +122,7 @@ a{color:var(--blue)}
   "use strict";
   var CFG = window.PZ_CFG || { url: "https://lrbxghrhxabnqvfgxrad.supabase.co", key: "sb_publishable_XjivnIAnqcuxpwN5j18Bpw_HnaazWPf" };
   var $ = function(id){ return document.getElementById(id); };
-  var m = /(?:^#|[#&])t=([0-9a-f]{64})(?:&|$)/.exec(location.hash || ""), token = m ? m[1] : "", name = "", item = "", busy = false;
+  var m = /(?:^#|[#&])t=([0-9a-f]{64})(?:&|$)/.exec(location.hash || ""), token = m ? m[1] : "", name = "", item = "", ap = false, busy = false;
   var MON = ["January","February","March","April","May","June","July","August","September","October","November","December"];
   function longDate(d){ var x = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(d || "")); return x ? (+x[3]) + " " + MON[+x[2] - 1] + " " + x[1] : ""; }
   function show(id){ ["bad", "f", "done"].forEach(function(k){ $(k).hidden = k !== id; }); }
@@ -143,23 +143,26 @@ a{color:var(--blue)}
   function outv(){ return (document.querySelector("input[name=out]:checked") || {}).value || ""; }
   function hint(){
     var o = outv();
-    $("oh").textContent = o === "confirmed" ? "You're confirming that this review took place as shown above and that you're happy to sign it off in " + name + "'s portfolio. This isn't your employer's form." : o === "not_yet" ? name + " will see that it isn't confirmed yet, with your comment." : "";
-    $("ch").textContent = o === "not_yet" ? "What still needs to happen? " + name + " will see this." : "Anything you'd like " + name + " to know.";
+    $("oh").textContent = o === "confirmed" ? (ap ? "You're confirming that " + name + "'s appraisal took place on the date shown above. You're not being asked to approve anything else. This isn't your employer's appraisal form." : "You're confirming that this review took place as shown above and that you're happy to sign it off in " + name + "'s portfolio. This isn't your employer's form.") : o === "not_yet" ? name + " will see that it isn't confirmed yet, with your comment." : "";
+    $("ch").textContent = o === "not_yet" ? (ap ? "What needs changing, for example the date? " : "What still needs to happen? ") + name + " will see this." : "Anything you'd like " + name + " to know.";
     $("go").textContent = o === "confirmed" ? "Confirm and send" : "Send answer";
     $("co").hidden = o === "not_yet";
   }
   if (!token) return why("missing");
   rpc("signoff_request_open", { p_token: token }).then(function(d){
     if (!d || d.ok !== true) return why(d && d.why);
-    name = String(d.first_name || "").slice(0, 40) || "your colleague";
+    name = String(d.first_name || "").slice(0, 40) || "your colleague"; ap = d.kind === "ap";
     item = String(d.item || "").slice(0, 80);
+    if (ap && ["Appraisal", "PADR", "PDP&R"].indexOf(item) < 0) item = "Appraisal";
     var held = longDate(d.held_on), note = String(d.note || "").slice(0, 300);
-    document.title = "Confirm a review for " + name + " · Phyzly";
-    $("h").textContent = "Confirm a review for " + name;
-    $("sub").textContent = name + " has asked you to confirm part of their preceptorship. It takes a minute.";
+    var what = ap ? "an appraisal" : "a review";
+    document.title = "Confirm " + what + " for " + name + " · Phyzly";
+    $("h").textContent = "Confirm " + what + " for " + name;
+    $("sub").textContent = ap ? name + " has asked you, as their appraiser, to confirm that their appraisal took place. It takes a minute." : name + " has asked you to confirm part of their preceptorship. It takes a minute.";
+    if (ap){ $("role").placeholder = "e.g. Band 7 physiotherapist, appraiser"; $("why").textContent = "so the person who asked has a record that you confirmed (or haven't yet confirmed) their appraisal, for their professional development. We rely on legitimate interests: theirs in keeping a record of their appraisal, and ours in providing the tool."; }
     $("wi").textContent = item; $("wd").textContent = held ? "Held " + held : "";
     if (note){ $("wn").textContent = name + " wrote: " + note; $("wn").hidden = false; }
-    $("n1").textContent = "This is a record in " + name + "'s own portfolio. It doesn't replace your employer's preceptorship paperwork, and Phyzly doesn't check who answers. " + name + " will see your name, your role, your answer and your comment, and may share them, for example at appraisal. Please don't include patient names or details, or web or email addresses.";
+    $("n1").textContent = "This is a record in " + name + "'s own portfolio. It doesn't replace your employer's " + (ap ? "appraisal form" : "preceptorship paperwork") + ", and Phyzly doesn't check who answers. " + name + " will see your name, your role, your answer and your comment, and may share them, for example " + (ap ? "with a future manager" : "at appraisal") + ". Please don't include patient names or details, or web or email addresses.";
     $("agl").textContent = "I'm the person " + name + " asked. I understand " + name + " will keep my answer in their portfolio.";
     hint(); show("f");
   }, function(){ bad("We couldn't open this link just now.", "Check your connection, then reload the page. Your link hasn't been used."); });
@@ -176,7 +179,7 @@ a{color:var(--blue)}
     if (!out){ err("Choose your answer."); document.querySelector("input[name=out]").focus(); return; }
     if (!nm){ err("Add your name, so " + name + "'s record shows who answered."); $("name").focus(); return; }
     if (!role){ err("Add your role."); $("role").focus(); return; }
-    if (out === "not_yet" && !cmt){ err("Add a comment so " + name + " knows what still needs to happen."); $("cmt").focus(); return; }
+    if (out === "not_yet" && !cmt){ err("Add a comment so " + name + (ap ? " knows what needs changing." : " knows what still needs to happen.")); $("cmt").focus(); return; }
     if (hasLink([nm, role, cmt].join(" "))){ err("Please take out any web or email addresses. Answers can't include them."); return; }
     if (!$("agree").checked){ err("Tick the box to say you're the person " + name + " asked."); $("agree").focus(); return; }
     err(""); busy = true; $("go").disabled = true; $("go").textContent = "Sending…";
@@ -184,13 +187,13 @@ a{color:var(--blue)}
       if (d && d.ok === true){
         try{ history.replaceState(null, "", location.pathname); }catch(e){}
         $("h").textContent = "Thank you"; $("sub").textContent = "";
-        $("donet").textContent = out === "confirmed" ? "You've confirmed \u201c" + item + "\u201d for " + name + ". They'll see it in their Phyzly Portfolio." : "Your answer has been sent to " + name + ".";
+        $("donet").textContent = out === "confirmed" ? (ap ? "You've confirmed " + name + "'s appraisal. They'll see it in their Phyzly Portfolio." : "You've confirmed \u201c" + item + "\u201d for " + name + ". They'll see it in their Phyzly Portfolio.") : "Your answer has been sent to " + name + ".";
         show("done"); window.scrollTo(0, 0); return;
       }
       busy = false; $("go").disabled = false; hint();
       var k = d && d.why;
       if (k === "used" || k === "expired" || k === "missing") return why(k);
-      err(k === "link" ? "Please take out any web or email addresses. Answers can't include them." : k === "name" ? "Add your name (up to 80 characters)." : k === "role" ? "Add your role (up to 80 characters)." : k === "long" ? "The comment is too long. Shorten it to 1,000 characters." : k === "comment" ? "Add a comment so " + name + " knows what still needs to happen." : k === "own" ? "This is your own link. Send it to the person you're asking." : "That didn't send. Try again.");
+      err(k === "link" ? "Please take out any web or email addresses. Answers can't include them." : k === "name" ? "Add your name (up to 80 characters)." : k === "role" ? "Add your role (up to 80 characters)." : k === "long" ? "The comment is too long. Shorten it to 1,000 characters." : k === "comment" ? "Add a comment so " + name + (ap ? " knows what needs changing." : " knows what still needs to happen.") : k === "own" ? "This is your own link. Send it to the person you're asking." : "That didn't send. Try again.");
     }, function(){ busy = false; $("go").disabled = false; hint(); err("That didn't send. Check your connection and try again. Nothing you've written has been lost."); });
   });
 })();
