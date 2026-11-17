@@ -2443,7 +2443,7 @@ function portHome(){
  const card=(ic,t,s,go)=>`<button class="opt" onclick="${go}"><div class="row"><b>${ic} ${t}</b><span>${s}</span></div></button>`;
  app.innerHTML=head()+tabs()+`<h1 style="font-size:1.6rem;margin:6px 0 2px">Portfolio</h1><p class="tag" style="margin:0 0 10px">Your learning, competencies and career in one place.</p>`+
  card("📒","CPD log",n+(n===1?" entry":" entries"),"pf='cpd';cp.v='list';home()")+(showPlc()?card("🏥","Placements",esc((()=>{const L=plcL(),n=L.find(x=>plcStat(x)==="now"),u=L.filter(x=>plcStat(x)==="up").sort((a,b)=>a.st.localeCompare(b.st))[0];return n?"Day "+(1-daysTo(n.st)):u?"Starts in "+daysTo(u.st)+" days":fmtHr(plcTot())+"h logged"})()),"pl.stg=null;openPlc('list')"):"")+(showPre()?card("🧭","Preceptorship",esc(ps),"pf='pre';pe=null;home()"):"")+(S.qualAt&&!showPlc()&&(plcL().length||(S.otj||[]).length||Object.keys(S.ksb||{}).length)?`<div class="sec">Pre-registration record</div>`+(plcL().length?card("🏥","Placements",fmtHr(plcTot())+"h logged","pl.stg=null;openPlc('list')"):"")+(!showApp()&&((S.otj||[]).length||Object.keys(S.ksb||{}).length)?card("🧾","Off-the-job log and KSBs","kept","pf='otj';kz=null;home()"):""):"")+card("✅","Competencies",ind+" of "+cs.length,"pf='comp';cmf=null;home()")+(showApp()?card("🧾","Off-the-job log and KSBs",esc(fmtH(otjEnt(isoD(new Date()).slice(0,7)).reduce((a,e)=>a+(e.m||0),0)))+" this month","pf='otj';kz=null;home()"):"")+
- (showHc()?`<div class="sec">Registration</div>`+card("🛡️","HCPC audit pack",(()=>{const H=S.hc;const go=!!H&&!!(H.setUp||String(H.name||"").trim()||String(H.hist||"").trim()||String(H.stmt||"").trim()||(H.pick||[]).length||Object.keys(H.ev||{}).length||H.reg||String(H.no||"").trim());if(!go)return "Start";const C=hcChecks();return C.every(c=>c[0])?"Ready":"In progress"})(),"openHc()"):"")+(showIv()?`<div class="sec">Career</div>`+card("💼","Interview prep",esc(ivPortSt()),"openIv()"):"")+`<button class="opt" style="text-align:center;margin-top:14px" onclick="apOpen()">Appraisal pack<small style="display:block;color:var(--mute);font-size:.8rem;font-weight:500">Your year in one document, for your appraisal or PADR</small></button><button class="opt" style="text-align:center;margin-top:10px" ${n||P||Object.keys(V).length?"":"disabled"} onclick="cp.x='all';cp.v='export';pf='cpd';home()">Export everything</button><div class="note">Your own tracker. Your trust's records are the official ones, and sign-off has to come from a supervisor.</div><p class="tag">${showApp()&&showPre()&&showIv()?"":"Looking for "+[showApp()?"":"the off-the-job log",showPre()?"":"preceptorship",showIv()?"":"interview prep"].filter(Boolean).join(" or ")+"? Turn it on in Profile, under Portfolio tools."}</p><p class="tag">Saved on this device only. Export a copy now and then.</p>`;
+ (showHc()?`<div class="sec">Registration</div>`+card("🛡️","HCPC audit pack",(()=>{const H=S.hc;const go=!!H&&!!(H.setUp||String(H.name||"").trim()||String(H.hist||"").trim()||String(H.stmt||"").trim()||(H.pick||[]).length||Object.keys(H.ev||{}).length||H.reg||String(H.no||"").trim());if(!go)return "Start";const C=hcChecks();return C.every(c=>c[0])?"Ready":"In progress"})(),"openHc()"):"")+(showIv()?`<div class="sec">Career</div>`+card("💼","Interview prep",esc(ivPortSt()),"openIv()"):"")+`${card("📄","Appraisal pack",esc(apPortSt()),"apOpen()","Your year in one document, for your appraisal or PADR")}<button class="opt" style="text-align:center;margin-top:14px" ${n||P||Object.keys(V).length?"":"disabled"} onclick="cp.x='all';cp.v='export';pf='cpd';home()">Export everything</button><div class="note">Your own tracker. Your trust's records are the official ones, and sign-off has to come from a supervisor.</div><p class="tag">${showApp()&&showPre()&&showIv()?"":"Looking for "+[showApp()?"":"the off-the-job log",showPre()?"":"preceptorship",showIv()?"":"interview prep"].filter(Boolean).join(" or ")+"? Turn it on in Profile, under Portfolio tools."}</p><p class="tag">Saved on this device only. Export a copy now and then.</p>`;
 }
 /* preceptorship */
 const preReviewPts=L=>{const a=[["w1","Induction",0],["m1","4-week review",1],["m3","3-month review",3],["m6","6-month review",6],["m9","9-month review",9]].filter(x=>x[2]<L);a.push(["fin","Final review",L]);return a};
@@ -8055,7 +8055,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
  }catch(e){console.error("v281",e)}
 
  /* ---------- v282: tester version: report a problem, feedback, welcome note ---------- */
- const RP_VER="v515";let rpCtx=null,rpCat=null;
+ const RP_VER="v516";let rpCtx=null,rpCat=null;
  function rpBtn(kind,id,i){return `<button class="rpb" onclick="rpOpen('${kind}','${id}',${i})">⚑ Report a problem with this card</button>`}
  function rpCtxFor(kind,id,i){try{
   if(kind==="c"){const c=LEARN[id][i],cd=typeof COND!=="undefined"&&COND.find(x=>x.id===id);return {kind:"card",layer:id,card:i,title:c.t,where:(cd?"Condition: "+cd.n:(typeof tn==="function"?tn(id):id))+" · card "+(i+1)+": "+c.t}}
@@ -8729,7 +8729,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
   try{new MutationObserver(()=>navSync()).observe(document.getElementById("app"),{childList:true});navSync()}catch(e){}
   /* pin the bar to the visible bottom edge: iOS web views can leave fixed elements short of it */
   window.navPin=function(){try{const nav=document.getElementById("nav"),vv=window.visualViewport;if(!nav)return;
-   if(vv&&Math.abs(vv.height-window.innerHeight)>1){nav.style.bottom="auto";nav.style.top=Math.round(vv.offsetTop+vv.height-nav.offsetHeight)+"px"}else{nav.style.top="";nav.style.bottom="0"}}catch(e){}};
+   const pzg=document.documentElement.classList.contains("pzo")&&window.innerWidth<900;if(vv&&Math.abs(vv.height-window.innerHeight)>1){nav.style.bottom="auto";nav.style.top=Math.round(vv.offsetTop+vv.height-nav.offsetHeight-(pzg?12:0))+"px"}else{nav.style.top="";nav.style.bottom=pzg?"":"0"}}catch(e){}};
   try{if(window.visualViewport){visualViewport.addEventListener("resize",navPin);visualViewport.addEventListener("scroll",navPin)}window.addEventListener("resize",navPin);window.addEventListener("orientationchange",()=>setTimeout(navPin,300));setTimeout(navPin,0);setTimeout(navPin,600)}catch(e){}
  }catch(e){console.error("v305",e)}
 
@@ -12513,7 +12513,7 @@ function portHome(){
   (S.qualAt&&!showPlc()&&(plcL().length||(S.otj||[]).length||Object.keys(S.ksb||{}).length)?(plcL().length?card("🏥","Placements",fmtHr(plcTot())+"h logged","pl.stg=null;openPlc('list')","Kept from your training"):"")+(!showApp()&&((S.otj||[]).length||Object.keys(S.ksb||{}).length)?card("🧾","Off-the-job log and KSBs","kept","pf='otj';kz=null;home()","Kept from your apprenticeship"):""):"");
  app.innerHTML=head()+tabs()+`<h1 style="font-size:1.6rem;margin:6px 0 2px">Portfolio</h1><p class="tag" style="margin:0 0 10px">Your learning, competencies and career in one place.</p>`+pfStrip()+pfHero()+
  (tools?`<div class="sec">Your tools</div>`+tools:"")+
- `<button class="opt" style="text-align:center;margin-top:14px" onclick="apOpen()">Appraisal pack<small style="display:block;color:var(--mute);font-size:.8rem;font-weight:500">Your year in one document, for your appraisal or PADR</small></button><button class="opt" style="text-align:center;margin-top:10px" ${n||P||Object.keys(V).length?"":"disabled"} onclick="cp.x='all';cp.v='export';pf='cpd';home()">Export everything</button><div class="note">Your own tracker. Your trust's records are the official ones, and sign-off has to come from a supervisor.</div><p class="tag">${showApp()&&showPre()&&showIv()?"":"Looking for "+[showApp()?"":"the off-the-job log",showPre()?"":"preceptorship",showIv()?"":"interview prep"].filter(Boolean).join(" or ")+"? Turn it on in Profile, under Portfolio tools."}</p><p class="tag">Saved on this device only. Export a copy now and then.</p>`;
+ `${card("📄","Appraisal pack",esc(apPortSt()),"apOpen()","Your year in one document, for your appraisal or PADR")}<button class="opt" style="text-align:center;margin-top:14px" ${n||P||Object.keys(V).length?"":"disabled"} onclick="cp.x='all';cp.v='export';pf='cpd';home()">Export everything</button><div class="note">Your own tracker. Your trust's records are the official ones, and sign-off has to come from a supervisor.</div><p class="tag">${showApp()&&showPre()&&showIv()?"":"Looking for "+[showApp()?"":"the off-the-job log",showPre()?"":"preceptorship",showIv()?"":"interview prep"].filter(Boolean).join(" or ")+"? Turn it on in Profile, under Portfolio tools."}</p><p class="tag">Saved on this device only. Export a copy now and then.</p>`;
 }
 /* how XP works (web Portfolio) */
 function pfXpScreen(){const X=pfXp(),bar=window.segBar?segBar(Array.from({length:10},(_,j)=>Math.max(0,Math.min(1,X.f*10-j)))):"";
@@ -13325,7 +13325,7 @@ function abAfter(){const A=document.getElementById("app");if(!A||tab!=="me")retu
   return}
  if(A.querySelector(".abg")||A.querySelector(".nvsubpg"))return;try{if(typeof meV!=="undefined"&&meV==="kit")return}catch(e){}
  const first=A.querySelector(".mgh,.mgrp");if(!first||!S.role)return;const ch=(A.querySelector(".mrow .mchv")||{}).outerHTML||"";
- first.insertAdjacentHTML("beforebegin",`<div class="mgh abg">About you</div><div class="mgrp"><button class="mrow" onclick="abGo()"><span class="msq" style="background:#0A1F3D"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${AB_IC}</svg></span><span class="mtx"><span class="mlb">Your details</span></span><span class="mval">${esc(abSum())}</span>${ch}</button></div>`);
+ first.insertAdjacentHTML("beforebegin",`<div class="mgh abg">About you</div><div class="mgrp"><button class="mrow" onclick="abGo()"><span class="msq" style="background:#0A1F3D"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${AB_IC}</svg></span><span class="mtx"><span class="mlb">Your details</span></span>${ch}</button></div>`);
 }
 {const msA=meScreen;meScreen=function(){const r=msA.apply(this,arguments);try{abAfter()}catch(e){console.error("v494",e)}return r}}
 {const ngA=window.navGo;if(typeof ngA==="function")window.navGo=function(){abOn=false;return ngA.apply(this,arguments)}}
@@ -13424,7 +13424,7 @@ function crGo(){abPg="career";abOn=true;crEd=null;try{pzlPg=null}catch(e){}try{m
 {const f0=abAfter;abAfter=function(){const r=f0.apply(this,arguments);const A=document.getElementById("app");if(!A)return r;
  if(abOn&&abPg==="career"){const h1=A.querySelector(".nvsubpg h1,#app>h1");if(h1)h1.textContent="Career history";const c=A.querySelector(".abc");if(c)c.classList.add("crc");return r}
  const g=A.querySelector(".abg + .mgrp");if(g&&!g.querySelector(".crrowp")){const ch=(g.querySelector(".mchv")||{}).outerHTML||"",n=crCount();
-  g.insertAdjacentHTML("beforeend",`<button class="mrow crrowp" onclick="crGo()"><span class="msq" style="background:#2F4A8A"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3v18M6 6h12l-2.5 3.5L18 13H6"/></svg></span><span class="mtx"><span class="mlb">Career history</span></span><span class="mval">${(()=>{try{const a=abAreaLbl();return a?"Now: "+esc(a):""}catch(e){return ""}})()}</span>${ch}</button>`)}
+  g.insertAdjacentHTML("beforeend",`<button class="mrow crrowp" onclick="crGo()"><span class="msq" style="background:#2F4A8A"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3v18M6 6h12l-2.5 3.5L18 13H6"/></svg></span><span class="mtx"><span class="mlb">Career history</span></span>${ch}</button>`)}
  return r}}
 
 /* ---------- v499: where you worked and studied (trust or employer, and university) ---------- */
@@ -13972,14 +13972,14 @@ function preXpGo(){const Q=preXpSel(),k=Q.fmt,rows=Q.cl?preXpRows():[],base="pre
 
 
 /* ---------- v514 (R9): the Appraisal pack ---------- */
-const AP_K=[["eng","NHS appraisal","England, Agenda for Change"],["wal","PADR","NHS Wales, Agenda for Change"],["oth","Another employer","Any other appraisal or review"]];
+const AP_K=[["eng","NHS appraisal","England, Agenda for Change"],["wal","PADR","NHS Wales, Agenda for Change"],["sco","PDP&R","NHS Scotland, Agenda for Change"],["ni","HSC appraisal","Northern Ireland, Agenda for Change"],["oth","Another employer","Any other appraisal or review"]];
 const AP_Q=[["well","What's gone well this year?","Things you're proud of, feedback you've had, what you've learned."],["hard","What's been harder?","Anything that got in the way, and what would help."],
  ["next","What would you like to achieve next year?","Two or three objectives. Your appraiser will agree them with you."],["sup","What support, training or experience do you need?",""]];
 function apS(){let A=S.ap;if(!A||typeof A!=="object"||Array.isArray(A))A=S.ap={};
  if(!AP_K.some(x=>x[0]===A.k))A.k="";if(!/^\d{4}-\d{2}-\d{2}$/.test(A.from||""))A.from="";if(!/^\d{4}-\d{2}-\d{2}$/.test(A.on||""))A.on="";
  AP_Q.forEach(q=>{A[q[0]]=String(A[q[0]]==null?"":A[q[0]]).slice(0,2000)});["tr","lt"].forEach(k=>{if(!["y","n","u",""].includes(A[k]))A[k]=""});return A}
 const apFrom=()=>{const A=apS();return A.from||isoD(new Date(Date.now()-365*864e5))};
-const apTitle=k=>k==="wal"?"PADR preparation":k==="eng"?"Appraisal preparation":"Appraisal preparation";
+const apTitle=k=>k==="wal"?"PADR preparation":k==="sco"?"PDP&R preparation":k==="eng"?"Appraisal preparation":"Appraisal preparation";
 let apT=0;
 function apOpen(){apS();cp.x="ap";cp.v="export";pf="cpd";tab="cpd";pe=null;XP.ready=null;XP.msg="";home();window.scrollTo(0,0)}
 function apBack(){cp.v="list";cp.x="cpd";XP.ready=null;XP.msg="";pf="home";home();window.scrollTo(0,0)}
@@ -13992,12 +13992,12 @@ function apScreen(){const A=apS(),rows=apRows(),st=xpStats(rows),f=apFrom(),fb=(
  const GO={pdf:"Create PDF",txt:"Copy text"},fmt=A.fmt==="txt"?"txt":"pdf";
  let h=head()+tabs()+bk("apBack()","Portfolio")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">Appraisal pack</h1><p class="tag" style="margin:0 0 8px">Your notes on the year and your record in one document, to prepare for your appraisal and share with your appraiser.</p>`+
   `<div class="cfl">Which appraisal?</div><div class="xpfs" role="radiogroup" aria-label="Which appraisal?">`+AP_K.map(([k,t,sub])=>chip(A.k===k,t,sub,`apSet('k','${k}');home()`)).join("")+`</div>`+
-  `<div class="cr"><div><label class="cfl" for="ap-from">From</label><input id="ap-from" class="cin" type="date" max="${isoD(new Date())}" value="${esc(f)}" onchange="apSet('from',this.value);home()"></div><div><label class="cfl" for="ap-on">Appraisal date <span style="font-weight:500;color:var(--mute)">(optional)</span></label><input id="ap-on" class="cin" type="date" value="${esc(A.on)}" onchange="apSet('on',this.value);home()"></div></div>`+
+  `<div class="cr apdt"><div><label class="cfl" for="ap-from">From</label><input id="ap-from" class="cin" type="date" max="${isoD(new Date())}" value="${esc(f)}" onchange="apSet('from',this.value);home()"></div><div><label class="cfl" for="ap-on">Appraisal date</label><input id="ap-on" class="cin" type="date" value="${esc(A.on)}" onchange="apSet('on',this.value);home()"></div></div><p class="tag" style="margin:4px 0 0">The appraisal date is optional.</p>`+
   `<p class="tag" style="margin:6px 0 0">From ${esc(dFmt(f))}: <b>${st.n} CPD ${st.n===1?"entry":"entries"}</b> (${esc(fmtH(st.min))}, ${st.refl} reflected), ${fb} ${fb===1?"piece":"pieces"} of feedback, ${G.sw.length} SWOC ${G.sw.length===1?"point":"points"}, ${(G.gl||[]).length} ${(G.gl||[]).length===1?"goal":"goals"}.</p>`+
   `<div class="sec">Your notes</div><p class="tag" style="margin:0 0 6px">Optional. They're saved as you type and go at the start of the pack.</p>`+
   AP_Q.map(([k,q,hint])=>`<label class="cfl" for="ap-${k}">${q}</label>${hint?`<div class="tag" style="margin:0 0 4px">${hint}</div>`:""}<textarea id="ap-${k}" class="cin" rows="3" maxlength="2000" oninput="apSet('${k}',this.value)">${esc(A[k]||"")}</textarea>`).join("")+
   (A.k==="eng"?`<div class="sec">Pay progression</div><p class="tag" style="margin:0 0 6px">At a pay step, your manager checks that you've had an appraisal in the last 12 months and done your statutory and mandatory training (and that you have no formal capability process or live disciplinary sanction). Your manager confirms it, not Phyzly. These are just your own notes.</p>`+tri("lt","Statutory and mandatory training done?")+tri("tr","Appraisal in the last 12 months?"):
-   A.k==="wal"?`<div class="sec">Pay progression</div><p class="tag" style="margin:0 0 6px">At a pay step, your manager checks that you've had a PADR in the last 12 months and done your statutory and mandatory training (and that you have no formal capability process or live disciplinary sanction). Your manager confirms it, not Phyzly. These are just your own notes.</p>`+tri("lt","Statutory and mandatory training done?")+tri("tr","PADR in the last 12 months?"):"")+
+   A.k==="wal"?`<div class="sec">Pay progression</div><p class="tag" style="margin:0 0 6px">At a pay step, your manager checks that you've had a PADR in the last 12 months and done your statutory and mandatory training (and that you have no formal capability process or live disciplinary sanction). Your manager confirms it, not Phyzly. These are just your own notes.</p>`+tri("lt","Statutory and mandatory training done?")+tri("tr","PADR in the last 12 months?"):A.k==="sco"?`<div class="sec">Pay progression</div><p class="tag" style="margin:0 0 6px">In NHS Scotland your increment is normally automatic. It can be paused only if you're at stage 2 or beyond of a formal capability process, or if you've chosen not to do required statutory and mandatory training in time. Your appraisal should happen at least once a year and is recorded on Turas Appraisal, but it isn't a pay condition. Your employer decides this, not Phyzly. These are just your own notes.</p>`+tri("lt","Statutory and mandatory training done?"):A.k==="ni"?`<div class="sec">Pay progression</div><p class="tag" style="margin:0 0 6px">In Health and Social Care, you move up a pay point once you've served the set time, as long as your performance is satisfactory and you show the knowledge and skills for your post (your KSF outline). There's no fixed checklist to tick here. Your employer decides this, not Phyzly.</p>`:"")+
   `<div class="cfl">Format</div><div class="xpfs" role="radiogroup" aria-label="Format">`+chip(fmt==="pdf","PDF document","To read, print or send to your appraiser.","apSet('fmt','pdf');XP.ready=null;home()")+chip(fmt==="txt","Copy as text","To paste into your employer's appraisal form.","apSet('fmt','txt');XP.ready=null;home()")+`</div>`+
   `<button class="go xpgo" ${XP.busy?"disabled":""} onclick="apGo()">${GO[fmt]}</button><p id="cpm" class="tag" role="status">${esc(XP.msg||"")}</p><div id="xprw">${xpReadyHtml("ap")}</div>`+
   `<div class="note">Your employer's appraisal form is the official record. Check the pack for patient details before you share it.</div>`;
@@ -14009,7 +14009,7 @@ const apTri=v=>v==="y"?"Yes":v==="n"?"Not yet":v==="u"?"Not sure":"Not answered"
 function apText(){const D=apData(),A=D.A,W=xpWho();let t=apTitle(A.k)+(W.name?"\n"+W.name+(W.prof?" · "+W.prof:""):"")+"\n"+xpLong(D.f)+" to "+xpLong(D.to)+(A.on?" · Appraisal on "+xpLong(A.on):"")+"\n";
  const notes=AP_Q.filter(q=>String(A[q[0]]||"").trim());if(notes.length){t+="\nMY NOTES\n";notes.forEach(q=>{t+="\n"+q[1]+"\n"+String(A[q[0]]).trim()+"\n"})}
  if(A.k==="eng")t+="\nPAY PROGRESSION (my notes; my manager confirms)\nStatutory and mandatory training done: "+apTri(A.lt)+"\nAppraisal in the last 12 months: "+apTri(A.tr)+"\n";
- if(A.k==="wal")t+="\nPAY PROGRESSION (my notes; my manager confirms)\nStatutory and mandatory training done: "+apTri(A.lt)+"\nPADR in the last 12 months: "+apTri(A.tr)+"\n";
+ if(A.k==="sco")t+="\nPAY PROGRESSION (my notes; normally automatic in NHS Scotland)\nStatutory and mandatory training done: "+apTri(A.lt)+"\n";if(A.k==="ni")t+="\nPAY PROGRESSION\nIn Health and Social Care, pay progression depends on satisfactory performance and the knowledge and skills for my post. My employer decides.\n";if(A.k==="wal")t+="\nPAY PROGRESSION (my notes; my manager confirms)\nStatutory and mandatory training done: "+apTri(A.lt)+"\nPADR in the last 12 months: "+apTri(A.tr)+"\n";
  t+="\nCPD\n"+D.st.n+" "+(D.st.n===1?"entry":"entries")+" · "+fmtH(D.st.min)+" · "+D.st.refl+" reflected\n"+D.rows.map(e=>"- "+xpNice(e.d)+": "+e.t+" ("+cpTy(e)+", "+fmtH(e.m||0)+")"+(cpHas(e)?", reflected":"")).join("\n")+"\n";
  if(D.fb.length)t+="\nFEEDBACK\n"+D.fb.map(x=>"- "+xpNice(x.d)+", "+x.who+(x.ctx?" ("+x.ctx+")":"")+": "+x.t).join("\n")+"\n";
  if(D.sw.length)t+="\nSWOC\n"+D.sw.map(x=>"- "+x.q+": "+x.t).join("\n")+"\n";
@@ -14023,7 +14023,7 @@ async function apPdf(){const D=apData(),A=D.A,W=xpWho();
   L.stats([[String(D.st.n),D.st.n===1?"CPD entry":"CPD entries"],[String(stN(D.st.min)),stL(D.st.min)],[String(D.st.refl),"reflected"],[String(D.fb.length),D.fb.length===1?"piece of feedback":"pieces of feedback"]]);
   const notes=AP_Q.filter(q=>String(A[q[0]]||"").trim());if(notes.length){L.h2("My notes");notes.forEach(q=>{L.need(40);L.text(q[1],{sz:10,w:"bold",c:L.mute,gap:2});L.text(String(A[q[0]]).trim(),{sz:10.5,gap:8})})}
   if(A.k==="eng"){L.need(80);L.h2("Pay progression (my notes)");L.table([{t:"",w:.62},{t:"",w:.38}],[["Statutory and mandatory training done",apTri(A.lt)],["Appraisal in the last 12 months",apTri(A.tr)]],{noHead:true});L.text("My manager confirms these at a pay step.",{sz:9,c:L.mute,gap:6})}
-  if(A.k==="wal"){L.need(80);L.h2("Pay progression (my notes)");L.table([{t:"",w:.62},{t:"",w:.38}],[["Statutory and mandatory training done",apTri(A.lt)],["PADR in the last 12 months",apTri(A.tr)]],{noHead:true});L.text("My manager confirms these at a pay step.",{sz:9,c:L.mute,gap:6})}
+  if(A.k==="sco"){L.need(80);L.h2("Pay progression (my notes)");L.table([{t:"",w:.62},{t:"",w:.38}],[["Statutory and mandatory training done",apTri(A.lt)]],{noHead:true});L.text("In NHS Scotland my increment is normally automatic. My employer decides if it's paused.",{sz:9,c:L.mute,gap:6})}if(A.k==="ni"){L.need(60);L.h2("Pay progression");L.text("In Health and Social Care, pay progression depends on satisfactory performance and the knowledge and skills for my post. My employer decides.",{sz:10,gap:6})}if(A.k==="wal"){L.need(80);L.h2("Pay progression (my notes)");L.table([{t:"",w:.62},{t:"",w:.38}],[["Statutory and mandatory training done",apTri(A.lt)],["PADR in the last 12 months",apTri(A.tr)]],{noHead:true});L.text("My manager confirms these at a pay step.",{sz:9,c:L.mute,gap:6})}
   L.need(110);L.h2("CPD");if(D.rows.length){const ty=Object.keys(D.st.ty).sort((a,b)=>D.st.ty[b].m-D.st.ty[a].m);
    L.table([{t:"Type",w:.62},{t:"Activities",w:.19,a:"r"},{t:"Hours",w:.19,a:"r"}],ty.map(k=>[k,String(D.st.ty[k].n),(D.st.ty[k].m/60).toFixed(1)]));L.y+=6;
    L.table([{t:"Date",w:.17},{t:"Entry",w:.53},{t:"Hours",w:.12,a:"r"},{t:"Reflection",w:.18}],D.rows.map(e=>[xpNice(e.d),e.t,((e.m||0)/60).toFixed(1),cpHas(e)?"Written":"Not yet"]))}else L.text("No CPD entries in this period.",{c:L.mute,gap:6});
@@ -14036,7 +14036,7 @@ async function apPdf(){const D=apData(),A=D.A,W=xpWho();
  },(W.name?W.name+" · ":"")+apTitle(A.k))}
 function apGo(){const A=apS();try{clearTimeout(apT);save()}catch(e){}
  if(A.fmt==="txt"){const t=apText();const done=()=>xpSay("Copied. Paste it into your appraisal form.");try{navigator.clipboard.writeText(t).then(done,()=>xpCopyBox(t))}catch(e){xpCopyBox(t)}return}
- xpRun("pdf",async()=>[{name:(A.k==="wal"?"padr-preparation-":"appraisal-preparation-")+isoD(new Date())+".pdf",blob:await apPdf()}],"ap")}
+ xpRun("pdf",async()=>[{name:(A.k==="wal"?"padr-preparation-":A.k==="sco"?"pdpr-preparation-":"appraisal-preparation-")+isoD(new Date())+".pdf",blob:await apPdf()}],"ap")}
 
 
 /* ---------- v515: R10, sign-off by one-time link ---------- */
@@ -14098,8 +14098,8 @@ function soPanel(rv){if(!soOn()||!/^[\w-]{1,40}$/.test(String(rv)))return "";con
  if(top)h+=soAnsH(top,true);
  const older=A.filter(a=>!top||a.id!==top.id);if(older.length)h+=`<p class="tag sopn"><b>Earlier answers</b></p>`+older.map(a=>soAnsH(a,false)).join("");
  if(w&&!cf)h+=`<p class="tag sopn">Waiting for ${esc(w.who||"an answer")} to confirm. The link works until ${esc(dFmt(w.x))}. <button class="lnk aul" style="padding:0" onclick="soShow('${esc(w.id)}')">Show the link</button></p>`;
- else if(!cf)h+=done?`<button class="opt sopn" style="text-align:center;margin-top:12px" onclick="soAsk('${esc(rv)}')">Ask ${esc(c&&c.n?c.n:"your preceptor")} to confirm by link</button><p class="tag" style="margin:4px 0 0">They don't need an account. Their answer shows in your record as “Confirmed by link”.</p>`
-  :`<p class="tag sopn">Once it's marked as done, you can ask your preceptor to confirm it by link.</p>`;
+ else if(!cf)h+=done?`<button class="opt sopn" style="text-align:center;margin-top:12px" onclick="soAskNow('${esc(rv)}')">Ask ${esc(c&&c.n?c.n:"your preceptor")} to confirm by link</button><p class="tag" style="margin:4px 0 0">They don't need an account. Their answer shows in your record as “Confirmed by link”.</p>`
+  :`<button class="opt sopn" style="text-align:center;margin-top:12px" onclick="soAskNow('${esc(rv)}')">Ask ${esc(c&&c.n?c.n:"your preceptor")} to confirm by link</button><p class="tag" style="margin:4px 0 0">This marks it as done on the date above, then makes the link. They don't need an account.</p>`;
  return h}
 /* answers and links that no longer match a review point (the review was deleted, or the list was lost) */
 function soOrphH(){if(!soOn())return "";const ids=new Set(preRvL().map(x=>x.id)),L=soL().filter(q=>!ids.has(q.rv)).concat(soO());if(!L.length)return "";const V=soV(),td=isoD(new Date());
@@ -14165,6 +14165,16 @@ async function soCancel(id){if(!soOn())return;const uid=PZ.user.id;try{const r=a
  if(S.pre)S.pre.sl=soL().filter(q=>q.id!==id);if(S.soV&&Array.isArray(S.soV.o))S.soV.o=S.soV.o.filter(q=>q.id!==id);if(S.soT)delete S.soT[id];save();pe=null;home();window.scrollTo(0,0);try{toast("Link cancelled")}catch(e){}}
 async function soDel(rq){if(!soOn())return;const uid=PZ.user.id;try{const r=await PZ.sb.from("signoff_requests").delete().eq("user_id",uid).eq("id",rq);if(r.error)throw r.error}catch(e){try{toast("That didn't work. Check your connection.")}catch(x){}return}
  soDelAsk=null;if(S.soV&&Array.isArray(S.soV.l))S.soV.l=S.soV.l.filter(a=>a.rq!==rq);if(S.soV&&Array.isArray(S.soV.o))S.soV.o=S.soV.o.filter(q=>q.id!==rq);if(S.pre)S.pre.sl=soL().filter(q=>q.id!==rq);if(S.soT)delete S.soT[rq];save();cfRe()}
+
+
+/* ---------- v516: owner's review of v515 ---------- */
+function apPortSt(){try{const A=S.ap;const k=A&&AP_K.find(x=>x[0]===A.k);return k?k[1]:"Start"}catch(e){return "Start"}}
+/* ask for a sign-off from the open review point: save it as held on the date in the form first */
+function soAskNow(rv){const d=document.getElementById("pm-d"),v=d?d.value:"",td=isoD(new Date()),ms=(S.pre&&S.pre.ms)||{},ok=/^\d{4}-\d{2}-\d{2}$/.test(v)&&v<=td;
+ if(!ms[rv]&&!ok){try{toast("Add the date the review was held first.")}catch(e){}if(d)try{d.focus()}catch(e){}return}
+ if(ok&&ms[rv]!==v)preMsSet(rv,v);
+ else{const sb=document.getElementById("pm-sb");if(sb&&String(sb.value).trim()!==String((preSo(rv)||{}).by||""))preMsSet(rv,ms[rv])}
+ preAsk=null;soAsk(rv)}
 
 
 /* ---------- Phyzly Portfolio (early access): Portfolio and Profile only, plus Quick ref and feedback ---------- */
@@ -14471,6 +14481,21 @@ try{(function(){
    html.pzo #nav.hid .nb i{height:30px}
    html.pzo #nav.hid .nb .dot{display:none}
   }
+  /* v516: a floating glass bar on phones, lifted off the bottom edge, with a capsule behind the tab you're on (own CSS
+     and own icons; the floating tab bar is a common pattern, nothing of Apple's is copied) */
+  @media (max-width:899px){
+   html.pzo #nav{left:14px;right:14px;bottom:max(12px,calc(env(safe-area-inset-bottom,0px) - 20px));border-radius:32px;padding:6px;
+    background:color-mix(in srgb,var(--card) 60%,transparent);-webkit-backdrop-filter:blur(24px) saturate(1.8);backdrop-filter:blur(24px) saturate(1.8);
+    border:1px solid rgba(255,255,255,.6);box-shadow:0 12px 32px rgba(10,31,61,.16),0 2px 6px rgba(10,31,61,.06),inset 0 1px 0 rgba(255,255,255,.7)}
+   html.pzo #nav .row{align-items:stretch;gap:4px}
+   html.pzo #nav .nb{max-width:none;padding:8px 0 6px;border-radius:26px;gap:3px;transition:background-color .25s,color .25s}
+   html.pzo #nav .nb i{height:26px;width:auto;background:none!important}
+   html.pzo #nav .nb.on{background:color-mix(in srgb,var(--pri) 13%,transparent)}
+   html.pzo #nav.hid .nb{padding:6px 0;border-radius:24px}
+  }
+  @media (max-width:899px) and (prefers-color-scheme:dark){html.pzo:not([data-theme="light"]) #nav{border-color:rgba(255,255,255,.14);box-shadow:0 12px 32px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.08)}}
+  @media (max-width:899px){html.pzo[data-theme="dark"] #nav{border-color:rgba(255,255,255,.14);box-shadow:0 12px 32px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.08)}}
+  @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){html.pzo #nav{background:var(--card)}}
   @media (max-width:899px) and (prefers-reduced-motion:reduce){html.pzo #nav{transition:none}}
   html.pzo .pzfoot{display:none;text-align:center;font-size:var(--ft-cap,.75rem);color:var(--mute);margin:28px 0 8px}
   @media (max-width:1279px){html.pzo .pzfoot{display:block}}
