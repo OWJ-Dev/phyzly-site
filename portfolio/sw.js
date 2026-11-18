@@ -1,10 +1,10 @@
-/* Phyzly Portfolio offline support (v508). Release fba8d93f25.
+/* Phyzly Portfolio offline support (v508). Release bddf886eb9.
    Pages: network first, so a new release always shows when online; the last copy opens when offline.
    The app's code (named by its contents), fonts, libraries and icons: from the cache, fetched once.
    Only this site's own files are touched. Account data never goes through here: it lives on the device and in the
    database, which is another address. */
-const V = 'pz-fba8d93f25';
-const CORE = ['./', 'main.fba8d93f25.js', 'manifest.webmanifest', 'favicon.svg', 'icon-192.png', 'apple-touch-icon.png',
+const V = 'pz-bddf886eb9';
+const CORE = ['./', 'main.bddf886eb9.js', 'manifest.webmanifest', 'favicon.svg', 'icon-192.png', 'apple-touch-icon.png',
   '/vendor/supabase-js-2.118.0.js', '/vendor/fonts/inter-latin-wght-normal.woff2'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(V).then(c => Promise.all(CORE.map(u => c.add(new Request(u, { cache: 'reload' })).catch(() => {})))).then(() => self.skipWaiting()));
