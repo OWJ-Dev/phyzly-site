@@ -2239,7 +2239,7 @@ function cpdForm(){
  (showApp()?ksbPick():"")+crLkRow("c",cf.id||"",cf.d,cf.crk,"cf")+
  `<div class="cfl">Reflection model</div><div class="chipw">${Object.keys(FW).filter(k=>(k!=="otj"||showApp()||cf.fw==="otj")&&(k!=="sup"||cf.ty==="mentor"||cf.fw==="sup")&&k!=="pm").map(k=>`<button class="chipb${(cf.fw||"std")===k?" on":""}" onclick="cfFw('${k}')">${esc(FW[k].n)}</button>`).join("")}</div><p class="tag" style="margin:6px 0 0">${esc(F.d)}</p>`+cfFwNote()+
  F.f.map(x=>`<label class="cfl" for="cf-${x[0]}">${esc(x[1])}</label>${x[2]?`<div class="tag" style="margin:0 0 4px">${esc(x[2])}</div>`:""}<textarea id="cf-${x[0]}" class="cin" rows="4" maxlength="6000" oninput="cf.r.${x[0]}=this.value;cpWc(this)">${esc(cf.r[x[0]]||"")}</textarea><small class="cfwc" data-wc="cf-${x[0]}">${cpWn(cf.r[x[0]]||"")}</small>`).join("")+aqBlock()+
- `<button class="go" onclick="cpdSave()">Save entry</button>`+(cf.id?`<button class="opt" style="text-align:center;margin-top:10px;${cf.del?"border-color:var(--bad);color:var(--bad)":""}" onclick="cpdDel()">${cf.del?"Yes, delete":"Delete entry"}</button>`:"")+(cf.id&&!cf.auto?`<button class="lnk" style="display:block;margin:16px auto 0" onclick="grFromCpd()">Use this in my SWOC${(()=>{try{const n=grUsedBy("cpd",cf.id).length;return n?" ("+n+(n===1?" point)":" points)"):""}catch(e){return ""}})()}</button>`:"");setTimeout(phFill,0);
+ `<button class="go" onclick="cpdSave()">Save entry</button><button class="opt cfdisc" style="text-align:center;margin-top:10px" onclick="cpdCancel()">${cf.id?"Discard changes":"Discard entry"}</button>`+(cf.id?`<button class="opt" style="text-align:center;margin-top:10px;${cf.del?"border-color:var(--bad);color:var(--bad)":""}" onclick="cpdDel()">${cf.del?"Yes, delete":"Delete entry"}</button>`:"")+(cf.id&&!cf.auto?`<button class="lnk" style="display:block;margin:16px auto 0" onclick="grFromCpd()">Use this in my SWOC${(()=>{try{const n=grUsedBy("cpd",cf.id).length;return n?" ("+n+(n===1?" point)":" points)"):""}catch(e){return ""}})()}</button>`:"");setTimeout(phFill,0);
 }
 /* ---------- v479: supervision and mentoring ---------- */
 FW.sup={n:"Supervision",d:"Three prompts for supervision, mentoring or a 1:1.",f:[["s1","What did you discuss?","Cases in general terms, skills, wellbeing or goals. No patient details."],["s2","What did you agree to do next?","Actions, who does them and by when."],["s3","How will it help your practice?","Think patients, team and service."]]};
@@ -8055,7 +8055,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
  }catch(e){console.error("v281",e)}
 
  /* ---------- v282: tester version: report a problem, feedback, welcome note ---------- */
- const RP_VER="v527";let rpCtx=null,rpCat=null;
+ const RP_VER="v528";let rpCtx=null,rpCat=null;
  function rpBtn(kind,id,i){return `<button class="rpb" onclick="rpOpen('${kind}','${id}',${i})">⚑ Report a problem with this card</button>`}
  function rpCtxFor(kind,id,i){try{
   if(kind==="c"){const c=LEARN[id][i],cd=typeof COND!=="undefined"&&COND.find(x=>x.id===id);return {kind:"card",layer:id,card:i,title:c.t,where:(cd?"Condition: "+cd.n:(typeof tn==="function"?tn(id):id))+" · card "+(i+1)+": "+c.t}}
@@ -13674,7 +13674,8 @@ document.addEventListener("click",e=>{
  e.preventDefault();e.stopImmediatePropagation();pzDiscAsk(el)},true);
 function pzDiscAsk(el){document.querySelectorAll("#pzdisc").forEach(x=>x.remove());pzDisc=el;
  const d=document.createElement("div");d.className="twov";d.id="pzdisc";d.setAttribute("role","alertdialog");d.setAttribute("aria-modal","true");d.setAttribute("aria-labelledby","pzdisc-h");d.setAttribute("aria-describedby","pzdisc-p");
- d.innerHTML=`<div class="twbx"><h2 id="pzdisc-h">Discard this entry?</h2><p id="pzdisc-p">What you've typed hasn't been saved.</p><button class="go" onclick="pzDiscKeep()">Keep editing</button><button class="opt" onclick="pzDiscGo()">Discard</button></div>`;
+ const ed=typeof cf!=="undefined"&&cf&&cf.id&&cp.v==="form";
+ d.innerHTML=`<div class="twbx"><h2 id="pzdisc-h">${ed?"Discard your changes?":"Discard this entry?"}</h2><p id="pzdisc-p">${ed?"Your changes to this entry haven't been saved. The entry stays as it was.":"What you've typed hasn't been saved."}</p><button class="go" onclick="pzDiscKeep()">Keep editing</button><button class="opt" onclick="pzDiscGo()">${ed?"Discard changes":"Discard"}</button></div>`;
  d.addEventListener("click",ev=>{if(ev.target===d)pzDiscKeep()});d.addEventListener("keydown",ev=>{if(ev.key==="Escape"){ev.preventDefault();pzDiscKeep()}});
  document.body.appendChild(d);setTimeout(()=>{const b=d.querySelector(".go");if(b)b.focus()},20)}
 function pzDiscKeep(){document.querySelectorAll("#pzdisc").forEach(x=>x.remove());const el=pzDisc;pzDisc=null;
@@ -14799,8 +14800,8 @@ function prePastSwap(){const L=prePast(),x=L[pe.i];if(!x)return;const rest=L.fil
 {const ps0=preScreen;preScreen=function(){if(pe&&pe.v==="past")return prePastScreen();if(pe&&pe.v==="new")return preNewScreen();
   const r=ps0.apply(this,arguments);
   try{const A=document.getElementById("app");if(A&&pf==="pre"){const P=S.pre;const setup=!P||!P.start||(pe&&pe.v==="setup");
-    if(!pe&&P&&P.start)A.insertAdjacentHTML("beforeend",preNewH());
-    if(!pe||setup)A.insertAdjacentHTML("beforeend",preHistH())}}catch(e){console.error("v526c",e)}return r}}
+    /* v528: added as text, so the side-by-side view (which draws the page as text first) gets them too */
+    let add="";if(!pe&&P&&P.start)add+=preNewH();if(!pe||setup)add+=preHistH();if(add)A.innerHTML=A.innerHTML+add}}catch(e){console.error("v526c",e)}return r}}
 
 
 /* ---------- Phyzly Portfolio (early access): Portfolio and Profile only, plus Quick ref and feedback ---------- */
@@ -14899,7 +14900,7 @@ try{(function(){
   document.querySelectorAll("#app .note").forEach(n=>{if(/^Your own tracker\. Your trust's records are the official ones/.test(n.textContent.trim()))n.remove()});
   document.querySelectorAll("#app .sec").forEach(h=>{if(/^Pre-registration record$/.test(h.textContent.trim())){const nx=h.nextElementSibling;if(!nx||!nx.classList.contains("opt"))h.remove()}});
   document.querySelectorAll(".qrnote").forEach(p=>{if(/They will be taught when/.test(p.textContent))p.remove()});
-  document.querySelectorAll(".cfoot,#nav .nf").forEach(f=>{if(/Confidential/.test(f.textContent))f.textContent="© Oliver Jones 2026 · Phyzly Portfolio early access"});
+  document.querySelectorAll(".cfoot,#nav .nf").forEach(f=>{if(/Confidential/.test(f.textContent)){if(f.matches("#nav .nf"))f.innerHTML='<span class="nfc">© Oliver Jones 2026 · Phyzly Portfolio early access</span>';else f.textContent="© Oliver Jones 2026 · Phyzly Portfolio early access"}});
   /* v523: About Phyzly at the foot of the computer sidebar */
   const nf=document.querySelector("#nav .nf");if(nf&&!nf.querySelector(".nfab")&&typeof pzlGo==="function"){const b=document.createElement("button");b.className="nfab";b.setAttribute("onclick","pzlGo('about')");b.innerHTML='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.6v.1"/></svg><span>About Phyzly</span>';nf.insertBefore(b,nf.firstChild)}
   /* v526: About Phyzly is a sidebar item like the others, and shows as selected while its page is open */
@@ -14940,6 +14941,10 @@ try{(function(){
    html.pzo #nav .nf .nfab.on{background:rgba(255,255,255,.10);color:#fff;border-radius:12px;border-top-color:transparent}
    html.pzo #nav .nf .nfab:focus-visible{outline:2px solid #8FB4FF;outline-offset:2px}
    html.pzo #nav .nb.pzab0{background:none!important;color:#B8C4D6!important}
+   /* v528 (owner, 19 Nov: on a work laptop the foot of the sidebar, with About, was cut off) */
+   html.pzo #nav{overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none}
+   html.pzo #nav::-webkit-scrollbar{display:none}
+   html.pzo #nav .nf{flex:0 0 auto}
 
    html.pzo body:has(#nav.show) #app{max-width:none;margin:0 0 0 248px!important;padding:76px 48px 64px}
    html.pzo body:has(#nav.show) #app>*:not(.dk2){max-width:760px;margin-left:auto!important;margin-right:auto!important}
@@ -14967,6 +14972,14 @@ try{(function(){
    html.pzo #app .hcs .dkx{position:sticky;top:0;float:right;margin:-8px -16px 0 12px;width:44px;height:44px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2}
    html.pzo #app .hcs .dkx:hover{background:var(--tint)}html.pzo #app .hcs .dkx:focus-visible{outline:2px solid var(--pri);outline-offset:2px}
    html.pzo #app .hcs .dkr h1{margin-top:0!important}
+   html.pzo #app .duo .dkx{position:sticky;top:0;float:right;margin:-8px -16px 0 12px;width:44px;height:44px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2}
+   html.pzo #app .duo .dkx:hover{background:var(--tint)}html.pzo #app .duo .dkx:focus-visible{outline:2px solid var(--pri);outline-offset:2px}
+   html.pzo #app .duo .dkr h1{margin-top:0!important}
+   html.pzo #app .dkr>.dkstep{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:28px 0 0;padding-top:20px;border-top:1px solid var(--line);max-width:none}
+   html.pzo #app .dkstep .opt{display:flex;align-items:center;gap:10px;margin:0;padding:12px 14px;text-align:left;min-height:56px}
+   html.pzo #app .dkstep .dknext{justify-content:flex-end;text-align:right;grid-column:2}
+   html.pzo #app .dkstep span{min-width:0;font-weight:600;line-height:1.3}html.pzo #app .dkstep small{display:block;color:var(--mute);font-weight:500;font-size:.82rem;margin-bottom:2px}
+   html.pzo #app .dkstep svg{flex:0 0 auto;color:var(--pri)}
    html.pzo #app .dkbt{display:flex;gap:12px;align-items:stretch}html.pzo #app .dkbt .go{flex:1;margin-top:8px}html.pzo #app .dkbt .dkcx{flex:0 0 auto;width:auto;min-width:120px;margin-top:8px;text-align:center}
   }
   @media (min-width:900px) and (max-width:1439px){html.pzo #app .dkr{top:84px;max-height:calc(100vh - 108px)}}
@@ -14979,13 +14992,17 @@ try{(function(){
    html.pzo #nav .sbwm .pill{display:none}
    html.pzo #nav .row{margin-top:24px;gap:6px}
    html.pzo #nav .nb,html.pzo.clin body #nav .nb{flex-direction:column;justify-content:center;align-items:center;gap:4px;padding:10px 4px;font-size:12px!important;text-align:center}
-   html.pzo #nav .nf{display:none}
+   html.pzo #nav .nf{display:block;padding:0;margin-top:auto}
+   html.pzo #nav .nf .nfc{display:none}
+   html.pzo #nav .nf .nfab{flex-direction:column;justify-content:center;gap:4px;width:100%;margin:0;padding:10px 4px;font-size:12px;text-align:center;border-top:0}
    html.pzo body:has(#nav.show) #app{margin:0 0 0 88px!important;padding:72px 24px 48px}
    html.pzo #app .top{right:20px}
    html.pzo #app .dk2{grid-template-columns:minmax(280px,320px) minmax(0,1fr);gap:24px}
    html.pzo #app .dkr{padding:20px 24px 28px}
    html.pzo .pzundo{left:calc(50% + 44px)!important}
   }
+  @media (min-width:900px) and (max-height:640px){html.pzo #nav{padding-top:18px!important;padding-bottom:12px!important}html.pzo #nav .row{margin-top:18px}html.pzo #nav .nf .nfc{display:none}html.pzo #nav .nf .nfab{margin-bottom:0}}
+  @media (max-height:500px) and (orientation:landscape) and (pointer:coarse){html.pzo #nav .nf{display:none!important}}
   /* phones: keep content clear of the notch on its side (fold report, priority 1) */
   @media (max-width:899px){html.pzo #app{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}}
   /* v509 (FMT-12): a phone on its side keeps most of the height for content */
@@ -14996,13 +15013,12 @@ try{(function(){
    html.pzo #app .nvband>p.tag,html.pzo #app .nvband .cpsl{display:none!important}
    html.pzo #app .nvband .bkl{min-height:32px;padding-top:2px!important;padding-bottom:2px!important}
    html.pzo #app .nvband .cstrip{margin-top:8px!important}html.pzo #app .nvband .cs b{font-size:1.25rem!important;line-height:1.2}
-   html.pzo #nav .nf{display:none!important}
    html.pzo #nav{padding-top:4px!important}html.pzo #nav .nb{flex-direction:row!important;gap:8px;padding-top:6px!important;padding-bottom:6px!important;min-height:44px}
    html.pzo body:has(#app :is(input:not([type=checkbox]):not([type=radio]):not([type=file]),textarea,select):focus) #nav{display:none!important}
   }`;document.body.appendChild(ds);
  let dkK=null;
  /* v509 (CPD-12): a Cancel button beside Save in the computer editor; it goes through the same unsaved-changes question */
- const dkCancel=p=>{if(!p||p.querySelector(".dkcx"))return;const sv=p.querySelector('.go[onclick="cpdSave()"]');if(!sv)return;
+ const dkCancel=p=>{if(!p||p.querySelector(".dkcx")||p.querySelector(".cfdisc"))return;const sv=p.querySelector('.go[onclick="cpdSave()"]');if(!sv)return;
   const w=document.createElement("div");w.className="dkbt";sv.replaceWith(w);w.appendChild(sv);
   const c=document.createElement("button");c.className="opt dkcx";c.setAttribute("onclick","cpdCancel()");c.textContent="Cancel";w.appendChild(c)};
  if(typeof cpdScreen==="function"){const cs0=cpdScreen;cpdScreen=function(){
@@ -15055,11 +15071,55 @@ try{(function(){
   else app.innerHTML=`<div class="dk2 hcs" data-v="${v}"><section class="dkl" aria-label="Audit pack">${left}</section><section class="dkr" aria-label="${nm}">${x}${right}</section></div>`;
   const D=app.querySelector(":scope>.dk2.hcs");if(!D)return;
   D.querySelectorAll(".dkl .dksel").forEach(b=>b.classList.remove("dksel"));D.querySelectorAll(`.dkl [onclick="openHc('${v}')"]`).forEach(b=>b.classList.add("dksel"));
+  /* v528 (owner, 19 Nov): Previous and Next under the section, in the order of the list on the left */
+  try{const R=D.querySelector(":scope>.dkr");R.querySelectorAll(":scope>.dkstep").forEach(n=>n.remove());const seen=[],lab={};
+   D.querySelectorAll(".dkl button[onclick^=\"openHc('\"]").forEach(b=>{const m=/^openHc\('(\w+)'\)$/.exec(b.getAttribute("onclick")||"");if(!m||seen.includes(m[1]))return;
+    const t=(b.querySelector("b,strong,.row>span,span")||b).textContent.replace(/\s+/g," ").trim();if(!t)return;seen.push(m[1]);lab[m[1]]=t});
+   const i=seen.indexOf(v);if(i>=0&&seen.length>1){const P=seen[i-1],N=seen[i+1],ar='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M';
+    const nav=document.createElement("nav");nav.className="dkstep";nav.setAttribute("aria-label","Sections");
+    nav.innerHTML=(P?`<button class="opt dkprev" onclick="openHc('${P}')">${ar}15 6l-6 6 6 6"/></svg><span><small>Previous</small>${esc(lab[P])}</span></button>`:"<span></span>")+
+     (N?`<button class="opt dknext" onclick="openHc('${N}')"><span><small>Next</small>${esc(lab[N])}</span>${ar}9 6l6 6-6 6"/></svg></button>`:"");R.appendChild(nav)}}catch(e){console.error("v528 steps",e)}
   if(fromHub&&x0!=null&&!RMO()){const x1=hcLeftX();try{D.querySelector(".dkl").animate([{transform:`translateX(${x1!=null?x0-x1:0}px)`},{transform:"none"}],{duration:320,easing:"cubic-bezier(.2,.8,.2,1)"});
     D.querySelector(".dkr").animate([{opacity:0,transform:"translateX(48px)"},{opacity:1,transform:"none"}],{duration:320,delay:60,easing:"cubic-bezier(.2,.8,.2,1)",fill:"backwards"})}catch(e){}}
   if(!had){try{const f=D.querySelector(".dkr input,.dkr textarea");if(f&&!/Mobi|Android/.test(navigator.userAgent))f.focus({preventScroll:true})}catch(e){}}
  }}
  document.addEventListener("keydown",e=>{try{if(e.key!=="Escape"||!isSplit()||pf!=="hc"||!hc.v||hc.v==="home")return;if(document.querySelector('[aria-modal="true"],.ifbg,#rpov,.twov,.phv,.cpc,#obtr'))return;e.preventDefault();hc.v="home";hc.err="";hc.msg="";home()}catch(er){}});
+ /* v528 (owner, 19 Nov): the same side-by-side view for a preceptorship meeting and for the appraisal pack.
+    Both sides are drawn as text first and put on screen in one go (or redrawn in place), as for the audit pack. */
+ const pzCap=(fn,self,args)=>{let out="";const pd=Object.getOwnPropertyDescriptor(app,"innerHTML");
+  try{Object.defineProperty(app,"innerHTML",{configurable:true,get(){return out},set(w){out=w}});fn.apply(self,args)}finally{if(pd)Object.defineProperty(app,"innerHTML",pd);else delete app.innerHTML}return out};
+ const pzLeftX=cls=>{const e=app.querySelector(`.${cls} .dkl h1`)||app.querySelector(":scope>h1")||app.querySelector("#app h1");return e?e.getBoundingClientRect().left:null};
+ const pzX=(js,nm)=>`<button class="dkx" onclick="${js}" aria-label="Close ${esc(nm)}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>`;
+ function pzDuo(cls,key,left,right,lab,nm,closeJs,x0){const had=app.querySelector(`:scope>.dk2.${cls}`),was=had?had.getAttribute("data-v"):null,x=closeJs?pzX(closeJs,nm):"";
+  if(had&&window.pzMorph){const L=had.querySelector(":scope>.dkl"),R=had.querySelector(":scope>.dkr");pzMorph(L,left);pzMorph(R,x+right);R.setAttribute("aria-label",nm);had.setAttribute("data-v",key);
+   if(was!==key){R.scrollTop=0;if(!RMO())try{R.animate([{opacity:.35,transform:"translateY(6px)"},{opacity:1,transform:"none"}],{duration:200,easing:"ease-out"})}catch(e){}}}
+  else app.innerHTML=`<div class="dk2 duo ${cls}" data-v="${esc(key)}"><section class="dkl" aria-label="${esc(lab)}">${left}</section><section class="dkr" aria-label="${esc(nm)}">${x}${right}</section></div>`;
+  const D=app.querySelector(`:scope>.dk2.${cls}`);
+  if(D&&!had&&!RMO())try{if(x0!=null){const x1=pzLeftX(cls);D.querySelector(".dkl").animate([{transform:`translateX(${x1!=null?x0-x1:0}px)`},{transform:"none"}],{duration:320,easing:"cubic-bezier(.2,.8,.2,1)"})}
+   D.querySelector(".dkr").animate([{opacity:0,transform:"translateX(48px)"},{opacity:1,transform:"none"}],{duration:320,delay:60,easing:"cubic-bezier(.2,.8,.2,1)",fill:"backwards"})}catch(e){}
+  return D}
+ const pzBackAnim=(cls,had,x0)=>{if(had&&x0!=null&&!RMO()){const x1=pzLeftX(cls);if(x1!=null&&Math.abs(x0-x1)>4)try{app.animate([{transform:`translateX(${x0-x1}px)`},{transform:"none"}],{duration:300,easing:"cubic-bezier(.2,.8,.2,1)"})}catch(e){}}};
+ /* a preceptorship meeting (logging a new one or opening one) opens beside the preceptorship page */
+ if(typeof preScreen==="function"){const pr0=preScreen;preScreen=function(){
+  const split=isSplit()&&pf==="pre"&&pe&&pe.v==="mt"&&pe.f&&!pe.f.back;/* opened from a CPD entry or the audit pack: it keeps its own way back */const had=app.querySelector(":scope>.dk2.pres");
+  if(!split){const x0=had?pzLeftX("pres"):null;const r=pr0.apply(this,arguments);pzBackAnim("pres",had,x0);return r}
+  const x0=!had&&pf==="pre"&&!app.querySelector(":scope>.dk2")?pzLeftX("pres"):null;
+  const right=pzCap(pr0,this,arguments);const keep=pe;let left="";pe=null;try{left=pzCap(pr0,this,arguments)}finally{pe=keep}
+  const id=pe.f.id||"",nm=id?"Meeting":"Log a meeting";
+  const D=pzDuo("pres",id||"new",left,right,"Preceptorship",nm,"pe=null;home()",x0);if(!D)return;
+  D.querySelectorAll(".dkl .dksel").forEach(b=>b.classList.remove("dksel"));
+  D.querySelectorAll(id?`.dkl [onclick="preMtEdit('${id}')"]`:'.dkl [onclick="preMtNew()"]').forEach(b=>b.classList.add("dksel"));
+  if(!had){try{const f=D.querySelector(".dkr textarea,.dkr input:not([type=file])");if(f&&!id&&!/Mobi|Android/.test(navigator.userAgent))f.focus({preventScroll:true})}catch(e){}}}}
+ document.addEventListener("keydown",e=>{try{if(e.key!=="Escape"||!isSplit()||pf!=="pre"||!pe||pe.v!=="mt")return;if(document.querySelector('[aria-modal="true"],.ifbg,#rpov,.twov,.phv,.cpc,#obtr'))return;
+  const el=document.activeElement;if(el&&/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName)){el.blur();return}
+  /* nothing typed is lost to a stray Escape: with notes or actions written, use Save meeting or Close */
+  if([...document.querySelectorAll(".pres .dkr textarea")].some(t=>t.value.trim()))return;e.preventDefault();pe=null;home()}catch(er){}});
+ /* the appraisal pack: what it covers on the left, your notes and the pack on the right, ready to write in */
+ if(typeof apScreen==="function"){const ap0=apScreen;apScreen=function(){
+  const r=pzCap(ap0,this,arguments),cut=r.indexOf('<div class="sec">Your notes</div>');
+  const split=isSplit()&&cut>0&&!(typeof apSo!=="undefined"&&apSo)&&!(typeof apSh!=="undefined"&&apSh&&apSh.v);
+  if(!split){app.innerHTML=r;return}
+  pzDuo("aps","notes",r.slice(0,cut),r.slice(cut),"Appraisal pack","Your notes and your pack","",null)}}
  /* v513 (R11, fold-safe): crossing a layout line redraws in place and keeps the field you're in, the cursor and the scroll */
  const relayout=()=>{try{const a=document.activeElement,id=a&&a.id,s0=a&&a.selectionStart,e0=a&&a.selectionEnd,y=window.scrollY;home();
   if(id){const n=document.getElementById(id);if(n){if(n!==document.activeElement)try{n.focus({preventScroll:true})}catch(x){}try{if(s0!=null)n.setSelectionRange(s0,e0)}catch(x){}}}window.scrollTo(0,y)}catch(e){}};
