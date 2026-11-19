@@ -2236,7 +2236,7 @@ function cpdForm(){
  `<div class="cr"><div><label class="cfl" for="cf-d">Date</label><input id="cf-d" class="cin" type="date" value="${esc(cf.d)}" oninput="cf.d=this.value" onchange="cf.d=this.value;if(showPre()&&!!S.pre&&!!S.pre.start)cfRe()"></div></div><div class="cfhmw">${cfHmHtml()}</div>`+
  `<div class="cr"><div><label class="cfl" for="cf-tm">${(cf.ss||[]).length?"First start time":"Start time (optional)"}</label><input id="cf-tm" class="cin" type="time" value="${esc(cf.tm||"")}" oninput="cf.tm=this.value"></div>${showApp()?`<div><div class="cfl">Off-the-job</div><div class="chipw"><button class="chipb${cf.otj?" on":""}" onclick="cf.otj=true;cfRe()">Yes</button><button class="chipb${!cf.otj?" on":""}" onclick="cf.otj=false;cfRe()">No</button></div></div>`:""}</div>`+ssBlock()+phBlock()+
  (S.feedOn&&!cf.auto?`<div class="cfl">Activity feed</div><button class="ock${cf.ns?" on":""}" role="checkbox" aria-checked="${!!cf.ns}" onclick="cf.ns=!cf.ns;cfRe()"><i>${cf.ns?"✓":""}</i><span>Don't share this one<br><small style="color:var(--mute)">Friends only ever see the type and time, never the title or reflection.</small></span></button>`:"")+(showPre()&&(cf.pre||preIn(cf.d))?`<div class="cfl">Part of your preceptorship programme?</div><div class="chipw"><button class="chipb${cf.pre?" on":""}" onclick="cf.pre=true;cfRe()">Yes</button><button class="chipb${!cf.pre?" on":""}" onclick="cf.pre=false;cfRe()">No</button></div>`:"")+`<div class="cfl">Type</div><div class="chipw">${CPT.map(x=>`<button class="chipb${cf.ty===x[0]?" on":""}" onclick="cfTy('${x[0]}')">${esc(x[1])}</button>`).join("")}</div>${cf.ty==="refl"?`<p class="tag" style="margin:6px 0 0">Learning from a case, an incident, a conversation or feedback you've thought through. The reflection below is the main part of this entry.</p>`:""}`+(cf.ty==="mentor"?svBlock():"")+ppBlock()+tgBlock()+
- (showApp()?ksbPick():"")+
+ (showApp()?ksbPick():"")+crLkRow("c",cf.id||"",cf.d,cf.crk,"cf")+
  `<div class="cfl">Reflection model</div><div class="chipw">${Object.keys(FW).filter(k=>(k!=="otj"||showApp()||cf.fw==="otj")&&(k!=="sup"||cf.ty==="mentor"||cf.fw==="sup")&&k!=="pm").map(k=>`<button class="chipb${(cf.fw||"std")===k?" on":""}" onclick="cfFw('${k}')">${esc(FW[k].n)}</button>`).join("")}</div><p class="tag" style="margin:6px 0 0">${esc(F.d)}</p>`+cfFwNote()+
  F.f.map(x=>`<label class="cfl" for="cf-${x[0]}">${esc(x[1])}</label>${x[2]?`<div class="tag" style="margin:0 0 4px">${esc(x[2])}</div>`:""}<textarea id="cf-${x[0]}" class="cin" rows="4" maxlength="6000" oninput="cf.r.${x[0]}=this.value;cpWc(this)">${esc(cf.r[x[0]]||"")}</textarea><small class="cfwc" data-wc="cf-${x[0]}">${cpWn(cf.r[x[0]]||"")}</small>`).join("")+aqBlock()+
  `<button class="go" onclick="cpdSave()">Save entry</button>`+(cf.id?`<button class="opt" style="text-align:center;margin-top:10px;${cf.del?"border-color:var(--bad);color:var(--bad)":""}" onclick="cpdDel()">${cf.del?"Yes, delete":"Delete entry"}</button>`:"")+(cf.id&&!cf.auto?`<button class="lnk" style="display:block;margin:16px auto 0" onclick="grFromCpd()">Use this in my SWOC${(()=>{try{const n=grUsedBy("cpd",cf.id).length;return n?" ("+n+(n===1?" point)":" points)"):""}catch(e){return ""}})()}</button>`:"");setTimeout(phFill,0);
@@ -8055,7 +8055,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
  }catch(e){console.error("v281",e)}
 
  /* ---------- v282: tester version: report a problem, feedback, welcome note ---------- */
- const RP_VER="v524";let rpCtx=null,rpCat=null;
+ const RP_VER="v526";let rpCtx=null,rpCat=null;
  function rpBtn(kind,id,i){return `<button class="rpb" onclick="rpOpen('${kind}','${id}',${i})">⚑ Report a problem with this card</button>`}
  function rpCtxFor(kind,id,i){try{
   if(kind==="c"){const c=LEARN[id][i],cd=typeof COND!=="undefined"&&COND.find(x=>x.id===id);return {kind:"card",layer:id,card:i,title:c.t,where:(cd?"Condition: "+cd.n:(typeof tn==="function"?tn(id):id))+" · card "+(i+1)+": "+c.t}}
@@ -9285,14 +9285,14 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
   const tx0=window.txlHTML;
   window.txlHTML=function(c){const a=(tx0?tx0(c):"");const m=(MEDL[c.id]||[]).map(([l,t])=>[l,(LEARN[l]||[]).findIndex(x=>x.t===t)]).filter(x=>x[1]>=0);
    return a+(m.length?`<div class="sec">💊 Medicines</div><div class="chipw">${m.map(([l,i])=>`<button class="chipb" onclick="txlCard('${l}',${i})">${esc(LEARN[l][i].t)}${needPlus(l)?" ✨":""}</button>`).join("")}</div>`:"")};
-  const QE=[["-olol", "Beta-blockers (bisoprolol)", "Heart rate rises less with effort: use RPE and symptoms too. Labetalol and carvedilol end in -lol."], ["-pril", "ACE inhibitors (ramipril)", "Lower blood pressure; can cause a dry cough. Watch for dizziness on standing."], ["-sartan", "ARBs (losartan)", "Lower blood pressure. Watch for dizziness on standing."], ["-dipine", "Calcium channel blockers (amlodipine)", "Can swell the ankles. Verapamil and diltiazem have no -dipine and slow the heart."], ["-parin", "Heparins (enoxaparin)", "Injected to treat or prevent clots. Bleeding risk."], ["-xaban, -gatran", "DOACs (apixaban, dabigatran)", "Bleeding risk. Head knock: fast-track medical review now. Warfarin is an anticoagulant too, with no class ending."], ["-azepam, -azolam", "Benzodiazepines (diazepam, midazolam)", "Slow thinking, balance and breathing, more so with an opioid. Zopiclone sedates too."], ["-statin", "Statins (atorvastatin)", "Report unexplained muscle pain or weakness."], ["-floxacin", "Fluoroquinolones (ciprofloxacin)", "Tendon pain, even months later: rest the tendon and tell the prescriber or medical team today."], ["-sone, -olone", "Corticosteroids (prednisolone)", "Long-term: thinner bone and skin, weaker proximal muscles. Budesonide too."], ["-prazole", "PPIs (omeprazole)", "Long-term use slightly raises fracture risk."], ["-cillin", "Penicillins (amoxicillin)", "Check the allergy box. Co-amoxiclav and Tazocin (piperacillin with tazobactam) contain a penicillin too."], ["-mab", "Monoclonal antibodies (adalimumab)", "Many damp down immunity: report a fever."], ["-gliflozin", "SGLT2 inhibitors (dapagliflozin)", "Can dehydrate; rarely ketoacidosis with near-normal glucose."], ["-gliptin", "DPP-4 inhibitors (sitagliptin)", "A different diabetes class from -gliflozin."], ["-triptan", "Triptans (sumatriptan)", "Migraine. Chest pain after one is still chest pain."], ["co-", "Two medicines in one (co-careldopa)", "Co-careldopa and co-beneldopa both contain levodopa."]],QF=[["Sedatives", "Benzodiazepines, Z-drugs, sedating antihistamines: sleepy, slow, unsteady."], ["Psychotropics", "Antipsychotics and antidepressants: sedation, a drop on standing. NICE NG249 singles these out."], ["Pain medicines", "Opioids, gabapentin and pregabalin: drowsy, dizzy, unsteady."], ["Blood pressure", "Antihypertensives, diuretics and alpha-blockers: a drop on standing, rushing to the toilet."], ["Diabetes", "Insulin and sulfonylureas such as gliclazide: low blood sugar."], ["Anticholinergics", "Bladder medicines, older antihistamines, tricyclics: confusion, blurred vision. The burden adds up."]],QT=[["Parkinson's", "Levodopa and other Parkinson's medicines: late doses bring stiffness, freezing and falls."], ["Insulin", "Late or missed doses upset glucose control; in type 1 diabetes a missed dose risks ketoacidosis."], ["Antiepileptics", "Taken for epilepsy: a missed or late dose can let seizures through."], ["Anticoagulants", "A missed dose raises clot risk."]];
+  const QE=[["-olol", "Beta-blockers, such as bisoprolol", "For the heart and blood pressure. The heart rate rises less with exercise, so it's a poor guide to effort: use how hard it feels to them (rating of perceived exertion, RPE) and their symptoms too. Labetalol and carvedilol are beta-blockers that end in -lol."], ["-pril", "ACE inhibitors, such as ramipril", "Lower blood pressure. Can cause a dry cough. Watch for dizziness when they stand up."], ["-sartan", "ARBs, such as losartan", "Lower blood pressure. Watch for dizziness when they stand up."], ["-dipine", "Calcium channel blockers, such as amlodipine", "Lower blood pressure. Can cause swollen ankles. Verapamil and diltiazem are calcium channel blockers too, but don't end in -dipine, and they also slow the heart rate."], ["-parin", "Heparins, such as enoxaparin", "Injections that prevent or treat blood clots. They raise the risk of bleeding and bruising. After a knock to the head, the person needs a medical review straight away, as for DOACs below."], ["-xaban, -gatran", "DOACs, such as apixaban and dabigatran", "Tablets or capsules that prevent or treat blood clots. They raise the risk of bleeding. After any knock to the head, the person needs a medical review straight away, even if they seem well: on a ward, tell the nurse and doctor; in the community, send them to A&E. The same goes for warfarin (which does the same job, but its name doesn't follow a pattern), for heparins, and for antiplatelets such as clopidogrel, though not aspirin on its own."], ["-azepam, -azolam", "Benzodiazepines, such as diazepam and midazolam", "Sedatives. They can make someone drowsy, slow to react and unsteady, and can slow their breathing, more so alongside an opioid painkiller. Zopiclone, a sleeping tablet, has similar effects."], ["-statin", "Statins, such as atorvastatin", "Lower cholesterol. Tell the doctor or pharmacist about new muscle pain or weakness that has no other explanation."], ["-floxacin", "Fluoroquinolone antibiotics, such as ciprofloxacin", "Can damage tendons, most often the Achilles, from within two days of starting to months after the course. The risk is higher in people over 60 and those on steroids. If a tendon becomes painful or swollen, stop loading it and tell the prescriber or the medical team the same day."], ["-sone, -olone", "Corticosteroids (steroids), such as prednisolone", "Taken for a long time, they can thin the bones and skin, weaken the muscles around the hips and shoulders, raise blood sugar and make infections more likely. Long-term steroids must never be stopped suddenly or missed: tell the nurse or doctor straight away if doses are being missed, for example because of vomiting. Budesonide is a steroid too, though its name doesn't follow the pattern."], ["-prazole", "Proton pump inhibitors (PPIs), such as omeprazole", "Reduce stomach acid. Taken for a long time, they slightly raise the risk of breaking a bone."], ["-cillin", "Penicillins, such as amoxicillin", "Antibiotics. Check the allergy section of the drug chart. Co-amoxiclav and Tazocin (piperacillin with tazobactam) also contain a penicillin."], ["-mab", "Monoclonal antibodies, such as adalimumab", "Often for arthritis, bowel disease or cancer. Many lower the body's defences against infection, so report a temperature or other signs of infection. Denosumab, for osteoporosis, is a -mab too: a late injection raises the risk of spinal fractures, so tell the GP if one is overdue."], ["-gliflozin", "SGLT2 inhibitors, such as dapagliflozin", "For type 2 diabetes, and for the heart or kidneys. They make the body pass sugar in the urine, which can dehydrate. Rarely they cause ketoacidosis, a medical emergency, even when blood sugar is near normal: tell the medical team straight away about vomiting, tummy pain, fast breathing or unusual drowsiness."], ["-gliptin", "DPP-4 inhibitors, such as sitagliptin", "For diabetes. A different group from the -gliflozins, with a similar-sounding ending."], ["-triptan", "Triptans, such as sumatriptan", "For migraine. They can cause chest tightness, but never assume chest pain is a side effect: deal with it as you would any chest pain."], ["co-", "Two medicines in one tablet or capsule, such as co-careldopa", "Co-careldopa and co-beneldopa, for Parkinson's, both contain levodopa, so their doses are time-critical. Co-codamol and co-dydramol contain an opioid, so they can cause drowsiness and falls."]],QF=[["Sedatives and sleeping tablets", "Benzodiazepines, zopiclone and antihistamines that cause drowsiness: sleepy, slow to react and unsteady."], ["Mental health and epilepsy medicines", "Antipsychotics, antidepressants, and medicines for anxiety, mood or epilepsy: drowsiness, unsteadiness, and blood pressure dropping when they stand up. NICE guidance on falls (NG249) calls these psychotropic medicines, along with the sedatives above, and says they should be reviewed."], ["Opioids and nerve-pain medicines", "Opioids such as morphine, codeine and tramadol, and the nerve-pain medicines gabapentin and pregabalin: drowsy, dizzy and unsteady."], ["Blood pressure and water tablets", "Blood pressure tablets, diuretics (water tablets) and alpha-blockers such as doxazosin and tamsulosin (often given for prostate symptoms): blood pressure dropping when they stand up, and having to rush to the toilet."], ["Diabetes medicines", "Insulin, and tablets such as gliclazide: blood sugar going too low (a hypo), which can cause shakiness, confusion and falls."], ["Anticholinergic medicines", "A group of medicines that block one of the body's chemical messengers. They include some bladder tablets, such as oxybutynin, older antihistamines and some antidepressants, such as amitriptyline: confusion, drowsiness and blurred vision. The more of these someone takes, the bigger the effect."]],QT=[["Parkinson's", "Levodopa and other Parkinson's medicines: a late or missed dose can quickly bring on stiffness, freezing and falls."], ["Insulin", "A late or missed dose upsets blood sugar. In type 1 diabetes, a missed dose can lead to ketoacidosis, a medical emergency."], ["Epilepsy medicines", "A late or missed dose can bring on a seizure."], ["Anticoagulants", "Medicines that prevent clots: a missed dose raises the risk of a clot."], ["Steroids", "Hydrocortisone for adrenal insufficiency, and anyone on long-term steroids: missed doses can cause an adrenal crisis, a medical emergency."], ["Myasthenia gravis medicines", "Such as pyridostigmine: a late dose can quickly weaken swallowing and breathing."]];
   window.qrMedGo=function(l,t){document.querySelectorAll(".ifbg").forEach(e=>e.remove());const i=(LEARN[l]||[]).findIndex(x=>x.t===t);if(i>=0)txlCard(l,i)};
   const lk=(l,t)=>LEARN[l]&&LEARN[l].some(x=>x.t===t)?`<button class="lnk" style="padding:4px 0" onclick="qrMedGo('${l}','${t.replace(/'/g,"\\'")}')">Open '${esc(t)}' ›</button>`:"";
   window.QRMED=function(){const r=(a,b,c)=>`<div class="qrrow"><b>${esc(a)}</b><span>${esc(b)}${c?`<small>${esc(c)}</small>`:""}</span></div>`;
-   return `<p class="qrnote">No doses here: for those, the BNF or the pharmacist. You ask, check, time, report and refer; you never advise changing a medicine.</p>`+
-   `<h3>Name endings and their classes</h3><div class="qrlist qrwide">${QE.map(x=>r(x[0],x[1],x[2])).join("")}</div><p class="qrnote">False friends: nystatin is not a statin, aripiprazole is not a PPI, carbamazepine is not a benzodiazepine. Read the whole name, then check.</p>${lk("ma3clin","A chart of false friends")}`+
-   `<h3>Fall-risk medicines</h3><div class="qrlist qrwide">${QF.map(x=>r(x[0],x[1])).join("")}</div><p class="qrnote">Check lying and standing BP, ask what changed recently, and report a link between a fall and a medicine to the pharmacist or GP.</p>${lk("mc1clin","Fall-risk-increasing drugs")}`+
-   `<h3>Time-critical medicines</h3><div class="qrlist qrwide">${QT.map(x=>r(x[0],x[1])).join("")}</div><p class="qrnote">Not a full list. Your hospital has its own list of time-critical medicines.</p><div class="qrwarn">A late or missed time-critical dose: tell the nurse now. Never suggest skipping, delaying or making up a dose. Nil by mouth: the team plans another route before the next dose is due.</div>${lk("ma1clin","Routes, missed doses and time-critical medicines")}`};
+   return `<p class="qrnote">There are no doses here: for those, use the BNF or ask a pharmacist. Your part is to ask about medicines, look out for their effects, plan your session around them, and report or refer any concerns. Never advise someone to change, stop or skip a medicine.</p>`+
+   `<h3>What a medicine's name tells you</h3><p class="qrnote">Medicines in the same group often share the end of their name. Knowing the group tells you what to look out for.</p><div class="qrlist qrwide">${QE.map(x=>r(x[0],x[1],x[2])).join("")}</div><p class="qrnote">Watch for look-alikes: nystatin (for fungal infections) isn't a statin, aripiprazole (for mental health) isn't a PPI, carbamazepine (for epilepsy) isn't a benzodiazepine, and dapsone (an antibiotic) isn't a corticosteroid. Read the whole name, and check if you're not sure.</p>${lk("ma3clin","A chart of false friends")}`+
+   `<h3>Medicines that make falls more likely</h3><div class="qrlist qrwide">${QF.map(x=>r(x[0],x[1])).join("")}</div><p class="qrnote">Check blood pressure lying down, then after one and three minutes of standing, and ask whether any medicines have changed recently. If a fall might be linked to a medicine, tell the medical team or ward pharmacist, or in the community the GP or pharmacist.</p>${lk("mc1clin","Fall-risk-increasing drugs")}`+
+   `<h3>Time-critical medicines</h3><p class="qrnote">Doses that must be given on time.</p><div class="qrlist qrwide">${QT.map(x=>r(x[0],x[1])).join("")}</div><p class="qrnote">This isn't a full list. Your hospital has its own list of time-critical medicines.</p><div class="qrwarn">If a time-critical dose is late or has been missed, tell the nurse looking after them straight away. In the community, contact their GP, pharmacist or specialist team the same day, or NHS 111 out of hours. Plan your session so it doesn't make a dose late. Never suggest skipping or delaying a dose, or taking extra to catch up. If the person is nil by mouth, the team needs to plan another way to give it before the next dose is due.</div>${lk("ma1clin","Routes, missed doses and time-critical medicines")}`};
  }catch(e){console.error("v363m",e)}
 
  /* ---------- v339: new condition packs ---------- */
@@ -10539,11 +10539,21 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
    {ch:"Portfolio",g:"cpd",pre:()=>{if(!window._obCf){cpdNew();window._obCf=1}},s:()=>{const h=[...document.querySelectorAll("#app .cfl")].find(x=>/Reflection model/.test(x.textContent));const t=document.getElementById("cf-l");return h?[h,h.nextElementSibling,t].filter(Boolean):[]},t:"Reflect",d:()=>"Choose a reflection model, then answer its prompts. A few lines is enough. Each box holds up to about 1,000 words.",
     fr:[{w:1200,act:tk=>typeIn("#cf-l","How to spot early signs of sepsis and when to escalate.",tk)}]},
    {ch:"Portfolio",g:"cpd",pre:()=>{if(!window._obCf){cpdNew();window._obCf=1}},s:()=>{const b=[...document.querySelectorAll("#app .go")].pop();return b},t:"Save",d:()=>"Save the entry. It goes into your log, counts towards your audit pack and can be exported. This example won't be saved."},
+   {ch:"Portfolio",g:"cpd",rr:1,pre:()=>{CPDRESET();pf="home";cp.v="list";home();window.scrollTo(0,0)},s:()=>{const h=[...document.querySelectorAll("#app .sec")].find(x=>/^Your tools/.test(x.textContent.trim()));if(!h)return[];const o=[h];let n=h.nextElementSibling;while(n&&!n.matches(".sec")&&o.length<4){o.push(n);n=n.nextElementSibling}return o},pos:"top",t:"Your tools",d:()=>"The tools you've chosen sit together on Portfolio. Choose which ones show in Profile."},
+   {ch:"Portfolio",g:"cpd",rr:1,pre:()=>{CPDRESET();openGr("fb")},s:()=>{const t=document.querySelector("#app .seg[role=tablist]");if(!t)return[];const o=[t];let n=t.nextElementSibling;while(n&&o.length<3){o.push(n);n=n.nextElementSibling}return o},pos:"top",t:"Feedback",d:()=>"Keep feedback from colleagues, or send them a link so they can write it themselves.",
+    fr:[{w:2200,act:()=>grTab("sw"),c:"SWOC: where you're strong, where you're growing, and what could help or get in the way."},{w:2600,act:()=>grTab("pl"),c:"Plan: what you want to work on next, and how."},{w:2400,act:()=>grTab("fb"),c:"Feedback, SWOC and Plan together are what an appraisal asks for."}]},
+   {ch:"Portfolio",g:"cpd",rr:1,pre:()=>{CPDRESET();apOpen()},s:()=>{const h=[...document.querySelectorAll("#app .sec,#app .cfl")].find(x=>/Which appraisal/.test(x.textContent));if(!h)return[];const o=[h];let n=h.nextElementSibling;while(n&&o.length<3){o.push(n);n=n.nextElementSibling}return o},pos:"top",t:"Appraisal pack",d:()=>"Your notes on the year and your record, put together in one document to share with your appraiser."},
+   {ch:"Portfolio",g:"cpd",rr:1,on:()=>showHc(),pre:()=>{CPDRESET();openHc()},s:()=>{const h=document.querySelector("#app .sec");if(!h)return[];const o=[h];let n=h.nextElementSibling;while(n&&!n.matches(".sec")&&o.length<4){o.push(n);n=n.nextElementSibling}return o},pos:"top",t:"HCPC audit pack",d:()=>"If you're picked for HCPC audit, this puts your CPD profile together: your summary of practice, your activities, how they meet the standards, and your evidence."},
+   {ch:"Portfolio",g:"cpd",rr:1,on:()=>showPre(),pre:()=>{CPDRESET();tab="cpd";pf="pre";pe=null;home();window.scrollTo(0,0)},s:()=>{const h=document.querySelector("#app .sec")||document.querySelector("#app .cfl");if(!h)return[];const o=[h];let n=h.nextElementSibling;while(n&&o.length<3){o.push(n);n=n.nextElementSibling}return o},pos:"top",t:"Preceptorship",d:()=>"Your review points, meetings with your preceptor and sign-offs. When you start another one, say for a Band 6 post, the first is kept."},
+   {ch:"Portfolio",g:"cpd",rr:1,pre:()=>{CPDRESET();tab="cpd";pf="cpd";cp.x="cpd";cp.v="list";home();window.scrollTo(0,0)},s:()=>[...document.querySelectorAll("#app button")].filter(b=>/^(Export my log|Import existing)/.test(b.textContent.trim())),t:"Export and import",d:()=>"Export your log to share it or keep a copy. Bring in CPD you've kept elsewhere, from Excel, a CSV file or a pasted table."},
+   {ch:"Quick ref",g:"cpd",on:()=>window.PZ_ONLY==="portfolio",pre:()=>{CPDRESET();pf="home";cp.v="list";home();window.scrollTo(0,0)},s:".tr .icb:not(.sq)",t:"Quick ref",d:()=>"Dermatomes, myotomes, reflexes, scales and medicines, at the top of every screen."},
    {ch:"Friends",g:"friends",pre:()=>{CPDRESET()},s:()=>{const b=document.querySelector(".fdbox button");return (b&&b.parentElement)||document.querySelector("#app .nvfl")},t:"Friends",d:()=>"Optional. Follow friends, swap fives and see the leaderboard."+(S.feedOn==null?" Nothing about you is shared until you say yes here.":" Turn sharing on or off in Profile.")},
    {ch:"Profile",g:"me",s:()=>{const h=[...document.querySelectorAll("#app .mgh")].find(x=>/Learning/.test(x.textContent));return h?h.nextElementSibling:document.querySelector("#app .nvfl")},t:"Profile",d:()=>"Your plan, daily time and role, plus settings and the Classic look. Help has this tour if you want it again."}];
   if(window.PZ_ONLY==="portfolio"){for(let i=TOUR.length-1;i>=0;i--)if(TOUR[i].g!=="cpd"&&TOUR[i].g!=="me")TOUR.splice(i,1);
    /* v505: the Profile step points at About you, with Portfolio wording */
    const P=TOUR.find(x=>x.g==="me");if(P){P.s=()=>{const h=document.querySelector("#app .abg");return h?[h,h.nextElementSibling].filter(Boolean):(document.querySelector("#app .mgrp")||[])};P.d=()=>"Your details and career history, which Portfolio tools are on, your account and help. You can take this tour again from Help."}}
+  /* v526d: steps for tools that are switched off aren't counted */
+  const TALL=TOUR.slice(),reTour=()=>{TOUR.length=0;TALL.forEach(x=>{let k=1;try{k=!x.on||x.on()}catch(e){}if(k)TOUR.push(x)})};
   let cur="",tok=0,TI=-1,TS=null,lv0=null,FR=null,navSeen=0,HC=null,CSd=null,BAR=false,NAVRES=null;
   window.obNavGo=()=>{if(NAVRES){const f=NAVRES;NAVRES=null;f()}};
   /* the bottom bar: a hole shaped round the bar and the raised On call button */
@@ -10592,12 +10602,12 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
   /* v473: the tour moves the page itself; people can't scroll it away from the step */
   const obNoScroll=e=>{if(document.getElementById("obtr"))e.preventDefault()};
   const obNoKeys=e=>{if(!document.getElementById("obtr"))return;const t=e.target;if(t&&/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))return;if([" ","PageUp","PageDown","ArrowUp","ArrowDown","Home","End"].includes(e.key)&&!(e.key===" "&&t&&t.tagName==="BUTTON"))e.preventDefault()};
-  window.obTour=async function(i){if(i>=N())return obTourEnd(1);const tk=++tok;let ov=document.getElementById("obtr");
+  window.obTour=async function(i){if(i<=0&&TI<=0)reTour();if(i>=N())return obTourEnd(1);const tk=++tok;let ov=document.getElementById("obtr");
    if(!ov){ov=document.createElement("div");ov.id="obtr";ov.className="obtr";ov.innerHTML=`<div class="obhl"></div><div class="obtc" role="dialog" aria-modal="true" aria-labelledby="obtt" aria-describedby="obtd" aria-live="polite"></div>`;document.body.appendChild(ov);
     document.addEventListener("keydown",obKey);window.addEventListener("resize",place);window.addEventListener("scroll",place,{passive:true});
     ov.addEventListener("touchmove",obNoScroll,{passive:false});ov.addEventListener("wheel",obNoScroll,{passive:false});document.addEventListener("keydown",obNoKeys);document.documentElement.classList.add("obon")}
    TI=i;const c=ov.querySelector(".obtc");
-   if(i<0){TS=null;c.innerHTML=`<div class="obtn">${window._obAgain?"Quick tour":"Step 3 of 3 · Quick tour"}</div><h3 id="obtt">${window._obAgain?"Where everything is":"You're set up"}</h3><p id="obtd">${window.PZ_ONLY==="portfolio"?"A quick look round your Portfolio and Profile, including how to add a CPD entry. About a minute; skip any time.":"A guided look round Learn, Quick ref, On call, Portfolio, Friends and Me, with a few short demos. About two minutes; skip any time."}</p><div class="obtb"><button class="lnk" onclick="obTourEnd()">Skip</button><button class="go" onclick="obTour(0)">Show me</button></div>`;requestAnimationFrame(()=>{place();c.querySelector(".go").focus()});return}
+   if(i<0){TS=null;c.innerHTML=`<div class="obtn">${window._obAgain?"Quick tour":"Step 3 of 3 · Quick tour"}</div><h3 id="obtt">${window._obAgain?"Where everything is":"You're set up"}</h3><p id="obtd">${window.PZ_ONLY==="portfolio"?"A quick look round your Portfolio and Profile: adding a CPD entry, then feedback, your appraisal and audit packs, and the rest of your tools. About two minutes; skip any time.":"A guided look round Learn, Quick ref, On call, Portfolio, Friends and Me, with a few short demos. About two minutes; skip any time."}</p><div class="obtb"><button class="lnk" onclick="obTourEnd()">Skip</button><button class="go" onclick="obTour(0)">Show me</button></div>`;requestAnimationFrame(()=>{place();c.querySelector(".go").focus()});return}
    const x=TOUR[i];NAVRES=null;document.querySelectorAll(".obcatch").forEach(e=>e.remove());c.style.visibility="hidden";if(BAR){BAR=false;const sv=ov.querySelector(".obsv");if(sv)sv.style.display="none";ov.querySelector(".obhl").style.visibility=""}if(!x.fix&&!x.frz)FR=null;document.body.classList.toggle("obpad",!!(x.fix||x.frz||x.pad));
    if(x.g!=="cpd")CPDRESET();if(x.g!=="onc")ONCRESET();
    const moved=x.g!==cur;
@@ -10696,7 +10706,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
    tools:()=>({gr:S.gr||null,ap:S.ap||null,about:S.about||null,role:S.role||null,band:S.band==null?null:S.band,nq:!!S.nq,oth:S.oth||null,yr:S.yr==null?null:S.yr,crs:S.crs||null})};
   /* per-group checks for values screens use as numbers */
   const FIX={
-   tools:v=>{if("about" in v){const A=v.about,o={};if(A&&typeof A==="object"&&!Array.isArray(A)){if(typeof A.area==="string"&&/^[a-z]{2,12}$/.test(A.area))o.area=A.area;if(typeof A.areaTx==="string")o.areaTx=A.areaTx.slice(0,60);if(typeof A.since==="string"&&/^\d{4}-\d{2}$/.test(A.since))o.since=A.since;if(typeof A.nf==="string"&&/^\d{4}-\d{2}$/.test(A.nf))o.nf=A.nf;if(typeof A.n==="string"&&A.n)o.n=A.n.slice(0,2000);if(typeof A.org==="string"&&A.org)o.org=A.org.slice(0,100);if(typeof A.uni==="string"&&A.uni)o.uni=A.uni.slice(0,100);
+   tools:v=>{if("about" in v){const A=v.about,o={};if(A&&typeof A==="object"&&!Array.isArray(A)){if(typeof A.area==="string"&&/^[a-z]{2,12}$/.test(A.area))o.area=A.area;if(typeof A.areaTx==="string")o.areaTx=A.areaTx.slice(0,60);if(typeof A.since==="string"&&/^\d{4}-\d{2}$/.test(A.since))o.since=A.since;if(typeof A.nf==="string"&&/^\d{4}-\d{2}$/.test(A.nf))o.nf=A.nf;if(typeof A.n==="string"&&A.n)o.n=A.n.slice(0,2000);if(typeof A.org==="string"&&A.org)o.org=A.org.slice(0,100);if(typeof A.uni==="string"&&A.uni)o.uni=A.uni.slice(0,100);if(A.lk&&typeof A.lk==="object"&&!Array.isArray(A.lk)){const L={};Object.keys(A.lk).slice(0,3000).forEach(k=>{const v=A.lk[k];if(/^[cfv]:[A-Za-z0-9_-]{1,64}$/.test(k)&&typeof v==="string"&&/^(none|cur|[a-z0-9]{4,24})$/.test(v))L[k]=v});o.lk=L}
      const M=/^\d{4}-(0[1-9]|1[0-2])$/,ST=["stu","app","q","5n","5","6","7","8","nb","oth"],ID=/^[a-z0-9]{4,24}$/;
      if(Array.isArray(A.hist))o.hist=A.hist.filter(e=>e&&typeof e==="object"&&ID.test(String(e.id))&&/^[a-z]{2,12}$/.test(String(e.a))&&M.test(e.f)&&M.test(e.t)&&e.f<=e.t&&ST.includes(e.st)).slice(0,200).map(e=>{const x={id:e.id,a:e.a,f:e.f,t:e.t,st:e.st};if(typeof e.ax==="string")x.ax=e.ax.slice(0,60);if(["rotation","placement","post"].includes(e.w))x.w=e.w;if(typeof e.n==="string"&&e.n)x.n=e.n.slice(0,2000);if(typeof e.o==="string"&&e.o)x.o=e.o.slice(0,100);if(typeof e.u==="string"&&e.u)x.u=e.u.slice(0,100);return x});
      if(Array.isArray(A.ms))o.ms=A.ms.filter(m=>m&&typeof m==="object"&&ID.test(String(m.id))&&M.test(m.d)&&ST.includes(m.st)).slice(0,100).map(m=>{const x={id:m.id,d:m.d,st:m.st};if(ST.includes(m.from))x.from=m.from;return x})}v.about=o}
@@ -10911,6 +10921,8 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
     if(S.acct&&!S.acct.guest&&S.acct.uid===u){if(!localOnlyN()&&!unsynced())PZ.signOut(true);
      else setTimeout(()=>{try{toast("Sign-out didn't finish because some changes aren't backed up yet. Go to Profile, then Account, to try again.")}catch(e){}},1500)}}
    if(!S.acct&&(S.signedOut||(S.sy&&S.sy.uid))){const had=ACCT_K.some(k=>S[k]!==undefined)||!!S.sy;if(had){dropAcct();try{save()}catch(e){}wipePhotos()}}
+   /* v525: no accountless Portfolio. A session left on this device from before invitations is deleted, with its photos */
+   if(window.PZ_ONLY==="portfolio"&&S.acct&&S.acct.guest){dropAcct();delete S.acct;delete S.acctLater;delete S.signedOut;try{save()}catch(e){}wipePhotos();window.pzGuestGone=1}
    auSend=async function(){au.err="";if(au.mode==="up"&&pzInv()&&!pzInvN(au.inv))au.err="Enter your invite code.";else if(au.mode==="up"&&!au.name.trim())au.err="Enter your first name.";else if(!auEmailOk(au.email))au.err="Enter a valid email address.";else if(au.mode==="up"&&!au.agree)au.err="Please confirm you're 18 or over and agree to the Terms.";
     if(au.err){welcome();return}au.busy=true;welcome();
     const inv=au.mode==="up"&&pzInv()?pzInvN(au.inv):"";
@@ -12481,7 +12493,7 @@ function pfMon(d){const x=new Date(d+"T12:00:00"),k=(x.getDay()+6)%7;x.setDate(x
 function pfPrevWk(w){const x=new Date(w+"T12:00:00");x.setDate(x.getDate()-7);return isoD(x)}
 function pfXp(){const today=isoD(new Date()),E=(S.cpd||[]).filter(e=>e&&!e.auto&&DAYRX.test(String(e.d||""))).sort((a,b)=>String(a.d).localeCompare(String(b.d))||String(a.id).localeCompare(String(b.id)));
  const per={},n={};E.forEach(e=>{n[e.d]=(n[e.d]||0)+1;if(n[e.d]>PFX.dayCap)return;per[e.d]=(per[e.d]||0)+PFX.entry+(cpHas(e)?PFX.refl:0)+((e.ph||[]).length?PFX.ev:0)});
- (((S.pre||{}).mt)||[]).forEach(m=>{if(m&&DAYRX.test(String(m.d||"")))per[m.d]=(per[m.d]||0)+PFX.meet});
+ preAllMt().forEach(m=>{if(m&&DAYRX.test(String(m.d||"")))per[m.d]=(per[m.d]||0)+PFX.meet});
  const wk=pfMon(today),tot=Object.values(per).reduce((a,b)=>a+b,0),week=Object.entries(per).filter(([d])=>d>=wk&&d<=today).reduce((a,[,v])=>a+v,0);
  const W=new Set(E.filter(e=>e.d<=today).map(e=>pfMon(e.d)));let w=W.has(wk)?wk:pfPrevWk(wk),st=0;while(W.has(w)&&st<600){st++;w=pfPrevWk(w)}
  const lv=lvOf(tot),cur=LVL[lv-1][0],nx=LVL[lv]?LVL[lv][0]:null;
@@ -12575,7 +12587,7 @@ function grS(){let G=S.gr;if(!G||typeof G!=="object"||Array.isArray(G))G=S.gr={f
 function grEv(e){if(e.k==="fb"){const f=grFbAll().find(x=>x.id===e.id);return f?{t:"Feedback from "+(f.who||grRa(f.rel)),s:dFmt(f.d),go:"grFb('"+f.id+"')"}:null}
  const c=(typeof cpdAll==="function"?cpdAll():(S.cpd||[])).find(x=>x&&x.id===e.id);return c?{t:c.t,s:dFmt(c.d)+" · CPD entry",go:""}:null}
 const grBacked=x=>(x.ev||[]).filter(e=>grEv(e)).length;
-function openGr(t){tab="cpd";pf="gr";grf=null;gv={v:"home",tab:t==="fb"||t==="pl"?t:"sw"};home();window.scrollTo(0,0)}
+function openGr(t){tab="cpd";pf="gr";grf=null;gv={v:"home",tab:t==="sw"||t==="pl"?t:"fb"};home();window.scrollTo(0,0)}
 function grGo(v,extra){grf=null;gv=Object.assign({v:v||"home",tab:gv.tab||"sw"},extra||{});home();window.scrollTo(0,0)}
 function grTab(t){gv.tab=t;gv.just=null;home()}
 function grPortSt(){const G=S.gr;let nw=0,nv=0;try{nw=grNew().length;nv=grV().length}catch(e){}if(nw)return nw+" new";try{const od=S.gr&&typeof S.gr==="object"?grGlOver().length:0;if(od)return od+(od===1?" goal past its date":" goals past their date")}catch(e){}const n=(G&&typeof G==="object"?((Array.isArray(G.sw)?G.sw.length:0)+(Array.isArray(G.fb)?G.fb.length:0)):0)+nv;return n?n+(n===1?" item":" items"):"Start"}
@@ -12584,7 +12596,7 @@ function grScreen(){
  if(grf&&grf.k==="gl")return grGlForm();if(grf&&grf.k==="use")return grUseForm();if(grf&&grf.k==="sw")return grItemForm();if(grf&&grf.k==="fb")return grFbForm();if(gv.v==="snf")return grSnapForm();if(gv.v==="snap")return grSnapView();if(gv.v==="exp")return grExport();if(gv.v==="fbv")return grFbView();if(gv.v==="ask")return grAskForm();if(gv.v==="lnk")return grAskLink();
  const G=grS(),T=gv.tab==="fb"?"fb":gv.tab==="pl"?"pl":"sw",sw=T==="sw";
  let h=head()+tabs()+bk("pf='home';home()","Portfolio")+`<h1 style="font-size:1.6rem;margin:6px 0 2px">Feedback and SWOC</h1><p class="tag" style="margin:0 0 10px">What colleagues say about your practice, your own view of where you're strong and where you're growing, and your plan. Private to you.</p>`+
-  `<div class="seg" role="tablist">${[["sw","SWOC"],["fb","Feedback log"+(grFbAll().length?" ("+grFbAll().length+")":"")],["pl","Plan"]].map(([k,l])=>`<button role="tab" aria-selected="${T===k}" class="${T===k?"on":""}" onclick="grTab('${k}')">${l}</button>`).join("")}</div>`;
+  `<div class="seg" role="tablist">${[["fb","Feedback"+(grFbAll().length?" ("+grFbAll().length+")":"")],["sw","SWOC"],["pl","Plan"]].map(([k,l])=>`<button role="tab" aria-selected="${T===k}" class="${T===k?"on":""}" onclick="grTab('${k}')">${l}</button>`).join("")}</div>`;
  app.innerHTML=h+(T==="pl"?grPlH(G):sw?grSwocH(G):grFbH(G))}
 
 function grItemH(x){const n=grBacked(x);return `<button class="gri" onclick="grItem('${esc(x.id)}')"><b>${esc(x.t)}</b><small>${x.pil?esc(grPn(x.pil))+" · ":""}${n?"Backed by "+n+(n===1?" piece":" pieces")+" of evidence":"Your view only (no evidence yet)"}${(()=>{const g=grGl().filter(z=>z.sw.includes(x.id)&&!z.done).length;return g?" · "+g+(g===1?" goal":" goals"):""})()}</small></button>`}
@@ -12619,7 +12631,7 @@ function grFromCpd(){if(!cf||!cf.id)return;const keep=JSON.parse(JSON.stringify(
 function grItemBack(){const f=grf||{};grf=null;if(f.keepCf){cf=f.keepCf;cp.v="form";tab="cpd";pf="cpd"}else if(f.back==="fb")gv={v:"home",tab:"fb"};else gv={v:"home",tab:"sw"};home();window.scrollTo(0,0)}
 function grItemForm(){const f=grf,G=grS(),linked=f.ev.map(e=>({e,v:grEv(e)})).filter(x=>x.v),has=(k,id)=>f.ev.some(e=>e.k===k&&e.id===id);
  const fbs=grFbAll().filter(x=>!has("fb",x.id)).sort((a,b)=>b.d.localeCompare(a.d)),cps=(S.cpd||[]).filter(e=>e&&!e.auto&&!has("cpd",e.id)).slice().sort((a,b)=>String(b.d).localeCompare(String(a.d))).slice(0,40);
- app.innerHTML=head()+tabs()+bk("grItemBack()",f.keepCf?"Back to your entry":f.back==="fb"?"Feedback log":"SWOC")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">${f.id?"Edit":"Add to your SWOC"}</h1>`+
+ app.innerHTML=head()+tabs()+bk("grItemBack()",f.keepCf?"Back to your entry":f.back==="fb"?"Feedback":"SWOC")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">${f.id?"Edit":"Add to your SWOC"}</h1>`+
  (f.err?`<div class="fb bad"><b>${esc(f.err)}</b></div>`:"")+
  `<div class="cfl">Which box?</div><div class="chipw" role="group" aria-label="Which box">${GRQ.map(q=>`<button class="chipb${f.q===q[0]?" on":""}" aria-pressed="${f.q===q[0]}" onclick="grRd();grf.q='${q[0]}';cfRe()">${q[3].charAt(0).toUpperCase()+q[3].slice(1)}</button>`).join("")}</div><p class="tag" style="margin:6px 0 0">${grQ(f.q)[2]}.</p>`+
  `<label class="cfl" for="gr-t">What is it?</label><input id="gr-t" class="cin" maxlength="200" value="${esc(f.t)}" placeholder="${GREG[f.q]}" oninput="grf.t=this.value">`+
@@ -12641,9 +12653,9 @@ function grItemDel(){const f=grf;if(!f.del){f.del=true;if(armTap(/^Delete$/,"Yes
 function grFb(id){const G=grS(),x=id?grFbAll().find(i=>i.id===id):null;if(id&&!x)return;if(x&&x.v){grf=null;gv={v:"fbv",tab:"fb",id:x.id};tab="cpd";pf="gr";home();window.scrollTo(0,0);return}grf=x?{k:"fb",id:x.id,d:x.d,who:x.who,rel:x.rel,ctx:x.ctx,txt:x.txt,ph:x.ph.slice()}:{k:"fb",id:null,d:isoD(new Date()),who:"",rel:"sen",ctx:"",txt:"",ph:[]};gv.just=null;tab="cpd";pf="gr";home();window.scrollTo(0,0)}
 function grFbRd(){const f=grf;if(!f||f.k!=="fb")return;f.err="";const g=k=>document.getElementById(k);if(g("grf-d")&&/^\d{4}-\d{2}-\d{2}$/.test(g("grf-d").value))f.d=g("grf-d").value;if(g("grf-w"))f.who=g("grf-w").value;if(g("grf-c"))f.ctx=g("grf-c").value;if(g("grf-x"))f.txt=g("grf-x").value}
 function grFbForm(){const f=grf,ph=f.ph||[],G=grS(),n=f.id?G.sw.filter(x=>x.ev.some(e=>e.k==="fb"&&e.id===f.id)).length:0;
- app.innerHTML=head()+tabs()+bk("grf=null;gv={v:'home',tab:'fb'};home()","Feedback log")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">${f.id?"Edit feedback":"Add feedback"}</h1><div class="note"><b>No patient details.</b> A colleague's role is enough, unless they're happy to be named.</div>`+
+ app.innerHTML=head()+tabs()+bk("grf=null;gv={v:'home',tab:'fb'};home()","Feedback")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">${f.id?"Edit feedback":"Add feedback"}</h1><div class="note"><b>No patient details.</b> A colleague's role is enough, unless they're happy to be named.</div>`+
  (f.err?`<div class="fb bad"><b>${esc(f.err)}</b></div>`:"")+
- `<label class="cfl" for="grf-d">Date</label><input id="grf-d" class="cin" type="date" value="${esc(f.d)}" oninput="grf.d=this.value" onchange="grf.d=this.value">`+
+ `<label class="cfl" for="grf-d">Date</label><input id="grf-d" class="cin" type="date" value="${esc(f.d)}" oninput="grf.d=this.value" onchange="grf.d=this.value;grFbRd();cfRe()">`+crLkRow("f",f.id||"",f.d,f.crk,"grf")+
  `<label class="cfl" for="grf-w">Who gave it?</label><input id="grf-w" class="cin" maxlength="80" value="${esc(f.who)}" placeholder="e.g. Band 7 respiratory physio" oninput="grf.who=this.value">`+
  `<div class="cfl">They were…</div><div class="chipw" role="group" aria-label="Who they were to you">${GRR.map(r=>`<button class="chipb${f.rel===r[0]?" on":""}" aria-pressed="${f.rel===r[0]}" onclick="grFbRd();grf.rel='${r[0]}';cfRe()">${r[1]}</button>`).join("")}</div>`+
  `<label class="cfl" for="grf-c">When or where <span style="font-weight:500;color:var(--mute)">(optional)</span></label><input id="grf-c" class="cin" maxlength="80" value="${esc(f.ctx)}" placeholder="e.g. End of respiratory rotation" oninput="grf.ctx=this.value">`+
@@ -12758,7 +12770,7 @@ function grAskH(G){if(!grAskOn())return "";const today=isoD(new Date()),L=G.rq.s
 
 /* ask form */
 function grAskForm(){const a=gv.a=gv.a||{fn:String((S.acct&&S.acct.name)||"").slice(0,40),ctx:"",who:""};
- app.innerHTML=head()+tabs()+bk("grGo('home',{tab:'fb'})","Feedback log")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">Ask for feedback</h1><p class="tag" style="margin:0 0 8px">Make a link to send to one colleague. They don't need an account, and what they write comes straight into your feedback log.</p>`+
+ app.innerHTML=head()+tabs()+bk("grGo('home',{tab:'fb'})","Feedback")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">Ask for feedback</h1><p class="tag" style="margin:0 0 8px">Make a link to send to one colleague. They don't need an account, and what they write comes straight into your feedback log.</p>`+
  (a.err?`<div class="fb bad"><b>${esc(a.err)}</b></div>`:"")+
  `<label class="cfl" for="ga-c">What's it for? <span style="font-weight:500;color:var(--mute)">(optional)</span></label><input id="ga-c" class="cin" maxlength="80" value="${esc(a.ctx)}" placeholder="e.g. End of respiratory rotation" oninput="gv.a.ctx=this.value"><p class="tag" style="margin:4px 0 0">They'll see this, with your first name.</p>`+
  `<label class="cfl" for="ga-n">Your first name</label><input id="ga-n" class="cin" maxlength="40" value="${esc(a.fn)}" autocomplete="given-name" oninput="gv.a.fn=this.value">`+
@@ -12788,7 +12800,7 @@ function grAskRq(){const G=grS();return G.rq.find(r=>r.id===gv.id)||null}
 function grAskUrl(r){const tk=S.rqT&&typeof S.rqT==="object"?S.rqT[r.id]:"";return /^[0-9a-f]{64}$/.test(String(tk||""))?GRFB_BASE()+"#t="+tk:""}
 function grAskMsg(r,url){const fn=r.fn||String((S.acct&&S.acct.name)||"").slice(0,40);return "Hi,\n\nCould you give me some feedback on my practice"+(r.ctx?" ("+r.ctx+")":"")+"? It takes a few minutes and you don't need an account:\n\n"+url+"\n\nThe link works once, until "+dFmt(r.x)+".\n\nThank you"+(fn?",\n"+fn:"")}
 function grAskLink(){const r=grAskRq();if(!r)return grGo("home",{tab:"fb"});const url=grAskUrl(r),ex=r.x<isoD(new Date()),canShare=!!navigator.share;
- app.innerHTML=head()+tabs()+bk("grGo('home',{tab:'fb'})","Feedback log")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">${gv.isNew?"Your link is ready":"Feedback request"}</h1><p class="tag" style="margin:0 0 10px">${r.who?"For "+esc(r.who)+". ":""}${r.ctx?esc(r.ctx)+". ":""}${ex?"This link has expired.":"Works once, until "+esc(dFmt(r.x))+"."}</p>`+
+ app.innerHTML=head()+tabs()+bk("grGo('home',{tab:'fb'})","Feedback")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">${gv.isNew?"Your link is ready":"Feedback request"}</h1><p class="tag" style="margin:0 0 10px">${r.who?"For "+esc(r.who)+". ":""}${r.ctx?esc(r.ctx)+". ":""}${ex?"This link has expired.":"Works once, until "+esc(dFmt(r.x))+"."}</p>`+
  (ex?`<div class="note">Nobody answered before it expired. Cancel it, then make a new link if you still want their feedback.</div>`:
   url?`<label class="cfl" for="gl-u">The link</label><input id="gl-u" class="cin" readonly value="${esc(url)}" onfocus="this.select()">`+grAskBtns(canShare)+`<p id="grm" class="tag" role="status"></p><div class="note">Send it to the one person you're asking. Anyone who has the link can answer it once, so don't post it in a group chat.</div>`
   :`<div class="note">The link itself is only kept on the device you made it on. If you need it again, cancel this one and make a new link.</div>`)+
@@ -12807,7 +12819,7 @@ async function grAskCancel(){const r=grAskRq();if(!r||gv.busy)return;if(!gv.del)
 function grFbView(){const f=grV().find(x=>x.id===gv.id);if(!f)return grGo("home",{tab:"fb"});const G=grS();
  if(!G.seen.includes(f.id)){G.seen.push(f.id);G.seen=G.seen.slice(-100);save()}
  const n=G.sw.filter(x=>x.ev.some(e=>e.k==="fb"&&e.id===f.id)).length,part=(t,x)=>x?`<div class="cfl">${t}</div><p class="grt">${esc(x)}</p>`:"";
- app.innerHTML=head()+tabs()+bk("grGo('home',{tab:'fb'})","Feedback log")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">Feedback from ${esc(f.nm||f.who||"a colleague")}</h1><p class="tag" style="margin:0 0 10px">${f.nm&&f.who?esc(f.who)+" · ":""}${esc(grRn(f.rel))} · ${esc(dFmt(f.d))}${f.ctx?" · "+esc(f.ctx):""}</p>`+
+ app.innerHTML=head()+tabs()+bk("grGo('home',{tab:'fb'})","Feedback")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">Feedback from ${esc(f.nm||f.who||"a colleague")}</h1><p class="tag" style="margin:0 0 10px">${f.nm&&f.who?esc(f.who)+" · ":""}${esc(grRn(f.rel))} · ${esc(dFmt(f.d))}${f.ctx?" · "+esc(f.ctx):""}</p>`+crLkRow("v",f.id,f.d,undefined,"")+
  `<div class="note">They sent this through your feedback link, so the words are theirs and can't be changed here.</div>`+
  part("What you do well",f.w)+part("What to work on",f.k)+part("Anything else",f.o)+
  (gv.err?`<div class="fb bad"><b>${esc(gv.err)}</b></div>`:"")+
@@ -12828,7 +12840,7 @@ async function grFbViewDel(){const f=grV().find(x=>x.id===gv.id);if(!f)return gr
 
 
 /* ---------- v485: Privacy policy and Terms (the real text), Make a complaint, Report on feedback sent by link ---------- */
-const PZL_DATE="17 November 2026",PZL_ADDR="13 Naseby House, Rothwell Road, Kettering, NN16 8WB",PZL_MAIL="hello@phyzly.app",PZL_VER="v485";
+const PZL_DATE="19 November 2026",PZL_ADDR="13 Naseby House, Rothwell Road, Kettering, NN16 8WB",PZL_MAIL="hello@phyzly.app",PZL_VER="v485";
 const pzcNew=()=>({ab:"",tx:"",err:"",busy:false,sent:null,list:null,ref:"",who:"",foc:false,at:0,uid:null});
 let pzlPg=null,pzc=pzcNew();
 /* nothing typed or loaded for one account is ever shown to another */
@@ -12874,7 +12886,7 @@ function pzlPrivacy(inApp){const L=pzlLinks(),SO=pzlSo(),PK=pzlPk(),AI=pzlAi();r
   ["Emailing you Phyzly news","Email address and first name","Consent. Only if you ticked the box. You can change your mind at any time."],
   ["Meeting legal duties","Whatever the law requires","Legal obligation"]])+
  pzlP("We don't make decisions about you by automated means, and we don't build profiles."+(AI?" AI drafting writes text for you to check and change. It doesn't assess you or decide anything about you.":""))+
- pzlH("Who can see your information")+pzlU(["<b>You.</b> Nobody else using Phyzly can see your portfolio.",PK?"<b>Anyone with a link you make to your appraisal pack.</b> They can read that copy of the pack, and nothing else, until the link ends or you stop sharing. They don't need an account, so share the link only with your appraiser.":null,"<b>Oliver.</b> As the person who runs Phyzly, Oliver can access the database. He looks at an individual's content only to fix a problem they've reported, or when the law requires it.","<b>Companies that run Phyzly for us.</b> They act only on our instructions."])+
+ pzlH("Who can see your information")+pzlU(["<b>You.</b> Nobody else using Phyzly can see your portfolio.",PK?"<b>Anyone with a link you make to your appraisal pack.</b> They can read that copy of the pack, and nothing else, until the link ends or you stop sharing. They don't need an account, so share the link only with your appraiser.":null,"<b>Oliver Jones, who runs Phyzly.</b> He can access the database. He looks at an individual's content only to fix a problem they've reported, or when the law requires it.","<b>Companies that run Phyzly for us.</b> They act only on our instructions."])+
  pzlT(["What it does","What it holds","Where"],[
   ["Supabase",AI?"Database, sign-in and file storage. It also passes AI drafting requests on to the AI service, without keeping them":"Database, sign-in and file storage","Your account and portfolio","London. Its support staff may be elsewhere, and its technical logs are kept in the EU."],
   ["Resend","Sends sign-in emails, and emails confirming a complaint","Your email address and the emails we send, for 30 days","United States"],
@@ -13016,7 +13028,7 @@ function grUseBack(){const f=grf||{},src=f.src||{};grf=null;
 function grUseForm(){const f=grf,G=grS(),src=grUseSrc(f.src,f.keepCf);
  if(!src){grf=null;gv={v:"home",tab:"sw"};return home()}
  const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
- let h=head()+tabs()+bk("grUseBack()",f.keepCf?"Back to your entry":f.from==="log"?"Feedback log":src.sent||f.src.k==="fb"?"Back to the feedback":"SWOC")+
+ let h=head()+tabs()+bk("grUseBack()",f.keepCf?"Back to your entry":f.from==="log"?"Feedback":src.sent||f.src.k==="fb"?"Back to the feedback":"SWOC")+
   `<h1 style="font-size:1.5rem;margin:6px 0 2px">Use in my SWOC</h1><p class="tag" style="margin:0 0 10px">Make new points from it, say which points it backs up, or both.</p>`+
   `<div class="note gus"><b>${esc(src.t)}</b><small style="display:block;color:var(--mute);margin:2px 0 6px">${esc(src.s)}</small>`+
   (src.parts.length?src.parts.map((p,i)=>`<div class="cfl" style="margin-top:8px">${esc(p[0])}</div><p class="grt">${esc(p[1])}</p>${f.pts.length<GRU_MAX?`<button class="lnk aul gup" onclick="grUseAdd('${p[2]}')">+ Make a point from this</button>`:""}`).join(""):`<p class="tag" style="margin:4px 0 0">Nothing written yet.</p>`)+`</div>`+
@@ -13475,9 +13487,9 @@ function crRotGet(id){const a=S.about||{};
 function crRange(R){const today=isoD(new Date());if(R.cur&&!crOkM(R.f))return {from:"9999-12-31",to:"0000-01-01"};return {from:crOkM(R.f)?R.f+"-01":null,to:R.cur?today:crMEnd(R.t)}}
 const crIn=(d,g)=>/^\d{4}-\d{2}-\d{2}$/.test(String(d||""))&&(!g.from||d>=g.from)&&d<=g.to;
 function crData(R){const g=crRange(R),G=S.gr&&typeof S.gr==="object"?S.gr:{};
- const cpd=(S.cpd||[]).filter(e=>e&&crIn(e.d,g)).sort((p,q)=>String(p.d).localeCompare(String(q.d)));
+ const cpd=(S.cpd||[]).filter(e=>e&&crCounts("c",e.id,e.d,R,g)).sort((p,q)=>String(p.d).localeCompare(String(q.d)));
  let link=[];try{if(typeof grV==="function")link=grV()}catch(e){link=[]}
- const fb=(Array.isArray(G.fb)?G.fb:[]).map(f=>Object.assign({lk:false},f)).concat(link.map(f=>Object.assign({lk:true},f))).filter(f=>f&&crIn(f.d,g)).sort((p,q)=>String(p.d).localeCompare(String(q.d)));
+ const fb=(Array.isArray(G.fb)?G.fb:[]).map(f=>Object.assign({lk:false},f)).concat(link.map(f=>Object.assign({lk:true},f))).filter(f=>f&&crCounts(f.lk?"v":"f",f.id,f.d,R,g)).sort((p,q)=>String(p.d).localeCompare(String(q.d)));
  const gl=(Array.isArray(G.gl)?G.gl:[]).filter(x=>x&&(crIn(x.d,g)||(x.done&&crIn(x.dn,g))));
  const sw=(Array.isArray(G.sw)?G.sw:[]).filter(x=>x&&crIn(x.d,g));
  const min=cpd.reduce((s,e)=>s+(+e.m||0),0);
@@ -13496,8 +13508,8 @@ function crRotHtml(){const R=crRotGet(crV&&crV.id);if(!R)return `<p class="tag">
  if(!(R.cur&&!R.f))h+=`<div class="crst">${[[D.cpd.length,D.cpd.length===1?"CPD entry":"CPD entries"],[stN(D.min),stL(D.min)+" of CPD"],[D.fb.length,D.fb.length===1?"piece of feedback":"pieces of feedback"],[D.gl.length,D.gl.length===1?"plan goal":"plan goals"]].map(x=>`<div><b>${esc(String(x[0]))}</b><span>${x[1]}</span></div>`).join("")}</div>`;
  h+=`<label class="abh" for="cr-n" style="display:block">What you learnt</label><p class="tag abp">Optional. A few lines in your own words. It goes in the summary you download.</p><textarea id="cr-n" class="cin crn" rows="4" maxlength="2000" placeholder="e.g. Confident with suction and airway clearance. Led my first MDT discussion." oninput="crNote(this.value)">${esc(R.n||"")}</textarea>`;
  if(R.cur&&!R.f)return h;
- h+=`<div class="abh">CPD</div>`+(D.cpd.length?`<div class="mgrp crl">${D.cpd.slice().reverse().map(e=>`<div class="mrow crro"><span class="mtx"><span class="mlb">${esc(e.t||"Untitled")}</span><span class="crd">${esc(xpNice(e.d))} · ${esc(cptn(e.ty))} · ${esc(fmtH(+e.m||0))}</span></span></div>`).join("")}</div>`:`<p class="tag">No CPD logged in these dates.</p>`);
- h+=`<div class="abh">Feedback</div>`+(D.fb.length?`<div class="mgrp crl">${D.fb.slice().reverse().map(f=>`<div class="mrow crro"><span class="mtx"><span class="mlb">${esc(crFbWho(f))}</span><span class="crd">${esc(xpNice(f.d))}${f.ctx?" · "+esc(f.ctx):""}</span></span></div>`).join("")}</div>`:`<p class="tag">No feedback in these dates.</p>`);
+ h+=`<div class="abh">CPD</div>`+(D.cpd.length?`<div class="mgrp crl">${D.cpd.slice().reverse().map(e=>`<div class="mrow crro"><span class="mtx"><span class="mlb">${esc(e.t||"Untitled")}</span><span class="crd">${esc(xpNice(e.d))} · ${esc(cptn(e.ty))} · ${esc(fmtH(+e.m||0))}${crLkTag("c",e.id)}</span></span>${crRowBtn("c",e.id,e.d,e.t)}</div>`).join("")}</div>`:`<p class="tag">No CPD logged in these dates.</p>`);
+ h+=`<div class="abh">Feedback</div>`+(D.fb.length?`<div class="mgrp crl">${D.fb.slice().reverse().map(f=>`<div class="mrow crro"><span class="mtx"><span class="mlb">${esc(crFbWho(f))}</span><span class="crd">${esc(xpNice(f.d))}${f.ctx?" · "+esc(f.ctx):""}${crLkTag(f.lk?"v":"f",f.id)}</span></span>${crRowBtn(f.lk?"v":"f",f.id,f.d,crFbWho(f))}</div>`).join("")}</div>`:`<p class="tag">No feedback in these dates.</p>`);
  h+=`<div class="abh">Development plan</div>`+(D.gl.length?`<div class="mgrp crl">${D.gl.map(x=>`<div class="mrow crro"><span class="mtx"><span class="mlb">${esc(x.t||"")}</span><span class="crd">${x.done&&crIn(x.dn,D.g)?"Completed "+esc(xpNice(x.dn)):"Set "+esc(xpNice(x.d))+(x.done?"":" · in progress")}</span></span></div>`).join("")}</div>`:`<p class="tag">No goals set or completed in these dates.</p>`);
  if(D.sw.length)h+=`<p class="tag" style="margin-top:12px">${D.sw.length} SWOC ${D.sw.length===1?"point":"points"} added in these dates.</p>`;
  h+=`<div class="crdl"><button class="go" onclick="crRotPdfGo()">Download ${W} summary (PDF)</button><p id="cpm" class="tag" role="status">${esc((XP.ctx==="cr"&&XP.msg)||"")}</p><div id="xprw">${xpReadyHtml("cr")}</div></div>`;
@@ -13610,7 +13622,7 @@ function pzFormOpen(){try{if(typeof cp!=="undefined"&&cp&&cp.v==="form")return t
 
 /* ---------- v502: typed work is never lost; Back stays in the app ---------- */
 /* What a form held when it was opened, so a change can be noticed. Keys that are only screen state are left out. */
-const PZ_UI_K=new Set(["aq","err","phMsg","nr","del","dv","phGone","ai","ns","ko","up","from","back","keepCf","just","busy"]);
+const PZ_UI_K=new Set(["fwKeep","aq","err","phMsg","nr","del","dv","phGone","ai","ns","ko","up","from","back","keepCf","just","busy"]);
 const pzSnap=new WeakMap();
 function pzSer(o){try{return JSON.stringify(o,(k,v)=>PZ_UI_K.has(k)?undefined:v)}catch(e){return ""}}
 function pzGrRead(){try{if(typeof grf==="undefined"||!grf)return;if(grf.k==="gl")grGlRd();else if(grf.k==="fb")grFbRd();else if(grf.k==="sw")grRd();else if(grf.k==="use")grUseRd()}catch(e){}}
@@ -13831,10 +13843,19 @@ function cfFwMove(srcKeys,dstK){const r=cf.r=cf.r||{},F1=FW[dstK],own=new Set(F1
    parts.forEach((p,i)=>{const kk=F1.f[Math.min(i,F1.f.length-1)][0],c=String(r[kk]||"").trim();r[kk]=c?c+"\n\n"+p:p})}
   FW[k].f.forEach(x=>{if(!own.has(x[0]))delete r[x[0]]})});
  return moved}
-function cfFw(k){if(!cf||!FW[k])return;const cur=cfFwCur();if(k===cur)return;const snap={fw:cf.fw,r:JSON.parse(JSON.stringify(cf.r||{}))};
- const moved=cfFwMove([cur],k);cf.fw=k;
- cfFwN=moved.length?{cf,msg:"Your "+moved[0]+" answers are now in “"+FW[k].f[0][1]+"”. Edit them to fit the new prompts.",undo:snap}:null;cfRe()}
-function cfFwUndo(){if(!cfFwN||cfFwN.cf!==cf)return;cf.fw=cfFwN.undo.fw;cf.r=cfFwN.undo.r;cfFwN=null;cfRe()}
+function cfFw(k){if(!cf||!FW[k])return;const cur=cfFwCur();if(k===cur)return;
+ const snap={fw:cf.fw,r:JSON.parse(JSON.stringify(cf.r||{})),keep:JSON.parse(JSON.stringify(cf.fwKeep||{}))};
+ const r=cf.r=cf.r||{},K=cf.fwKeep=(cf.fwKeep&&typeof cf.fwKeep==="object")?cf.fwKeep:{},keys=F=>F.f.map(x=>x[0]);
+ /* v526: what's in the template being left is kept, box by box, while this entry is open */
+ const mine={};keys(FW[cur]).forEach(x=>{if(String(r[x]||"").trim())mine[x]=r[x]});const had=Object.keys(mine).length>0;
+ if(K[k]){/* been in this template before: its answers go back exactly as they were */
+  const tk=keys(FW[k]);keys(FW[cur]).forEach(x=>{if(!tk.includes(x))delete r[x]});tk.forEach(x=>{if(K[k][x]!=null)r[x]=K[k][x];else delete r[x]});
+  delete K[k];if(had)K[cur]=mine;else delete K[cur];cf.fw=k;
+  cfFwN={cf,msg:"Your "+FW[k].n+" answers are back as you left them."+(had?" Your "+FW[cur].n+" answers are kept while this entry is open: switch back to see them.":""),undo:snap}}
+ else{const moved=cfFwMove([cur],k);if(had)K[cur]=mine;cf.fw=k;
+  cfFwN=moved.length?{cf,msg:"Your "+moved[0]+" answers are now in “"+FW[k].f[0][1]+"”. Edit them to fit, or switch back to "+moved[0]+" to see them as they were.",undo:snap}:null}
+ cfRe()}
+function cfFwUndo(){if(!cfFwN||cfFwN.cf!==cf)return;cf.fw=cfFwN.undo.fw;cf.r=cfFwN.undo.r;cf.fwKeep=cfFwN.undo.keep||{};cfFwN=null;cfRe()}
 function cfFwHidden(){if(!cf||!cf.r)return [];const cur=cfFwCur(),own=new Set(FW[cur].f.map(x=>x[0]));
  return Object.keys(FW).filter(k=>k!==cur&&FW[k].f.some(x=>!own.has(x[0])&&String(cf.r[x[0]]||"").trim()))}
 function cfFwPull(){const hid=cfFwHidden();if(!hid.length)return;const snap={fw:cf.fw,r:JSON.parse(JSON.stringify(cf.r||{}))},cur=cfFwCur(),moved=cfFwMove(hid,cur);
@@ -14496,8 +14517,15 @@ const pzAbMsg=()=>"I've been using Phyzly to keep my CPD portfolio. It's made fo
 /* the share options wait until sign-up opens (plan R17): while Phyzly is invitation only, someone told about it couldn't
    join. Switch them on with window.PZ_SHARE_ON=true (in build_portfolio's config line) when sign-up opens. */
 const pzAbShareOn=()=>window.PZ_SHARE_ON===true;
-function pzAboutHtml(){const B=(f,l,go)=>`<button class="${go?"go":"opt"}" style="text-align:center;margin-top:10px" onclick="${f}()">${l}</button>`;
- return `<div class="pzl pzab">${PZ_ABOUT.map(p=>`<p>${esc(p)}</p>`).join("")}`+
+const PZ_ABOUT_DO=["Log CPD as you go, with photos of certificates and notes as evidence.","Reflect using the model that suits you: three simple questions, Gibbs, Kolb, or What? So what? Now what?","Keep feedback from colleagues, your SWOC and a development plan together.","Put together your appraisal pack, and your HCPC audit profile if you're picked for audit.","Keep your preceptorship and your career history in one place."];
+const PZ_ABOUT_OWN=["Only you can see your portfolio, unless you choose to share part of it. There's no advertising and no tracking, and your information is never sold. You can export everything, or delete your account, whenever you like.","Phyzly is your own record. It isn't connected to the HCPC, the NHS or the CSP, and your employer's records are the official ones."];
+const PZ_ABOUT_TELL="Phyzly is shaped by the people who use it. If something would make your working life easier, or something isn't working, tell us with Message Phyzly or at hello@phyzly.app.";
+function pzAboutHtml(){const B=(f,l,go)=>`<button class="${go?"go":"opt"}" style="text-align:center;margin-top:10px" onclick="${f}()">${l}</button>`,H=t=>`<div class="pzlh" role="heading" aria-level="2">${t}</div>`;
+ return `<div class="pzl pzab">${PZ_ABOUT.slice(0,2).map(p=>`<p>${esc(p)}</p>`).join("")}`+
+  H("What you can do with it")+`<ul>${PZ_ABOUT_DO.map(p=>`<li>${esc(p)}</li>`).join("")}</ul>`+
+  H("Your record stays yours")+PZ_ABOUT_OWN.map(p=>`<p>${esc(p)}</p>`).join("")+
+  H("What's next")+`<p>${esc(PZ_ABOUT[2])}</p>`+
+  H("Tell us what you need")+`<p>${esc(PZ_ABOUT_TELL)}</p>`+
   (pzAbShareOn()?`<div class="pzlh" role="heading" aria-level="2">Spread the word</div><p>${esc(PZ_ABOUT_ASK)}</p>`+(navigator.share?B("pzAbShare","Share Phyzly",1)+B("pzAbCopy","Copy a message"):B("pzAbCopy","Copy a message",1))+B("pzAbMail","Email a colleague")+`<p id="pzabm" class="tag" role="status" style="margin:8px 0 0"></p>`
    :`<p class="tag" style="margin:14px 0 0">${esc(PZ_ABOUT_INV)}</p>`)+
   `<p class="tag" style="margin:18px 0 0">Phyzly is run by Oliver Jones, trading as Phyzly. You can reach us at <a class="aul" href="mailto:hello@phyzly.app">hello@phyzly.app</a>.</p></div>`}
@@ -14627,6 +14655,149 @@ async function aqAsk(){if(!pzAiOn()||!cf||(cf.aq&&cf.aq.busy))return;const t=doc
  catch(e){if(cf!==me)return;cf.aq={err:pzAiErr(e,"Couldn't think of questions this time. Try again.")};cfRe()}}
 
 
+/* ---------- v525: no accountless Portfolio (owner, 18 Nov 2026) ---------- */
+if(window.PZ_ONLY==="portfolio"){
+ auGuest=function(){au.v="land";au.err="";welcome();window.scrollTo(0,0)};
+ if(!(window.PZ&&PZ.on)){
+  /* the sign-in library didn't load: show only this, so nothing can be used without an account */
+  const pzNoNet=function(){const a=document.getElementById("app");if(!a)return;try{document.body.classList.add("pznonet")}catch(e){}
+   try{const n=document.getElementById("nav");if(n)n.classList.remove("show")}catch(e){}
+   a.innerHTML=`<div class="pznn"><div class="pznnwm" role="img" aria-label="Phyzly"><span aria-hidden="true">Phy<i>z</i>ly</span></div><h1>Phyzly can't connect</h1>`+
+    `<p>Phyzly needs to reach its server to sign you in, and it can't at the moment.</p>`+
+    `<p>Check your internet connection. On a work or public network, Phyzly may be blocked. Try another network, or your phone's mobile data.</p>`+
+    `<button class="go" onclick="location.reload()">Try again</button></div>`;try{document.title="Phyzly"}catch(e){}};
+  home=pzNoNet;welcome=pzNoNet;try{auGo=pzNoNet}catch(e){}try{auDone=pzNoNet}catch(e){}
+  pzNoNet();
+ }else{
+  /* the Portfolio is never drawn without a signed-in account: without one, every screen is the sign-in screen
+     (except while a sign-in or sign-out is finishing, which has its own waiting screen) */
+  const pzReal=()=>!!(S.acct&&!S.acct.guest);
+  const pzWait=()=>{try{return !!(window.pzHoldOn&&pzHoldOn())}catch(e){return false}};
+  /* drawn by the normal sign-in screen code (so its finishing touches apply), with no role in play while it draws */
+  const w0=welcome;
+  const pzGate=()=>{try{pzAiSync()}catch(e){}try{const n=document.getElementById("nav");if(n)n.classList.remove("show")}catch(e){}
+   /* an accountless session found mid-visit is ended; the start-up clean-up deletes what it left on the next load */
+   if(S.acct&&S.acct.guest){delete S.acct;S.signedOut=1;try{save()}catch(e){}}
+   const r=S.role;if(r!=null)S.role=null;try{w0()}finally{if(r!=null)S.role=r}};
+  welcome=function(step){if(!pzReal()&&!pzWait())return pzGate();return w0.apply(this,arguments)};
+  {const h0=home;home=function(){if(!pzReal()&&!pzWait())return pzGate();return h0.apply(this,arguments)}}
+  if(window.pzGuestGone){au.v="land";au.err="";try{welcome()}catch(e){}}
+ }
+}
+
+
+/* ---------- v526a: email choices on a computer (owner, 18 Nov: Email it did nothing on a work computer) ---------- */
+const pzMailDesk=()=>{try{return matchMedia("(pointer:fine)").matches&&window.innerWidth>=720}catch(e){return false}};
+let pzMailB="";
+function pzMail(sub,body){sub=String(sub||"");body=String(body||"");const e=encodeURIComponent;
+ if(!pzMailDesk()){location.href="mailto:?subject="+e(sub)+"&body="+e(body);return}
+ pzMailB=body;const ic='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>';
+ infoSheet(`<h2 style="margin:6px 0 6px;font-size:1.25rem">Send by email</h2><p class="tag" style="margin:0 0 12px">Choose how you send email on this computer. If nothing happens with your email app, use one of the others.</p>`+
+  `<a class="opt pzml" href="mailto:?subject=${e(sub)}&body=${e(body)}"><b>Open my email app</b><small>Outlook on a computer, Mail on a Mac</small></a>`+
+  `<a class="opt pzml" href="https://outlook.office.com/mail/deeplink/compose?subject=${e(sub)}&body=${e(body)}" target="_blank" rel="noopener noreferrer"><b>Outlook on the web ${ic}</b><small>NHSmail and most work email. Opens in a new tab</small></a>`+
+  `<a class="opt pzml" href="https://mail.google.com/mail/?view=cm&fs=1&su=${e(sub)}&body=${e(body)}" target="_blank" rel="noopener noreferrer"><b>Gmail ${ic}</b><small>Opens in a new tab</small></a>`+
+  `<button class="opt pzml" onclick="pzMailCopy()"><b>Copy the message</b><small>Then paste it into any email</small></button><p id="pzmlm" class="tag" role="status" style="margin:6px 0 0"></p>`+
+  `<p class="tag" style="margin:10px 0 0">Subject: ${esc(sub)}</p>`,"Send by email")}
+function pzMailCopy(){const m=t=>{const x=document.getElementById("pzmlm");if(x)x.textContent=t};
+ try{navigator.clipboard.writeText(pzMailB).then(()=>m("Message copied. Paste it into a new email."),()=>m("Copying didn't work here. Select the text in your email app instead."))}catch(e){m("Copying didn't work here.")}}
+grAskMail=function(){const r=grAskRq(),url=r&&grAskUrl(r);if(!url)return;const fn=r.fn||String((S.acct&&S.acct.name)||"");pzMail("Could you give me some feedback?"+(fn?" ("+fn+")":""),grAskMsg(r,url))};
+soMail=function(){const q=soRq(),u=q&&soUrl(q);if(!u)return;pzMail("Could you confirm my review?"+(q.fn?" ("+q.fn+")":""),soMsg(q,u))};
+apSoMail=function(){const q=apSoRq(),u=q&&soUrl(q);if(!u)return;pzMail("Could you confirm my "+apNm((S.ap||{}).k)+"?"+(q.fn?" ("+q.fn+")":""),apSoMsg(q,u))};
+apShMail=function(){const u=apShUrl(),h=apShCur();if(!u)return;pzMail("My "+apNm((S.ap||{}).k)+" pack"+(h.fn?" ("+h.fn+")":""),apShMsg(u))};
+pzAbMail=function(){pzMail("Have you seen Phyzly?",pzAbMsg())};
+
+/* ---------- v526a: Your progress says what keeps a streak, and what the levels are ---------- */
+function pfLvAll(){const X=pfXp();
+ infoSheet(`<h2 style="margin:6px 0 6px;font-size:1.25rem">All levels</h2><p class="tag" style="margin:0 0 12px">You earn XP by logging a CPD entry (${PFX.entry} XP), writing a reflection on it (${PFX.refl} XP) and adding evidence (${PFX.ev} XP)${showPre()?`, and for each preceptorship meeting (${PFX.meet} XP)`:""}. Each level starts at the total shown.</p>`+
+  `<div class="pflv">${LVL.map((l,i)=>`<div class="pflvr${i+1===X.lv?" on":""}"${i+1===X.lv?' aria-current="true"':""}><span class="pflvn">${i+1}</span><span class="pflvt"><b>${esc(l[1])}</b>${i+1===X.lv?"<small>You're here</small>":""}</span><span class="pflvx">${l[0]?l[0].toLocaleString("en-GB")+" XP":"Start"}</span></div>`).join("")}</div>`,"All levels")}
+{const px0=pfXpScreen;pfXpScreen=function(){const r=px0.apply(this,arguments);try{const X=pfXp(),A=document.getElementById("app");
+  const lp=A&&A.querySelector(".pfx-l p");if(lp&&X.nx){lp.innerHTML=`${X.tot.toLocaleString("en-GB")} XP · ${(X.nx-X.tot).toLocaleString("en-GB")} XP to level ${X.lv+1}, <strong class="pflvnx">${esc(LVL[X.lv][1])}</strong>`}
+  if(lp&&!A.querySelector(".pflvb")){const b=document.createElement("button");b.className="lnk aul pflvb";b.setAttribute("onclick","pfLvAll()");b.textContent="See all levels";lp.after(b)}
+  A&&[...A.querySelectorAll(".sec")].forEach(h=>{if(h.textContent.trim()!=="Week streak")return;const c=h.nextElementSibling,p=c&&c.querySelector("p");if(!p)return;
+   p.innerHTML=`A week (Monday to Sunday) counts when you've saved at least one CPD entry dated in it. Saving the entry is enough: it doesn't need a reflection yet, though a reflection earns more XP.`+
+    `<br><br>Entries count in the week of their date, so logging last week's study day today counts for last week.${showPre()?" Preceptorship meetings earn XP but don't count towards the streak.":""}`+
+    `<br><br>${X.thisWk?"This week already counts.":"Save an entry dated this week before Sunday ends to keep it going."} A week only breaks the streak once it has ended.`})}catch(e){console.error("v526a",e)}return r}}
+
+
+/* ---------- v526b: which rotation an entry or a piece of feedback counts towards ---------- */
+const crLkAll=()=>{const a=S.about||{};return a.lk&&typeof a.lk==="object"&&!Array.isArray(a.lk)?a.lk:{}};
+const crLkGet=(k,id)=>id?crLkAll()[k+":"+id]:undefined;
+function crLkSet(k,id,v){if(!id)return;const a=abA();if(!a.lk||typeof a.lk!=="object"||Array.isArray(a.lk))a.lk={};if(!v)delete a.lk[k+":"+id];else a.lk[k+":"+id]=v;abSave()}
+/* every rotation (or placement, or post): the current one first, then the rest newest first */
+function crRotsAll(){const a=S.about||{},o=[];if(a.area)o.push(crRotGet("cur"));(Array.isArray(a.hist)?a.hist:[]).slice().sort((p,q)=>String(q.f).localeCompare(String(p.f))).forEach(e=>{const R=crRotGet(e.id);if(R)o.push(R)});return o.filter(Boolean)}
+const crRotName=R=>R?crAreaL(R.a,R.ax)+(R.cur?" (now)":""):"";
+function crByDate(d){if(!/^\d{4}-\d{2}-\d{2}$/.test(String(d||"")))return null;return crRotsAll().find(R=>crIn(d,crRange(R)))||null}
+/* where it counts: a choice that still exists wins, otherwise its date */
+function crWhere(v,d){if(v==="none")return null;if(v){const R=crRotGet(v);if(R)return R}return crByDate(d)}
+function crCounts(k,id,d,R,g){const v=crLkGet(k,id);if(v==="none")return false;if(v&&crRotGet(v))return v===R.id;return crIn(d,g)}
+function crLkTag(k,id){const v=crLkGet(k,id);return v&&v!=="none"&&crRotGet(v)?" · chosen":""}
+function crLkRow(k,id,d,pend,ctx){try{if(!crRotsAll().length)return "";const v=pend!==undefined?pend:crLkGet(k,id),R=crWhere(v,d),W=crWord();
+ const txt=v==="none"?`None of your ${W}s`:R?esc(crRotName(R))+`<small>${v&&crRotGet(v)?"chosen":"from its date"}</small>`:`None of your ${W}s<small>no ${W} covers its date</small>`;
+ return `<div class="cfl">Counts towards</div><div class="crlk"><span>${txt}</span><button class="opt crlkb" onclick="crLkPick('${k}','${esc(String(id))}','${ctx}','${esc(String(d||""))}')">Change</button></div><p class="tag" style="margin:4px 0 0">Which ${W} summary it shows in, in Career history.</p>`}catch(e){return ""}}
+function crRowBtn(k,id,d,t){return `<button class="lnk crmv" onclick="crLkPick('${k}','${esc(String(id))}','','${esc(String(d||""))}')" aria-label="Move ${esc(String(t||""))} to another ${crWord()}">Move</button>`}
+function crLkPick(k,id,ctx,d){const W=crWord(),cur=ctx==="cf"&&cf?cf.crk:ctx==="grf"&&grf?grf.crk:undefined,v=cur!==undefined?cur:crLkGet(k,id),auto=crByDate(d);
+ const opt=(val,lab,sub)=>{const on=(val||"")===(v&&(v==="none"||crRotGet(v))?v:"");return `<button class="opt crpk${on?" on":""}" aria-pressed="${on}" onclick="crLkChoose('${k}','${esc(String(id))}','${ctx}','${val}')"><b>${lab}</b>${sub?`<small>${sub}</small>`:""}</button>`};
+ infoSheet(`<h2 style="margin:6px 0 6px;font-size:1.25rem">Which ${W} does it count towards?</h2><p class="tag" style="margin:0 0 12px">It shows in that ${W}'s summary in Career history. Nothing else changes.</p>`+
+  opt("","Go by its date",auto?esc(crRotName(auto)):`No ${W} covers its date`)+
+  crRotsAll().map(R=>opt(R.id,esc(crRotName(R)),esc(crDates(R)))).join("")+
+  opt("none",`None of my ${W}s`,"It won't show in any summary"),"Which "+W)}
+function crLkChoose(k,id,ctx,val){document.querySelectorAll(".ifbg").forEach(e=>e.remove());
+ if(ctx==="cf"&&cf){cf.crk=val;return cfRe()}
+ if(ctx==="grf"&&grf){grf.crk=val;return cfRe()}
+ crLkSet(k,id,val);try{toast("Moved")}catch(e){}
+ if(tab==="me"){try{return abRe()}catch(e){}}home()}
+/* a new entry or piece of feedback gets its choice when it's saved */
+{const s0=cpdSave;cpdSave=function(){const was=cf,pend=was&&was.crk,id0=was&&was.id,first=(S.cpd||[])[0];const r=s0.apply(this,arguments);
+  try{if(pend!==undefined&&(!cf||cf!==was||!cf.err)){let id=id0;if(!id){const f2=(S.cpd||[])[0];if(f2&&f2!==first)id=f2.id}if(id&&(S.cpd||[]).some(e=>e.id===id))crLkSet("c",id,pend)}}catch(e){console.error("v526b",e)}return r}}
+{const p0=grFbPut;grFbPut=function(){const pend=grf&&grf.crk;const r=p0.apply(this,arguments);try{if(r&&r.id&&pend!==undefined)crLkSet("f",r.id,pend)}catch(e){console.error("v526b",e)}return r}}
+/* finishing the current rotation takes what was chosen for it into Career history */
+{const f0=crFinish;crFinish=function(){const n0=crH().length;const r=f0.apply(this,arguments);try{if(crH().length>n0){const nid=crH()[crH().length-1].id,L=crLkAll();let ch=0;Object.keys(L).forEach(x=>{if(L[x]==="cur"){L[x]=nid;ch=1}});if(ch)abSave()}}catch(e){console.error("v526b",e)}return r}}
+
+
+/* ---------- v526c: more than one preceptorship ---------- */
+const prePast=()=>{const P=S.pre;return P&&typeof P==="object"&&Array.isArray(P.past)?P.past.filter(x=>x&&typeof x==="object"):[]};
+function preAllMt(){const a=((S.pre||{}).mt)||[];return a.concat(...prePast().map(x=>Array.isArray(x.mt)?x.mt:[]))}
+const preStageLbl=()=>{try{const k=abStage();if(/^[5-8]/.test(k))return "Band "+k.charAt(0)+" preceptorship"}catch(e){}return "Preceptorship"};
+const preEnd=P=>P&&P.start?addM(P.start,P.len||12):"";
+/* a sign-off link made for an earlier preceptorship belongs to it */
+{const o0=soO;soO=function(){const old=new Set();prePast().forEach(x=>(x.sl||[]).forEach(q=>q&&old.add(q.id)));return o0.apply(this,arguments).filter(q=>!old.has(q.id))}}
+/* what the record says now, kept with it when it's put away */
+function preSnap(){const out={rv:[],sum:[]};try{out.rv=preRvL().map(x=>{const h=(S.pre.ms||{})[x.id];return {n:x.n,due:preDue(x),done:!!h,held:typeof h==="string"?h:"",so:preSoTxt(x.id)||""}})}catch(e){}try{out.sum=preXpSum()}catch(e){}return out}
+function preHistH(){const L=prePast();if(!L.length)return "";
+ return `<div class="sec">Earlier preceptorships</div>`+L.map((x,i)=>`<button class="opt" onclick="pe={v:'past',i:${i}};home();window.scrollTo(0,0)"><div class="row"><b>${esc(x.lab||"Preceptorship")}</b><span>›</span></div><small style="color:var(--mute)">${x.start?esc(dFmt(x.start))+" to "+esc(dFmt(preEnd(x))):"No dates"} · ${(x.mt||[]).length} ${(x.mt||[]).length===1?"meeting":"meetings"}</small></button>`).join("")}
+function preNewH(){return `<div class="sec">Starting another preceptorship?</div><p class="tag" style="margin:0 0 8px">For example when you start a Band 6 post. This one is kept, as it is, under Earlier preceptorships.</p><button class="opt" style="text-align:center" onclick="pe={v:'new',lab:preStageLbl()};home();window.scrollTo(0,0)">Start a new preceptorship</button>`}
+function preNewScreen(){const f=pe;app.innerHTML=head()+tabs()+bk("pe=null;home()","Preceptorship")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">Start a new preceptorship</h1><p class="tag" style="margin:0 0 10px">Your current preceptorship is kept as it is, with its meetings, review points and sign-offs, under Earlier preceptorships. Then you set up the new one.</p>`+
+ (f.err?`<div class="fb bad"><b>${esc(f.err)}</b></div>`:"")+
+ `<label class="cfl" for="pn-l">What should we call the one you're finishing?</label><input id="pn-l" class="cin" maxlength="60" value="${esc(f.lab||"")}" oninput="pe.lab=this.value"><p class="tag" style="margin:4px 0 0">For example "Band 5 preceptorship" or "Preceptorship at Kettering".</p>`+
+ `<button class="go" onclick="preNewGo()">Keep it and start a new one</button><button class="opt" style="text-align:center;margin-top:10px" onclick="pe=null;home()">Cancel</button>`}
+function preNewGo(){const el=document.getElementById("pn-l");if(el)pe.lab=el.value;const lab=String(pe.lab||"").replace(/\s+/g," ").trim().slice(0,60);if(!lab){pe.err="Give it a name.";return home()}
+ const P=S.pre;if(!P||!P.start){pe=null;return home()}if(prePast().length>=10){pe.err="You can keep up to 10 earlier preceptorships.";return home()}
+ const old=JSON.parse(JSON.stringify(P));delete old.past;old.lab=lab;old.ended=isoD(new Date());old.snap=preSnap();
+ S.pre={ms:{},mt:[],gl:[],past:prePast().concat([old])};save();try{if(window.pzDirty)pzDirty()}catch(e){}
+ pe={v:"setup"};try{toast("Kept under Earlier preceptorships")}catch(e){}home();window.scrollTo(0,0)}
+function prePastScreen(){const L=prePast(),x=L[pe.i];if(!x){pe=null;return home()}const sn=x.snap||{},pr=Array.isArray(x.pr)?x.pr:[],mt=(x.mt||[]).slice().sort((a,b)=>String(b.d).localeCompare(String(a.d)));
+ let h=head()+tabs()+bk("pe=null;home()","Preceptorship")+`<h1 style="font-size:1.6rem;margin:6px 0 2px">${esc(x.lab||"Preceptorship")}</h1><p class="tag" style="margin:0 0 10px">${x.start?esc(dFmt(x.start))+" to "+esc(dFmt(preEnd(x)))+" · "+(x.len||12)+" months":"No dates"}. An earlier preceptorship: kept as it was, to read.</p>`;
+ if(pe.ren)h+=`<label class="cfl" for="pp-l">Name</label><input id="pp-l" class="cin" maxlength="60" value="${esc(x.lab||"")}"><div class="tabs" style="margin-top:8px"><button class="opt" style="text-align:center;margin:0" onclick="pe.ren=0;home()">Cancel</button><button class="go" style="margin:0" onclick="prePastRen()">Save name</button></div>`;
+ if(pr.length)h+=`<div class="sec">${pr.length===1?"Preceptor":"Preceptors"}</div><div class="ivc">${pr.map(p=>`<p style="margin:0 0 6px"><b>${esc(p.n||"")}</b>${p.r||p.o?"<br><small style='color:var(--mute)'>"+esc([p.r,p.o].filter(Boolean).join(", "))+"</small>":""}</p>`).join("")}</div>`;
+ if((sn.rv||[]).length)h+=`<div class="sec">Review points</div><div class="ivc">${sn.rv.map(r=>`<div class="pfx-r"><span><b>${esc(r.n)}</b>${r.so?`<br><small style="color:var(--mute)">${esc(r.so)}</small>`:""}</span><span style="color:var(--mute);white-space:nowrap">${r.done?(r.held?"Held "+esc(dFmt(r.held,{day:"numeric",month:"short",year:"numeric"})):"Done"):"Not done"}</span></div>`).join("")}</div>`;
+ h+=`<div class="sec">Meetings</div>`+(mt.length?mt.map(m=>`<div class="ivc" style="margin-bottom:8px"><b>${esc(dFmt(m.d))}${m.m?" · "+esc(fmtH(m.m)):""}</b>${m.wi?`<br><small style="color:var(--mute)">With ${esc(m.wi)}</small>`:""}<p style="margin:6px 0 0;white-space:pre-wrap">${esc(m.n||"No notes")}</p>${(m.ac||[]).length?`<p class="tag" style="margin:6px 0 0">Actions: ${m.ac.map(a=>esc(a.t)+(a.done?" (done)":"")).join("; ")}</p>`:""}</div>`).join(""):`<p class="tag">No meetings logged.</p>`);
+ if((sn.sum||[]).length)h+=`<div class="sec">Totals</div><div class="ivc">${sn.sum.map(r=>`<div class="pfx-r"><span>${esc(r[0])}</span><b style="text-align:right">${esc(r[1])}</b></div>`).join("")}</div>`;
+ h+=`<button class="opt" style="text-align:center;margin-top:16px" onclick="pe.ren=1;home()">Rename</button>`+
+  (pe.sw?`<div class="note" style="margin-top:10px"><b>Make this the current preceptorship again?</b> Your current one is kept under Earlier preceptorships instead.<div class="tabs" style="margin-top:8px"><button class="opt" style="text-align:center;margin:0" onclick="pe.sw=0;home()">Cancel</button><button class="go" style="margin:0" onclick="prePastSwap()">Yes, swap them</button></div></div>`
+   :`<button class="opt" style="text-align:center;margin-top:10px" onclick="pe.sw=1;home()">Make this the current one again</button>`);
+ app.innerHTML=h}
+function prePastRen(){const x=prePast()[pe.i],el=document.getElementById("pp-l");if(!x||!el)return;const v=String(el.value||"").replace(/\s+/g," ").trim().slice(0,60);if(!v)return;x.lab=v;pe.ren=0;save();try{if(window.pzDirty)pzDirty()}catch(e){}home()}
+function prePastSwap(){const L=prePast(),x=L[pe.i];if(!x)return;const rest=L.filter((_,j)=>j!==pe.i),P=S.pre;
+ const nowOne=P&&P.start?(()=>{const o=JSON.parse(JSON.stringify(P));delete o.past;o.lab=preStageLbl();o.ended=isoD(new Date());o.snap=preSnap();return o})():null;
+ const back=JSON.parse(JSON.stringify(x));delete back.lab;delete back.ended;delete back.snap;
+ S.pre=Object.assign(back,{past:rest.concat(nowOne?[nowOne]:[])});pe=null;save();try{if(window.pzDirty)pzDirty()}catch(e){}try{toast("Swapped")}catch(e){}home();window.scrollTo(0,0)}
+{const ps0=preScreen;preScreen=function(){if(pe&&pe.v==="past")return prePastScreen();if(pe&&pe.v==="new")return preNewScreen();
+  const r=ps0.apply(this,arguments);
+  try{const A=document.getElementById("app");if(A&&pf==="pre"){const P=S.pre;const setup=!P||!P.start||(pe&&pe.v==="setup");
+    if(!pe&&P&&P.start)A.insertAdjacentHTML("beforeend",preNewH());
+    if(!pe||setup)A.insertAdjacentHTML("beforeend",preHistH())}}catch(e){console.error("v526c",e)}return r}}
+
+
 /* ---------- Phyzly Portfolio (early access): Portfolio and Profile only, plus Quick ref and feedback ---------- */
 try{(function(){
  if(window.PZ_ONLY!=="portfolio")return;
@@ -14668,7 +14839,7 @@ try{(function(){
  const hm0=home;home=function(){if(tab!=="cpd"&&tab!=="me"&&tab!=="friends"&&S.role)goPf();if(tab==="friends")goPf();const r=hm0.apply(this,arguments);
   try{document.querySelectorAll("#nav [data-k]").forEach(b=>{if(b.dataset.k!=="cpd"&&b.dataset.k!=="me")b.remove()});
    document.querySelectorAll("#app .nvlist > *,#app .opt,#app .chipw button").forEach(b=>{if(NOPE.test(b.textContent.trim()))b.remove()});
-   document.querySelectorAll("#app .nvband p,#app .nvband .tag").forEach(p=>{if(/learning, competencies and career/.test(p.textContent))p.textContent="Your CPD, evidence and HCPC audit pack in one place."});
+   document.querySelectorAll("#app .nvband p,#app .nvband .tag").forEach(p=>{if(/learning, competencies and career/.test(p.textContent))p.textContent="Your CPD, evidence and portfolio tools in one place."});
    document.querySelectorAll("#app p.tag").forEach(p=>{const t=p.textContent;if(/^Looking for .*Turn it on in Profile/.test(t)){if(/preceptorship/.test(t))p.textContent="Looking for Preceptorship? Turn it on in Profile, under Portfolio tools.";else p.remove()}})}catch(e){}return r};
  /* v466: preceptorship is in the Portfolio, but competencies wait for their specialist review, so the preceptorship
     page leaves out its Competencies section here */
@@ -14709,7 +14880,7 @@ try{(function(){
  /* tidy anything the screens add later (some headers are built a moment after the page) */
  const tidy=()=>{try{document.querySelectorAll("#nav [data-k]").forEach(b=>{if(b.dataset.k!=="cpd"&&b.dataset.k!=="me")b.remove()});
   document.querySelectorAll("#app .nvlist > *,#app .opt,#app .chipw button").forEach(b=>{if(NOPE.test(b.textContent.trim()))b.remove()});
-  document.querySelectorAll("#app .nvband p,#app .nvband .tag").forEach(p=>{if(/learning, competencies and career/.test(p.textContent))p.textContent="Your CPD, evidence and HCPC audit pack in one place."});
+  document.querySelectorAll("#app .nvband p,#app .nvband .tag").forEach(p=>{if(/learning, competencies and career/.test(p.textContent))p.textContent="Your CPD, evidence and portfolio tools in one place."});
   document.querySelectorAll("#app p,#app .tag,#app .obsub,.obtc p").forEach(p=>{const t=p.textContent;
    if(/^Saved on this device only\. Export a copy/.test(t)&&window.PZ&&PZ.user)p.textContent="Backed up to your account. You can still export a copy any time.";
    else if(/This shapes your plan and what we suggest/.test(t))p.textContent=t.replace("This shapes your plan and what we suggest","This sets up your Portfolio for your role");
@@ -14725,7 +14896,10 @@ try{(function(){
   document.querySelectorAll(".qrnote").forEach(p=>{if(/They will be taught when/.test(p.textContent))p.remove()});
   document.querySelectorAll(".cfoot,#nav .nf").forEach(f=>{if(/Confidential/.test(f.textContent))f.textContent="© Oliver Jones 2026 · Phyzly Portfolio early access"});
   /* v523: About Phyzly at the foot of the computer sidebar */
-  const nf=document.querySelector("#nav .nf");if(nf&&!nf.querySelector(".nfab")&&typeof pzlGo==="function"){const b=document.createElement("button");b.className="nfab";b.setAttribute("onclick","pzlGo('about')");b.textContent="About Phyzly";nf.insertBefore(b,nf.firstChild)}}catch(e){}};
+  const nf=document.querySelector("#nav .nf");if(nf&&!nf.querySelector(".nfab")&&typeof pzlGo==="function"){const b=document.createElement("button");b.className="nfab";b.setAttribute("onclick","pzlGo('about')");b.innerHTML='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.6v.1"/></svg><span>About Phyzly</span>';nf.insertBefore(b,nf.firstChild)}
+  /* v526: About Phyzly is a sidebar item like the others, and shows as selected while its page is open */
+  const ab=document.querySelector("#nav .nf .nfab");if(ab){let on=false;try{on=tab==="me"&&typeof pzlPg!=="undefined"&&pzlPg==="about"}catch(e){}ab.classList.toggle("on",on);if(on)ab.setAttribute("aria-current","page");else ab.removeAttribute("aria-current");
+   if(on)document.querySelectorAll('#nav .nb[data-k="me"].on').forEach(x=>x.classList.add("pzab0"));else document.querySelectorAll("#nav .nb.pzab0").forEach(x=>x.classList.remove("pzab0"))}}catch(e){}};
  /* after-save card: no XP in the Portfolio */
  const tidyXp=()=>{try{document.querySelectorAll(".cpc p").forEach(p=>{const t=p.textContent;if(/ for bonus XP\./.test(t))p.textContent=t.replace(" for bonus XP.",".");else if(/today's CPD XP already/.test(t))p.remove()})}catch(e){}};
  /* ---------- computer layout (style guide: 1024px and wider; v513: the sidebar from 1280 px, a rail from 900 px) ---------- */
@@ -14756,8 +14930,12 @@ try{(function(){
    html.pzo #nav .nb:hover{color:#fff}
    html.pzo #nav .nb:focus-visible{outline:2px solid #8FB4FF;outline-offset:2px}
    html.pzo #nav .nf{margin-top:auto;text-align:left;color:#B8C4D6;font-size:12px!important;line-height:1.5;opacity:1;padding:0 12px}
-   html.pzo #nav .nf .nfab{display:block;background:none;border:0;padding:13px 0;margin:0 0 4px;color:#fff;font:600 14px Inter,-apple-system,system-ui,sans-serif;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
-   html.pzo #nav .nf .nfab:focus-visible{outline:2px solid #8FB4FF;outline-offset:2px;border-radius:6px}
+   html.pzo #nav .nf .nfab{display:flex;align-items:center;gap:12px;width:calc(100% + 24px);background:none;border:0;border-radius:12px;padding:10px 12px;margin:0 -12px 14px;color:#B8C4D6;font:600 15px Inter,-apple-system,system-ui,sans-serif;text-align:left;cursor:pointer;border-top:1px solid rgba(255,255,255,.08);border-top-left-radius:0;border-top-right-radius:0;padding-top:16px}
+   html.pzo #nav .nf .nfab:hover{color:#fff}
+   html.pzo #nav .nf .nfab.on{background:rgba(255,255,255,.10);color:#fff;border-radius:12px;border-top-color:transparent}
+   html.pzo #nav .nf .nfab:focus-visible{outline:2px solid #8FB4FF;outline-offset:2px}
+   html.pzo #nav .nb.pzab0{background:none!important;color:#B8C4D6!important}
+
    html.pzo body:has(#nav.show) #app{max-width:none;margin:0 0 0 248px!important;padding:76px 48px 64px}
    html.pzo body:has(#nav.show) #app>*:not(.dk2){max-width:760px;margin-left:auto!important;margin-right:auto!important}
    html.pzo body:not(:has(#nav.show)) #app{max-width:600px}
@@ -14780,6 +14958,10 @@ try{(function(){
    html.pzo #app .dkempty b{font-size:19px;color:var(--ink)}
    html.pzo #app .dkempty .go{width:auto;height:50px;padding:0 28px;min-width:160px;font-size:17px}
    html.pzo #app textarea{min-height:140px}
+   html.pzo #app .hcs .dkr{position:sticky}
+   html.pzo #app .hcs .dkx{position:sticky;top:0;float:right;margin:-8px -16px 0 12px;width:44px;height:44px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2}
+   html.pzo #app .hcs .dkx:hover{background:var(--tint)}html.pzo #app .hcs .dkx:focus-visible{outline:2px solid var(--pri);outline-offset:2px}
+   html.pzo #app .hcs .dkr h1{margin-top:0!important}
    html.pzo #app .dkbt{display:flex;gap:12px;align-items:stretch}html.pzo #app .dkbt .go{flex:1;margin-top:8px}html.pzo #app .dkbt .dkcx{flex:0 0 auto;width:auto;min-width:120px;margin-top:8px;text-align:center}
   }
   @media (min-width:900px) and (max-width:1439px){html.pzo #app .dkr{top:84px;max-height:calc(100vh - 108px)}}
@@ -14844,6 +15026,35 @@ try{(function(){
   try{if(cp.v==="form"&&cf&&cf.id)document.querySelectorAll(".dkl [onclick*=\"'"+cf.id+"'\"]").forEach(b=>b.classList.add("dksel"))}catch(e){}
   try{if(cp.v==="form")setTimeout(phFill,0)}catch(e){}
  }}
+ /* v526 (owner, 18 Nov): the HCPC audit pack on a computer works like the CPD log. Choosing a section slides the list
+    to the left and opens the section beside it; Close (or Escape) puts the list back in the middle. Typing in a section
+    redraws both sides in place, so the cursor stays where it is. No sliding with reduced motion. */
+ const RMO=()=>{try{return matchMedia("(prefers-reduced-motion: reduce)").matches}catch(e){return false}};
+ const hcLeftX=()=>{const e=app.querySelector(".hcs .dkl .sec")||app.querySelector(":scope>.sec")||app.querySelector("#app .sec");return e?e.getBoundingClientRect().left:null};
+ if(typeof hcScreen==="function"){const hs0=hcScreen;hcScreen=function(){
+  const split=isSplit()&&hc.v&&hc.v!=="home";const had=app.querySelector(":scope>.dk2.hcs");const was=had?had.getAttribute("data-v"):null;
+  if(!split){const x0=had?hcLeftX():null;const r=hs0.apply(this,arguments);
+   if(had&&x0!=null&&!RMO()){const x1=hcLeftX();if(x1!=null&&Math.abs(x0-x1)>4)try{app.animate([{transform:`translateX(${x0-x1}px)`},{transform:"none"}],{duration:300,easing:"cubic-bezier(.2,.8,.2,1)"})}catch(e){}}
+   return r}
+  const fromHub=!had&&pf==="hc"&&!!app.querySelector(".hck"),x0=fromHub?hcLeftX():null;
+  /* both sides are drawn as text first, so nothing on screen is replaced until the end (the field you're typing in stays put) */
+  const self=this,args=arguments,cap=()=>{let out="";const pd=Object.getOwnPropertyDescriptor(app,"innerHTML");
+   try{Object.defineProperty(app,"innerHTML",{configurable:true,get(){return out},set(w){out=w}});hs0.apply(self,args)}finally{if(pd)Object.defineProperty(app,"innerHTML",pd);else delete app.innerHTML}return out};
+  const right=cap();const v=hc.v;hc.v="home";let left="";try{left=cap()}finally{hc.v=v}
+  const nm=({det:"Your details",hist:"Summary of recent work",pick:"Choose activities",stmt:"Personal statement",ev:"Evidence",list:"List of activities",exp:"Get ready to submit"})[v]||"Section";
+  const x=`<button class="dkx" onclick="hc.v='home';hc.err='';hc.msg='';home()" aria-label="Close ${nm}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>`;
+  if(had&&window.pzMorph){/* already side by side: redraw both sides in place */
+   const L=had.querySelector(":scope>.dkl"),R=had.querySelector(":scope>.dkr");pzMorph(L,left);pzMorph(R,x+right);R.setAttribute("aria-label",nm);had.setAttribute("data-v",v);
+   if(was!==v&&!RMO())try{R.animate([{opacity:.35,transform:"translateY(6px)"},{opacity:1,transform:"none"}],{duration:200,easing:"ease-out"})}catch(e){}
+   if(was!==v)R.scrollTop=0}
+  else app.innerHTML=`<div class="dk2 hcs" data-v="${v}"><section class="dkl" aria-label="Audit pack">${left}</section><section class="dkr" aria-label="${nm}">${x}${right}</section></div>`;
+  const D=app.querySelector(":scope>.dk2.hcs");if(!D)return;
+  D.querySelectorAll(".dkl .dksel").forEach(b=>b.classList.remove("dksel"));D.querySelectorAll(`.dkl [onclick="openHc('${v}')"]`).forEach(b=>b.classList.add("dksel"));
+  if(fromHub&&x0!=null&&!RMO()){const x1=hcLeftX();try{D.querySelector(".dkl").animate([{transform:`translateX(${x1!=null?x0-x1:0}px)`},{transform:"none"}],{duration:320,easing:"cubic-bezier(.2,.8,.2,1)"});
+    D.querySelector(".dkr").animate([{opacity:0,transform:"translateX(48px)"},{opacity:1,transform:"none"}],{duration:320,delay:60,easing:"cubic-bezier(.2,.8,.2,1)",fill:"backwards"})}catch(e){}}
+  if(!had){try{const f=D.querySelector(".dkr input,.dkr textarea");if(f&&!/Mobi|Android/.test(navigator.userAgent))f.focus({preventScroll:true})}catch(e){}}
+ }}
+ document.addEventListener("keydown",e=>{try{if(e.key!=="Escape"||!isSplit()||pf!=="hc"||!hc.v||hc.v==="home")return;if(document.querySelector('[aria-modal="true"],.ifbg,#rpov,.twov,.phv,.cpc,#obtr'))return;e.preventDefault();hc.v="home";hc.err="";hc.msg="";home()}catch(er){}});
  /* v513 (R11, fold-safe): crossing a layout line redraws in place and keeps the field you're in, the cursor and the scroll */
  const relayout=()=>{try{const a=document.activeElement,id=a&&a.id,s0=a&&a.selectionStart,e0=a&&a.selectionEnd,y=window.scrollY;home();
   if(id){const n=document.getElementById(id);if(n){if(n!==document.activeElement)try{n.focus({preventScroll:true})}catch(x){}try{if(s0!=null)n.setSelectionRange(s0,e0)}catch(x){}}}window.scrollTo(0,y)}catch(e){}};
