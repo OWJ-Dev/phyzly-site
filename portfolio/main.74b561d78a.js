@@ -8055,7 +8055,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
  }catch(e){console.error("v281",e)}
 
  /* ---------- v282: tester version: report a problem, feedback, welcome note ---------- */
- const RP_VER="v528";let rpCtx=null,rpCat=null;
+ const RP_VER="v529";let rpCtx=null,rpCat=null;
  function rpBtn(kind,id,i){return `<button class="rpb" onclick="rpOpen('${kind}','${id}',${i})">⚑ Report a problem with this card</button>`}
  function rpCtxFor(kind,id,i){try{
   if(kind==="c"){const c=LEARN[id][i],cd=typeof COND!=="undefined"&&COND.find(x=>x.id===id);return {kind:"card",layer:id,card:i,title:c.t,where:(cd?"Condition: "+cd.n:(typeof tn==="function"?tn(id):id))+" · card "+(i+1)+": "+c.t}}
@@ -15120,6 +15120,30 @@ try{(function(){
   const split=isSplit()&&cut>0&&!(typeof apSo!=="undefined"&&apSo)&&!(typeof apSh!=="undefined"&&apSh&&apSh.v);
   if(!split){app.innerHTML=r;return}
   pzDuo("aps","notes",r.slice(0,cut),r.slice(cut),"Appraisal pack","Your notes and your pack","",null)}}
+ /* v529 (owner, 19 Nov): Feedback and SWOC side by side. A piece of feedback, a SWOC point, a goal, a feedback request
+    or the link to send opens beside its list, on the tab it belongs to. Close does what the section's own back link
+    does, so the unsaved-changes question still asks first. Opened from elsewhere (a CPD entry, the preceptorship), it
+    keeps its own page and way back. */
+ if(typeof grScreen==="function"){const gr0=grScreen;grScreen=function(){
+  let T=null;try{if(grf){if(grf.k==="fb")T="fb";else if(grf.k==="sw"&&!grf.keepCf)T=grf.back==="fb"?"fb":"sw";else if(grf.k==="gl"&&(grf.back||"pl")==="pl")T="pl"}
+   else if(gv&&["fbv","ask","lnk"].includes(gv.v))T="fb"}catch(e){T=null}
+  const had=app.querySelector(":scope>.dk2.grs");
+  if(!isSplit()||!T){const x0=had?pzLeftX("grs"):null;const r=gr0.apply(this,arguments);pzBackAnim("grs",had,x0);return r}
+  const x0=!had&&!app.querySelector(":scope>.dk2")?pzLeftX("grs"):null;
+  const right=pzCap(gr0,this,arguments);const kf=grf,kv=gv;let left="";grf=null;gv={v:"home",tab:T};try{left=pzCap(gr0,this,arguments)}finally{grf=kf;gv=kv}
+  const tpl=document.createElement("template");tpl.innerHTML=right;const bkb=tpl.content.querySelector("button.lnk,a.lnk");const close=bkb?bkb.getAttribute("onclick")||"":"";
+  const h1=tpl.content.querySelector("h1"),nm=h1?h1.textContent.trim():"Feedback",id=(grf?grf.id:gv.id)||"";
+  const D=pzDuo("grs",(grf?grf.k:gv.v)+":"+(id||"new"),left,right,"Feedback and SWOC",nm,close.replace(/"/g,"&quot;"),x0);if(!D)return;
+  D.querySelectorAll(".dkl .dksel").forEach(b=>b.classList.remove("dksel"));
+  if(id)D.querySelectorAll(".dkl [onclick]").forEach(b=>{if((b.getAttribute("onclick")||"").includes("'"+id+"'"))b.classList.add("dksel")});
+  /* the tabs on the left close what's open and show that tab (asking first if there are unsaved changes) */
+  D.querySelectorAll('.dkl .seg button[onclick^="grTab("]').forEach(b=>{const m=/grTab\('(\w+)'\)/.exec(b.getAttribute("onclick")||"");if(m)b.setAttribute("onclick",`grGo('home',{tab:'${m[1]}'})`)});
+  if(!had){try{const f=D.querySelector(".dkr textarea,.dkr input:not([type=file]):not([type=date])");if(f&&!id&&grf&&!/Mobi|Android/.test(navigator.userAgent))f.focus({preventScroll:true})}catch(e){}}}}
+ /* anything tapped in the list while a form is open beside it counts as leaving the form */
+ if(typeof pzLeaves==="function"){const pl0=pzLeaves;pzLeaves=function(el){try{if(el&&el.closest&&el.closest(".dk2.grs>.dkl")&&el.getAttribute("onclick"))return true}catch(e){}return pl0.apply(this,arguments)}}
+ document.addEventListener("keydown",e=>{try{if(e.key!=="Escape"||!isSplit()||pf!=="gr")return;const x=document.querySelector(".grs>.dkr>.dkx");if(!x)return;
+  if(document.querySelector('[aria-modal="true"],.ifbg,#rpov,.twov,.phv,.cpc,#obtr'))return;const el=document.activeElement;if(el&&/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName)){el.blur();return}
+  e.preventDefault();x.click()}catch(er){}});
  /* v513 (R11, fold-safe): crossing a layout line redraws in place and keeps the field you're in, the cursor and the scroll */
  const relayout=()=>{try{const a=document.activeElement,id=a&&a.id,s0=a&&a.selectionStart,e0=a&&a.selectionEnd,y=window.scrollY;home();
   if(id){const n=document.getElementById(id);if(n){if(n!==document.activeElement)try{n.focus({preventScroll:true})}catch(x){}try{if(s0!=null)n.setSelectionRange(s0,e0)}catch(x){}}}window.scrollTo(0,y)}catch(e){}};
