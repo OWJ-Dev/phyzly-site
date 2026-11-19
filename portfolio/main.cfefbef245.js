@@ -8055,7 +8055,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
  }catch(e){console.error("v281",e)}
 
  /* ---------- v282: tester version: report a problem, feedback, welcome note ---------- */
- const RP_VER="v529";let rpCtx=null,rpCat=null;
+ const RP_VER="v530";let rpCtx=null,rpCat=null;
  function rpBtn(kind,id,i){return `<button class="rpb" onclick="rpOpen('${kind}','${id}',${i})">⚑ Report a problem with this card</button>`}
  function rpCtxFor(kind,id,i){try{
   if(kind==="c"){const c=LEARN[id][i],cd=typeof COND!=="undefined"&&COND.find(x=>x.id===id);return {kind:"card",layer:id,card:i,title:c.t,where:(cd?"Condition: "+cd.n:(typeof tn==="function"?tn(id):id))+" · card "+(i+1)+": "+c.t}}
@@ -14975,6 +14975,9 @@ try{(function(){
    html.pzo #app .duo .dkx{position:sticky;top:0;float:right;margin:-8px -16px 0 12px;width:44px;height:44px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2}
    html.pzo #app .duo .dkx:hover{background:var(--tint)}html.pzo #app .duo .dkx:focus-visible{outline:2px solid var(--pri);outline-offset:2px}
    html.pzo #app .duo .dkr h1{margin-top:0!important}
+   html.pzo #app .crs .dkl .crdl{display:none}
+   html.pzo #app .crs .dkr [onclick="crRotBack()"]:not(.dkx){display:none}
+   html.pzo #app .crs .dkr .dkx{margin-bottom:-36px;position:relative;top:12px;right:12px;background:var(--card)}
    html.pzo #app .dkr>.dkstep{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:28px 0 0;padding-top:20px;border-top:1px solid var(--line);max-width:none}
    html.pzo #app .dkstep .opt{display:flex;align-items:center;gap:10px;margin:0;padding:12px 14px;text-align:left;min-height:56px}
    html.pzo #app .dkstep .dknext{justify-content:flex-end;text-align:right;grid-column:2}
@@ -15139,6 +15142,28 @@ try{(function(){
   /* the tabs on the left close what's open and show that tab (asking first if there are unsaved changes) */
   D.querySelectorAll('.dkl .seg button[onclick^="grTab("]').forEach(b=>{const m=/grTab\('(\w+)'\)/.exec(b.getAttribute("onclick")||"");if(m)b.setAttribute("onclick",`grGo('home',{tab:'${m[1]}'})`)});
   if(!had){try{const f=D.querySelector(".dkr textarea,.dkr input:not([type=file]):not([type=date])");if(f&&!id&&grf&&!/Mobi|Android/.test(navigator.userAgent))f.focus({preventScroll:true})}catch(e){}}}}
+ /* v530 (owner, 19 Nov): Career history side by side. A rotation's (or placement's, or post's) summary opens beside the
+    list. The rotation page tidies itself after drawing, so both sides are drawn for real, one after the other, in the
+    same moment, and then put side by side; the right side keeps its scroll when it's redrawn (after Move, say). */
+ if(typeof meScreen==="function"){const me0=meScreen;meScreen=function(){
+  let split=false;try{split=isSplit()&&tab==="me"&&abOn&&abPg==="rot"&&!!(crV&&crV.id)&&!!crRotGet(crV.id)}catch(e){}
+  const had=app.querySelector(":scope>.dk2.crs");
+  if(!split){const x0=had?pzLeftX("crs"):null;const r=me0.apply(this,arguments);pzBackAnim("crs",had,x0);return r}
+  const id=crV.id,R0=had&&had.querySelector(":scope>.dkr"),st=R0&&had.getAttribute("data-v")===id?R0.scrollTop:0,fromList=!had&&!app.querySelector(":scope>.dk2");
+  const x0=fromList?pzLeftX("crs"):null;
+  const kv=crV;let left="";crV=null;abPg="career";try{me0.apply(this,arguments);left=app.innerHTML}finally{crV=kv;abPg="rot"}
+  me0.apply(this,arguments);const right=app.innerHTML;
+  let nm="Summary";try{const R=crRotGet(id);nm=crAreaL(R.a,R.ax)}catch(e){}
+  app.innerHTML=`<div class="dk2 duo crs" data-v="${esc(id)}"><section class="dkl" aria-label="Career history">${left}</section><section class="dkr" aria-label="${esc(nm)}">${pzX("crRotBack()",nm)}${right}</section></div>`;
+  const D=app.querySelector(":scope>.dk2.crs");if(!D)return;
+  D.querySelectorAll(`.dkl [onclick="crRot('${id}')"]`).forEach(b=>b.classList.add("dksel"));
+  const R=D.querySelector(":scope>.dkr");if(st)R.scrollTop=st;
+  if(!had&&!RMO())try{if(x0!=null){const x1=pzLeftX("crs");D.querySelector(".dkl").animate([{transform:`translateX(${x1!=null?x0-x1:0}px)`},{transform:"none"}],{duration:320,easing:"cubic-bezier(.2,.8,.2,1)"})}
+   R.animate([{opacity:0,transform:"translateX(48px)"},{opacity:1,transform:"none"}],{duration:320,delay:60,easing:"cubic-bezier(.2,.8,.2,1)",fill:"backwards"})}catch(e){}
+  else if(had&&had.getAttribute("data-v")!==id&&!RMO())try{R.animate([{opacity:.35,transform:"translateY(6px)"},{opacity:1,transform:"none"}],{duration:200,easing:"ease-out"})}catch(e){}}}
+ document.addEventListener("keydown",e=>{try{if(e.key!=="Escape"||!isSplit()||tab!=="me")return;const x=document.querySelector(".crs>.dkr>.dkx");if(!x)return;
+  if(document.querySelector('[aria-modal="true"],.ifbg,#rpov,.twov,.phv,.cpc,#obtr'))return;const el=document.activeElement;if(el&&/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName)){el.blur();return}
+  e.preventDefault();x.click()}catch(er){}});
  /* anything tapped in the list while a form is open beside it counts as leaving the form */
  if(typeof pzLeaves==="function"){const pl0=pzLeaves;pzLeaves=function(el){try{if(el&&el.closest&&el.closest(".dk2.grs>.dkl")&&el.getAttribute("onclick"))return true}catch(e){}return pl0.apply(this,arguments)}}
  document.addEventListener("keydown",e=>{try{if(e.key!=="Escape"||!isSplit()||pf!=="gr")return;const x=document.querySelector(".grs>.dkr>.dkx");if(!x)return;
