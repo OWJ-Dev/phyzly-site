@@ -8055,7 +8055,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
  }catch(e){console.error("v281",e)}
 
  /* ---------- v282: tester version: report a problem, feedback, welcome note ---------- */
- const RP_VER="v526";let rpCtx=null,rpCat=null;
+ const RP_VER="v527";let rpCtx=null,rpCat=null;
  function rpBtn(kind,id,i){return `<button class="rpb" onclick="rpOpen('${kind}','${id}',${i})">⚑ Report a problem with this card</button>`}
  function rpCtxFor(kind,id,i){try{
   if(kind==="c"){const c=LEARN[id][i],cd=typeof COND!=="undefined"&&COND.find(x=>x.id===id);return {kind:"card",layer:id,card:i,title:c.t,where:(cd?"Condition: "+cd.n:(typeof tn==="function"?tn(id):id))+" · card "+(i+1)+": "+c.t}}
@@ -14593,11 +14593,16 @@ async function pzAiYes(){const ck=document.getElementById("pzai-ck"),er=document
 /* before text is sent: does anything in it look like a name, an NHS number, a date of birth or a bed number?
    The person sees what was found and chooses. pzAiPidOk is set for the one request they chose to send as it is. */
 let pzAiPidOk=false;
-const pzAiNhs=x=>{const d=String(x).replace(/\s/g,"");if(!/^\d{10}$/.test(d))return false;let t=0;for(let i=0;i<9;i++)t+=+d[i]*(10-i);const c=(11-t%11)%11;return c!==10&&c===+d[9]};
+/* v527: UK postcodes (the standard shapes, such as NN16 8UZ, CF10 1AA, SW1A 1AA), in capitals or not */
+const PZ_AI_PC=/\b(?:[A-PR-UWYZ][0-9][0-9]?|[A-PR-UWYZ][A-HK-Y][0-9][0-9]?|[A-PR-UWYZ][0-9][A-HJKPSTUW]|[A-PR-UWYZ][A-HK-Y][0-9][ABEHMNPRVWXY])[ \t\u00A0]{0,2}[0-9][ABD-HJLNP-UW-Z]{2}\b/gi;
+/* v527: NHS numbers written 3-3-4 with spaces, dots, slashes or dashes; the same pattern as the server function */
+const pzAiNorm=t=>String(t||"").normalize("NFKC").replace(/[\u00AD\u200B-\u200F\u2060\uFEFF]/g,"").replace(/[\u2010-\u2015\u2212]/g,"-");
+const PZ_AI_NHS=/(?<!\d)(?<!\d[-.\/])\d{3}[\s._\/-]{0,3}\d{3}[\s._\/-]{0,3}\d{4}(?!\d)(?![-.\/]\d)/g;
+const pzAiNhs=x=>{const d=pzAiNorm(x).replace(/[\s._\/-]/g,"");if(!/^\d{10}$/.test(d))return false;let t=0;for(let i=0;i<9;i++)t+=+d[i]*(10-i);const c=(11-t%11)%11;return c!==10&&c===+d[9]};
 function pzAiPid(text,go){if(pzAiPidOk){pzAiPidOk=false;return true}let ms=[];
- try{const T=String(text||"");ms=[...new Set((T.match(new RegExp(PIDRE.source,"g"))||[]).concat(T.match(/\b(?:bed|bay)\s*\d+\b/gi)||[]).map(x=>x.replace(/\s+/g," ").trim()))]}catch(e){}
+ try{const T=String(text||"");ms=[...new Set((T.match(new RegExp(PIDRE.source,"g"))||[]).concat(T.match(/\b(?:bed|bay)\s*\d+\b/gi)||[]).concat(pzAiNorm(T).match(PZ_AI_NHS)||[]).concat((T.match(PZ_AI_PC)||[]).filter(x=>!(/^[A-Z]/.test(x)&&/[a-z]{2}$/.test(x)))).map(x=>x.replace(/\s+/g," ").trim()))]}catch(e){}
  if(!ms.length)return true;pzAiGo=go;const stop=ms.some(pzAiNhs);
- const d=pzAiBox("pzaip","Check before you send",`<div class="aphb"><p>${ms.length>1?"Some things here look":"Something here looks"} like a name, an NHS number, a date of birth or a bed number:</p><ul class="pzaiul pzaim">${ms.slice(0,8).map(x=>`<li>${esc(x.slice(0,60))}</li>`).join("")}</ul>${ms.length>8?`<p>And ${ms.length-8} more.</p>`:""}<p>${stop?"One of these is a valid NHS number. Go back and take it out before you send.":"If any of it could identify a patient, go back and take it out. Leave out colleagues' names where you can."}</p></div>`,
+ const d=pzAiBox("pzaip","Check before you send",`<div class="aphb"><p>${ms.length>1?"Some things here look":"Something here looks"} like a name, an NHS number, a date of birth, a bed number or a postcode:</p><ul class="pzaiul pzaim">${ms.slice(0,8).map(x=>`<li>${esc(x.slice(0,60))}</li>`).join("")}</ul>${ms.length>8?`<p>And ${ms.length-8} more.</p>`:""}<p>${stop?"One of these is a 10-digit number that passes the NHS number check, so it can't be sent. Go back and take it out. If it's something else, such as a book's ISBN, write it differently.":"If any of it could identify a patient, go back and take it out. Leave out colleagues' names where you can."}</p></div>`,
   `<div class="pzaif">${stop?"":`<button class="opt" onclick="pzAiPidSend()">Send as it is</button>`}<button class="go" onclick="pzAiNo()">Go back and edit</button></div>`);
  try{d.querySelector(".go").focus({preventScroll:true})}catch(e){}return false}
 function pzAiPidSend(){const go=pzAiGo;pzAiGo=null;document.querySelectorAll("#pzaip").forEach(x=>x.remove());pzAiPidOk=true;if(typeof go==="function")try{go()}catch(e){}pzAiPidOk=false}
@@ -14612,7 +14617,7 @@ async function pzAiCall(task,input){if(!pzAiOn())throw {code:"off"};const uid=PZ
  if(j.result.unreadable===true&&pzAiSt&&pzAiSt.left<was)j.result.cost=true;
  return j.result}
 const PZ_AI_COST=" This try used one of this month's requests.";
-const pzAiErr=(e,what)=>{const c=e&&e.code;return (c==="cancelled"?"":c==="consent"?"AI drafting needs your agreement first. Try again.":c==="limit"?"You've used this month's AI requests. They start again on the 1st.":c==="busy"?"Too many requests just now. Try again in a minute.":c==="day"?"AI drafting has reached today's limit. Try again tomorrow.":c==="signin"?"Sign in again, then try once more.":c==="off"||c==="no_access"?"AI drafting isn't switched on for your account.":c==="big"?"Those photos are too large to send. Try fewer.":c==="network"?"That didn't send. Check your connection and try again.":what)+(e&&e.cost&&c!=="cancelled"?PZ_AI_COST:"")};
+const pzAiErr=(e,what)=>{const c=e&&e.code;return (c==="cancelled"?"":c==="consent"?"AI drafting needs your agreement first. Try again.":c==="limit"?"You've used this month's AI requests. They start again on the 1st.":c==="busy"?"Too many requests just now. Try again in a minute.":c==="day"?"AI drafting has reached today's limit. Try again tomorrow.":c==="signin"?"Sign in again, then try once more.":c==="off"||c==="no_access"?"AI drafting isn't switched on for your account.":c==="big"?"Those photos are too large to send. Try fewer.":c==="network"?"That didn't send. Check your connection and try again.":c==="pid"?"That has a 10-digit number in it that passes the NHS number check, so it wasn't sent. Take it out (or, if it's something else such as a book's ISBN, write it differently) and try again. It didn't count towards your requests.":what)+(e&&e.cost&&c!=="cancelled"?PZ_AI_COST:"")};
 /* a photo, shrunk on the device before it is sent (redrawn, so nothing stored inside the file, such as where it was taken, goes with it) */
 async function pzAiImg(blob){try{const bm=await createImageBitmap(blob);let side=1400,q=.78,out=null;
   for(let i=0;i<3;i++){const k=Math.min(1,side/Math.max(bm.width,bm.height)),w=Math.max(1,Math.round(bm.width*k)),h=Math.max(1,Math.round(bm.height*k)),c=document.createElement("canvas");c.width=w;c.height=h;
