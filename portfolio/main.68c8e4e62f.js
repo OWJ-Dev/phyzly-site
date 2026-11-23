@@ -8055,7 +8055,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
  }catch(e){console.error("v281",e)}
 
  /* ---------- v282: tester version: report a problem, feedback, welcome note ---------- */
- const RP_VER="v533";let rpCtx=null,rpCat=null;
+ const RP_VER="v534";let rpCtx=null,rpCat=null;
  function rpBtn(kind,id,i){return `<button class="rpb" onclick="rpOpen('${kind}','${id}',${i})">⚑ Report a problem with this card</button>`}
  function rpCtxFor(kind,id,i){try{
   if(kind==="c"){const c=LEARN[id][i],cd=typeof COND!=="undefined"&&COND.find(x=>x.id===id);return {kind:"card",layer:id,card:i,title:c.t,where:(cd?"Condition: "+cd.n:(typeof tn==="function"?tn(id):id))+" · card "+(i+1)+": "+c.t}}
@@ -12886,7 +12886,7 @@ function pzlPrivacy(inApp){const L=pzlLinks(),SO=pzlSo(),PK=pzlPk(),AI=pzlAi(),P
   AI?["Handling what a draft request says about other people, such as a colleague named in a reflection","Their name or role, as you wrote it","Legitimate interests: yours in getting help to write up your development, and ours in providing the tool"]:null,
   AI?["Counting the AI requests you've used","A count for each month, and the time and kind of each request for up to two days","Legitimate interests: keeping AI drafting within fair limits and its cost under control"]:null,
   PY?["Taking payment for Phyzly Plus, and knowing whether you have it","Your email address and account reference (sent to Stripe), your plan, its status and dates, and whether you chose to give up your refund","Contract: we need it to provide the plan you chose"]:null,
-  PY?["Keeping a record of what we confirmed to you about your plan, and of your choice to make a pack within your 14 days","When each was sent or chosen, and the wording shown","Legitimate interests: showing what was agreed if there's a question later"]:null,
+  PY?["Keeping a record of what we confirmed to you about your plan (that you have it, that you cancelled, that it was refunded and by how much, that it ended), and of your choice to make a pack within your 14 days","When each was sent or chosen, the wording shown, and the amount of any refund","Legitimate interests: showing what was agreed if there's a question later"]:null,
   PY?["Keeping records of payments for tax","What you paid and when, held by Stripe","Legal obligation"]:null,
   ["Keeping accounts and the service secure","Sign-in records","Legitimate interests: preventing misuse"],
   ["Fixing problems and improving Phyzly","Messages you send us; counts of accounts and entries, never their content","Legitimate interests: running a working service"],
@@ -12897,7 +12897,7 @@ function pzlPrivacy(inApp){const L=pzlLinks(),SO=pzlSo(),PK=pzlPk(),AI=pzlAi(),P
  pzlH("Who can see your information")+pzlU(["<b>You.</b> Nobody else using Phyzly can see your portfolio.",PK?"<b>Anyone with a link you make to your appraisal pack.</b> They can read that copy of the pack, and nothing else, until the link ends or you stop sharing. They don't need an account, so share the link only with your appraiser.":null,"<b>Oliver Jones, who runs Phyzly.</b> He can access the database. He looks at an individual's content only to fix a problem they've reported, or when the law requires it.","<b>Companies that run Phyzly for us.</b> They act only on our instructions."])+
  pzlT(["What it does","What it holds","Where"],[
   ["Supabase",AI?"Database, sign-in and file storage. It also passes AI drafting requests on to the AI service, without keeping them":"Database, sign-in and file storage","Your account and portfolio","London. Its support staff may be elsewhere, and its technical logs are kept in the EU."],
-  ["Resend",PY?"Sends sign-in emails, emails confirming a complaint, and emails confirming your Phyzly Plus plan":"Sends sign-in emails, and emails confirming a complaint","Your email address and the emails we send, for 30 days","United States"],
+  ["Resend",PY?"Sends sign-in emails, emails confirming a complaint, and emails about your Phyzly Plus plan (confirming it, a cancellation, a refund, or that it has ended)":"Sends sign-in emails, and emails confirming a complaint","Your email address and the emails we send, for 30 days","United States"],
   ["GitHub","Hosts the website","Visitors' IP addresses","United States"],
   AI?["Anthropic","Writes AI drafts, when you ask for one","What you send for a draft and the draft it writes, for up to 30 days, or longer if flagged (see How long we keep it). It may not use them to train its AI","United States. Our contract is with Anthropic Ireland, Limited, and the processing is done in the United States by Anthropic, PBC"]:null,
   PY?["Stripe","Takes payments for Phyzly Plus, and sends receipts and renewal reminders","Your email address, your card details, the name and billing address you give it, your payment records, and your IP address and device details for fraud checks. We never see your full card number","The United Kingdom, Ireland, the United States and other countries where Stripe operates. Stripe is also responsible itself for some of this, such as fraud prevention and keeping payment records the law requires, under its own privacy policy. It may block a payment automatically if it looks fraudulent; that is Stripe's decision"]:null,
@@ -13653,8 +13653,9 @@ function pzDirtyForm(){return pzCfDirty()||pzGrDirty()}
 /* the draft: the CPD entry being written, kept on this device so a reload or a closed app doesn't lose it */
 let pzDrT=0;
 function pzTourOn(){return !!(window._obCf||document.getElementById("obtr"))}
-function pzDraftNow(){clearTimeout(pzDrT);pzDrT=0;try{if(pzTourOn())return;if(pzCfDirty()){const c=JSON.parse(pzSer(cf));S.cfDraft={at:Date.now(),cf:c,base:pzSnap.get(cf)};save()}}catch(e){}}
+function pzDraftNow(){clearTimeout(pzDrT);pzDrT=0;try{if(pzTourOn()||typeof cf==="undefined"||!cf)return;if(pzCfDirty()){const c=JSON.parse(pzSer(cf));S.cfDraft={at:Date.now(),cf:c,base:pzSnap.get(cf)};save()}}catch(e){}}
 function pzDraftSoon(){if(typeof cf==="undefined"||!cf||cp.v!=="form"||pzTourOn())return;clearTimeout(pzDrT);pzDrT=setTimeout(pzDraftNow,700)}
+let pzSaving=false;
 function pzDraftClear(){clearTimeout(pzDrT);pzDrT=0;if(S.cfDraft){delete S.cfDraft;save()}}
 document.addEventListener("input",pzDraftSoon,true);document.addEventListener("change",pzDraftSoon,true);
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")pzDraftNow()});
@@ -13666,19 +13667,19 @@ function pzDraftNote(){const d=S.cfDraft;if(!d||!d.cf)return "";const t=String(d
 
 /* after each screen: remember the form as opened, and offer the draft on the Portfolio home and CPD log */
 {const h0=home;home=function(){const r=h0.apply(this,arguments);pzSnapTake();
-  try{if(S.cfDraft&&tab==="cpd"&&(typeof cf==="undefined"||!cf)&&(pf==="home"||(pf==="cpd"&&cp.v==="list"))&&!document.getElementById("pzdraft")){
+  try{if(S.cfDraft&&!pzSaving&&tab==="cpd"&&(typeof cf==="undefined"||!cf)&&(pf==="home"||(pf==="cpd"&&cp.v==="list"))&&!document.getElementById("pzdraft")){
     const a=document.getElementById("app"),hr=a&&a.querySelector(":scope>.pfhero"),bd=a&&a.querySelector(":scope>.nvband"),h=a&&a.querySelector("h1"),at=hr||bd||h;if(at)at.insertAdjacentHTML("afterend",pzDraftNote())}}catch(e){}
   return r}}
 
 /* saving: wait for photos; show the error where you are; a saved, cancelled or deleted entry has no draft */
-{const s0=cpdSave;cpdSave=function(){if(cf&&cf.phMsg==="Adding…"){try{toast("Wait a moment: your photos are still being added.")}catch(e){}return}
-  const r=s0.apply(this,arguments);
+{const s0=cpdSave;cpdSave=function(){if(cf&&cf.phMsg==="Adding…"){try{toast("Wait a moment: your photos are still being added.")}catch(e){}return}clearTimeout(pzDrT);pzDrT=0;
+  let r;pzSaving=true;try{r=s0.apply(this,arguments)}finally{pzSaving=false}
   if(!cf){pzDraftClear();return r}
   if(cf.err)setTimeout(()=>{const f=cf&&cf.err==="Add a title."?document.getElementById("cf-t"):cf&&cf.err==="Choose a date."?document.getElementById("cf-d"):null,b=document.getElementById("cf-err");
    const el=f||b;if(!el)return;try{el.scrollIntoView({block:"center"})}catch(e){}try{el.focus({preventScroll:true})}catch(e){}},30);
   return r}}
 {const c0=cpdCancel;cpdCancel=function(){pzDraftClear();return c0.apply(this,arguments)}}
-{const d0=cpdDel;cpdDel=function(){const r=d0.apply(this,arguments);if(!cf)pzDraftClear();return r}}
+{const d0=cpdDel;cpdDel=function(){let r;pzSaving=true;try{r=d0.apply(this,arguments)}finally{pzSaving=false}if(!cf)pzDraftClear();return r}}
 
 /* asking before discarding */
 const PZ_LEAVE=/\b(cpdCancel|cpdEdit|cpdNew|swTap|navGo|openSub|openHc|openGr|grGo|grGlBack|grItemBack|grUseBack|pzlGo|abGo|crGo|openPlc|openIv|ivGo|imOpen|planGo|openMe|meScreen|welcome)\(|grf=null|pf='home'|tab=prevTab/;
