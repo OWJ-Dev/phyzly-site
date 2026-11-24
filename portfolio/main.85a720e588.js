@@ -1009,6 +1009,14 @@ function milestone(n){const m=MS[n];if(!m)return;sfx("mile");try{if(reduced())re
 function xpBig(){try{const x2=/~x$/.test(typeof cid!=="undefined"&&cid||""),d=document.createElement("div");d.className="xpbig"+(x2?" x2b":"");d.textContent=x2?"+20 XP ⚡":"+10 XP";document.body.appendChild(d);setTimeout(()=>d.remove(),2200)}catch(e){}}
 const stk=()=>streak>=2?`<span class="stk t${streak>=15?4:streak>=10?3:streak>=5?2:1}">🔥 ${streak}</span>`:"";
 function stars(){let s="";for(let i=0;i<12;i++)s+=`<b style="--a:${i*30}deg">${i%2?"✨":"⭐"}</b>`;return s}
+/* v535: in the clean style, a soft ring and sparkle from the card instead of confetti, and a short quiet chime */
+{const c0=confetti;confetti=function(n){if(!(window.CL&&CL()))return c0.apply(this,arguments);try{if(reduced()||document.querySelector(".pzbl"))return;
+  const box=document.querySelector(".cpc .cpcin,.ifbg [role=dialog],[role=dialog]"),r=box?box.getBoundingClientRect():null,cx=r&&r.width?r.left+r.width/2:innerWidth/2,cy=r&&r.height?r.top+Math.min(120,r.height/3):innerHeight*.38;
+  const w=document.createElement("div");w.className="pzbl";w.setAttribute("aria-hidden","true");w.style.left=cx+"px";w.style.top=cy+"px";const k=Math.min(14,Math.max(8,Math.round((n||30)/4)));
+  let h='<i class="r1"></i><i class="r2"></i>';for(let i=0;i<k;i++){const a=i/k*Math.PI*2+Math.random()*.3,d=70+Math.random()*55;h+=`<b style="--x:${(Math.cos(a)*d).toFixed(1)}px;--y:${(Math.sin(a)*d).toFixed(1)}px;--dl:${(Math.random()*.14).toFixed(2)}s"></b>`}
+  w.innerHTML=h;document.body.appendChild(w);setTimeout(()=>w.remove(),1500)}catch(e){}}}
+{const s0=sfx;sfx=function(k,n){if(!(window.CL&&CL())||(k!=="fin"&&k!=="mile"))return s0.apply(this,arguments);try{hap(k,n)}catch(e){}if(!snd())return;
+  const big=k==="mile"||(n||0)>=90;tone(1046.5,0,.9,"sine",.06);tone(1567.98,.07,1.1,"sine",.045);if(big)tone(2093,.16,1.3,"sine",.03)}}
 function celebrate(msg){try{sfx("mile");confetti(30)}catch(e){}try{toast(msg)}catch(e){}}
 function bump(){try{const x=document.querySelector(".xp");x.classList.remove("bump");void x.offsetWidth;x.classList.add("bump")}catch(e){}}
 function countUp(id,to,suf){const el=document.getElementById(id);if(!el)return;if(typeof requestAnimationFrame!=="function"||reduced()){el.textContent=to+suf;return}el.textContent="0"+suf;const t0=performance.now();const step=t=>{const p=Math.min(1,(t-t0)/700);el.textContent=Math.round(to*(1-Math.pow(1-p,3)))+suf;if(p<1)requestAnimationFrame(step)};requestAnimationFrame(step)}
@@ -2711,13 +2719,13 @@ function otjExport(){const n=otjEnt(cp.mo||om).length;app.innerHTML=head()+`<but
 {const t0=cpdText,c0=cpdCsv;cpdText=function(){return cp.x==="otj"?otjText():t0()};cpdCsv=function(){return cp.x==="otj"?otjCsv():c0()}}
 /* ---------- Swipe to delete ---------- */
 let sw=null;
-function swClose(r){if(!r)return;r.classList.remove("open");r.style.transform=""}
-document.addEventListener("touchstart",e=>{try{const r=e.target.closest&&e.target.closest(".swr"),o=document.querySelector(".swr.open");if(o&&o!==r)swClose(o);if(!r){sw=null;return}const t=e.touches[0];sw={r,x:t.clientX,y:t.clientY,v:r.classList.contains("open")?-92:0,base:r.classList.contains("open")?-92:0,lock:null,drag:false};r.style.transition="none"}catch(x){sw=null}},{passive:true});
-document.addEventListener("touchmove",e=>{if(!sw)return;const t=e.touches[0],dx=t.clientX-sw.x,dy=t.clientY-sw.y;if(sw.lock==null&&(Math.abs(dx)>8||Math.abs(dy)>8))sw.lock=Math.abs(dx)>Math.abs(dy)?"x":"y";if(sw.lock!=="x")return;sw.drag=true;sw.v=Math.max(-110,Math.min(0,sw.base+dx));sw.r.style.transform="translateX("+sw.v+"px)"},{passive:true});
-document.addEventListener("touchend",()=>{if(!sw)return;const r=sw.r;r.style.transition="";if(sw.drag){const op=sw.v<-46;r.style.transform=op?"translateX(-92px)":"";r.classList.toggle("open",op);r.setAttribute("data-drag","1");setTimeout(()=>r.removeAttribute("data-drag"),400)}sw=null});
+function swClose(r){if(!r)return;r.classList.remove("open");r.style.transform="";setTimeout(()=>{if(!r.classList.contains("open")&&r.parentNode)r.parentNode.classList.remove("swon")},340)}
+document.addEventListener("touchstart",e=>{try{const r=e.target.closest&&e.target.closest(".swr"),o=document.querySelector(".swr.open");if(o&&o!==r)swClose(o);if(!r){sw=null;return}const t=e.touches[0];sw={r,x:t.clientX,y:t.clientY,v:r.classList.contains("open")?-84:0,base:r.classList.contains("open")?-84:0,lock:null,drag:false};r.style.transition="none"}catch(x){sw=null}},{passive:true});
+document.addEventListener("touchmove",e=>{if(!sw)return;const t=e.touches[0],dx=t.clientX-sw.x,dy=t.clientY-sw.y;if(sw.lock==null&&(Math.abs(dx)>8||Math.abs(dy)>8))sw.lock=Math.abs(dx)>Math.abs(dy)?"x":"y";if(sw.lock!=="x")return;sw.drag=true;try{sw.r.parentNode.classList.add("swon")}catch(x){}sw.v=Math.max(-110,Math.min(0,sw.base+dx));sw.r.style.transform="translateX("+sw.v+"px)"},{passive:true});
+document.addEventListener("touchend",()=>{if(!sw)return;const r=sw.r;r.style.transition="";if(sw.drag){const op=sw.v<-46;r.style.transform=op?"translateX(-84px)":"";r.classList.toggle("open",op);if(!op)setTimeout(()=>{if(!r.classList.contains("open")&&r.parentNode)r.parentNode.classList.remove("swon")},340);r.setAttribute("data-drag","1");setTimeout(()=>r.removeAttribute("data-drag"),400)}sw=null});
 document.addEventListener("touchcancel",()=>{if(sw){sw.r.style.transition="";swClose(sw.r)}sw=null});
 function swTap(ev,id,from){const r=ev.currentTarget;if(r.getAttribute("data-drag"))return;if(r.classList.contains("open")){swClose(r);return}cpdEdit(id,from||"")}
-function swAsk(id){const w=document.querySelector('.swp[data-id="'+id+'"]');if(!w)return;const e=(S.cpd||[]).find(x=>x.id===id);w.classList.add("ask");w.innerHTML=`<div class="swc" role="alertdialog" aria-label="Confirm delete"><b>Delete this entry?</b><div class="tag" style="margin:2px 0 8px">${esc(e?e.t:"")}. You can't undo this.</div><div class="tabs"><button class="opt" style="text-align:center" onclick="home()">Keep it</button><button class="go" style="background:#D62828;box-shadow:0 5px 0 #8F1414" onclick="swDel('${esc(id)}')">Delete</button></div></div>`}
+function swAsk(id){const w=document.querySelector('.swp[data-id="'+id+'"]');if(!w)return;const e=(S.cpd||[]).find(x=>x.id===id);w.classList.remove("swon");w.classList.add("ask");w.innerHTML=`<div class="swc" role="alertdialog" aria-label="Delete this entry?"><b>Delete “${esc(e?e.t:"this entry")}”?</b><small>${window.pzDelUndo?"You can undo it for a few seconds afterwards.":"You can't undo this."}</small><div class="swcb"><button class="opt" onclick="home()">Cancel</button><button class="swx" onclick="swDel('${esc(id)}')">Delete</button></div></div>`;try{w.querySelector(".swcb .opt").focus()}catch(x){}}
 function swDel(id){S.cpd=(S.cpd||[]).filter(x=>x.id!==id);if(S.cm&&S.cm.v)Object.keys(S.cm.v).forEach(k=>{if(S.cm.v[k]&&S.cm.v[k].ev)S.cm.v[k].ev=S.cm.v[k].ev.filter(i=>i!==id)});save();home();try{toast("Entry deleted")}catch(e){}}
 /* ---------- Content review ---------- */
 const RVS=[["draft","Draft (AI-written)","s"],["review","In review","t"],["changes","Changes needed","e"],["ok","Approved","ok"]];
@@ -6945,8 +6953,8 @@ function hcList(){const rows=[],auto={};hcIn().forEach(e=>{if(e.auto){const m=e.
 /* evidence: 1 = dated list, then each chosen entry's reflection and files */
 function hcEvAll(){const H=hcS(),out=[];
  H.pick.forEach(id=>{const e=cpdAll().find(x=>x.id===id);if(!e)return;const sg=hcSug(e);out.push({k:"r:"+id,e,d:"Reflective record: "+e.t+" ("+dFmt(e.d)+")",p:"1 page",st:sg.st,h:sg.h});
-  (e.ph||[]).forEach((f,i)=>out.push({k:"f:"+f,e,f,d:(isPdf(f)?"Document":"Photo")+" from "+e.t+(e.ph.length>1?" ("+(i+1)+" of "+e.ph.length+")":""),p:isPdf(f)?"PDF":"1 image",st:[2]}))});
- let n=0;return out.map(x=>{const o=H.ev[x.k]||{},left=!!(x.f&&o.x);return Object.assign(x,{out:left,n:left?0:++n,d:o.d!=null?o.d:x.d,p:o.p!=null?o.p:x.p,st:o.st||x.st,ok:!!o.ok,h:(x.h||[]).filter(a=>!(o.st||x.st).includes(a[0])).map(a=>a[1])})})}
+  (e.ph||[]).forEach((f,i)=>out.push({k:"f:"+f,e,f,d:(isPdf(f)?"Document":"Photo")+" from "+e.t+(e.ph.length>1?" ("+(i+1)+" of "+e.ph.length+")":""),p:isPdf(f)?"PDF":"1 image",st:sg.st.slice(),bk:1}))});
+ let n=0;return out.map(x=>{const o=Object.assign({},H.ev[x.k]||{}),left=!!(x.f&&o.x);if(Array.isArray(o.st)){const k=o.st.filter(n=>n===3||n===4);if(!k.length&&o.st.length){delete o.st;o.ok=false}else o.st=k}return Object.assign(x,{out:left,n:left?0:++n,d:o.d!=null?o.d:x.d,p:o.p!=null?o.p:x.p,st:o.st||x.st,ok:!!o.ok,h:(x.h||[]).filter(a=>!(o.st||x.st).includes(a[0])).map(a=>a[1])})})}
 /* v504: the evidence that will be uploaded, numbered from 1. The list of activities goes on the Activities tab, not here. */
 function hcEv(){return hcEvAll().filter(x=>!x.out)}
 function hcEvX(k,on){hcEvSet(k,"x",!!on);cfRe()}
@@ -6963,33 +6971,34 @@ function hcChecks(){const H=hcS(),E=hcIn(),ty=new Set(E.map(e=>e.ty)),nr=E.filte
   [!!pr,"Profession and CPD number",pr?esc(pr)+(String(H.no||"").trim()?" · "+esc(String(H.no).trim()):" · add your CPD number when your audit letter arrives"):"Add your profession in Registration and audit period","det"],
   [E.length>0,"Activities in this period",E.length+" "+(E.length===1?"entry":"entries"),"list"],
   [ty.size>=2,"At least two types of learning",ty.size+" "+(ty.size===1?"type":"types")+(ty.size<2?". Add a course, reading or peer learning":""),"list"],
-  [!nr,"Reflections written",nr?nr+" of your own "+(nr===1?"entry has":"entries have")+" no reflection yet":"All your own entries reflected","log"],
+  [!nr,"Reflections written",nr?nr+(nr===1?" entry has":" entries have")+" no reflection yet":"All your entries have a reflection","log"],
   [!gx,"Gaps of 3 months or more explained",g.length?(g.length-gx)+" of "+g.length+" explained":"No gaps","list"],
   [hw>0&&hw<=500,"Summary of recent work",hw+" of 500 words","hist"],
   [pk>=4&&pk<=6,"4 to 6 activities chosen",pk+" chosen","pick"],
   [sw>0&&sw<=1500,"Personal statement",sw+" of 1,500 words","stmt"],
-  [!we,"Written as \"I\", not \"we\"",we?we+" uses of we or our":"Looks fine","stmt"],
-  [!sw||evr>0,"Evidence referred to by number",evr?evr+" references":"Mention \"Evidence 1\" and so on","stmt"],
+  [!we||hcWeOk(),"Written as \"I\", not \"we\"",we?we+(we===1?" use":" uses")+" of we or our"+(hcWeOk()?", checked by you":""):"Looks fine","we"],
+  [!sw||evr>0,"Evidence referred to by number",evr?evr+(evr===1?" reference":" references"):"Mention \"Evidence 1\" and so on","stmt"],
   [ne>=4&&ne<=12,"4 to 12 evidence files",ne+(ne===1?" file":" files")+(ne>12?". Leave out some photos in Evidence":ne<4?". Choose more activities, or add photos or documents to them":""),ne>12?"ev":"pick"],
   (()=>{const ev=hcEv(),u=ev.filter(x=>!x.ok).length;const c=hcCov(),m=[1,2,3,4].filter(n=>!c.has(n));return [!u&&!m.length,"Evidence checked against the standards",u?u+" of "+ev.length+" still to check":m.length?"Standard "+m.join(" and ")+" not covered yet":"All checked, standards 1 to 4 covered","ev"]})(),
   [!pid,"No patient details",pid?"Something looks like a name, NHS number, date of birth or bed. Check and remove it":"Nothing obvious found","stmt"]]}
-function openHc(v){tab="cpd";pf="hc";hc.v=v||"home";hc.err="";hc.msg="";hcS();home();window.scrollTo(0,0)}
+function openHc(v){tab="cpd";pf="hc";hc.v=v||"home";if(v&&v!=="home")hc.nx=null;try{if(!document.getElementById("hclive")){const r=document.createElement("div");r.id="hclive";r.className="hcsr";r.setAttribute("aria-live","polite");r.setAttribute("role","status");document.body.appendChild(r)}}catch(e){}hc.err="";hc.msg="";hcS();home();window.scrollTo(0,0)}
 const hcBack=(to,l)=>`<button class="lnk" onclick="hc.v='${to}';hc.err='';hc.msg='';home();window.scrollTo(0,0)">‹ ${l}</button>`;
-function hcScreen(){const f={det:hcDet,hist:hcHist,pick:hcPick,stmt:hcStmt,ev:hcEvS,list:hcListS,exp:hcExp}[hc.v]||hcHome;app.innerHTML=head()+tabs()+f()+foot()}
-function hcHome(){const H=hcS(),C=hcChecks(),ok=C.filter(c=>c[0]).length,ne=hcEv().length;
- const step=(n,ic,t,s,v)=>`<button class="opt" onclick="openHc('${v}')"><div class="row"><b>${n}. ${window.CL&&CL()?"":ic+" "}${t}</b><span>${s} ›</span></div></button>`;
+function hcScreen(){const f={det:hcDet,hist:hcHist,pick:hcPick,stmt:hcStmt,ev:hcEvS,list:hcListS,exp:hcExp,fin:hcFinS,clr:hcClrS,past:hcPastS}[hc.v]||hcHome;app.innerHTML=head()+tabs()+f()+foot()}
+function hcHome(){const H=hcS(),C=hcChecks(),ok=C.filter(c=>c[0]).length,ne=hcEv().length,dn=HCSTEPS.filter(x=>hcIsDone(x[0])).length;
+ const step=(n,ic,t,s,v)=>{const d=hcIsDone(v),nx=hc.nx===v&&!d;return `<button class="opt hcst${d?" done":""}${nx?" hcnext":""}" onclick="openHc('${v}')"><div class="row"><b>${n}. ${window.CL&&CL()?"":ic+" "}${t}</b><span class="hcsr">, </span><span>${d?HCTICK+"Done":s} ›</span></div>${nx?`<small class="hcnx">Up next</small>`:""}</button>`};
  return `<button class="lnk" onclick="pf='home';home()">‹ Portfolio</button><h1 style="font-size:1.6rem;margin:6px 0 2px">HCPC audit pack</h1><p class="tag" style="margin:0 0 10px">If you're picked for a CPD audit, you send your profile through the HCPC's online service. It has four parts: a summary of your recent work, a list of your activities, a personal statement and 4 to 12 pieces of evidence. Build each part here from your CPD log.</p>`+
+ (hcUndoable()?`<div class="note">${hcLastClr.k==="fin"?"Pack finished. A copy is in Past audit packs.":"Your pack was cleared."} <button class="lnk" style="padding:0;text-decoration:underline" onclick="hcClrUndo()">Undo</button></div>`:"")+
  (hcNew()?`<div class="note">The HCPC only audits people who have been registered for two years or more, so you can't be picked yet. You can still build your profile as you go.</div>`:"")+(!H.setUp?`<div class="note">Check <b>Registration and audit period</b> first: when you registered, where your Phyzly log starts, and whether you have an earlier log. <button class="lnk" style="padding:0;text-decoration:underline" onclick="hcS().setUp=1;save();openHc('det')">Set it up</button></div>`:"")+`<div class="stats"><div class="stat"><strong>${ok}/${C.length}</strong>checks passed</div><div class="stat"><strong>${hcIn().length}</strong>activities</div></div>`+
- `<div class="sec">Build your profile</div>`+
- step(1,"🪪","Registration and audit period",String(H.no||"").trim()?esc(H.no):String(H.prof||"").trim()?"Done":"Add","det")+
+ `<div class="sec">Build your profile</div><p class="tag" style="margin:-4px 0 8px">${dn} of 6 marked as done</p>`+
+ step(1,"🪪","Registration and audit period",esc(String(H.from||"").slice(0,4))+" to "+esc(String(H.to||"").slice(0,4)),"det")+
  step(2,"📝","Summary of recent work",wc(H.hist)+" of 500","hist")+
  step(3,"⭐","Choose 4 to 6 activities",H.pick.length+" chosen","pick")+
  step(4,"✍️","Personal statement",wc(H.stmt).toLocaleString("en-GB")+" of 1,500","stmt")+
  step(5,"📎","Evidence",ne+(ne===1?" file":" files"),"ev")+
  step(6,"📅","List of activities",hcGaps().some(x=>!(H.gap[x.k]||"").trim())?"Explain gaps":"Ready","list")+
- `<button class="go" onclick="openHc('exp')">Get ready to submit</button>`+
- `<div class="sec">Audit checks</div>`+C.map(c=>`<button class="hck${c[0]?" ok":""}" onclick="${c[3]==="log"?"pf='cpd';cp.v='list';cp.nf=true;home()":`openHc('${c[3]}')`}"><span>${c[0]?"✅":"⚠️"}</span><span><b>${c[1]}</b><small>${c[2]}</small></span></button>`).join("")+
- `<div class="note">Set out to match the HCPC's online service for CPD audits. Check their current guidance and your audit letter before you submit, as requirements can change.</div>`}
+ `<button class="go${hc.nx==="exp"?" hcnext":""}" onclick="openHc('exp')">Get ready to submit</button>`+
+ `<div class="sec">Audit checks</div>`+C.map(c=>`<button class="hck${c[0]?" ok":""}" onclick="hcGo('${c[3]}')"><span>${c[0]?"✅":"⚠️"}</span><span><b>${c[1]}</b><small>${c[2]}</small></span></button>`).join("")+
+ `<div class="note">Set out to match the HCPC's online service for CPD audits. Check their current guidance and your audit letter before you submit, as requirements can change.</div>`+hcMoreH()}
 function hcDet(){const H=hcS();if(!H.setUp){H.setUp=1;save()}const rd=hcRegD();
  return hcBack("home","Audit pack")+`<h1 style="font-size:1.5rem;margin:6px 0 10px">Registration and audit period</h1>`+
  `<div class="note">Your profile doesn't include your name or registration number. The HCPC gives you a CPD number, separate from your registration number. If you want to be assessed anonymously, leave your name and registration number out of everything you upload.</div>`+
@@ -6999,13 +7008,41 @@ function hcDet(){const H=hcS();if(!H.setUp){H.setUp=1;save()}const rd=hcRegD();
  `<div class="sec">Where your Phyzly log starts</div><p class="tag" style="margin:0 0 6px">If you kept a CPD log somewhere else before this, the months before it are covered by that log. If you didn't, a gap of three months or more before it still needs explaining.</p><div class="chipw">${[["first","When I started using Phyzly"],["reg","When I registered"],["date","Another date"]].map(([k,l])=>`<button class="chipb${H.lsk===k?" on":""}" ${k==="reg"&&!rd?"disabled title='Add the month you registered first'":""} onclick="hcS().lsk='${k}';save();cfRe()">${l}</button>`).join("")}</div>${H.lsk==="date"?`<input class="cin" type="date" aria-label="Log start date" value="${esc(H.ls||"")}" onchange="if(this.value){hcS().ls=this.value;save();cfRe()}">`:""}<p class="tag" style="margin:4px 0 0">Starts ${esc(dFmt(hcLs()))}.</p>`+
  `<div class="cfl">Do you have a CPD log from before then?</div><div class="chipw"><button class="chipb${H.prior?" on":""}" onclick="hcS().prior=true;save();cfRe()">Yes, I kept one elsewhere</button><button class="chipb${!H.prior?" on":""}" onclick="hcS().prior=false;save();cfRe()">No</button></div>${H.prior?`<p class="tag" style="margin:4px 0 0">${hcPrior()?"Add the activities from your earlier log to your list of activities too: type them in on the HCPC's Activities tab, or add them to the spreadsheet before you upload it. Phyzly puts a line for them at the top of your list.":"Your audit period starts after your log does, so the earlier log isn't needed."}</p>`:""}`+
  `<div class="sec">Audit period</div><p class="tag" style="margin:0 0 6px">The HCPC looks at your CPD since you last renewed your registration. Physiotherapists renew every two years.</p><div class="cr"><div><label class="cfl" for="hc-f">From</label><input id="hc-f" class="cin" type="date" value="${esc(H.from)}" onchange="hcPer('from',this)"></div><div><label class="cfl" for="hc-t">To</label><input id="hc-t" class="cin" type="date" value="${esc(H.to)}" onchange="hcPer('to',this)"></div></div><p id="hc-pe" class="tag" role="alert" style="color:var(--bad);margin:4px 0 0"></p>`+
- `<button class="go" onclick="openHc()">Done</button>`}
+ hcDoneBtn("det")}
 /* v504: an audit period can't end before it starts (HCP-11) */
 function hcPer(k,el){const H=hcS(),v=el.value,p=document.getElementById("hc-pe");if(!v){el.value=H[k];return}const f=k==="from"?v:H.from,t=k==="to"?v:H.to;
  if(f>t){el.value=H[k];if(p)p.textContent="The From date is after the To date. Your period hasn't changed.";return}H[k]=v;save();if(p)p.textContent=""}
 const hcUn={hist:[],stmt:[]};
+/* v535: sections marked as done, the step to do next, Start again's undo (until the app is closed) */
+const HCSTEPS=[["det","Registration and audit period"],["hist","Summary of recent work"],["pick","Choose 4 to 6 activities"],["stmt","Personal statement"],["ev","Evidence"],["list","List of activities"]];
+const HCTICK='<svg class="hcdt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.2"/><path d="M8 12.4l2.7 2.7L16.2 9.6"/></svg>';
+const hcIsDone=v=>{const H=hcS();return !!(H.done&&H.done[v])};
+let hcLastClr=null;
+const hcSplit=()=>!!(window.pzHcSplit&&window.pzHcSplit());
+function hcMark(v){const H=hcS();H.done=H.done&&typeof H.done==="object"?H.done:{};const on=!H.done[v];if(on)H.done[v]=1;else delete H.done[v];save();hc.ed=null;
+ if(!on){hc.nx=null;hcSay("No longer marked as done.");cfRe();return}
+ const i=HCSTEPS.findIndex(x=>x[0]===v),nx=HCSTEPS.slice(i+1).concat(HCSTEPS.slice(0,i)).find(x=>!hcIsDone(x[0]));hc.nx=nx?nx[0]:"exp";
+ hcSay("Marked as done."+(nx?" Up next: "+nx[1]+".":""));
+ if(hcSplit()){cfRe();setTimeout(()=>{const b=document.querySelector("#app .dknext");if(b)try{b.focus({preventScroll:true})}catch(e){}},60);return}
+ hc.v="home";hc.err="";hc.msg="";home();window.scrollTo(0,0);setTimeout(()=>{const b=document.querySelector("#app .hcnext");if(b)try{b.scrollIntoView({block:"center",behavior:"smooth"});b.focus({preventScroll:true})}catch(e){}},60)}
+/* one live region for the audit pack, so screen readers hear what happened */
+function hcSay(m){try{toast(m)}catch(e){}try{let r=document.getElementById("hclive");if(!r){r=document.createElement("div");r.id="hclive";r.className="hcsr";r.setAttribute("aria-live","polite");r.setAttribute("role","status");document.body.appendChild(r)}r.textContent="";setTimeout(()=>{r.textContent=m},30)}catch(e){}}
+function hcDoneBtn(v){return hcIsDone(v)?`<div class="hcdn" role="status">${HCTICK}<span><b>Marked as done</b><small>It shows as done in Build your profile.</small></span><button class="lnk" onclick="hcMark('${v}')">Undo</button></div>`+(hcSplit()?"":`<button class="go" onclick="openHc()">Back to audit pack</button>`):`<button class="go" onclick="hcMark('${v}')">Mark as done</button>`}
+function hcGo(k){if(k==="log"){tab="cpd";pf="cpd";cp.v="list";cp.nf=true;home();window.scrollTo(0,0);return}
+ if(k==="we"){openHc("stmt");setTimeout(()=>{const n=document.getElementById("hcwe");if(n)try{n.scrollIntoView({block:"center",behavior:"smooth"})}catch(e){}},80);return}openHc(k)}
+function hcGoV(v){hc.v=v;hc.err="";hc.msg="";hc.cf=null;home();window.scrollTo(0,0)}
 function hcSnap(key){const v=hcS()[key]||"";const a=hcUn[key];if(a[a.length-1]!==v){a.push(v);if(a.length>20)a.shift()}}
 function hcUndo(key){const a=hcUn[key];if(!a.length)return;hcS()[key]=a.pop();save();hc.clr=null;toast("Undone");cfRe()}
+/* v535: the sentences with "we" or "our", and accepting them until they change */
+function hcWe(){const t=String(hcS().stmt||"");return t.split(/(?<=[.!?])\s+|\n+/).map(x=>x.trim()).filter(x=>/\b[Ww]e\b|\b[Oo]ur\b/.test(x))}
+function hcWeSig(){let h=5381;const t=hcWe().join("\n");for(let i=0;i<t.length;i++)h=((h*33)^t.charCodeAt(i))>>>0;return t?h.toString(36)+"."+t.length:""}
+function hcWeOk(){const g=hcWeSig();return !!g&&hcS().weOk===g}
+function hcWeSet(on){const H=hcS();H.weOk=on?hcWeSig():"";save();cfRe()}
+function hcWeH(){const L=hcWe();if(!L.length)return "";const ok=hcWeOk();
+ return `<div class="note" id="hcwe" style="margin-top:10px"><b>${L.length} ${L.length===1?"sentence uses":"sentences use"} "we" or "our"</b><p style="margin:6px 0 0">Your statement is about your own learning, so it's clearest written as "I". Check each one: something like "our patients" or "our team" can be fine.</p><ul>${L.map(x=>`<li>${esc(x.length>240?x.slice(0,240)+"…":x).replace(/\b([Ww]e|[Oo]ur)\b/g,"<mark>$1</mark>")}</li>`).join("")}</ul>`+
+  (ok?`<p class="tag" style="margin:0">You've checked these. <button class="lnk" style="padding:0;text-decoration:underline" onclick="hcWeSet(false)">Undo</button></p>`:`<button class="opt" style="text-align:center;margin:0" onclick="hcWeSet(true)">I've checked these, they're fine</button>`)+`</div>`}
+/* the list of "we" sentences follows what you type */
+let hcWeT=0;document.addEventListener("input",e=>{try{if(!e.target||e.target.id!=="hc-s")return;clearTimeout(hcWeT);hcWeT=setTimeout(()=>{const w=document.getElementById("hcwew");if(w)w.innerHTML=hcWeH()},350)}catch(x){}},true);
 function hcClr(key){if(hc.clr!==key){hc.clr=key;return cfRe()}hcSnap(key);hcS()[key]="";save();hc.clr=null;toast("Cleared. Tap Undo to bring it back");cfRe()}
 function hcTools(key){const H=hcS(),u=hcUn[key].length,has=!!String(H[key]||"").trim();if(!u&&!has)return "";
  return `<div class="hct">${u?`<button class="lnk" onclick="hcUndo('${key}')">↩ Undo last change</button>`:"<span></span>"}${has?(hc.clr===key?`<span><small style="color:var(--mute)">Clear everything?</small> <button class="lnk" onclick="hc.clr=null;cfRe()">Cancel</button> <button class="lnk" style="color:var(--bad);font-weight:800" onclick="hcClr('${key}')">Yes, clear all</button></span>`:`<button class="lnk" style="color:var(--bad)" onclick="hcClr('${key}')">🗑 Clear all</button>`):""}</div>`}
@@ -7015,19 +7052,40 @@ function hcHist(){
  `<div class="note"><b>Cover</b>${ivUl(["Your job title, band and where you work (the type of service is enough)","Your rotations or main areas, with rough dates","Who you see: typical patients and conditions","Your main duties, such as assessment, treatment, on call, supervising students or support workers","Who you work with in the team"])}</div>`+
  hcArea("hc-h","hist",500,12,"I am a band 5 rotational physiotherapist in an NHS acute hospital. Since my last renewal I have worked in…")+
  (HTS?`<button style="margin-top:10px" ${hc.busy?'disabled aria-busy="true"':""} class="opt aibtn${hc.busy?" aibusy":""}" onclick="hcAiHist()"><div class="row"><b>${hc.busy?'<span class="aispin" aria-hidden="true"></span>Drafting your summary…':"✨ Tidy my notes into a summary"}</b><span>${hc.busy?"":"›"}</span></div><small style="color:var(--mute)" ${hc.busy?'role="status"':""}>${hc.busy?"This can take up to 30 seconds. Your notes stay as they are until it's ready.":"Jot down bullet points above, then "+pzAiNm()+" turns them into first-person prose under 500 words."}</small></button>${pzAiLeftH()}`:"")+
- (hc.err?`<p class="tag" style="color:var(--bad)">${esc(hc.err)}</p>`:"")+`<button class="go" onclick="openHc()">Done</button>`}
-function hcPick(){const H=hcS(),E=hcIn().filter(e=>!e.auto).concat(hcIn().filter(e=>e.auto)).reverse();
- return hcBack("home","Audit pack")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">Choose 4 to 6 activities</h1><p class="tag" style="margin:0 0 8px">Choose the ones that best show how your learning changed your practice and helped patients. Aim for a mix of types. Entries with a reflection and evidence work best.</p>`+
- `<p class="tag" style="margin:0 0 8px"><b>${H.pick.length} chosen</b>${H.pick.length>6?" · that's more than 6":""}</p>`+
- (E.length?E.map(e=>{const on=H.pick.includes(e.id);return `<button class="ock hpk${on?" on":""}" role="checkbox" aria-checked="${on}" onclick="hcTog('${e.id}')"><i>${on?"✓":""}</i><span style="flex:1;min-width:0"><span class="row"><b>${esc(e.t)}</b><span>${cpHas(e)?"Reflected":"No reflection"}</span></span><small style="color:var(--mute);display:block">${esc(dFmt(e.d))} · ${esc(cpTy(e))} · ${fmtH(e.m||0)}${(e.ph||[]).length?" · "+e.ph.length+" attached":""}</small></span></button>`}).join(""):`<p class="tag">No activities in your audit period yet.</p>`)+
- `<button class="go" onclick="openHc()">Done</button>`}
+ (hc.err?`<p class="tag" style="color:var(--bad)">${esc(hc.err)}</p>`:"")+hcDoneBtn("hist")}
+function hcPick(){const H=hcS(),all=hcIn(),P=H.pick.map(id=>cpdAll().find(e=>e.id===id)).filter(Boolean),n=P.length,fl=!!(String(hc.pq||"").trim()||hc.pt||hc.pr);
+ const row=(e,why,inList)=>{const on=H.pick.includes(e.id),hide=inList&&!hcPickM(e);return `<button class="ock hpk${on?" on":""}" role="checkbox" aria-checked="${on}" data-t="${esc(String(e.t||"").toLowerCase())}" data-ty="${esc(e.ty||"")}" data-r="${cpHas(e)?1:0}"${hide?" hidden":""} onclick="hcTog('${esc(e.id)}')"><i>${on?"✓":""}</i><span style="flex:1;min-width:0"><span class="row"><b>${esc(e.t)}</b><span>${cpHas(e)?"Reflected":"No reflection"}</span></span><small style="color:var(--mute);display:block">${esc(dFmt(e.d))} · ${esc(cpTy(e))} · ${fmtH(e.m||0)}${(e.ph||[]).length?" · "+e.ph.length+" attached":""}</small>${why?`<small class="hcsg">${esc(why)}</small>`:""}</span></button>`};
+ const yrs={};all.slice().reverse().forEach(e=>{const y=String(e.d).slice(0,4);(yrs[y]=yrs[y]||[]).push(e)});const ys=Object.keys(yrs).sort().reverse();
+ const types=[...new Set(all.map(e=>e.ty))].sort((a,b)=>hcTyS(a).localeCompare(hcTyS(b))),sug=hcSugPick();
+ return hcBack("home","Audit pack")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">Choose 4 to 6 activities</h1>`+
+ `<div class="note"><b>What these are for</b><p style="margin:6px 0 0">These are the 4 to 6 activities you write about in depth in your personal statement: the ones that best show how your learning changed your practice and helped the people you treat. Aim for a mix of types.</p><p style="margin:6px 0 0">The HCPC also gets your full list of activities for the whole period (step 6), so nothing you don't choose here is left out.</p></div>`+
+ `<div class="sec">Chosen: ${n} of 4 to 6</div>`+(n?P.map(e=>row(e)).join(""):`<p class="tag" style="margin:0 0 8px">None yet. Start with the suggestions below, or choose from all your activities.</p>`)+(n>6?`<p class="tag" style="color:var(--bad);margin:0 0 8px">That's more than 6. Untick some.</p>`:"")+
+ (sug.length?`<div class="sec">Suggested</div><p class="tag" style="margin:-4px 0 8px">Picked from your reflections, evidence and the mix of types. Check each one fits what you want to write about.</p>`+sug.map(x=>row(x.e,x.why)).join(""):"")+
+ `<div class="sec">All activities in this period (${all.length})</div>`+
+ (all.length>8?`<input class="cin" type="search" id="hc-pq" placeholder="Search by title" aria-label="Search your activities" value="${esc(hc.pq||"")}" oninput="hc.pq=this.value;hcPickF()"><div class="hcpf" role="group" aria-label="Filter">`+[["","All types"]].concat(types.map(t=>[t,hcTyS(t)])).map(([k,l])=>`<button class="chipb${(hc.pt||"")===k?" on":""}" aria-pressed="${(hc.pt||"")===k}" onclick="hc.pt='${esc(k)}';cfRe()">${esc(l)}</button>`).join("")+`<button class="chipb${hc.pr?" on":""}" aria-pressed="${!!hc.pr}" onclick="hc.pr=!hc.pr;cfRe()">With a reflection</button></div>`:"")+
+ (all.length?ys.map((y,i)=>{const vis=yrs[y].some(hcPickM);return `<details class="hcyr" data-y="${y}"${fl||(hc.py&&y in hc.py?hc.py[y]:i===0)?" open":""}${vis?"":" hidden"} ontoggle="hcYrT(this)"><summary><b>${y}</b><span>${yrs[y].length} ${yrs[y].length===1?"activity":"activities"}</span></summary>${yrs[y].map(e=>row(e,"",1)).join("")}</details>`}).join("")+`<p class="tag hcnone"${all.some(hcPickM)?" hidden":""}>No activities match.</p>`:`<p class="tag">No activities in your audit period yet.</p>`)+
+ hcDoneBtn("pick")}
+/* v535: short type names for filters, the filter, and suggestions */
+function hcTyS(t){return String(cptn(t)).replace(/ \(.*\)$/,"").split(" or ")[0]}
+function hcPickM(e){const q=String(hc.pq||"").trim().toLowerCase();return (!q||String(e.t||"").toLowerCase().includes(q))&&(!hc.pt||e.ty===hc.pt)&&(!hc.pr||cpHas(e))}
+function hcPickF(){const q=String(hc.pq||"").trim().toLowerCase(),fl=!!(q||hc.pt||hc.pr);let any=false;
+ document.querySelectorAll("#app .hcyr").forEach(d=>{let v=0;d.querySelectorAll(".hpk").forEach(b=>{const m=(!q||b.dataset.t.includes(q))&&(!hc.pt||b.dataset.ty===hc.pt)&&(!hc.pr||b.dataset.r==="1");b.hidden=!m;if(m)v++});d.hidden=!v;if(v)any=true;if(fl&&v)d.open=true});
+ document.querySelectorAll("#app .hcnone").forEach(p=>p.hidden=any)}
+function hcYrT(d){hc.py=hc.py||{};hc.py[d.dataset.y]=d.open}
+function hcSugPick(){const H=hcS(),own=hcIn().filter(e=>!e.auto&&!H.pick.includes(e.id)),need=Math.min(4,Math.max(0,6-H.pick.length));if(!own.length||!need)return [];
+ const now=Date.now(),sc=e=>{const g=hcSug(e);let v=0;if(g.st.includes(3))v+=3;if(g.st.includes(4))v+=3;if((e.ph||[]).length)v+=1.5;if(cpHas(e))v+=1;v+=Math.min((e.m||0)/180,1.5);v+=Math.max(0,1-(now-new Date(e.d+"T12:00:00").getTime())/(730*864e5));return v};
+ const pool=own.map(e=>({e,s:sc(e)})),used=new Set(H.pick.map(id=>(cpdAll().find(x=>x.id===id)||{}).ty).filter(Boolean)),out=[];
+ while(out.length<need&&pool.length){pool.forEach(x=>x.v=x.s-(used.has(x.e.ty)?2.5:0));pool.sort((a,b)=>b.v-a.v);const b=pool.shift();if(b.s<4)break;b.nt=!used.has(b.e.ty)&&used.size>0;out.push(b);used.add(b.e.ty)}
+ return out.map(({e,nt})=>{const g=hcSug(e),w=[],p3=g.st.includes(3),p4=g.st.includes(4);
+  w.push(p3&&p4?"Your reflection says how it changed your practice and helped patients":p3?"Your reflection says how it changed your practice":p4?"Your reflection says how it helped patients":"Reflected");
+  if((e.ph||[]).length)w.push("evidence attached");if(nt)w.push("a different type from your others");return {e,why:w.join(", ")}})}
 function hcTog(id){const H=hcS(),i=H.pick.indexOf(id);if(i>=0)H.pick.splice(i,1);else H.pick.push(id);save();cfRe()}
 function hcStmt(){const H=hcS(),ev=hcEv(),P=H.pick.map(id=>cpdAll().find(e=>e.id===id)).filter(Boolean);
  return hcBack("home","Audit pack")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">Personal statement</h1><p class="tag" style="margin:0 0 8px">Up to 1,500 words. For each activity you chose: what it was, what you learned, how it changed your practice and how it benefited your patients. Write as "I" and refer to your evidence by number.</p>`+
  (P.length?`<div class="note"><b>Your evidence numbers</b>${ivUl(ev.map(x=>"Evidence "+x.n+": "+x.d))}</div>`:`<div class="note">Choose 4 to 6 activities first. <button class="lnk" style="padding:0;text-decoration:underline" onclick="openHc('pick')">Choose them</button></div>`)+
- hcArea("hc-s","stmt",1500,18,"In this period I have…")+
+ hcArea("hc-s","stmt",1500,18,"In this period I have…")+`<div id="hcwew">${hcWeH()}</div>`+
  (P.length?`<div class="tabs" style="margin-top:10px"><button class="opt" style="text-align:center" onclick="hcOutline()">Insert outline</button>${HTS?`<button class="opt${hc.busy?" aibusy":""}" style="text-align:center" ${hc.busy?'disabled aria-busy="true"':""} onclick="hcAiStmt()">${hc.busy?'<span class="aispin" aria-hidden="true"></span>Drafting…':"✨ Draft with "+pzAiNm()}</button>`:""}</div>${HTS&&hc.busy?`<p class="tag aiwait" role="status">Drafting your statement. This can take up to a minute or two.</p>`:""}<p class="tag" style="margin:4px 0 0">${HTS?(pzAiOn()?"AI drafts from your chosen entries and your summary of work. ":"Claude drafts from your chosen entries' reflections only. "):""}Both add to the end of what you've written. ${pzAiOn()?"The HCPC says your profile must be your own work. Use the draft as a structure, rewrite it in your own words and check every claim is true.":"Edit it into your own words before you submit."}</p>${HTS?pzAiLeftH():""}`:"")+
- (hcIdTxt()?`<div class="note" style="margin-top:10px">Your name or registration number is in your summary or statement. Take it out if you want to be assessed anonymously.</div>`:"")+(hcGapTxt()&&!String(H.stmt||"").includes("Gaps in my CPD")?`<button class="opt" style="text-align:center;margin-top:10px" onclick="hcAdd(hcGapTxt());toast('Gap explanations added')">Add my gap explanations</button><p class="tag" style="margin:4px 0 0">The HCPC asks for them in your statement.</p>`:"")+(hc.err?`<p class="tag" style="color:var(--bad)">${esc(hc.err)}</p>`:"")+(hc.msg?`<p class="tag" role="status">${esc(hc.msg)}</p>`:"")+`<button class="go" onclick="openHc()">Done</button>`}
+ (hcIdTxt()?`<div class="note" style="margin-top:10px">Your name or registration number is in your summary or statement. Take it out if you want to be assessed anonymously.</div>`:"")+(hcGapTxt()&&!String(H.stmt||"").includes("Gaps in my CPD")?`<button class="opt" style="text-align:center;margin-top:10px" onclick="hcAdd(hcGapTxt());toast('Gap explanations added')">Add my gap explanations</button><p class="tag" style="margin:4px 0 0">The HCPC asks for them in your statement.</p>`:"")+(hc.err?`<p class="tag" style="color:var(--bad)">${esc(hc.err)}</p>`:"")+(hc.msg?`<p class="tag" role="status">${esc(hc.msg)}</p>`:"")+hcDoneBtn("stmt")}
 function hcGapTxt(){const H=hcS(),g=hcGaps().filter(x=>(H.gap[x.k]||"").trim());if(!g.length)return "";return "Gaps in my CPD\n"+g.map(x=>hcMo(x.a)+" to "+hcMo(x.b)+": "+String(H.gap[x.k]).trim().replace(/\.?$/,".")).join("\n")}
 function hcAdd(t){const H=hcS();hcSnap("stmt");H.stmt=(H.stmt.trim()?H.stmt.trim()+"\n\n":"")+t.trim();save();cfRe()}
 function hcOutline(){const ev=hcEv(),P=hcS().pick.map(id=>cpdAll().find(e=>e.id===id)).filter(Boolean);
@@ -7052,23 +7110,71 @@ Return ONLY a JSON object: {"summary": "the text"}`;
  try{const r=await HTS.json(prompt,{modelTier:"default"});hc.busy=false;const t=r&&String(r.summary||"").trim();if(!t){hc.err="Couldn't draft it this time. Try again.";return cfRe()}hcSnap("hist");H.notes=H.hist;H.hist=t;save();toast("Summary drafted. Edit it into your own words");cfRe()}
  catch(e){hc.busy=false;const c=e&&e.code;hc.err=c==="not_granted"?"Drafting needs your permission. Try again and allow it when asked.":c==="rate_limited"?"Too many requests just now. Try again in a minute.":c==="cancelled"?"":"Couldn't draft it this time. Try again.";cfRe()}}
 const HCSN={1:"Kept a record of my CPD",2:"Did a mix of learning",3:"Improved my practice",4:"Benefited my patients"};
-const hcCov=()=>{const c=new Set(),E=hcIn();if(E.length)c.add(1);if(new Set(E.map(e=>e.ty)).size>=2)c.add(2);hcEv().forEach(x=>x.st.forEach(n=>c.add(n)));return c};
+/* v535: standards 1 and 2 from your list (as the HCPC says), 3 and 4 from your evidence */
+const hcPickTy=()=>{const H=hcS();return [...new Set(H.pick.map(id=>cpdAll().find(e=>e.id===id)).filter(Boolean).map(e=>e.ty))]};
+const hcCov=()=>{const c=new Set(),E=hcIn();if(E.length)c.add(1);if(new Set(E.map(e=>e.ty)).size>=2)c.add(2);hcEv().forEach(x=>x.st.forEach(n=>{if(n>=3)c.add(n)}));return c};
+function hcWhy(){const cov=hcCov(),ty=hcPickTy(),lt=[...new Set(hcIn().map(e=>e.ty))],ev=hcEv(),by=n=>ev.filter(x=>x.ok&&x.st.includes(n)).map(x=>x.n),sg=n=>ev.filter(x=>!x.ok&&x.st.includes(n)).map(x=>x.n),lst=a=>a.length===1?String(a[0]):a.slice(0,-1).join(", ")+" and "+a[a.length-1],tl=t=>{const x=hcTyS(t);return /^Phyzly/.test(x)?x:x.toLowerCase()};
+ const s34=(n,did)=>{const a=by(n),b=sg(n);return a.length?"Evidence "+lst(a)+" "+(a.length===1?"shows":"show")+" "+did+"."+(b.length?" Phyzly suggests Evidence "+lst(b)+" may too: check "+(b.length===1?"it":"them")+" below.":""):b.length?"Phyzly suggests Evidence "+lst(b)+" "+(b.length===1?"shows":"show")+" "+did+". Check "+(b.length===1?"it":"them")+" below.":null};
+ const L=[[1,cov.has(1)?"Your list of activities is a dated record of your CPD in this period.":"Add CPD entries dated within your audit period."],
+  [2,(cov.has(2)?"Your list of activities has "+lt.length+" types of learning.":"Your list of activities has only one type of learning. Add a different kind, such as a course, reading or supervision.")+(ty.length>=2?" The activities you chose are of "+ty.length+" types too: "+lst(ty.map(tl))+".":ty.length===1&&lt.length>1?" The activities you chose are all one type ("+tl(ty[0])+"). Choosing one of a different type shows the mix in your statement too.":"")],
+  [3,s34(3,"how your learning improved your practice")||"None of your evidence shows this yet. Add how it changed your practice to a chosen entry's reflection, then tick standard 3."],
+  [4,s34(4,"how it benefited the people you treat")||"None of your evidence shows this yet. Add how it helped patients or service users to a chosen entry's reflection, then tick standard 4."]];
+ return `<ul class="hcwhy" aria-label="Why each standard is or isn't covered">${L.map(([n,t])=>`<li class="${cov.has(n)?"on":""}"><b>${n}</b><span>${esc(t)}</span></li>`).join("")}</ul>`}
 function hcEvS(){const all=hcEvAll(),ev=all.filter(x=>!x.out),cov=hcCov(),todo=ev.filter(x=>!x.ok).length,ne=ev.length;
  const nm=a=>a.length?a.map(n=>HCSN[n]||("Standard "+n)).join(", "):"none yet";
  return hcBack("home","Audit pack")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">Evidence</h1>`+
  `<div class="note"><b>What this step is for</b><p style="margin:6px 0">The HCPC's online service takes 4 to 12 pieces of evidence. Each activity you chose gives a reflective record, plus any photos or documents you attached to it. Leave out any you don't need.</p><p style="margin:6px 0">For each piece, check which of the HCPC's CPD standards it shows. Most evidence shows one or two. Your list of activities shows standard 1, and standard 2 if it has at least two types of learning. Aim for your evidence and your statement to show standards 3 and 4 at least once.</p><p style="margin:6px 0 0">Phyzly has suggested standards for each piece. Read each one and tap <b>Yes, that's right</b>, or <b>Change</b> if it isn't.</p></div>`+
  `<div class="${ne>=4&&ne<=12?"fb ok":"fb bad"}" role="status"><b>${ne} evidence ${ne===1?"file":"files"}</b>${ne>12?"The HCPC takes up to 12. Leave out some photos or documents below.":ne<4?"The HCPC asks for at least 4. Choose more activities, or add photos or documents to them.":"The HCPC takes 4 to 12."}</div>`+
  `<div class="sec">Your coverage</div><div class="hcv">${[1,2,3,4].map(n=>`<div class="${cov.has(n)?"on":""}"><span>${cov.has(n)?"✅":"⬜"}</span><b>${n}</b><small>${HCSN[n]}</small></div>`).join("")}</div>`+
- ([1,2,3,4].some(n=>!cov.has(n))?`<p class="tag" style="margin:4px 0 0">${(m=>m.length===1?"Standard "+m[0]+" isn't covered yet.":"Standards "+m.slice(0,-1).join(", ")+" and "+m[m.length-1]+" aren't covered yet.")([1,2,3,4].filter(n=>!cov.has(n)))} ${!cov.has(3)||!cov.has(4)?"Add to the reflections on your chosen activities, then tick the standard on each one below.":!cov.has(2)?"Your list needs at least two types of learning.":""}</p>`:"")+
- `<div class="sec">${todo?todo+" of "+ne+" to check":"All "+ne+" checked"}</div>`+
+ hcWhy()+`<div class="sec">${todo?todo+" of "+ne+" to check":"All "+ne+" checked"}</div>`+
  all.map(x=>{const ed=hc.ed===x.k;let b;
   if(x.out)return `<div class="ivc hcout"><div class="row"><b>Left out</b>${x.f?`<button class="lnk" onclick="phView('${esc(x.f)}')">View</button>`:""}</div><p style="margin:4px 0 8px">${esc(x.d)}</p><button class="opt" style="text-align:center;margin:0" onclick="hcEvX('${esc(x.k)}',false)">Include it</button></div>`;
-  if(ed)b=`<p class="tag" style="margin:8px 0 4px">Tick every standard this evidence shows:</p>`+[1,2,3,4].map(n=>`<label class="hcx"><input type="checkbox" ${x.st.includes(n)?"checked":""} onchange="hcEvSt('${esc(x.k)}',${n})"><span><b>${n}. ${HCSN[n]}</b><small>${esc(HCS[n-1][1])}</small></span></label>`).join("")+`<button class="go" style="margin-top:8px" onclick="hcEvOk('${esc(x.k)}')">Done</button>`;
-  else if(x.ok)b=`<div class="hcok">✅ <span><b>Checked</b><small>${x.st.length?"Shows: "+esc(nm(x.st)):"No standards ticked yet. Add to the reflection, then tap Change."}</small></span><button class="lnk" onclick="hc.ed='${esc(x.k)}';cfRe()">Change</button></div>`;
-  else b=`<div class="hcq"><p style="margin:0 0 6px">${x.st.length?`Phyzly suggests this shows: <span style="font-weight:800">${esc(nm(x.st))}</span>. Is that right?`:"Phyzly can't match this to a standard yet. Use the tips above, or tap Change to choose one yourself."}</p><div class="tabs"><button class="go" style="margin:0" onclick="hcEvOk('${esc(x.k)}')">Yes, that's right</button><button class="opt" style="margin:0;text-align:center" onclick="hc.ed='${esc(x.k)}';cfRe()">Change</button></div></div>`;
+  if(ed)b=`<p class="tag" style="margin:8px 0 4px">Tick the standards this evidence shows. Standards 1 and 2 come from your list of activities.</p>`+[3,4].map(n=>`<label class="hcx"><input type="checkbox" ${x.st.includes(n)?"checked":""} onchange="hcEvSt('${esc(x.k)}',${n})"><span><b>${n}. ${HCSN[n]}</b><small>${esc(HCS[n-1][1])}</small></span></label>`).join("")+`<button class="go" style="margin-top:8px" onclick="hcEvOk('${esc(x.k)}')">Save</button>`;
+  else if(x.ok)b=`<div class="hcok"><span class="hcoki">✅</span><span class="hcokt"><b>Checked</b><small>${x.st.length?"Shows: "+esc(nm(x.st)):x.f?"Backs up its activity's reflective record.":"No standards ticked yet. Add to the reflection, then tap Change."}</small></span><span class="hcoka"><button class="lnk" onclick="hcEvUn('${esc(x.k)}')">Uncheck</button><button class="lnk" onclick="hc.ed='${esc(x.k)}';cfRe()">Change</button></span></div>`;
+  else if(x.f&&!x.st.length)b=`<div class="hcq"><p style="margin:0 0 6px">Photos and documents usually back up the activity's reflective record. Does this one show a standard by itself?</p><div class="tabs"><button class="go" style="margin:0" onclick="hcEvOk('${esc(x.k)}')">No, it backs up the record</button><button class="opt" style="margin:0;text-align:center" onclick="hc.ed='${esc(x.k)}';cfRe()">Choose standards</button></div></div>`;
+  else b=`<div class="hcq"><p style="margin:0 0 6px">${x.st.length?`${x.f?"This backs up its activity's reflective record, so ":""}Phyzly suggests this shows: <span style="font-weight:800">${esc(nm(x.st))}</span>. Is that right?`:"Phyzly can't match this to a standard yet. Use the tips above, or tap Change to choose one yourself."}</p><div class="tabs"><button class="go" style="margin:0" onclick="hcEvOk('${esc(x.k)}')">Yes, that's right</button><button class="opt" style="margin:0;text-align:center" onclick="hc.ed='${esc(x.k)}';cfRe()">Change</button></div></div>`;
   return `<div class="ivc"><div class="row"><b>Evidence ${x.n}</b>${x.f?`<span><button class="lnk" onclick="phView('${esc(x.f)}')">View</button> <button class="lnk" onclick="hcEvX('${esc(x.k)}',true)">Leave out</button></span>`:x.e?`<button class="lnk" onclick="cpdEdit('${esc(x.e.id)}','hc')">Open entry</button>`:""}</div><input class="cin" aria-label="Description of evidence ${x.n}" value="${esc(x.d)}" onchange="hcEvSet('${esc(x.k)}','d',this.value)">${x.p?`<small style="color:var(--mute)">${esc(x.p)}</small>`:""}${x.h.length?`<div class="hch">${x.h.map(t=>`<p>💡 ${esc(t)}</p>`).join("")}</div>`:""}${b}</div>`}).join("")+
  (todo>1?`<button class="opt" style="text-align:center" onclick="hc.ed=null;hcEv().forEach(x=>{if(!x.ok){hcEvSet(x.k,'st',x.st);hcEvSet(x.k,'ok',true)}});cfRe()">Accept all suggestions</button>`:"")+
- `<p class="tag">To add certificates, notes or PDFs, open the entry and add them there. They appear here as extra evidence.</p><details class="note"><summary><b>The five HCPC CPD standards</b></summary>${ivUl(HCS.map(s=>s[0]+". "+s[1]))}</details><button class="go" onclick="hc.ed=null;openHc()">Done</button>`}
+ `<p class="tag">To add certificates, notes or PDFs, open the entry and add them there. They appear here as extra evidence.</p><details class="note"><summary><b>The five HCPC CPD standards</b></summary>${ivUl(HCS.map(s=>s[0]+". "+s[1]))}</details>`+hcDoneBtn("ev")}
+function hcMoreH(onExp){const H=hcS(),P=Array.isArray(H.past)?H.past:[];
+ return `<div class="sec">${onExp?"When you've submitted":"This pack"}</div><p class="tag" style="margin:-4px 0 8px">Keep a copy and start a new pack for your next audit, or clear this one and start again. Your CPD log isn't changed.</p><button class="opt" style="text-align:center" onclick="hcGoV('fin')">Finish this pack and start a new one</button><button class="opt" style="text-align:center;margin-top:8px" onclick="hcGoV('clr')">Start this pack again</button>`+
+ (P.length&&!onExp?`<div class="sec">Past audit packs</div><div class="hcpast">${P.map(p=>`<button class="opt" onclick="hc.pid='${esc(p.id)}';hcGoV('past')"><div class="row"><b>${esc(dFmt(p.from))} to ${esc(dFmt(p.to))}</b><span>›</span></div><small style="color:var(--mute)">Finished ${esc(dFmt(p.at))} · ${(p.acts||[]).length} activities</small></button>`).join("")}</div>`:"")}
+function hcFinS(){const H=hcS(),P=Array.isArray(H.past)?H.past:[];
+ return hcBack("home","Audit pack")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">Finish this pack</h1><p class="tag" style="margin:0 0 10px">For when you've submitted your profile, or the audit is over.</p>`+
+ `<div class="note"><b>What happens</b>${ivUl(["Phyzly keeps a copy of your summary, personal statement, chosen activities and evidence list under Past audit packs, to read or copy later."+(P.length>=5?" It keeps your last 5, so your oldest copy will go.":""),"A new pack starts for the two years from "+dFmt(hcFinFrom())+" to "+dFmt(hcFinTo(hcFinFrom()))+", with your registration details kept and everything else blank. You can change the dates in Registration and audit period.","Your CPD log, photos and documents aren't changed."])}</div>`+
+ `<div class="note"><b>Download your own copy first</b><p style="margin:6px 0 0">The copy Phyzly keeps is text only. For a copy with your evidence, download the PDF now.</p></div><button class="opt" style="text-align:center" onclick="hcGoPdf()">Download PDF</button><p id="hcm" class="tag" role="status">${esc(hc.msg)}</p><div id="xprw">${xpReadyHtml("hc")}</div>`+
+ `<button class="go" onclick="hcFinGo()">Finish and start a new pack</button><button class="opt" style="text-align:center;margin-top:8px" onclick="openHc()">Not yet</button>`}
+function hcFinTo(f){const x=new Date(f+"T12:00:00");x.setFullYear(x.getFullYear()+2);x.setDate(x.getDate()-1);return isoD(x)}
+function hcFinFrom(){const H=hcS(),t=isoD(new Date()),f=hcDay(H.to,1);return f>t?t:f}
+function hcFinGo(){const H=hcS(),past=(Array.isArray(H.past)?H.past:[]).slice();
+ const rec={id:"p"+Date.now().toString(36),at:isoD(new Date()),from:H.from,to:H.to,prof:String(H.prof||""),no:String(H.no||""),hist:String(H.hist||""),stmt:String(H.stmt||""),
+  acts:H.pick.map(id=>cpdAll().find(e=>e.id===id)).filter(Boolean).map(e=>({t:String(e.t||""),d:e.d,ty:cpTy(e)})),ev:hcEv().map(x=>({n:x.n,d:String(x.d||""),st:x.st.slice()}))};
+ past.unshift(rec);while(past.length>5||(past.length>1&&JSON.stringify(past).length>120000))past.pop();
+ const nf=hcFinFrom(),prev=JSON.parse(JSON.stringify(H));S.hc={prof:H.prof,no:"",from:nf,to:hcFinTo(nf),hist:"",stmt:"",pick:[],ev:{},gap:{},done:{},regFrom:H.regFrom,reg:H.reg,lsk:H.lsk,ls:H.ls,prior:false,setUp:H.setUp,past};
+ hcUn.hist.length=0;hcUn.stmt.length=0;XP.ready=null;save();hcLastClr={k:"fin",prev,sig:hcStable(S.hc)};hc.nx=null;hc.v="home";hc.msg="";home();window.scrollTo(0,0);hcSay("Pack finished. A copy is in Past audit packs.")}
+function hcClrS(){
+ return hcBack("home","Audit pack")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">Start this pack again</h1>`+
+ `<div class="hcwarn"><b>This clears this pack</b>${ivUl(["Your summary of recent work and personal statement","The activities you chose, and your evidence checks","Your gap explanations and the sections marked as done"])}<p style="margin:6px 0 0">Your registration details, audit period, past packs and CPD log stay as they are.</p></div>`+
+ `<button class="go hcred" onclick="hcClrGo()">Clear and start again</button><button class="opt" style="text-align:center;margin-top:8px" onclick="openHc()">Keep it</button>`}
+function hcClrGo(){const H=hcS(),prev=JSON.parse(JSON.stringify(H));Object.assign(H,{hist:"",stmt:"",pick:[],ev:{},gap:{},done:{},notes:"",weOk:""});hcUn.hist.length=0;hcUn.stmt.length=0;save();hcLastClr={k:"clr",prev,sig:hcStable(S.hc)};hc.nx=null;hc.v="home";home();window.scrollTo(0,0);hcSay("Pack cleared.")}
+/* undo is offered only while nothing in the pack has changed since, so it can't overwrite new work */
+function hcStable(o){return Array.isArray(o)?"["+o.map(hcStable).join(",")+"]":o&&typeof o==="object"?"{"+Object.keys(o).filter(k=>o[k]!==undefined).sort().map(k=>JSON.stringify(k)+":"+hcStable(o[k])).join(",")+"}":JSON.stringify(o===undefined?null:o)}
+function hcUndoable(){if(!hcLastClr)return false;try{if(hcStable(S.hc)===hcLastClr.sig)return true}catch(e){}hcLastClr=null;return false}
+function hcClrUndo(){if(!hcUndoable())return home();S.hc=hcLastClr.prev;hcLastClr=null;save();home();hcSay("Brought back.")}
+function hcPastS(){const H=hcS(),p=(Array.isArray(H.past)?H.past:[]).find(x=>x.id===hc.pid);if(!p){hc.v="home";return hcHome()}
+ const para=t=>String(t||"").trim()?`<div class="hcpk">${esc(String(t).trim())}</div>`:`<p class="tag">Nothing written.</p>`;
+ return hcBack("home","Audit pack")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">Past audit pack</h1><p class="tag" style="margin:0 0 10px">${esc(dFmt(p.from))} to ${esc(dFmt(p.to))}. Finished ${esc(dFmt(p.at))}. A copy of what you wrote; your entries are still in your CPD log.</p>`+
+ `<div class="sec">Summary of recent work</div>${para(p.hist)}${String(p.hist||"").trim()?`<button class="opt" style="text-align:center" onclick="hcPastCopy('hist')">Copy summary</button>`:""}`+
+ `<div class="sec">Personal statement</div>${para(p.stmt)}${String(p.stmt||"").trim()?`<button class="opt" style="text-align:center" onclick="hcPastCopy('stmt')">Copy statement</button>`:""}`+
+ `<div class="sec">Activities you wrote about</div>${(p.acts||[]).length?ivUl(p.acts.map(a=>a.t+" ("+dFmt(a.d)+", "+a.ty+")")):`<p class="tag">None chosen.</p>`}`+
+ `<div class="sec">Evidence</div>${(p.ev||[]).length?ivUl(p.ev.map(x=>"Evidence "+x.n+": "+x.d+(x.st&&x.st.length?" ("+(x.st.length===1?"standard "+x.st[0]:"standards "+x.st.slice(0,-1).join(", ")+" and "+x.st[x.st.length-1])+")":""))):`<p class="tag">None.</p>`}<p id="hcm" class="tag" role="status">${esc(hc.msg)}</p>`+
+ (hc.cf==="pdel"?`<div class="hcwarn"><b>Delete this copy?</b><p style="margin:4px 0 8px">You can't undo this. Your CPD log isn't changed.</p><button class="go hcred" onclick="hcPastDel()">Delete it</button><button class="opt" style="text-align:center;margin-top:8px" onclick="hc.cf=null;cfRe()">Keep it</button></div>`:`<button class="lnk" style="color:var(--bad);margin-top:14px" onclick="hc.cf='pdel';cfRe()">Delete this copy</button>`)}
+function hcPastCopy(k){const p=(hcS().past||[]).find(x=>x.id===hc.pid),t=p?String(p[k]||"").trim():"";if(!t)return;const lab=k==="hist"?"Summary":"Statement";
+ const say=m=>{hc.msg=m;const e=document.getElementById("hcm");if(e)e.textContent=m};
+ const go=()=>{try{navigator.clipboard.writeText(t).then(()=>say(lab+" copied."),()=>say("Couldn't copy here. Select the text above and copy it."))}catch(e){say("Couldn't copy here. Select the text above and copy it.")}};
+ return typeof pzPayNeed==="function"?pzPayNeed("export",go,{pack:true}):go()}
+function hcPastDel(){const H=hcS();H.past=(H.past||[]).filter(x=>x.id!==hc.pid);hc.cf=null;save();hc.v="home";home();try{toast("Copy deleted")}catch(e){}}
+function hcEvUn(k){hcEvSet(k,"ok",false);hc.ed=null;cfRe()}
 function hcEvSet(k,f,v){const H=hcS();H.ev[k]=H.ev[k]||{};H.ev[k][f]=v;save()}
 function hcEvOk(k){const x=hcEv().find(y=>y.k===k);if(!x)return;hcEvSet(k,"st",x.st);hcEvSet(k,"ok",true);hc.ed=null;cfRe()}
 function hcEvSt(k,n){const x=hcEv().find(y=>y.k===k);if(!x)return;const a=x.st.slice(),i=a.indexOf(n);if(i>=0)a.splice(i,1);else a.push(n);a.sort();hcEvSet(k,"st",a);hcEvSet(k,"ok",false);cfRe()}
@@ -7076,11 +7182,11 @@ function hcListS(){const H=hcS(),L=hcList(),g=hcGaps();
  return hcBack("home","Audit pack")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">Dated list of activities</h1><p class="tag" style="margin:0 0 8px">This list goes on the Activities tab of the HCPC's online service. When you're ready to submit, download it as a spreadsheet. Each entry in the period is listed with its date.</p>`+
  (g.length?`<div class="sec">Gaps to explain</div><p class="tag" style="margin:0 0 6px">The HCPC asks you to explain any gap of three months or more in your personal statement, for example sickness, parental leave or a career break. You don't need to give personal details. Write a few words for each here, then add them to your statement from the Personal statement step.</p>`+g.map(x=>`<label class="cfl" for="gp-${x.k}">${esc(hcMo(x.a))} to ${esc(hcMo(x.b))} (${x.n} months)</label><input id="gp-${x.k}" class="cin" value="${esc(H.gap[x.k]||"")}" placeholder="e.g. Career break" oninput="hcS().gap['${x.k}']=this.value;save()">`).join(""):"")+
  `<div class="sec">${L.length} ${L.length===1?"line":"lines"}</div>`+(L.length?`<div class="hcl">${L.map(r=>`<div><b>${esc(r.d)}</b><span>${esc(r.t)}</span></div>`).join("")}</div>`:`<p class="tag">Nothing in this period.</p>`)+
- `<p class="tag">Change the period in <button class="lnk" style="padding:0;text-decoration:underline" onclick="openHc('det')">Registration and audit period</button>.</p><button class="go" onclick="openHc()">Done</button>`}
+ `<p class="tag">Change the period in <button class="lnk" style="padding:0;text-decoration:underline" onclick="openHc('det')">Registration and audit period</button>.</p>`+hcDoneBtn("list")}
 function hcExp(){const C=hcChecks(),bad=C.filter(c=>!c[0]),H=hcS(),ne=hcEv().length,L=hcList();
  const part=(n,t,body)=>`<div class="hcsub"><div class="cfl" style="margin-top:0">${n}. ${t}</div>${body}</div>`;
  return hcBack("home","Audit pack")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">Get ready to submit</h1><p class="tag" style="margin:0 0 8px">The HCPC's online service has four parts. Here's what goes in each, ready to copy or download.</p>`+
- (bad.length?`<div class="note"><b>${bad.length} ${bad.length===1?"check needs":"checks need"} attention</b>${ivUl(bad.map(c=>c[1]+": "+c[2].replace(/<[^>]+>/g,"")))}You can still copy and download drafts.</div>`:`<div class="fb ok"><b>All checks passed</b>Read it all through once more before you submit.</div>`)+
+ (bad.length?`<div class="note"><b>${bad.length} ${bad.length===1?"check needs":"checks need"} attention</b><div class="hcat">${bad.map(c=>`<button class="hcatb" onclick="hcGo('${c[3]}')"><span><b>${c[1]}</b><small>${c[2].replace(/<[^>]+>/g,"")}</small></span><span class="hcgo">Go to it ›</span></button>`).join("")}</div>You can still copy and download drafts.</div>`:`<div class="fb ok"><b>All checks passed</b>Read it all through once more before you submit.</div>`)+
  (hcIdTxt()?`<div class="note">Your name or registration number is in your summary or statement. Take it out if you want to be assessed anonymously.</div>`:"")+
  part(1,"Summary",`<p class="tag" style="margin:0 0 6px">Your summary of recent work, ${wc(H.hist)} of 500 words. Paste it into the summary box.</p><button class="opt" style="text-align:center" ${String(H.hist||"").trim()?"":"disabled"} onclick="hcCopy('hist')">Copy summary</button>`)+
  part(2,"Activities",`<p class="tag" style="margin:0 0 6px">Your list of activities, ${L.length} ${L.length===1?"line":"lines"}. Upload the spreadsheet on the Activities tab, or type each activity in.</p><button class="opt" style="text-align:center" ${L.length?"":"disabled"} onclick="hcGoList()">Download activity list (Excel)</button>`)+
@@ -7089,7 +7195,7 @@ function hcExp(){const C=hcChecks(),bad=C.filter(c=>!c[0]),H=hcS(),ne=hcEv().len
  `<p id="hcm" class="tag" role="status">${esc(hc.msg)}</p><div id="xprw">${xpReadyHtml("hc")}</div>`+
  `<details class="note"><summary><b>How to submit online</b></summary>${ivUl(["When the HCPC tells you you've been selected, activate your account for the HCPC online service, sign in and choose Edit on your CPD profile.","Paste your summary into the summary box.","On the Activities tab, upload your activity list, or type each activity in.","On the Statement tab, paste your personal statement.","On the Evidence tab, choose Add new and upload each evidence file.","Choose Submit Profile, then OK. The HCPC emails you to say it has arrived."])}<p style="margin:6px 0 0">You can save and come back, and do the parts in any order. You usually have about three months, and it must be in by your renewal deadline. If you don't send it, you could be removed from the Register.</p></details>`+
  `<div class="sec">Your own copy</div><p class="tag" style="margin:0 0 8px">Everything in one file, to keep or to read through. It isn't what you upload.</p><button class="opt" style="text-align:center" onclick="hcGoPdf()">Download PDF</button><button class="opt" style="text-align:center;margin-top:8px" onclick="hcGoDoc()">Download for Word</button>`+
- `<div class="note">Saved and copied text leaves Phyzly. Check it for patient details before you send it anywhere.</div>`}
+ `<div class="note">Saved and copied text leaves Phyzly. Check it for patient details before you send it anywhere.</div>`+hcMoreH(1)}
 function hcHtml(withImgs,imgs){const H=hcS(),ev=hcEv(),L=hcList(),g=hcGaps().filter(x=>(H.gap[x.k]||"").trim());
  const para=t=>String(t||"").trim().split(/\n{2,}/).map(p=>`<p>${esc(p).replace(/\n/g,"<br>")}</p>`).join("")||"<p>-</p>";
  const evSec=withImgs?ev.map(x=>{const e=x.e;let b="";if(x.k.startsWith("r:")){b=`<p><b>${esc(e.t)}</b><br>${esc(dFmt(e.d))} · ${esc(cpTy(e))} · ${esc(fmtH(e.m||0))}</p>`+fwOf(e).f.map(f=>`<p><b>${esc(f[1])}</b><br>${esc(((e.r||{})[f[0]])||"-").replace(/\n/g,"<br>")}</p>`).join("")}else if(isPdf(x.f))b=`<p>PDF document${imgs[x.f]&&imgs[x.f].name?": "+esc(imgs[x.f].name):""}. Uploaded as a separate file.</p>`;else b=imgs[x.f]?`<img src="${imgs[x.f].src}" alt="${esc(x.d)}">`:"<p>Image not found on this device.</p>";return `<section class="ev"><h3>Evidence ${x.n}: ${esc(x.d)}</h3>${b}</section>`}).join(""):"";
@@ -8055,7 +8161,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
  }catch(e){console.error("v281",e)}
 
  /* ---------- v282: tester version: report a problem, feedback, welcome note ---------- */
- const RP_VER="v534";let rpCtx=null,rpCat=null;
+ const RP_VER="v535";let rpCtx=null,rpCat=null;
  function rpBtn(kind,id,i){return `<button class="rpb" onclick="rpOpen('${kind}','${id}',${i})">⚑ Report a problem with this card</button>`}
  function rpCtxFor(kind,id,i){try{
   if(kind==="c"){const c=LEARN[id][i],cd=typeof COND!=="undefined"&&COND.find(x=>x.id===id);return {kind:"card",layer:id,card:i,title:c.t,where:(cd?"Condition: "+cd.n:(typeof tn==="function"?tn(id):id))+" · card "+(i+1)+": "+c.t}}
@@ -11702,11 +11808,13 @@ async function xpDeliver(files){
  XP.ready={ctx:XP.ctx,files:files.map(f=>({name:f.name,blob:f.blob,url:URL.createObjectURL(f.blob)}))};S.cpdX=isoD(new Date());save();xpSay("");xpReadyDraw();
  if(!xpTouch())xpDl()}
 function xpReadyHtml(ctx){const R=XP.ready;if(!R||(ctx&&R.ctx!==ctx))return "";const one=R.files.length===1,sh=!!(navigator.canShare&&(()=>{try{return navigator.canShare({files:R.files.map(f=>new File([f.blob],f.name,{type:f.blob.type}))})}catch(e){return false}})());
+ /* v535: several files: one box, each file with its own Preview and Download */
+ if(!one){const auto=!xpTouch();return `<div class="xprd xprm" role="region" aria-label="Your files are ready"><div class="xprt"><b>${R.files.length} files${auto?" downloading":" ready"}</b><small>${auto?"Your browser saves them to your Downloads folder. If one didn't arrive, download it again below.":"Preview any one, or save them all."}</small></div><ul class="xpfl">${R.files.map((f,i)=>`<li><span><b>${esc(f.name)}</b><small>${xpSize(f.blob.size)}</small></span><span>${/\.pdf$/i.test(f.name)?`<button class="lnk" onclick="xpPreview(${i})" aria-label="Preview ${esc(f.name)}">Preview</button>`:""}<button class="lnk" onclick="xpDl1(${i})" aria-label="Download ${esc(f.name)}">Download</button></span></li>`).join("")}</ul>`+(sh&&xpTouch()?`<button class="go" onclick="xpShare()">Save or share all</button>`:`<button class="opt" style="text-align:center" onclick="xpDl()">Download all${auto?" again":""}</button>`)+`</div>`}
  return `<div class="xprd" role="region" aria-label="Your file is ready"><div class="xprt"><b>${one?esc(R.files[0].name):R.files.length+" files"}</b><small>${one?xpSize(R.files[0].blob.size):R.files.map(f=>esc(f.name)).join(", ")}</small></div>`+
   (()=>{const pv=R.files.some(f=>/\.pdf$/i.test(f.name))?`<button class="opt" onclick="xpPreview()">Preview</button>`:"";
    return sh&&xpTouch()?`<button class="go" onclick="xpShare()">Save or share</button><div class="xprr">${pv}<button class="opt" onclick="xpDl()">Download</button></div>`:`<button class="go" onclick="xpDl()">Download${one?"":" all"}</button>${pv||sh?`<div class="xprr">${pv}${sh?`<button class="opt" onclick="xpShare()">Share</button>`:""}</div>`:""}`})()+`</div>`}
 async function xpPdfJs(){if(window.__pdfjs)return window.__pdfjs;const base=xpLocal()?"/vendor/pdfjs-5.4.624/":"https://cdn.jsdelivr.net/npm/pdfjs-dist@5.4.624/legacy/build/";const m=await import(base+"pdf.min.mjs");m.GlobalWorkerOptions.workerSrc=base+"pdf.worker.min.mjs";return window.__pdfjs=m}
-async function xpPreview(){const R=XP.ready;if(!R)return;const f=R.files.find(x=>/\.pdf$/i.test(x.name));if(!f)return;xpPrevClose();
+async function xpPreview(i){const R=XP.ready;if(!R)return;const f=(typeof i==="number"&&R.files[i]&&/\.pdf$/i.test(R.files[i].name)?R.files[i]:null)||R.files.find(x=>/\.pdf$/i.test(x.name));if(!f)return;xpPrevClose();
  const ov=document.createElement("div");ov.className="xpv";ov.setAttribute("role","dialog");ov.setAttribute("aria-modal","true");ov.setAttribute("aria-label","Preview of "+f.name);
  ov.innerHTML=`<div class="xpvh"><div class="xpvt"><b>Preview</b><small class="xpvn">Loading…</small></div><button class="xpvx" onclick="xpPrevClose()">Done</button></div><div class="xpvb" tabindex="-1"></div>`;
  document.body.appendChild(ov);document.documentElement.classList.add("xpvon");try{ov.querySelector(".xpvx").focus()}catch(e){}
@@ -11724,6 +11832,7 @@ function xpReadyDraw(){const w=document.getElementById("xprw");if(w)w.innerHTML=
 async function xpShare(){const R=XP.ready;if(!R)return;const fs=R.files.map(f=>new File([f.blob],f.name,{type:f.blob.type}));
  try{await navigator.share({files:fs});xpSay("")}catch(e){if(!e||e.name!=="AbortError")xpSay("The share sheet didn't open. Use Download instead.")}}
 function xpDl(){const R=XP.ready;if(!R)return;R.files.forEach((f,i)=>setTimeout(()=>{const a=document.createElement("a");a.href=f.url;a.download=f.name;a.rel="noopener";document.body.appendChild(a);a.click();a.remove()},i*400))}
+function xpDl1(i){const R=XP.ready,f=R&&R.files[i];if(!f)return;const a=document.createElement("a");a.href=f.url;a.download=f.name;a.rel="noopener";document.body.appendChild(a);a.click();a.remove()}
 async function xpRun(kind,fn,ctx){if(XP.busy)return;XP.busy=true;XP.ctx=ctx||"cpd";XP.ready=null;XP.miss=0;xpReadyDraw();xpSay(kind==="pdf"?"Making your PDF…":"Preparing…");
  try{const files=await fn();if(files&&files.length){await xpDeliver(files);if(XP.miss)xpSay(XP.miss+(XP.miss===1?" photo or file":" photos or files")+" couldn't be added. If you're offline, connect and try again. If it still happens, open the entry to check the photo shows.")}}catch(e){console.error("export",e);xpSay(navigator.onLine===false&&kind==="pdf"?"Making a PDF needs a connection the first time. Try again when you're online.":"Something went wrong making the file. Please try again, or use Copy as text.")}finally{XP.busy=false}}
 
@@ -15135,6 +15244,8 @@ try{(function(){
  /* v513 (R11): from 900 px the list and editor sit side by side, with a narrow rail up to 1279 px (the medium layout) */
  const SPLIT=DESK;
  const isSplit=()=>!!SPLIT.matches;
+ /* v535: the audit pack asks whether it is side by side (to stay there after Mark as done) */
+ window.pzHcSplit=()=>{try{return isSplit()&&pf==="hc"}catch(e){return false}};
  const ds=document.createElement("style");ds.textContent=`
   #nav .sbwm{display:none}
   #nav .nf .nfab{display:none}
@@ -15203,6 +15314,7 @@ try{(function(){
    html.pzo #app .dkstep .dknext{justify-content:flex-end;text-align:right;grid-column:2}
    html.pzo #app .dkstep span{min-width:0;font-weight:600;line-height:1.3}html.pzo #app .dkstep small{display:block;color:var(--mute);font-weight:500;font-size:.82rem;margin-bottom:2px}
    html.pzo #app .dkstep svg{flex:0 0 auto;color:var(--pri)}
+   html.pzo #app .dkstep .dknext.dkhot{background:var(--pri);border-color:var(--pri);color:var(--pri-ink)}html.pzo #app .dkstep .dkhot small,html.pzo #app .dkstep .dkhot svg{color:inherit;opacity:.9}
    html.pzo #app .dkbt{display:flex;gap:12px;align-items:stretch}html.pzo #app .dkbt .go{flex:1;margin-top:8px}html.pzo #app .dkbt .dkcx{flex:0 0 auto;width:auto;min-width:120px;margin-top:8px;text-align:center}
   }
   @media (min-width:900px) and (max-width:1439px){html.pzo #app .dkr{top:84px;max-height:calc(100vh - 108px)}}
@@ -15285,7 +15397,7 @@ try{(function(){
   const self=this,args=arguments,cap=()=>{let out="";const pd=Object.getOwnPropertyDescriptor(app,"innerHTML");
    try{Object.defineProperty(app,"innerHTML",{configurable:true,get(){return out},set(w){out=w}});hs0.apply(self,args)}finally{if(pd)Object.defineProperty(app,"innerHTML",pd);else delete app.innerHTML}return out};
   const right=cap();const v=hc.v;hc.v="home";let left="";try{left=cap()}finally{hc.v=v}
-  const nm=({det:"Your details",hist:"Summary of recent work",pick:"Choose activities",stmt:"Personal statement",ev:"Evidence",list:"List of activities",exp:"Get ready to submit"})[v]||"Section";
+  const nm=({det:"Your details",hist:"Summary of recent work",pick:"Choose activities",stmt:"Personal statement",ev:"Evidence",list:"List of activities",exp:"Get ready to submit",fin:"Finish this pack",clr:"Start this pack again",past:"Past audit pack"})[v]||"Section";
   const x=`<button class="dkx" onclick="hc.v='home';hc.err='';hc.msg='';home()" aria-label="Close ${nm}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>`;
   if(had&&window.pzMorph){/* already side by side: redraw both sides in place */
    const L=had.querySelector(":scope>.dkl"),R=had.querySelector(":scope>.dkr");pzMorph(L,left);pzMorph(R,x+right);R.setAttribute("aria-label",nm);had.setAttribute("data-v",v);
@@ -15301,7 +15413,7 @@ try{(function(){
    const i=seen.indexOf(v);if(i>=0&&seen.length>1){const P=seen[i-1],N=seen[i+1],ar='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M';
     const nav=document.createElement("nav");nav.className="dkstep";nav.setAttribute("aria-label","Sections");
     nav.innerHTML=(P?`<button class="opt dkprev" onclick="openHc('${P}')">${ar}15 6l-6 6 6 6"/></svg><span><small>Previous</small>${esc(lab[P])}</span></button>`:"<span></span>")+
-     (N?`<button class="opt dknext" onclick="openHc('${N}')"><span><small>Next</small>${esc(lab[N])}</span>${ar}9 6l6 6-6 6"/></svg></button>`:"");R.appendChild(nav)}}catch(e){console.error("v528 steps",e)}
+     (N?`<button class="opt dknext${(()=>{try{return hcIsDone(v)?" dkhot":""}catch(e){return ""}})()}" onclick="openHc('${N}')"><span><small>Next</small>${esc(lab[N])}</span>${ar}9 6l6 6-6 6"/></svg></button>`:"");R.appendChild(nav)}}catch(e){console.error("v528 steps",e)}
   if(fromHub&&x0!=null&&!RMO()){const x1=hcLeftX();try{D.querySelector(".dkl").animate([{transform:`translateX(${x1!=null?x0-x1:0}px)`},{transform:"none"}],{duration:320,easing:"cubic-bezier(.2,.8,.2,1)"});
     D.querySelector(".dkr").animate([{opacity:0,transform:"translateX(48px)"},{opacity:1,transform:"none"}],{duration:320,delay:60,easing:"cubic-bezier(.2,.8,.2,1)",fill:"backwards"})}catch(e){}}
   if(!had){try{const f=D.querySelector(".dkr input,.dkr textarea");if(f&&!/Mobi|Android/.test(navigator.userAgent))f.focus({preventScroll:true})}catch(e){}}
@@ -15537,7 +15649,7 @@ try{(function(){
  foot();
 
  /* ---------- 6. Undo after deleting a CPD entry ---------- */
- let und=null;
+ let und=null;window.pzDelUndo=true;
  function undoShow(entry,idx,saved){try{document.querySelectorAll(".pzundo").forEach(x=>x.remove());if(und)clearTimeout(und.t);
   const d=document.createElement("div");d.className="pzundo";d.setAttribute("role","status");d.innerHTML=`<span>Entry deleted</span><button type="button">Undo</button>`;document.body.appendChild(d);
   const t=setTimeout(()=>{d.remove();und=null},6000);und={t};
