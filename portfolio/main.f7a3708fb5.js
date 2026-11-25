@@ -2537,7 +2537,7 @@ function preSessNew(t){cpdNew();cf.pre=true;cf.from="pre";cf.t=t||"";cf.ty="cour
 let preEd=null,preAsk=null;
 /* v470: review points. The suggested set follows the start date and length; edited points are kept in S.pre.rv */
 function preRv(){const P=S.pre||{};if(Array.isArray(P.rv)&&P.rv.length)return P.rv.filter(x=>x&&x.id&&String(x.n||"").trim());const L=P.len||12;return preReviewPts(L).map(x=>x[0]==="fin"?{id:"fin",n:x[1],fin:1}:{id:x[0],n:x[1],m:x[2]})}
-const preDue=x=>{const P=S.pre||{};return /^\d{4}-\d{2}-\d{2}$/.test(x.d||"")?x.d:addM(P.start,x.fin?(P.len||12):(+x.m||0))};
+const preDue=x=>{const P=S.pre||{};return /^\d{4}-\d{2}-\d{2}$/.test(x.d||"")?x.d:(!x.fin&&!(+x.m||0)&&/first week/i.test(x.n||"")&&/^\d{4}-\d{2}-\d{2}$/.test(P.start||""))?isoD(new Date(Date.parse(P.start+"T12:00:00")+7*864e5)):addM(P.start,x.fin?(P.len||12):(+x.m||0))};
 const preRvL=()=>preRv().slice().sort((a,b)=>preDue(a).localeCompare(preDue(b)));
 const preMtFor=id=>(S.pre&&S.pre.mt||[]).filter(m=>m.rv===id).sort((a,b)=>String(b.d).localeCompare(String(a.d)))[0]||null;
 function preRvEdit(){pe={v:"rv",f:{rows:preRvL().map(x=>({id:x.id,n:x.n,dt:preDue(x),m:x.m,fin:x.fin,d:x.d}))}};home();window.scrollTo(0,0)}
@@ -2547,7 +2547,7 @@ function preRvX(i){preRvRead();pe.f.rows.splice(i,1);cfRe()}
 function preRvSave(){preRvRead();const f=pe.f,ok=/^\d{4}-\d{2}-\d{2}$/;
  if(f.rows.some(r=>!String(r.n||"").trim())){f.err="Give every review point a name, or remove it.";return home()}
  if(f.rows.some(r=>!ok.test(r.dt||""))){f.err="Pick a date for every review point.";return home()}
- S.pre.rv=f.rows.slice(0,20).map(r=>{const o={id:r.id,n:String(r.n).trim().slice(0,60)};const sug=r.fin?addM(S.pre.start,S.pre.len||12):r.m!=null?addM(S.pre.start,+r.m):null;if(sug&&sug===r.dt&&!r.d){if(r.fin)o.fin=1;else o.m=+r.m}else o.d=r.dt;return o});
+ S.pre.rv=f.rows.slice(0,20).map(r=>{const o={id:r.id,n:String(r.n).trim().slice(0,60)};const sug=r.fin||r.m!=null?preDue({n:String(r.n||"").trim(),m:r.m,fin:r.fin}):null;if(sug&&sug===r.dt&&!r.d){if(r.fin)o.fin=1;else o.m=+r.m}else o.d=r.dt;return o});
  const keep=new Set(S.pre.rv.map(x=>x.id));Object.keys(S.pre.ms||{}).forEach(k=>{if(!keep.has(k))delete S.pre.ms[k]});
  save();pe=null;home();window.scrollTo(0,0)}
 function preRvReset(){const f=pe.f;if(!f.rst){f.rst=true;if(armTap(/^Reset to the suggested review points$/,"Yes, reset"))return;return home()}delete S.pre.rv;save();pe=null;home();window.scrollTo(0,0)}
@@ -8161,7 +8161,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
  }catch(e){console.error("v281",e)}
 
  /* ---------- v282: tester version: report a problem, feedback, welcome note ---------- */
- const RP_VER="v539";let rpCtx=null,rpCat=null;
+ const RP_VER="v540";let rpCtx=null,rpCat=null;
  function rpBtn(kind,id,i){return `<button class="rpb" onclick="rpOpen('${kind}','${id}',${i})">⚑ Report a problem with this card</button>`}
  function rpCtxFor(kind,id,i){try{
   if(kind==="c"){const c=LEARN[id][i],cd=typeof COND!=="undefined"&&COND.find(x=>x.id===id);return {kind:"card",layer:id,card:i,title:c.t,where:(cd?"Condition: "+cd.n:(typeof tn==="function"?tn(id):id))+" · card "+(i+1)+": "+c.t}}
@@ -10651,7 +10651,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
    {ch:"Portfolio",g:"cpd",rr:1,pre:()=>{CPDRESET();apOpen()},s:()=>{const h=[...document.querySelectorAll("#app .sec,#app .cfl")].find(x=>/Which appraisal/.test(x.textContent));if(!h)return[];const o=[h];let n=h.nextElementSibling;while(n&&o.length<3){o.push(n);n=n.nextElementSibling}return o},pos:"top",t:"Appraisal pack",d:()=>"Your notes on the year and your record, put together in one document to share with your appraiser."},
    {ch:"Portfolio",g:"cpd",rr:1,on:()=>showHc(),pre:()=>{CPDRESET();openHc()},s:()=>{const h=document.querySelector("#app .sec");if(!h)return[];const o=[h];let n=h.nextElementSibling;while(n&&!n.matches(".sec")&&o.length<4){o.push(n);n=n.nextElementSibling}return o},pos:"top",t:"HCPC audit pack",d:()=>"If you're picked for HCPC audit, this puts your CPD profile together: your summary of practice, your activities, how they meet the standards, and your evidence."},
    {ch:"Portfolio",g:"cpd",rr:1,on:()=>showPre(),pre:()=>{CPDRESET();tab="cpd";pf="pre";pe=null;home();window.scrollTo(0,0)},s:()=>{const h=[...document.querySelectorAll("#app .sec")].find(x=>/^Review points/.test(x.textContent.trim()))||document.querySelector("#app .sec")||document.querySelector("#app .cfl");if(!h)return[];const o=[h];let n=h.nextElementSibling;while(n&&o.length<3){o.push(n);n=n.nextElementSibling}return o},pos:"top",t:"Preceptorship",d:()=>"Your review points, meetings with your preceptor and sign-offs. When you start another one, say for a Band 6 post, the first is kept."},
-   {ch:"Portfolio",g:"cpd",rr:1,pre:()=>{CPDRESET();tab="cpd";pf="cpd";cp.x="cpd";cp.v="list";home();window.scrollTo(0,0)},s:()=>[...document.querySelectorAll("#app button")].filter(b=>/^(Export my log|Import existing)/.test(b.textContent.trim())),t:"Export and import",d:()=>"Export your log to share it or keep a copy. Bring in CPD you've kept elsewhere, from Excel, a CSV file or a pasted table."},
+   {ch:"Portfolio",g:"cpd",rr:1,pre:()=>{CPDRESET();tab="cpd";pf="cpd";cp.x="cpd";cp.v="list";home();window.scrollTo(0,0)},s:()=>{const m=document.getElementById("cpmore");if(m)return [m];return [...document.querySelectorAll("#app button")].filter(b=>/^(Export my log|Import existing)/.test(b.textContent.trim()))},t:"Export and import",d:()=>"Export your log to share it or keep a copy, or bring in CPD you've kept elsewhere, from Excel, a CSV file or a pasted table. Both are in this menu."},
    {ch:"Quick ref",g:"cpd",on:()=>window.PZ_ONLY==="portfolio",pre:()=>{CPDRESET();pf="home";cp.v="list";home();window.scrollTo(0,0)},s:".tr .icb:not(.sq)",t:"Quick ref",d:()=>"Dermatomes, myotomes, reflexes, scales and medicines, at the top of every screen."},
    {ch:"Friends",g:"friends",pre:()=>{CPDRESET()},s:()=>{const b=document.querySelector(".fdbox button");return (b&&b.parentElement)||document.querySelector("#app .nvfl")},t:"Friends",d:()=>"Optional. Follow friends, swap fives and see the leaderboard."+(S.feedOn==null?" Nothing about you is shared until you say yes here.":" Turn sharing on or off in Profile.")},
    {ch:"Profile",g:"me",s:()=>{const h=[...document.querySelectorAll("#app .mgh")].find(x=>/Learning/.test(x.textContent));return h?h.nextElementSibling:document.querySelector("#app .nvfl")},t:"Profile",d:()=>"Your plan, daily time and role, plus settings and the Classic look. Help has this tour if you want it again."}];
@@ -14091,7 +14091,7 @@ function pzSaveBar(R){if(typeof tab==="undefined"||tab!=="cpd")return;const okPf
 let prSessH="";
 function preSessSheet(){if(!prSessH)return;infoSheet(`<h2 style="margin:6px 0 4px;font-size:1.25rem">Add a programme session</h2>${prSessH}`,"Add a programme session")}
 /* one way to close the review sheet: focus goes back to the review point */
-function preShFocus(id){setTimeout(()=>{const b=[...document.querySelectorAll("#app [onclick]")].find(x=>x.getAttribute("onclick")===`preMs('${id}')`);if(b)try{b.focus({preventScroll:true})}catch(e){}},0)}
+function preShFocus(id){setTimeout(()=>{const b=document.getElementById("prtl-"+id)||[...document.querySelectorAll("#app [onclick]")].find(x=>x.getAttribute("onclick")===`preMs('${id}')`);if(b)try{b.focus({preventScroll:true})}catch(e){}},0)}
 function preShClose(){const id=preEd;preEd=null;home();if(id)preShFocus(id)}
 /* after Mark as done: the "Log notes?" question comes into view with focus on it, or focus returns to the review point */
 {const m0=typeof preMsSet==="function"?preMsSet:null;if(m0)preMsSet=function(k,d){const r=m0.apply(this,arguments);setTimeout(()=>{const q=document.querySelector("#app .pmd.pask");
@@ -14101,6 +14101,7 @@ function preCalm2(R){if(typeof pf==="undefined"||pf!=="pre")return;
   md.classList.add("prsheet");md.id="prsheet";md.setAttribute("role","dialog");md.setAttribute("aria-modal","true");md.setAttribute("aria-labelledby","prshh2");
   md.querySelectorAll('button[onclick="preEd=null;home()"]').forEach(b=>b.setAttribute("onclick","preShClose()"));
   const h=document.createElement("div");h.className="prshh";h.innerHTML=`<h2 id="prshh2">${esc(x?x.n:"Review point")}</h2><button class="prshx" id="prshx" aria-label="Close" onclick="preShClose()">✕</button>`;md.prepend(h);
+  try{const mt=preMtFor(preEd);if(mt){const l=document.createElement("button");l.className="lnk prvn";l.id="prshmt";l.setAttribute("onclick",`preEd=null;preMtEdit('${String(mt.id).replace(/[^A-Za-z0-9_-]/g,"")}')`);l.textContent="Meeting notes logged";h.after(l)}}catch(e){}
   const bg=document.createElement("div");bg.className="prshbg";bg.setAttribute("onclick","preShClose()");md.before(bg)}
  const L=R.querySelector(".dk2.pres>.dkl")||(pe?null:R);if(!L)return;const sec=pzKids(L).find(e=>e.matches("div.sec")&&pzTx(e)==="Programme sessions");
  if(sec&&!L.querySelector("#prsess")){let n=sec.nextElementSibling;const g=[];while(n&&!n.matches("div.sec,.pzfoot")){g.push(n);n=n.nextElementSibling}
@@ -14120,6 +14121,80 @@ document.addEventListener("keydown",e=>{const sh=document.querySelector("#app .p
  if(e.key==="Escape"){e.preventDefault();preShClose();return}
  if(e.key==="Tab"){const F=[...sh.querySelectorAll("button,input,select,textarea,a[href],[tabindex]:not([tabindex='-1'])")].filter(x=>!x.disabled&&x.getClientRects().length);if(!F.length)return;const a=F[0],z=F[F.length-1];
   if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus()}else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()}else if(!sh.contains(document.activeElement)){e.preventDefault();a.focus()}}});
+
+
+/* ---------- v540: calmer pages, batch 3 (Preceptorship Next up and timeline, CPD log menu, finding row, month cards) ---------- */
+const pzDots='<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="19" cy="12" r="1.9"/></svg>';
+let cpTgOpen=false,prMtAll=false,cpMoreH="";
+function cpMoreSheet(){if(!cpMoreH)return;infoSheet(`<h2 style="margin:6px 0 4px;font-size:1.25rem">Your CPD log</h2><div class="cpms">${cpMoreH}</div>`,"More options for your CPD log")}
+/* CPD log: the menu, the finding row, month cards (on the new HTML) */
+function cpLog3(R){const L=R.querySelector(".dk2:not(.hcs):not(.duo)>.dkl")||R;const K=pzKids(L);if(!K.some(e=>e.matches(".cpa2"))&&!K.some(e=>e.matches("button.go")&&e.getAttribute("onclick")==="cpdNew()"))return;
+ const xb=K.find(e=>e.matches("button.opt")&&e.getAttribute("onclick")==="cp.x='cpd';cp.v='export';home()"),ib=K.find(e=>e.matches("button.opt")&&e.getAttribute("onclick")==="imOpen()");
+ if(xb||ib){const n=(S.cpd||[]).length;cpMoreH=(xb?pzRowH("cpm-x","Export my log",esc("PDF, Excel, CSV or text"),`${esc(xb.getAttribute("onclick"))}`,"data-close"):"")+(ib?pzRowH("cpm-i","Import existing CPD",esc("From Excel, CSV or a pasted table"),"imOpen()","data-close"):"");
+  if(xb)xb.remove();if(ib&&n)ib.remove()}
+ /* the finding row */
+ const qw=K.find(e=>e.matches(".cpqw")),tl=K.find(e=>e.matches("div.cfl")&&/^Filter by tag/.test(pzTx(e))),tc=tl&&tl.nextElementSibling&&tl.nextElementSibling.matches(".chipw.tgf")?tl.nextElementSibling:null;
+ if(qw&&tc&&!qw.querySelector(".cptg")){const on=cpTgOpen||!!cp.tf;const b=document.createElement("button");b.className="opt cptg";b.id="cptg";b.setAttribute("aria-expanded",String(on));b.setAttribute("aria-controls","cptgw");
+  b.setAttribute("onclick","cpTgOpen=!cpTgOpen;if(!cpTgOpen&&cp.tf)cp.tf=null;home()");b.textContent=cp.tf?"Tag: "+cp.tf:"Tags";qw.appendChild(b);tc.id="cptgw";tl.hidden=true;tc.hidden=!on}
+ /* one card a month */
+ const wrap=C=>{let run=null;[...C.children].forEach(e=>{if(e.matches(".swp,.cpg,.cpgi")){if(!run){run=document.createElement("div");run.className="cpmo";e.before(run)}run.appendChild(e)}else{run=null;if(e.matches(".cpyi"))wrap(e)}})};
+ if(!L.querySelector(".cpmo"))wrap(L)}
+/* the header's menu button goes in after the band is built */
+function cpLogHd(){if(!(window.CL&&CL())||tab!=="cpd"||pf!=="cpd")return;const A=document.getElementById("app");if(!A||!cpMoreH||!(S.cpd||[]).length)return;
+ const band=A.querySelector(".dk2>.dkl>.dkband")||A.querySelector(".nvband.nvcpd")||A.querySelector(".nvband");if(!band||band.querySelector("#cpmore"))return;const h=band.querySelector("h1");if(!h||pzTx(h)!=="CPD log")return;
+ const w=document.createElement("div");w.className="cphd";h.before(w);w.appendChild(h);const b=document.createElement("button");b.className="cpmore";b.id="cpmore";b.setAttribute("aria-label","More options for your CPD log");b.setAttribute("aria-haspopup","dialog");b.setAttribute("onclick","cpMoreSheet()");b.innerHTML=pzDots;w.appendChild(b)}
+/* Preceptorship: Next up, the timeline, two meetings, goals in one card, two columns on a wide screen */
+function preCalm3(R){if(typeof pf==="undefined"||pf!=="pre")return;const P=S.pre;if(!P||!P.start)return;
+ const L=R.querySelector(".dk2.pres>.dkl")||(pe?null:R);if(!L||L.querySelector("#prnext"))return;const K=()=>pzKids(L),secOf=n=>K().find(e=>e.matches("div.sec")&&pzTx(e)===n);
+ const rvSec=secOf("Review points");if(!rvSec)return;const h1=K().find(e=>e.matches("h1"))||L.querySelector(".nvband h1");if(!h1||pzTx(h1)!=="Preceptorship")return;
+ /* the review timeline */
+ const items=[];let n=rvSec.nextElementSibling;while(n&&!n.matches("div.sec,.pzfoot")){if(n.matches(".ock.prv")||n.matches("button.ock")&&/^preMs\(/.test(n.getAttribute("onclick")||""))items.push(n);n=n.nextElementSibling}
+ let rvL=[];try{rvL=preRvL()}catch(e){}const ms=P.ms||{};
+ if(items.length){const card=document.createElement("div");card.className="prtl";card.id="prtl";let done=0;
+  items.forEach(el=>{const hit=el.matches("button")?el:el.querySelector("button.prvhit");const oc=hit&&hit.getAttribute("onclick")||"",m=/preMs\('([^']+)'\)/.exec(oc);if(!m)return;const id=m[1],x=rvL.find(r=>r.id===id),on=!!ms[id];if(on)done++;
+   const sm=el.querySelector("small"),st=sm?pzTx(sm).replace(/\s*Meeting notes logged\s*$/," · Meeting notes logged").replace(/ · suggested [^·]+?(?= · |$)/,"").trim():"",bd=el.querySelector(".bd.s");
+   const b=document.createElement("button");b.className="pzrow";b.id="prtl-"+id;b.setAttribute("onclick",oc);b.setAttribute("aria-haspopup","dialog");
+   b.setAttribute("aria-label",(x?x.n:"Review point")+(on?", done":"")+(st?", "+st:"")+(bd?", "+pzTx(bd):""));
+   b.innerHTML=`<span class="prti${on?" on":""}" aria-hidden="true">${on?pzTick:""}</span><span class="prtx">${esc(x?x.n:"")}${st?`<small>${esc(st)}</small>`:""}</span>${bd?`<span class="bd s">${esc(pzTx(bd))}</span>`:""}<span class="chv" aria-hidden="true">›</span>`;card.appendChild(b)});
+  items[0].before(card);items.forEach(e=>e.remove());rvSec.setAttribute("data-n",done+" of "+rvL.length+" done")}
+ /* Next up */
+ const nx=K().find(e=>e.matches(".prnx"));let nxTxt="";if(nx){const c=nx.cloneNode(true);c.querySelectorAll("button").forEach(b=>b.remove());nxTxt=pzTx(c)}
+ const nr=rvL.find(r=>!ms[r.id]&&String(r.n||"").trim());let due="",dd=null;try{if(nr){due=preDue(nr);dd=daysTo(due)}}catch(e){}
+ const started=daysTo(P.start)<=0,ended=(()=>{try{return addM(P.start,P.len||12)<isoD(new Date())}catch(e){return false}})(),isNote=!!(nx&&nx.matches(".note"));
+ const card=document.createElement("div");card.className="prnext";card.id="prnext";card.setAttribute("role","group");card.setAttribute("aria-labelledby","prnk");
+ const lowN=nr?(/^[A-Z][a-z]/.test(nr.n)?nr.n.charAt(0).toLowerCase()+nr.n.slice(1):nr.n):"";
+ card.innerHTML=`<div class="prnk" id="prnk">Next up</div>`+(nr?`<div class="prnt">${esc(nr.n)}${dd!=null&&dd<0?`<span class="bd s">Past date</span>`:dd!=null&&dd<=14?`<span class="bd s">Due soon</span>`:""}</div><p class="tag">${dd!=null&&dd<0?"Was due ":"Due "}${esc(dFmt(due))}${nxTxt&&!isNote?" · "+esc(nxTxt):""}</p>${isNote?`<p class="tag" role="status" style="margin-top:-6px">${esc(nxTxt)}</p>`:""}`
+   :`<div class="prnt">${rvL.some(r=>String(r.n||"").trim())?"All review points done":"No review points yet"}</div><p class="tag">${nxTxt?esc(nxTxt):ended?"Your preceptorship has ended.":"Keep logging meetings until your preceptorship ends."}</p>`)+
+  `<button class="go" onclick="preMtNew()">+ Log a meeting</button>`+(nr&&started&&dd!=null&&dd<=14?`<button class="opt prnx2" id="prnx2" onclick="prShFrom='prnx2';preMs('${esc(nr.id)}')">Mark the ${esc(lowN)} as held</button>`:"");
+ const first=K().find(e=>e.matches("div.sec"));if(nx)nx.remove();
+ const ttop=K().find(e=>e.matches("div.note")&&/Start date check/.test(pzTx(e)));(ttop||null)?ttop.after(card):first.before(card);
+ /* Meetings: the latest two */
+ const mSec=secOf("Meetings");if(mSec){let x=mSec.nextElementSibling;const rows=[];let lg=null;while(x&&!x.matches("div.sec,.pzfoot")){if(x.matches("button.go")&&x.getAttribute("onclick")==="preMtNew()")lg=x;if(x.matches("button.opt")&&/^preMtEdit\(/.test(x.getAttribute("onclick")||""))rows.push(x);x=x.nextElementSibling}
+  if(lg)lg.remove();if(rows.length>2){if(!prMtAll)rows.slice(2).forEach(r=>{r.hidden=true});const t=document.createElement("button");t.className="lnk prmt3";t.id="prmt3";t.setAttribute("aria-expanded",String(prMtAll));t.setAttribute("onclick","prMtAll=!prMtAll;home()");t.textContent=prMtAll?"Show fewer":"See all "+rows.length+" meetings";rows[rows.length-1].after(t)}}
+ /* To do in one card */
+ const tSec=secOf("To do");if(tSec){let x=tSec.nextElementSibling;const g=[];while(x&&!x.matches("div.sec,.pzfoot")){if(x.matches("button.ock")&&/^preAct\(/.test(x.getAttribute("onclick")||""))g.push(x);x=x.nextElementSibling}
+  if(g.length){const c=document.createElement("div");c.className="prgl prtd";c.id="prtd";g[0].before(c);g.forEach(e=>c.appendChild(e))}}
+ /* goals in one card */
+ const gSec=secOf("My goals");if(gSec){let x=gSec.nextElementSibling;const g=[];let help=null;while(x&&!x.matches("div.sec,.pzfoot")){if(x.matches(".grow"))g.push(x);if(x.matches("p.tag"))help=x;x=x.nextElementSibling}
+  if(g.length){const c=document.createElement("div");c.className="prgl";c.id="prgl";g[0].before(c);g.forEach(e=>c.appendChild(e))}
+  if(help&&g.length>1)help.textContent="Also in your development plan, under Feedback and SWOC."}
+ /* columns: Next up, then the left group, then the right; on a wide screen CSS sets them side by side */
+ if(!(L.matches&&L.matches(".dkl"))){const all=K(),tgP=h1.nextElementSibling&&h1.nextElementSibling.matches("p.tag")?h1.nextElementSibling:null;
+  let start=all.indexOf(tgP||h1);if(start<0){const bd=h1.closest(".nvband,.dkband");start=all.indexOf(bd)}start++;
+  const body=all.slice(start).filter(e=>!e.matches(".pzfoot,.prshbg,.prsheet,.nvband"));const ix=n=>body.findIndex(e=>e.matches("div.sec")&&pzTx(e)===n);
+  const iM=ix("Meetings");if(iM>0){const left=body.slice(0,iM),right=body.slice(iM);const cols=document.createElement("div");cols.className="prcols";const n0=document.createElement("div"),a=document.createElement("div"),b=document.createElement("div");n0.className="prcn";a.className="prc1";b.className="prc2";
+   body[0].before(cols);const nxc=left.find(e=>e.id==="prnext");if(nxc)n0.appendChild(nxc);cols.appendChild(n0);cols.appendChild(a);cols.appendChild(b);left.filter(e=>e!==nxc).forEach(e=>a.appendChild(e));right.forEach(e=>b.appendChild(e))}}}
+/* the review sheet returns focus to what opened it (Next up's button or the timeline row) */
+let prShFrom=null;{const f0=preShFocus;preShFocus=function(id){if(prShFrom){const k=prShFrom;prShFrom=null;setTimeout(()=>{const b=document.getElementById(k);if(b)try{b.focus({preventScroll:true})}catch(e){}else f0(id)},0);return}f0(id)}}
+{const m0=typeof preMs==="function"?preMs:null;if(m0)preMs=function(){const a=document.activeElement;if(!(a&&a.id==="prnx2"))prShFrom=null;return m0.apply(this,arguments)}}
+/* "Starting another preceptorship?" is drawn after the page; its button joins the More group */
+function preStray(R){if(typeof pf==="undefined"||pf!=="pre")return;const box=R.querySelector("#prmore");if(!box)return;
+ [...R.querySelectorAll("div.sec")].filter(e=>pzTx(e)==="Starting another preceptorship?").forEach(sec=>{let n=sec.nextElementSibling;const g=[];while(n&&!n.matches("div.sec,.pzfoot,.prcols")){g.push(n);n=n.nextElementSibling}
+  let i=0;g.forEach(e=>{if(e.matches("button,a")){const t=pzTx(e),id="prm-an"+(i++);if(!box.querySelector("#"+id)){const w=document.createElement("template");w.innerHTML=`<button class="pzrow" id="${id}" aria-label="${esc(t+(/^Start a new preceptorship/.test(t)?", This one is kept, under Earlier preceptorships":""))}" onclick="${esc(e.getAttribute("onclick")||"")}"><span>${esc(t)}${/^Start a new preceptorship/.test(t)?"<small>This one is kept, under Earlier preceptorships</small>":""}</span><span class="chv" aria-hidden="true">›</span></button>`;box.insertBefore(w.content.firstChild,box.querySelector("details"))}}e.remove()});sec.remove()})}
+function preEarlier(R){if(typeof pf==="undefined"||pf!=="pre")return;const box=R.querySelector("#prmore");if(!box)return;const mh=box.previousElementSibling;if(!mh||!mh.matches("div.sec"))return;
+ [...R.querySelectorAll("div.sec")].filter(e=>/^Earlier preceptorships?/.test(pzTx(e))&&!e.dataset.moved).forEach(sec=>{let n=sec.nextElementSibling;const g=[];while(n&&!n.matches("div.sec,.pzfoot,.prcols")){g.push(n);n=n.nextElementSibling}sec.dataset.moved="1";mh.before(sec);let at=sec;g.forEach(e=>{at.after(e);at=e})})}
+{const pc0=pzCalm;pzCalm=function(R){pc0(R);if(!R||!(window.CL&&CL())||typeof tab==="undefined"||tab!=="cpd")return;[cpLog3,preCalm3,preStray,preEarlier].forEach(fn=>{try{fn(R)}catch(e){console.error("v540",fn.name,e)}})}}
+{const h0=home;home=function(){const r=h0.apply(this,arguments);try{cpLogHd()}catch(e){console.error("v540",e)}return r}}
 
 /* focus stays on the control just used when the screen redraws (PRO-09) */
 function pzFKey(el){if(!el||el===document.body)return null;const A=document.getElementById("app");if(!A||!A.contains(el))return null;
