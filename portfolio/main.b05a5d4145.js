@@ -2208,7 +2208,7 @@ function cpdSave(){
  if(!cf.t.trim()&&cf.ty==="mentor")cf.t=svClean(cf.sv).k||"Supervision";if(!cf.t.trim()){cf.err="Add a title.";return home()}
  if(cf.mErr){cf.err=cf.mErr;return home()}if(Math.round(+cf.m||0)>1440){cf.err=CF_MAXT;return home()}const m=Math.max(0,Math.min(1440,Math.round(+cf.m||0)));if(!/^\d{4}-\d{2}-\d{2}$/.test(cf.d)){cf.err="Choose a date.";return home()}
  S.cpd=S.cpd||[];const r={};Object.keys(FW).forEach(k=>FW[k].f.forEach(x=>{const v=cf.r[x[0]];if(v&&String(v).trim())r[x[0]]=String(v).slice(0,6000)}));
- const e={id:cf.id||cpId(),d:cf.d,t:cf.t.trim().slice(0,120),ty:cf.ty,m,fw:FW[cf.fw]?cf.fw:"std",r,tm:/^\d{2}:\d{2}$/.test(cf.tm||"")?cf.tm:"",otj:!!cf.otj,ks:(cf.ks||[]).slice(0,60)};if((cf.ph||[]).length)e.ph=cf.ph.slice(0,12);if(cf.auto)e.auto=1;if((cf.ss||[]).length)e.ss=cf.ss.slice(0,50);if(cf.pre)e.pre=1;if(e.ty==="mentor"&&cf.sv)e.sv=svClean(cf.sv);if(cf.ns)e.ns=1;{const tg=tgClean(cf.tg);if(tg.length)e.tg=tg}if(Array.isArray(cf.pp)){const pp=ppClean(cf.pp);if(pp.length||ppOf({tg:e.tg}).length)e.pp=pp}
+ const e={id:cf.id||cpId(),d:cf.d,t:cf.t.trim().slice(0,120),ty:cf.ty,m,fw:FW[cf.fw]?cf.fw:"std",r,tm:/^\d{2}:\d{2}$/.test(cf.tm||"")?cf.tm:"",otj:!!cf.otj,ks:(cf.ks||[]).slice(0,60)};if((cf.ph||[]).length)e.ph=cf.ph.slice(0,12);if(cf.auto)e.auto=1;if((cf.ss||[]).length)e.ss=cf.ss.slice(0,50);if(cf.pre)e.pre=1;if(e.ty==="mentor"&&cf.sv)e.sv=svClean(cf.sv);if(cf.ns)e.ns=1;{const rf=String(cf.ref||"").replace(/\r/g,"").trim();if(rf)e.ref=rf.slice(0,2000)}{const tg=tgClean(cf.tg);if(tg.length)e.tg=tg}if(Array.isArray(cf.pp)){const pp=ppClean(cf.pp);if(pp.length||ppOf({tg:e.tg}).length)e.pp=pp}
  const i=S.cpd.findIndex(x=>x.id===e.id),old=i>=0?S.cpd[i]:null;if(i>=0)S.cpd[i]=e;else S.cpd.unshift(e);try{if(!old&&!e.auto&&!e.ns)fdPost("📒","Logged CPD: "+cptn(e.ty)+" · "+fmtH(e.m||0),"cpd:"+e.id)}catch(er){}try{const ci=cpdXpCalc(old,e);if(ci){S.xpT=(S.xpT||0)+ci.xp;S.xpW=(S.xpW||0)+ci.xp;save();setTimeout(()=>cpdCelebrate(ci),60)}}catch(er){}const fr=cf.from;if(fr==="cm"){const nid=e.id;S.cpd=S.cpd||[];const i2=S.cpd.findIndex(x=>x.id===e.id);if(i2>=0)S.cpd[i2]=e;else S.cpd.unshift(e);save();cf=null;return cmBack(nid)}if(fr==="hc"){pf="hc";hc.v="ev"}if(fr==="pre"){tab="cpd";pf="pre";pe=null}(cf.phGone||[]).forEach(id=>phDel(id).catch(()=>{}));if(e.otj)om=String(e.d).slice(0,7);save();cf=null;cp.v="list";if(fr==="otj")pf="otj";if(fr==="hc"){tab="cpd";pf="hc";hc.v="ev"}if(fr==="pre"){tab="cpd";pf="pre";pe=null}home();window.scrollTo(0,0)}
 function armTap(re,lab){const b=[...document.querySelectorAll("#app button")].find(x=>re.test(x.textContent.trim()));if(!b)return false;b.textContent=lab;b.style.borderColor="var(--bad)";b.style.color="var(--bad)";return true}
 function cpdDel(){if(!cf.del){cf.del=true;if(armTap(/^Delete entry$/,"Yes, delete"))return;return home()}(cf.ph||[]).concat(cf.phGone||[]).forEach(id=>phDel(id).catch(()=>{}));S.cpd=(S.cpd||[]).filter(x=>x.id!==cf.id);save();cf=null;cp.v="list";home();window.scrollTo(0,0)}
@@ -2360,7 +2360,7 @@ function cpdScreen(){
  app.innerHTML=h+`<p class="tag">Saved on this device only. Export a copy now and then so you never lose it.${S.cpdX?" Last exported "+esc(S.cpdX)+".":""}</p>`;
 }
 const cpdRows=()=>cpdAll().slice().sort((a,b)=>a.d.localeCompare(b.d));
-const cpdRef=e=>{const F=fwOf(e);return F.f.map(x=>x[1]+": "+(((e.r||{})[x[0]])||"-"))};
+const cpdRef=e=>{const F=fwOf(e);return F.f.map(x=>x[1]+": "+(((e.r||{})[x[0]])||"-")).concat(String(e.ref||"").trim()?["References: "+String(e.ref).trim()]:[])};
 function cpdText(){return ("CPD record\nExported "+isoD(new Date())+"\n\n"+cpdRows().map(e=>[e.d+"  "+e.t,"Type: "+cpTy(e)+" · "+(e.m||0)+" minutes"+(e.tm?" · started "+e.tm:"")].concat((e.ss||[]).length>1?["Sessions: "+ssStr(e)]:[],["Reflection model: "+fwOf(e).n]).concat((e.tg&&e.tg.length)?["Tags: "+e.tg.join(", ")]:[]).concat(e.otj?["Off-the-job training: yes"]:[],(e.ks&&e.ks.length)?["KSBs: "+ksbCodes(e.ks)]:[]).concat(cpdRef(e)).join("\n")).join("\n\n")+(cp.x==="all"?"\n\n"+pfText():"")).replace(/\n{3,}/g,"\n\n")}
 function cpdCsv(){const q=v=>{v=String(v==null?"":v);if(/^[=+\-@\t\r]/.test(v))v="'"+v;return '"'+v.replace(/"/g,'""')+'"'};return ["Date,Start time,Sessions,Title,Type,Tags,Minutes,Reflection model,Reflection"].concat(cpdRows().map(e=>[e.d,e.tm||"",ssStr(e),e.t,cpTy(e),(e.tg||[]).join("; "),e.m||0,fwOf(e).n,cpdRef(e).join("\n")].map(q).join(","))).join("\r\n")}
 async function cpdFile(kind){try{const dl=await claude.use("downloads");if(!dl)return cpdMsg("Saving a file is not available here. Use Copy instead.");const csv=kind==="csv";await dl.save({filename:"phyzly-"+(cp.x==="rev"?"content-review-":"cpd-")+isoD(new Date())+(csv?".csv":".txt"),data:csv?cpdCsv():cpdText()});S.cpdX=isoD(new Date());save();cpdMsg("Saved.")}catch(e){cpdMsg(e&&e.code==="declined"?"Not saved.":"Saving a file is not available here. Use Copy instead.")}}
@@ -7198,7 +7198,7 @@ function hcExp(){const C=hcChecks(),bad=C.filter(c=>!c[0]),H=hcS(),ne=hcEv().len
  `<div class="note">Saved and copied text leaves Phyzly. Check it for patient details before you send it anywhere.</div>`+hcMoreH(1)}
 function hcHtml(withImgs,imgs){const H=hcS(),ev=hcEv(),L=hcList(),g=hcGaps().filter(x=>(H.gap[x.k]||"").trim());
  const para=t=>String(t||"").trim().split(/\n{2,}/).map(p=>`<p>${esc(p).replace(/\n/g,"<br>")}</p>`).join("")||"<p>-</p>";
- const evSec=withImgs?ev.map(x=>{const e=x.e;let b="";if(x.k.startsWith("r:")){b=`<p><b>${esc(e.t)}</b><br>${esc(dFmt(e.d))} · ${esc(cpTy(e))} · ${esc(fmtH(e.m||0))}</p>`+fwOf(e).f.map(f=>`<p><b>${esc(f[1])}</b><br>${esc(((e.r||{})[f[0]])||"-").replace(/\n/g,"<br>")}</p>`).join("")}else if(isPdf(x.f))b=`<p>PDF document${imgs[x.f]&&imgs[x.f].name?": "+esc(imgs[x.f].name):""}. Uploaded as a separate file.</p>`;else b=imgs[x.f]?`<img src="${imgs[x.f].src}" alt="${esc(x.d)}">`:"<p>Image not found on this device.</p>";return `<section class="ev"><h3>Evidence ${x.n}: ${esc(x.d)}</h3>${b}</section>`}).join(""):"";
+ const evSec=withImgs?ev.map(x=>{const e=x.e;let b="";if(x.k.startsWith("r:")){b=`<p><b>${esc(e.t)}</b><br>${esc(dFmt(e.d))} · ${esc(cpTy(e))} · ${esc(fmtH(e.m||0))}</p>`+fwOf(e).f.map(f=>`<p><b>${esc(f[1])}</b><br>${esc(((e.r||{})[f[0]])||"-").replace(/\n/g,"<br>")}</p>`).join("")+(String(e.ref||"").trim()?`<p><b>References</b><br>${esc(String(e.ref).trim()).replace(/\n/g,"<br>")}</p>`:"")}else if(isPdf(x.f))b=`<p>PDF document${imgs[x.f]&&imgs[x.f].name?": "+esc(imgs[x.f].name):""}. Uploaded as a separate file.</p>`;else b=imgs[x.f]?`<img src="${imgs[x.f].src}" alt="${esc(x.d)}">`:"<p>Image not found on this device.</p>";return `<section class="ev"><h3>Evidence ${x.n}: ${esc(x.d)}</h3>${b}</section>`}).join(""):"";
  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CPD profile</title><style>body{font:11pt/1.5 Arial,Helvetica,sans-serif;max-width:780px;margin:0 auto;padding:20px;color:#111}h1{font-size:18pt;margin:0 0 4px}h2{font-size:13pt;border-bottom:2px solid #333;padding-bottom:3px;margin:24px 0 8px}h3{font-size:11.5pt;margin:0 0 6px}table{border-collapse:collapse;width:100%;margin:6px 0}td,th{border:1px solid #777;padding:5px 7px;vertical-align:top;text-align:left}th{background:#eee}.m{color:#444}.ev{page-break-before:always;padding-top:8px}img{max-width:100%;border:1px solid #bbb}@media print{.np{display:none}}</style></head><body>`+
  (withImgs?`<p class="np" style="background:#FFF7D6;border:1px solid #E5C100;padding:8px;border-radius:6px">This yellow note won't appear when you print. To make a PDF, print this page and choose Save as PDF.</p>`:"")+
  `<h1>Continuing professional development profile</h1><table><tr><th style="width:35%">Profession</th><td>${esc(H.prof)||"&nbsp;"}</td></tr><tr><th>CPD number</th><td>${esc(H.no)||"&nbsp;"}</td></tr><tr><th>Period covered</th><td>${esc(dFmt(H.from))} to ${esc(dFmt(H.to))}</td></tr></table>`+
@@ -8161,7 +8161,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
  }catch(e){console.error("v281",e)}
 
  /* ---------- v282: tester version: report a problem, feedback, welcome note ---------- */
- const RP_VER="v538";let rpCtx=null,rpCat=null;
+ const RP_VER="v539";let rpCtx=null,rpCat=null;
  function rpBtn(kind,id,i){return `<button class="rpb" onclick="rpOpen('${kind}','${id}',${i})">⚑ Report a problem with this card</button>`}
  function rpCtxFor(kind,id,i){try{
   if(kind==="c"){const c=LEARN[id][i],cd=typeof COND!=="undefined"&&COND.find(x=>x.id===id);return {kind:"card",layer:id,card:i,title:c.t,where:(cd?"Condition: "+cd.n:(typeof tn==="function"?tn(id):id))+" · card "+(i+1)+": "+c.t}}
@@ -10639,11 +10639,11 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
    {ch:"Portfolio",g:"cpd",rr:1,pre:async()=>{CPDRESET();if(pf!=="cpd"){await tapOn(()=>[...document.querySelectorAll("#app .nvlist button")].find(b=>/CPD log/.test(b.textContent)))}pf="cpd";cp.v="list";home();window.scrollTo(0,0)},s:()=>[document.querySelector("#app .go"),document.querySelector("#app .phb")].filter(Boolean),t:"CPD log",d:()=>"Add an entry, or snap a photo of a certificate or your notes and fill in the details later."},
    {ch:"Portfolio",g:"cpd",rr:1,pre:async()=>{if(!window._obCf){await tapOn(()=>[...document.querySelectorAll("#app .go")].find(b=>/Add entry/.test(b.textContent)));cpdNew();window._obCf=1}},s:()=>{const t=document.getElementById("cf-t");return t?[t.previousElementSibling,t,t.nextElementSibling].filter(Boolean):[]},t:"Add an entry",d:()=>"Give it a title, the date and how long it took. Never include patient details.",
     fr:[{w:900,act:tk=>typeIn("#cf-t","Recognising sepsis on the ward: in-service",tk)}]},
-   {ch:"Portfolio",g:"cpd",pre:()=>{if(!window._obCf){cpdNew();window._obCf=1}},s:()=>{const h=[...document.querySelectorAll("#app .cfl")].find(x=>/^Type/.test(x.textContent.trim()));return h?[h,h.nextElementSibling]:[]},t:"What kind of CPD",d:()=>"Choose the type. It sorts your log and fills in your HCPC audit pack.",
-    fr:[{w:1400,act:()=>clickTxt("#app .chipw button",/In-service|teaching/i)}]},
+   {ch:"Portfolio",g:"cpd",pre:()=>{if(!window._obCf){cpdNew();window._obCf=1}},s:()=>{const r=document.getElementById("cfr-ty");if(r)return [r];const h=[...document.querySelectorAll("#app .cfl")].find(x=>/^Type/.test(x.textContent.trim()));return h?[h,h.nextElementSibling]:[]},t:"What kind of CPD",d:()=>"Choose the type. It sorts your log and fills in your HCPC audit pack.",
+    fr:[{w:1400,act:()=>cfTy("inserv")}]},
    {ch:"Portfolio",g:"cpd",pre:()=>{if(!window._obCf){cpdNew();window._obCf=1}},s:()=>{const h=[...document.querySelectorAll("#app .cfl")].find(x=>/^Reflection/.test(x.textContent.trim()));const t=document.getElementById("cf-l");return h?[h,t].filter(Boolean):[]},t:"Reflect",d:()=>"Answer the prompts. A few lines is enough. Tap Change model for Gibbs, Kolb or What? So what? Now what? Each box holds up to about 1,000 words.",
     fr:[{w:1200,act:tk=>typeIn("#cf-l","How to spot early signs of sepsis and when to escalate.",tk)}]},
-   {ch:"Portfolio",g:"cpd",pre:()=>{if(!window._obCf){cpdNew();window._obCf=1}},s:()=>{const h=[...document.querySelectorAll("#app .cfl")].find(x=>/Photos/.test(x.textContent));if(!h)return[];const o=[h];let n=h.nextElementSibling;for(let i=0;i<2&&n;i++){o.push(n);n=n.nextElementSibling}return o},t:"Add a photo",d:()=>"Attach evidence: take a photo of a certificate, agenda or slides, or choose files. It stays on this device."},
+   {ch:"Portfolio",g:"cpd",pre:()=>{if(!window._obCf){cpdNew();window._obCf=1}},s:()=>{const r=document.getElementById("cfr-ph");if(r)return [r];const h=[...document.querySelectorAll("#app .cfl")].find(x=>/Photos/.test(x.textContent));if(!h)return[];const o=[h];let n=h.nextElementSibling;for(let i=0;i<2&&n;i++){o.push(n);n=n.nextElementSibling}return o},t:"Add a photo",d:()=>"Open Photos and evidence to take a photo of a certificate, agenda or slides, or choose files. It stays on this device."},
    {ch:"Portfolio",g:"cpd",pre:()=>{if(!window._obCf){cpdNew();window._obCf=1}},s:()=>{const b=[...document.querySelectorAll("#app .go")].pop();return b},t:"Save",d:()=>"Save the entry. It goes into your log, counts towards your audit pack and can be exported. This example won't be saved."},
    {ch:"Portfolio",g:"cpd",rr:1,pre:()=>{CPDRESET();pf="home";cp.v="list";home();window.scrollTo(0,0)},s:()=>{const h=[...document.querySelectorAll("#app .sec")].find(x=>/^Your tools/.test(x.textContent.trim()));if(!h)return[];const o=[h];let n=h.nextElementSibling;while(n&&!n.matches(".sec")&&o.length<4){o.push(n);n=n.nextElementSibling}return o},pos:"top",t:"Your tools",d:()=>"The tools you've chosen sit together on Portfolio. Choose which ones show in Profile."},
    {ch:"Portfolio",g:"cpd",rr:1,pre:()=>{CPDRESET();openGr("fb")},s:()=>{const t=document.querySelector("#app .seg[role=tablist]");if(!t)return[];const o=[t];let n=t.nextElementSibling;while(n&&o.length<3){o.push(n);n=n.nextElementSibling}return o},pos:"top",t:"Feedback",d:()=>"Keep feedback from colleagues, or send them a link so they can write it themselves.",
@@ -10797,7 +10797,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
    if(e.ph!==undefined)e.ph=Array.isArray(e.ph)?e.ph.map(sid):[];
    if(e.tg!==undefined){const o=[],seen={};(Array.isArray(e.tg)?e.tg:[]).forEach(t=>{if(typeof t!=="string")return;t=t.replace(/[^\p{L}\p{N} &'()\/+.-]/gu,"").replace(/\s+/g," ").trim().slice(0,30);const k=t.toLowerCase();if(t&&!seen[k]&&o.length<8){seen[k]=1;o.push(t)}});if(o.length)e.tg=o;else delete e.tg}
    if(e.sv!==undefined){const v=e.sv&&typeof e.sv==="object"?e.sv:{};e.sv={k:String(v.k==null?"":v.k).replace(/[<>]/g,"").slice(0,40),dir:v.dir==="giv"?"giv":"rcv",who:String(v.who==null?"":v.who).replace(/[<>]/g,"").slice(0,60)}}
-   if(e.ss!==undefined)e.ss=Array.isArray(e.ss)?e.ss.filter(s=>s&&typeof s==="object").slice(-50).map(s=>({tm:HM.test(String(s.tm||""))?s.tm:"",m:mins(s.m)})):[];
+   if(e.ref!==undefined)e.ref=typeof e.ref==="string"?e.ref.slice(0,2000):"";if(e.ss!==undefined)e.ss=Array.isArray(e.ss)?e.ss.filter(s=>s&&typeof s==="object").slice(-50).map(s=>({tm:HM.test(String(s.tm||""))?s.tm:"",m:mins(s.m)})):[];
    return e};
 
   /* saved groups (user_state) */
@@ -11795,7 +11795,7 @@ function xpPeriod(rows){const P=xpSel(),from=xpFrom(),to=xpTo(),t=isoD(new Date(
 function xpStats(rows){const ty={},tg={},mo={};let min=0,refl=0,ph=0,pd=0;rows.forEach(e=>{const m=e.m||0;min+=m;if(cpHas(e))refl++;(e.ph||[]).forEach(f=>isPdf(f)?pd++:ph++);
  const k=cptn(e.ty);(ty[k]=ty[k]||{n:0,m:0}).n++;ty[k].m+=m;(e.tg||[]).forEach(t=>{(tg[t]=tg[t]||{n:0,m:0}).n++;tg[t].m+=m});const mk=e.d.slice(0,7);(mo[mk]=mo[mk]||{n:0,m:0}).n++;mo[mk].m+=m});
  return {n:rows.length,min,refl,ph,pd,ty,tg,mo}}
-const xpRefl=e=>fwOf(e).f.map(x=>[x[1],String(((e.r||{})[x[0]])||"").trim()]).filter(x=>x[1]);
+const xpRefl=e=>fwOf(e).f.map(x=>[x[1],String(((e.r||{})[x[0]])||"").trim()]).filter(x=>x[1]).concat(String(e.ref||"").trim()?[["References",String(e.ref).trim()]]:[]);
 const xpFileBase=k=>(k==="hc"?"hcpc-cpd-profile-":"cpd-record-")+isoD(new Date());
 
 /* ---------- delivery ---------- */
@@ -11838,7 +11838,7 @@ async function xpRun(kind,fn,ctx){if(XP.busy)return;XP.busy=true;XP.ctx=ctx||"cp
 
 /* ---------- text and CSV ---------- */
 function xpText(rows){const W=xpWho(),st=xpStats(rows);let t="CPD record"+(W.name?"\n"+W.name:"")+(W.prof?" · "+W.prof:"")+"\n"+xpPeriod(rows)+" · Exported "+xpLong(isoD(new Date()))+"\n"+st.n+" "+(st.n===1?"entry":"entries")+" · "+xpH(st.min)+" · "+st.refl+" reflected\n";
- rows.forEach(e=>{t+="\n"+xpNice(e.d)+(e.tm?" "+e.tm:"")+"  "+e.t+"\n"+cpTy(e)+" · "+fmtH(e.m||0)+((e.tg||[]).length?" · Tags: "+e.tg.join(", "):"")+"\n";const R=xpRefl(e);t+=R.length?R.map(r=>r[0]+"\n"+r[1]).join("\n\n")+"\n":"No reflection written yet.\n";const n=(e.ph||[]).length;if(n)t+="Evidence attached: "+n+"\n"});
+ rows.forEach(e=>{t+="\n"+xpNice(e.d)+(e.tm?" "+e.tm:"")+"  "+e.t+"\n"+cpTy(e)+" · "+fmtH(e.m||0)+((e.tg||[]).length?" · Tags: "+e.tg.join(", "):"")+"\n";const R=xpRefl(e);t+=(R.some(r=>r[0]!=="References")?"":"No reflection written yet.\n")+(R.length?R.map(r=>r[0]+"\n"+r[1]).join("\n\n")+"\n":"");const n=(e.ph||[]).length;if(n)t+="Evidence attached: "+n+"\n"});
  return t.replace(/\n{3,}/g,"\n\n")}
 function xpCsv(rows){const q=v=>{v=String(v==null?"":v);if(/^[=+\-@\t\r]/.test(v))v="'"+v;return '"'+v.replace(/"/g,'""')+'"'};
  return "﻿"+["Date,Start time,Title,Type,Tags,Minutes,Hours,Reflection model,Reflection,Evidence"].concat(rows.map(e=>[e.d,e.tm||"",e.t,cpTy(e),(e.tg||[]).join("; "),e.m||0,((e.m||0)/60).toFixed(2),fwOf(e).n,xpRefl(e).map(r=>r[0]+": "+r[1]).join("\n"),xpEvStr(e)].map(q).join(","))).join("\r\n")}
@@ -11956,7 +11956,7 @@ async function xpCpdPdf(rows,all,preFirst){const W=xpWho(),st=xpStats(rows),inc=
    for(const e of rows){const ev=await xpEvidence(e,inc),R=xpRefl(e);L.need(72);
     L.text(xpLong(e.d)+(e.tm?" · "+e.tm:"")+"   ·   "+fmtH(e.m||0),{sz:8.5,c:L.mute,w:"bold",gap:1});L.text(e.t,{sz:13,w:"bold",lh:1.3,gap:1});
     L.text(cpTy(e)+((e.tg||[]).length?"   ·   "+e.tg.join(", "):""),{sz:9.5,c:L.mute,gap:8});
-    if(R.length)R.forEach(r=>{L.need(30);L.text(r[0],{sz:9,w:"bold",c:L.mute,gap:1});L.text(r[1],{sz:10.5,gap:7})});else L.text("No reflection written yet.",{sz:10,c:L.soft,w:"italic",gap:6});
+    if(!R.some(r=>r[0]!=="References"))L.text("No reflection written yet.",{sz:10,c:L.soft,w:"italic",gap:6});R.forEach(r=>{L.need(30);L.text(r[0],{sz:9,w:"bold",c:L.mute,gap:1});L.text(r[1],{sz:10.5,gap:7})});
     if(ev.img.length){L.y+=2;await L.images(ev.img,i=>"Photo "+(i+1)+(ev.img.length>1?" of "+ev.img.length:""))}
     ev.pdf.forEach(p=>{const a=xpLetter(apps.length);apps.push({a,e,p});L.text("Attached document: "+p.name+" (Appendix "+a+")",{sz:9.5,c:L.mute,gap:4})});
     if(!inc&&(e.ph||[]).length)L.text("Evidence attached in the app: "+xpEvStr(e),{sz:9.5,c:L.mute,gap:4});
@@ -11987,7 +11987,7 @@ function hcFoot(n){const H=hcS(),no=String(H.no||"").trim();return "CPD profile"
 async function hcEvPage(L,x,alone){const e=x.e;
  if(x.f&&isPdf(x.f)){const b=await xpBlob(x.f);if(b){const bytes=await b.arrayBuffer();L.insert(bytes,()=>{L.text("Evidence "+x.n+": "+x.d,{sz:13.5,w:"bold",gap:6});L.text("PDF document"+(b.name?": "+b.name:"")+". It follows on the next page.",{sz:10,c:L.mute})});return}}
  if(!alone)L.page();L.text("Evidence "+x.n+": "+x.d,{sz:13.5,w:"bold",gap:8});
- if(x.k.startsWith("r:")){L.text(e.t,{sz:11.5,w:"bold",gap:1});L.text(xpLong(e.d)+" · "+cptn(e.ty)+" · "+fmtH(e.m||0),{sz:9.5,c:L.mute,gap:10});fwOf(e).f.forEach(f=>{L.text(f[1],{sz:9,w:"bold",c:L.mute,gap:1});L.text(String(((e.r||{})[f[0]])||"-").trim()||"-",{gap:7})})}
+ if(x.k.startsWith("r:")){L.text(e.t,{sz:11.5,w:"bold",gap:1});L.text(xpLong(e.d)+" · "+cptn(e.ty)+" · "+fmtH(e.m||0),{sz:9.5,c:L.mute,gap:10});fwOf(e).f.forEach(f=>{L.text(f[1],{sz:9,w:"bold",c:L.mute,gap:1});L.text(String(((e.r||{})[f[0]])||"-").trim()||"-",{gap:7})});if(String(e.ref||"").trim()){L.text("References",{sz:9,w:"bold",c:L.mute,gap:1});L.text(String(e.ref).trim(),{gap:7})}}
  else if(x.f){const b=await xpBlob(x.f);if(b)await L.images([b],()=>"");else L.text("Image not found on this device.",{c:L.mute})}}
 /* ---------- the export screen ---------- */
 function xpScreen(){const P=xpSel(),rows=xpRows(),st=xpStats(rows),all=cp.x==="all",used={};(S.cpd||[]).forEach(e=>(e.tg||[]).forEach(t=>used[t]=1));const tags=Object.keys(used).sort();if(P.tg&&!used[P.tg])P.tg=null;const tyu=[...new Set((S.cpd||[]).filter(e=>e).map(e=>cptn(e.ty)))],ord=CPT.map(x=>x[1]),tys=tyu.sort((a,b)=>(ord.indexOf(a)<0?99:ord.indexOf(a))-(ord.indexOf(b)<0?99:ord.indexOf(b)));if(P.ty&&!tys.includes(P.ty))P.ty=null;const bad=P.per==="custom"&&xpDay(P.df)&&xpDay(P.dt)&&P.df>P.dt;
@@ -13827,7 +13827,7 @@ function pzBack(){
  const ifb=q(".ifbg");if(ifb){const x=ifb.querySelector(".ifx");if(x)x.click();else ifb.remove();return true}
  if(q(".twov"))return true;                                 /* a question that needs an answer stays */
  const A=document.getElementById("app");if(!A)return false;
- const links=[...A.querySelectorAll("button.lnk")].filter(b=>/^\s*‹/.test(b.textContent||""));
+ if(A.querySelector(".prsheet")){preShClose();return true}const links=[...A.querySelectorAll("button.lnk")].filter(b=>/^\s*‹/.test(b.textContent||"")||b.getAttribute("onclick")==="cpdCancel()");
  const pick=links.find(b=>b.closest(".dkr")&&/cpdCancel/.test(b.getAttribute("onclick")||""))||links.find(b=>b.offsetParent!==null)||links[0];
  if(pick){pick.click();return true}
  const cl=A.querySelector('[aria-label="Close"],[aria-label="Leave"]');if(cl){cl.click();return true}
@@ -13996,7 +13996,7 @@ function preCalm(R){const P=S.pre;if(!P||!P.start)return;
  const an=secOf("Starting another preceptorship?");
  if(an){let i=0;run(an).forEach(e=>{if(e.matches("button,a")){const t=pzTx(e);rows.push(["prm-an"+(i++),t,/^Start a new preceptorship/.test(t)?"This one is kept, under Earlier preceptorships":"",e.getAttribute("onclick")]);e.remove()}else if(e.matches("p.tag"))e.remove()});an.remove()}
  if(!rows.length&&!stdTxt)return;
- const rowH=r=>`<button class="pzrow" id="${r[0]}" onclick="${esc(r[3]||"")}"><span>${esc(r[1])}${r[2]?`<small>${esc(r[2])}</small>`:""}</span><span class="chv" aria-hidden="true">›</span></button>`;
+ const rowH=r=>`<button class="pzrow" id="${r[0]}" aria-label="${esc(r[1]+(r[2]?", "+r[2]:""))}" onclick="${esc(r[3]||"")}"><span>${esc(r[1])}${r[2]?`<small>${esc(r[2])}</small>`:""}</span><span class="chv" aria-hidden="true">›</span></button>`;
  if(box0){const dt=box0.querySelector("details");rows.forEach(r=>{if(!box0.querySelector("#"+r[0])){const t=document.createElement("template");t.innerHTML=rowH(r);box0.insertBefore(t.content.firstChild,dt)}});return}
  const foot=K().find(e=>e.matches(".pzfoot"))||null,h=document.createElement("div");h.className="sec";h.textContent="More";
  const box=document.createElement("div");box.className="prmore";box.id="prmore";box.setAttribute("role","group");box.setAttribute("aria-label","More");
@@ -14029,6 +14029,98 @@ function pzCalm(R){if(!R||!(window.CL&&CL())||typeof tab==="undefined"||tab!=="c
 /* after each draw: the first draw has no morph; the grown boxes are measured on the page */
 {const h0=home;home=function(){const r=h0.apply(this,arguments);try{const A=document.getElementById("app");pzCalm(A);A.querySelectorAll("textarea.cfgr").forEach(cfGrow)}catch(e){console.error("v538",e)}return r}}
 
+
+/* ---------- v539: calmer pages, batch 2 (form frame, Type sheet, extras as rows, References, review sheet) ---------- */
+const pzShield='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6z"/></svg>';
+let cfOpenM={o:null,s:{}},cfTyH="";
+function cfOpenK(k){return cfOpenM.o===cf&&!!cfOpenM.s[k]}
+function cfRowT(k){if(cfOpenM.o!==cf)cfOpenM={o:cf,s:{}};cfOpenM.s[k]=!cfOpenM.s[k];const op=cfOpenM.s[k];cfRe();
+ if(op)setTimeout(()=>{const g=document.getElementById("cfg-"+k);if(!g)return;try{g.scrollIntoView({block:"nearest",behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"})}catch(e){}if(k==="ref"){const t=document.getElementById("cf-ref");if(t)try{t.focus({preventScroll:true})}catch(e){}}},30)}
+function cfTySheet(){if(!cf||!cfTyH)return;infoSheet(`<h2 style="margin:6px 0 4px;font-size:1.25rem">Type</h2><p class="tag" style="margin:0 0 6px">It sorts your log and fills in your HCPC audit pack.</p><div class="cftyl" role="group" aria-label="Type">${cfTyH}</div>`,"Type")}
+function cfTyBack(){setTimeout(()=>{const r=document.getElementById("cfr-ty");if(r)try{r.focus({preventScroll:true})}catch(e){}},260)}
+const pzRowH=(id,lab,val,on,extra)=>`<button class="pzrow" id="${id}" aria-label="${lab}${val!=null?", "+val:""}" ${extra||""} onclick="${on}"><span>${lab}${val!=null?`<small>${val}</small>`:""}</span><span class="chv" aria-hidden="true">›</span></button>`;
+function cfCalm2(R){const t=R.querySelector("#cf-t");if(!t||!cf)return;const C=t.parentNode;let K=pzKids(C);
+ /* Type: one row, the choices in a sheet */
+ const T=K.find(e=>e.matches("div.cfl")&&/^Type/.test(pzTx(e))),tc=T&&T.nextElementSibling&&T.nextElementSibling.matches(".chipw")?T.nextElementSibling:null;
+ if(T&&tc){const used={};(S.cpd||[]).forEach(e=>{if(e&&e.ty)used[e.ty]=(used[e.ty]||0)+1});
+  const B=[...tc.querySelectorAll("button.chipb")].map(b=>{const o=b.getAttribute("onclick")||"",m=/cfTy\('([^']+)'\)/.exec(o);return {k:m?m[1]:"",o,t:pzTx(b),on:b.classList.contains("on")}}).filter(x=>x.k);
+  const ord=B.slice().sort((a,b)=>(used[b.k]||0)-(used[a.k]||0));const cur=B.find(x=>x.on);
+  cfTyH=ord.map(x=>`<button class="opt"${x.on?' aria-current="true"':""} data-close onclick="${esc(x.o)};cfTyBack()"><span>${esc(x.t)}</span>${x.on?'<span aria-hidden="true">✓</span>':""}</button>`).join("");
+  const w=document.createElement("div");w.className="cftyr";w.innerHTML=pzRowH("cfr-ty","Type",cur?esc(cur.t):"Choose","cfTySheet()",'aria-haspopup="dialog"');T.replaceWith(w);tc.remove()}
+ K=pzKids(C);
+ /* No patient details: under the reflection, word for word */
+ const pd=K.find(e=>e.matches(".note")&&/^No patient details\./.test(pzTx(e))),mh=K.find(e=>e.matches(".cfmore"));
+ if(pd&&mh){const ws=[...C.querySelectorAll("small.cfwc")].filter(x=>x.parentNode===C&&K.indexOf(x)<K.indexOf(mh));const at=ws[ws.length-1];
+  pd.className="cfpd";pd.innerHTML=pzShield+"<span>"+pd.innerHTML+"</span>";if(at)at.after(pd);else mh.before(pd)}
+ K=pzKids(C);
+ /* the extras as rows that show their value */
+ if(mh&&!K.some(e=>e.matches(".cfopt"))){const after=[];let n=mh.nextElementSibling;while(n&&!n.matches(".cfrare,.cfdisc,.dkbt,.pzsave,.pzfoot")&&!(n.matches("button.go")&&n.getAttribute("onclick")==="cpdSave()")){after.push(n);n=n.nextElementSibling}
+  const head=x=>x.matches("div.cfl,label.cfl,.aphr,.cr,button.ock,.svb,.cfgrp,.ksbw,.crlk");
+  const grab=st=>{const g=[st];let x=st.nextElementSibling;while(x&&after.includes(x)&&!head(x)){g.push(x);x=x.nextElementSibling}return g};
+  const box=document.createElement("div");box.className="cfopt";box.id="cfopt";box.setAttribute("role","group");box.setAttribute("aria-label","More about this entry");
+  const add=(k,lab,val,nodes,auto)=>{const op=cfOpenK(k)||!!auto;const w=document.createElement("template");w.innerHTML=pzRowH("cfr-"+k,lab,esc(val),`cfRowT('${k}')`,`aria-expanded="${op}" aria-controls="cfg-${k}"`);box.appendChild(w.content.firstChild);
+   const g=document.createElement("div");g.className="cfgrp";g.id="cfg-"+k;g.hidden=!op;nodes.forEach(x=>g.appendChild(x));box.appendChild(g)};
+  /* Part of your preceptorship programme: a switch */
+  const pq=after.find(e=>e.matches("div.cfl")&&/^Part of your preceptorship programme/.test(pzTx(e)));
+  if(pq){const ch=pq.nextElementSibling&&pq.nextElementSibling.matches(".chipw")?pq.nextElementSibling:null;const w=document.createElement("template");
+   w.innerHTML=`<button class="pzrow" id="cfr-pre" role="switch" aria-checked="${!!cf.pre}" onclick="cf.pre=!cf.pre;cfRe()"><span>Part of your preceptorship programme</span><span class="pzsw" aria-hidden="true"></span></button>`;box.appendChild(w.content.firstChild);pq.remove();if(ch)ch.remove()}
+  const tmEl=C.querySelector("#cf-tm"),tmR=tmEl&&tmEl.closest(".cr");
+  if(tmR&&after.includes(tmR)&&tmR.children.length===1)add("tm",(cf.ss||[]).length?"First start time":"Start time",cf.tm||"Not set",[tmR]);
+  const ph=after.find(e=>e.matches("div.cfl")&&/^Photos and evidence/.test(pzTx(e)));
+  if(ph){const L=cf.ph||[],P=L.filter(i=>typeof isPdf==="function"&&isPdf(i)).length,I=L.length-P;add("ph","Photos and evidence",[I?I+(I===1?" photo":" photos"):"",P?P+(P===1?" PDF":" PDFs"):""].filter(Boolean).join(", ")||"None",grab(ph),!!(cf.ai||cf.phMsg||(!cf.id&&(cf.ph||[]).length)))}
+  const pp=after.find(e=>e.matches(".aphr"));
+  if(pp){const g=grab(pp),on=g.flatMap(x=>[...x.querySelectorAll(".chipb.on")]).map(pzTx);add("pp","Pillars of practice",on.join(", ")||"None",g)}
+  const tg=after.find(e=>e.matches("div.cfl")&&/^Tags/.test(pzTx(e)));
+  if(tg){const g=grab(tg);add("tg","Tags",(cf.tg||[]).join(", ")||"None",g)}
+  {const w=document.createElement("template");const rv=String(cf.ref||"");
+   w.innerHTML=`<p class="tag" style="margin:0 0 6px">A webpage, book, journal article or guideline you learned from. One per line, in any style.</p><textarea id="cf-ref" class="cin" rows="2" maxlength="2000" aria-label="References" placeholder="e.g. Resuscitation Council UK (2021) The ABCDE approach. resus.org.uk" oninput="if(this.value)cf.ref=this.value;else delete cf.ref;cfGrow(this)">${esc(rv)}</textarea>`;
+   const first=rv.split("\n").map(x=>x.trim()).filter(Boolean),val=first.length?(first[0].length>40?first[0].slice(0,40)+"…":first[0])+(first.length>1?" and "+(first.length-1)+" more":""):"None";
+   add("ref","References",val,[...w.content.childNodes].filter(x=>x.nodeType===1));const ta=box.querySelector("#cf-ref");if(ta)ta.classList.add("cfgr")}
+  if(box.children.length)mh.after(box)}
+ /* the form frame: Save at the bottom, Cancel */
+ K=pzKids(C);const sv=K.find(e=>e.matches("button.go")&&e.getAttribute("onclick")==="cpdSave()");
+ if(sv&&!K.some(e=>e.matches(".pzsave"))){const dc=K.find(e=>e.matches(".cfdisc"));const bar=document.createElement("div");bar.className="pzsave";bar.id="cfbar";
+  if(dc){dc.textContent="Cancel";dc.classList.add("cfcx");bar.appendChild(dc)}bar.appendChild(sv);const ft=K.find(e=>e.matches(".pzfoot"));if(ft)ft.before(bar);else C.appendChild(bar)}
+ const bk=K.find(e=>e.matches("button.lnk")&&e.getAttribute("onclick")==="cpdCancel()"&&/^‹\s*CPD log$/.test(pzTx(e)));if(bk){bk.textContent="Cancel";bk.removeAttribute("aria-label");bk.classList.add("bkl")}}
+/* the same Save bar on the other forms */
+function pzSaveBar(R){if(typeof tab==="undefined"||tab!=="cpd")return;const okPf=(pf==="pre"&&pe&&pe.v==="mt")||pf==="gr";if(!okPf)return;
+ const cands=[...R.querySelectorAll("button.go")].filter(b=>/^Save( meeting| feedback| goal)?$/.test(pzTx(b))&&!b.closest(".pzsave,.ifbg,.pmd"));if(cands.length!==1)return;
+ const b=cands[0],P=b.parentNode;if(!P||!(P.querySelector("textarea")||P.querySelector("input.cin")))return;
+ const bar=document.createElement("div");bar.className="pzsave";bar.id="pzsave";const ft=pzKids(P).find(e=>e.matches(".pzfoot"));b.before(bar);bar.appendChild(b);if(ft)ft.before(bar);else P.appendChild(bar)}
+/* Preceptorship: a review point opens as a sheet; Add a programme session is one row */
+let prSessH="";
+function preSessSheet(){if(!prSessH)return;infoSheet(`<h2 style="margin:6px 0 4px;font-size:1.25rem">Add a programme session</h2>${prSessH}`,"Add a programme session")}
+/* one way to close the review sheet: focus goes back to the review point */
+function preShFocus(id){setTimeout(()=>{const b=[...document.querySelectorAll("#app [onclick]")].find(x=>x.getAttribute("onclick")===`preMs('${id}')`);if(b)try{b.focus({preventScroll:true})}catch(e){}},0)}
+function preShClose(){const id=preEd;preEd=null;home();if(id)preShFocus(id)}
+/* after Mark as done: the "Log notes?" question comes into view with focus on it, or focus returns to the review point */
+{const m0=typeof preMsSet==="function"?preMsSet:null;if(m0)preMsSet=function(k,d){const r=m0.apply(this,arguments);setTimeout(()=>{const q=document.querySelector("#app .pmd.pask");
+  if(q){try{q.scrollIntoView({block:"nearest"})}catch(e){}const g=q.querySelector("button.go")||q.querySelector("button");if(g)try{g.focus({preventScroll:true})}catch(e){}}else preShFocus(k)},0);return r}}
+function preCalm2(R){if(typeof pf==="undefined"||pf!=="pre")return;
+ const md=R.querySelector(".pmd:not(.pask)");if(md&&preEd&&!pe&&!md.classList.contains("prsheet")){const x=(()=>{try{return preRvL().find(r=>r.id===preEd)}catch(e){return null}})();
+  md.classList.add("prsheet");md.id="prsheet";md.setAttribute("role","dialog");md.setAttribute("aria-modal","true");md.setAttribute("aria-labelledby","prshh2");
+  md.querySelectorAll('button[onclick="preEd=null;home()"]').forEach(b=>b.setAttribute("onclick","preShClose()"));
+  const h=document.createElement("div");h.className="prshh";h.innerHTML=`<h2 id="prshh2">${esc(x?x.n:"Review point")}</h2><button class="prshx" id="prshx" aria-label="Close" onclick="preShClose()">✕</button>`;md.prepend(h);
+  const bg=document.createElement("div");bg.className="prshbg";bg.setAttribute("onclick","preShClose()");md.before(bg)}
+ const L=R.querySelector(".dk2.pres>.dkl")||(pe?null:R);if(!L)return;const sec=pzKids(L).find(e=>e.matches("div.sec")&&pzTx(e)==="Programme sessions");
+ if(sec&&!L.querySelector("#prsess")){let n=sec.nextElementSibling;const g=[];while(n&&!n.matches("div.sec,.pzfoot")){g.push(n);n=n.nextElementSibling}
+  const ch=g.find(e=>e.matches(".chipw"));if(ch){const help=g.find(e=>e.matches("p.tag")),lab=g.find(e=>e.matches("div.cfl")&&/^Add a session/.test(pzTx(e))),done=g.filter(e=>e.matches("button.opt")).length;
+   prSessH=(help?`<p class="tag" style="margin:0 0 8px">${help.innerHTML}</p>`:"")+`<div class="chipw prsesl" role="group" aria-label="Programme sessions">${[...ch.querySelectorAll("button")].map(b=>{b.setAttribute("data-close","");return b.outerHTML}).join("")}</div>`;
+   const w=document.createElement("template");w.innerHTML=`<div class="prrows" style="margin-top:6px">${pzRowH("prsess","Add a programme session",esc(done?done+" added":"Study days and teaching, saved to your CPD log"),"preSessSheet()",'aria-haspopup="dialog"')}</div>`;
+   sec.after(w.content.firstChild);[help,lab,ch].forEach(e=>{if(e)e.remove()})}}}
+{const pc0=pzCalm;pzCalm=function(R){pc0(R);if(!R||!(window.CL&&CL())||typeof tab==="undefined"||tab!=="cpd")return;[cfCalm2,pzSaveBar,preCalm2].forEach(fn=>{try{fn(R)}catch(e){console.error("v539",fn.name,e)}})}}
+/* a new entry started from a photo: its open Photos row comes into view once */
+let cfPhSeen=null;
+{const h0=home;home=function(){const r=h0.apply(this,arguments);try{if(typeof cf!=="undefined"&&cf&&!cf.id&&cp.v==="form"&&(cf.ph||[]).length&&cfPhSeen!==cf){const g=document.getElementById("cfg-ph");if(g&&!g.hidden){cfPhSeen=cf;setTimeout(()=>{try{g.scrollIntoView({block:"start"})}catch(e){}},60)}}}catch(e){}return r}}
+/* the review sheet: focus goes in, Tab stays in, Escape closes */
+{const h0=home;home=function(){try{if(typeof preEd!=="undefined"&&preEd&&(tab!=="cpd"||pf!=="pre"))preEd=null}catch(e){}const was=!!document.querySelector("#app .prsheet");const r=h0.apply(this,arguments);try{const sh=document.querySelector("#app .prsheet");
+  if(sh&&!was)setTimeout(()=>{const f=sh.querySelector("#pm-d")||sh.querySelector("button,input");if(f&&!sh.contains(document.activeElement))try{f.focus({preventScroll:true})}catch(e){}},0)}catch(e){}return r}}
+try{const vv=window.visualViewport;if(vv){const kb=()=>{try{const a=document.activeElement,typing=!!(a&&a.matches&&a.matches("input:not([type=checkbox]):not([type=radio]):not([type=file]),textarea,select"));document.body.classList.toggle("pzkb",typing&&vv.height<window.innerHeight*0.8)}catch(e){}};vv.addEventListener("resize",kb);document.addEventListener("focusin",()=>setTimeout(kb,300));document.addEventListener("focusout",()=>setTimeout(kb,50))}}catch(e){}
+document.addEventListener("keydown",e=>{const sh=document.querySelector("#app .prsheet");if(!sh)return;
+ if(e.key==="Escape"){e.preventDefault();preShClose();return}
+ if(e.key==="Tab"){const F=[...sh.querySelectorAll("button,input,select,textarea,a[href],[tabindex]:not([tabindex='-1'])")].filter(x=>!x.disabled&&x.getClientRects().length);if(!F.length)return;const a=F[0],z=F[F.length-1];
+  if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus()}else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()}else if(!sh.contains(document.activeElement)){e.preventDefault();a.focus()}}});
+
 /* focus stays on the control just used when the screen redraws (PRO-09) */
 function pzFKey(el){if(!el||el===document.body)return null;const A=document.getElementById("app");if(!A||!A.contains(el))return null;
  if(el.id)return {id:el.id};const o=el.getAttribute&&el.getAttribute("onclick");if(o){const same=[...A.querySelectorAll("[onclick]")].filter(x=>x.getAttribute("onclick")===o);return {o,i:same.indexOf(el)}}return null}
@@ -14058,7 +14150,7 @@ function pzWords(){try{const A=document.getElementById("app");if(!A)return;
 /* ---------- v509: batch J, CPD log usability ---------- */
 /* CPD-08: search and order */
 const cpQw=()=>String(cp.q||"").toLowerCase().split(/\s+/).filter(Boolean);
-function cpQm(e){const W=cpQw();if(!W.length)return true;let h="";try{h=[e.t,cpTy(e),(e.tg||[]).join(" "),Object.values(e.r||{}).join(" "),e.sv&&e.sv.k||"",e.d,dFmt(e.d,{day:"numeric",month:"long",year:"numeric"})].join(" ").toLowerCase()}catch(er){h=String(e.t||"").toLowerCase()}
+function cpQm(e){const W=cpQw();if(!W.length)return true;let h="";try{h=[e.t,cpTy(e),(e.tg||[]).join(" "),Object.values(e.r||{}).join(" "),e.ref||"",e.sv&&e.sv.k||"",e.d,dFmt(e.d,{day:"numeric",month:"long",year:"numeric"})].join(" ").toLowerCase()}catch(er){h=String(e.t||"").toLowerCase()}
  return W.every(w=>h.indexOf(w)>=0)}
 function cpSearch(n){if(n<2&&!cp.q&&!cp.so)return "";
  return `<div class="cpqw"><div class="cpqi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="cp-q" class="cin" type="search" enterkeyhint="search" autocomplete="off" placeholder="Search your entries" aria-label="Search your entries" value="${esc(cp.q||"")}" oninput="cpQ(this.value)"></div>`+
@@ -14494,7 +14586,7 @@ function rcH(){if(!cf||!cf.id||!rcOn())return "";const V=rcV(),id=cf.id,td=isoD(
 function rcBlockH(){return cf&&cf.id&&!cf.auto&&rcOn()?`<div class="rcw" id="rcw">${rcH()}</div>`:""}
 function rcSaved(){return (S.cpd||[]).find(e=>e.id===(cf&&cf.id))||null}
 function rcDirty(){try{if(typeof pzSer!=="function"||typeof pzSnap==="undefined"||!pzSnap.has(cf))return false;return pzSnap.get(cf)!==pzSer(cf)}catch(e){return false}}
-function rcContent(e){const f=fwOf(e).f.map(x=>[String(x[1]).replace(/\s+/g," ").trim().slice(0,120),String(((e.r||{})[x[0]])||"").trim().slice(0,6000)]).filter(x=>x[0]&&x[1]).slice(0,10);
+function rcContent(e){const f=fwOf(e).f.map(x=>[String(x[1]).replace(/\s+/g," ").trim().slice(0,120),String(((e.r||{})[x[0]])||"").trim().slice(0,6000)]).filter(x=>x[0]&&x[1]).slice(0,9);if(f.length&&String(e.ref||"").trim())f.push(["References",String(e.ref).trim().slice(0,6000)]);
  return {t:String(e.t||"").replace(/\s+/g," ").trim().slice(0,200)||"CPD entry",d:e.d,ty:String(cpTy(e)||"").slice(0,120),m:Math.max(0,Math.min(100000,Math.round(+e.m||0))),f}}
 function rcAsk(){rc.err="";rc.show=null;const e=rcSaved();if(!e)return;
  if(rcDirty()){rc.err="Save your changes first, so the link shows your reflection as it is now.";return rcRe()}
@@ -15552,7 +15644,7 @@ try{(function(){
    html.pzo .cfoot{display:none}
    html.pzo #app .dk2{display:grid;grid-template-columns:minmax(320px,400px) minmax(0,1fr);gap:40px;max-width:1200px;margin:0 auto;align-items:start}
    html.pzo #app .dkl{min-width:0}
-   html.pzo #app .dkr{min-width:0;position:sticky;top:24px;max-height:calc(100vh - 48px);overflow:auto;background:var(--card);border-radius:20px;box-shadow:0 10px 30px rgba(10,31,61,.10),0 1px 3px rgba(10,31,61,.06);padding:24px 32px 32px}
+   html.pzo #app .dkr{min-width:0;position:sticky;top:24px;max-height:calc(100vh - 100px);overflow:auto;background:var(--card);border-radius:20px;box-shadow:0 10px 30px rgba(10,31,61,.10),0 1px 3px rgba(10,31,61,.06);padding:24px 32px 32px}
    html.pzo #app .dkr>*{max-width:680px}
    html.pzo #app .dkr>.top+.lnk,html.pzo #app .dkr>.lnk:first-child{display:none}
    html.pzo #app .dkl .dksel{background:var(--tint)!important;border-color:var(--pri)!important}

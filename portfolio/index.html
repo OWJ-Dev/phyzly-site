@@ -1015,7 +1015,7 @@ body.pznonet #nav{display:none!important}
 <body>
 <main id="app"><div id="pzsh"><span class="wm">Phy<i>z</i>ly</span><span class="sub">Portfolio</span><span class="vh">Loading</span><noscript><p>Phyzly Portfolio needs JavaScript switched on in your browser.</p></noscript></div></main>
 <script>window.PZ_ONLY="portfolio";window.PZ_CFG={url:"https://lrbxghrhxabnqvfgxrad.supabase.co",key:"sb_publishable_XjivnIAnqcuxpwN5j18Bpw_HnaazWPf",providers:{apple:true,google:false},invite:true};window.PZ_FB_LINKS=true;window.PZ_SO_LINKS=true;window.PZ_RC_LINKS=true;window.PZ_PK_LINKS=true;window.PZ_AI=true;window.PZ_PAY=true;</script><script defer src="/vendor/supabase-js-2.118.0.js"></script>
-<script defer src="main.c9aac2a4eb.js"></script>
+<script defer src="main.b05a5d4145.js"></script>
 <style id="clinical">
 html.clin{--bg:#FFFFFF;--line:#DCE4F0;--cta:#0A1F3D;--cta-ink:#FFFFFF;--soft:#F4F7FB;--tint:#EAF1FF}
 @media (prefers-color-scheme:dark){
@@ -1829,6 +1829,44 @@ html .hero p.strap b{color:#fff;font-weight:800}
 .hcq .opt{text-align:center;justify-content:center}
 .prmore summary.pzrow{font-weight:400}
 @media (prefers-reduced-motion:reduce){.hcokt .chv,.prmore details>summary .chv{transition:none}}
+
+/* v539: calmer pages, batch 2 */
+.cfopt{background:var(--card);border:1px solid var(--line);border-radius:20px;overflow:hidden;margin:8px 0 0}
+.cfopt>.pzrow,.cfopt>.cfgrp{border-top:1px solid var(--line)}.cfopt>:first-child{border-top:0}
+.cfopt .pzrow[aria-expanded="true"] .chv{transform:rotate(90deg)}
+.cfopt .pzrow small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:62vw}
+.cfgrp{padding:4px 16px 14px}.cfgrp>div.cfl:first-child,.cfgrp>.aphr>.cfl{display:none}.cfgrp>.aphr{justify-content:flex-end;margin:0}
+.cfgrp .cr{margin-top:0}
+.pzsw{flex:0 0 auto;width:46px;height:28px;border-radius:14px;background:var(--line);box-shadow:inset 0 0 0 1.5px var(--mute);position:relative;transition:background .2s ease-out}.pzrow[aria-checked="true"] .pzsw{box-shadow:none}
+.pzsw::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(10,31,61,.25);transition:transform .2s ease-out}
+.pzrow[aria-checked="true"] .pzsw{background:var(--cta)}.pzrow[aria-checked="true"] .pzsw::after{transform:translateX(18px)}
+:root[data-theme="dark"] .pzrow[aria-checked="true"] .pzsw{background:var(--pri)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .pzrow[aria-checked="true"] .pzsw{background:var(--pri)}}
+.cftyr{margin:0 0 4px;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+.cftyl .opt{display:flex;align-items:center;justify-content:space-between;text-align:left;margin:6px 0 0}
+.cftyl .opt[aria-current="true"]{border-color:var(--pri);background:var(--tint)}
+.cfpd{display:flex;gap:8px;align-items:flex-start;margin:14px 0 0;color:var(--mute);font-size:.92rem;line-height:1.45}
+.cfpd svg{flex:0 0 auto;margin-top:2px;color:var(--mute)}.cfpd b{color:var(--ink)}
+.pzsave{position:sticky;bottom:0;z-index:30;display:flex;gap:10px;align-items:center;margin:20px -16px 0;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));background:var(--bg);border-top:1px solid var(--line)}
+.pzsave>.go{flex:1;margin:0!important}.pzsave>.opt{flex:0 0 auto;width:auto;margin:0!important;min-width:110px;text-align:center}
+@media (max-width:899px){
+ body:has(#app .pzsave) #nav{display:none!important}
+ body:has(#app .pzsave){padding-bottom:0!important}
+ body.pzkb .pzsave{position:static;margin-top:20px}}
+html:has(#app .pzsave){scroll-padding-bottom:96px}html.pzo #app .dkr:has(.pzsave){scroll-padding-bottom:96px}
+.ifbg .prsesl .chipb{min-height:44px;padding-left:14px;padding-right:14px}
+@media (min-width:900px){html.pzo #app .dkr .pzsave{bottom:-32px;margin:24px -32px -32px;padding:14px 32px 18px;background:var(--card);border-radius:0 0 20px 20px}
+ html.pzo #app>.pzsave,html.pzo #app .dkl .pzsave{margin:24px 0 0;border-radius:16px;border:1px solid var(--line);background:var(--card)}}
+.prrows{background:var(--card);border-radius:20px;border:1px solid var(--line);overflow:hidden;margin:6px 0 0}
+#app .prshbg{position:fixed;inset:0;z-index:200;background:rgba(10,31,61,.35);max-width:none!important;width:auto;margin:0!important}
+#app .pmd.prsheet{position:fixed;left:0;right:0;bottom:0;z-index:201;margin:0!important;max-width:none!important;max-height:85vh;overflow:auto;overscroll-behavior:contain;background:var(--card);border-radius:22px 22px 0 0;padding:18px 18px calc(20px + env(safe-area-inset-bottom,0px));box-shadow:0 -10px 30px rgba(10,31,61,.18)}
+.prsheet .prshh{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin:0 0 10px}
+.prsheet .prshh h2{margin:6px 0 0;font-size:1.2rem;letter-spacing:-.02em}
+.prsheet .prshx{flex:0 0 auto;width:44px;height:44px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:1rem;cursor:pointer}
+@media (min-width:900px){#app .pmd.prsheet{left:50%;right:auto;bottom:auto;top:50%;transform:translate(-50%,-50%);width:min(560px,90vw);border-radius:20px}}
+html:has(#app .prsheet),body:has(#app .prsheet){overflow:hidden}
+@media (prefers-reduced-motion:no-preference){.pmd.prsheet{animation:prsIn .22s ease-out}@keyframes prsIn{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}}
+@media (prefers-reduced-motion:no-preference) and (min-width:900px){.pmd.prsheet{animation:none}}
 </style>
 <script>if("serviceWorker" in navigator&&location.protocol==="https:")addEventListener("load",()=>{navigator.serviceWorker.register("sw.js").catch(()=>{})})</script>
 </body>
