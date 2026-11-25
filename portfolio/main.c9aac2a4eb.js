@@ -2514,10 +2514,10 @@ function preScreen(){
   return (mtg?`<div class="ock prv${done?" on":""}"><button class="prvhit" role="checkbox" aria-checked="${done}" aria-expanded="${ed}" aria-label="${esc(x.n)}: ${sm}" onclick="preMs('${esc(x.id)}')"></button><i aria-hidden="true">${done?"✓":""}</i><span><b>${esc(x.n)}</b><br><small style="color:var(--mute)">${sm}<br><button class="prvn" onclick="preMtEdit('${esc(mtg.id)}')">Meeting notes logged</button></small></span><span style="margin-left:auto">${bg}</span></div>`
    :`<button class="ock${done?" on":""}" role="checkbox" aria-checked="${done}" aria-expanded="${ed}" onclick="preMs('${esc(x.id)}')"><i>${done?"✓":""}</i><span><b>${esc(x.n)}</b><br><small style="color:var(--mute)">${sm}</small></span><span style="margin-left:auto">${bg}</span></button>`)+
   (ed?`<div class="pmd"><label class="cfl" for="pm-d" style="margin-top:0">When was it held?</label><input id="pm-d" class="cin" type="date" max="${isoD(new Date())}" value="${esc(hd||(dd<=0?isoD(new Date()):due>isoD(new Date())?isoD(new Date()):due))}">${preSoH(x.id)}<div class="tabs" style="margin-top:8px">${done?`<button class="opt" style="text-align:center;margin:0;color:var(--bad)" onclick="preMsSet('${esc(x.id)}',null)">Not done</button>`:`<button class="opt" style="text-align:center;margin:0" onclick="preEd=null;home()">Cancel</button>`}<button class="go" style="margin:0" onclick="preMsSet('${esc(x.id)}',document.getElementById('pm-d').value)">${done?"Save date":"Mark as done"}</button></div></div>`:"")+
-  (!ed&&done&&preAsk===x.id&&!mtg?`<div class="pmd pask" role="status"><b>Log notes from your ${esc(x.n.charAt(0).toLowerCase()+x.n.slice(1))}?</b><p class="tag" style="margin:2px 0 8px">What you discussed, actions agreed and any paperwork. The actions show under Open actions.</p><div class="tabs"><button class="opt" style="text-align:center;margin:0" onclick="preAsk=null;cfRe()">Not now</button><button class="go" style="margin:0" onclick="preMtNew('${esc(x.id)}')">Log a meeting</button></div></div>`:"")+
+  (!ed&&done&&preAsk===x.id&&!mtg?`<div class="pmd pask" role="status"><b>Log notes from your ${esc(x.n.charAt(0).toLowerCase()+x.n.slice(1))}?</b><p class="tag" style="margin:2px 0 8px">What you discussed, actions agreed and any paperwork. The actions show under To do.</p><div class="tabs"><button class="opt" style="text-align:center;margin:0" onclick="preAsk=null;cfRe()">Not now</button><button class="go" style="margin:0" onclick="preMtNew('${esc(x.id)}')">Log a meeting</button></div></div>`:"")+
   ""}).join("")+soOrphH()+`<button class="lnk prvl" style="margin:2px 0 4px" onclick="preRvEdit()">Edit review points</button>`+
  preSessH()+
- `<div class="sec">Open actions</div>`+(open.length?open.map(x=>`<button class="ock" role="checkbox" aria-checked="false" onclick="preAct('${x[0].id}','${x[1].id}')"><i></i><span>${esc(x[1].t)}<br><small style="color:var(--mute)">From ${esc(dFmt(x[0].d,{day:"numeric",month:"short"}))}</small></span></button>`).join(""):`<p class="tag">${(P.mt||[]).some(m=>(m.ac||[]).length)?"Nothing open.":"Nothing open. Actions from your meetings appear here."}</p>`)+
+ `<div class="sec">To do</div>`+(open.length?open.map(x=>`<button class="ock" role="checkbox" aria-checked="false" onclick="preAct('${x[0].id}','${x[1].id}')"><i></i><span>${esc(x[1].t)}<br><small style="color:var(--mute)">From ${esc(dFmt(x[0].d,{day:"numeric",month:"short"}))}</small></span></button>`).join(""):`<p class="tag">${(P.mt||[]).some(m=>(m.ac||[]).length)?"Nothing open.":"Nothing open. Actions from your meetings appear here."}</p>`)+
  (()=>{const dn=[];(P.mt||[]).forEach(m=>(m.ac||[]).forEach(a=>{if(a.done)dn.push([m,a])}));if(!dn.length)return "";dn.sort((x,y)=>String(y[1].dn||y[0].d).localeCompare(String(x[1].dn||x[0].d)));
   return `<details class="ksg pdn"${preDoneOpen?" open":""} ontoggle="preDoneOpen=this.open"><summary>Completed (${dn.length})</summary>`+dn.map(x=>`<button class="ock on" role="checkbox" aria-checked="true" onclick="preAct('${x[0].id}','${x[1].id}')"><i>✓</i><span>${esc(x[1].t)}<br><small style="color:var(--mute)">From ${esc(dFmt(x[0].d,{day:"numeric",month:"short"}))}${x[1].dn?" · done "+esc(dFmt(x[1].dn,{day:"numeric",month:"short"})):""}</small></span></button>`).join("")+`<p class="tag" style="margin:2px 0 6px">Tap one to move it back to open.</p></details>`})()+
  `<div class="sec">Meetings</div><button class="go" style="margin:0 0 10px" onclick="preMtNew()">+ Log a meeting</button><p class="tag prstd" style="margin:0 0 10px">In England, the AHP preceptorship standards suggest a meeting of at least an hour each month, and 12 to 36 hours of protected time a year. Your employer's programme may differ.</p>`+
@@ -2576,7 +2576,7 @@ function preMtForm(){
  `<div class="cr"><div><label class="cfl" for="pm-d">Date</label><input id="pm-d" class="cin" type="date" value="${esc(f.d)}" oninput="pe.f.d=this.value" onchange="pe.f.d=this.value"></div><div><label class="cfl" for="pm-m">Minutes</label><input id="pm-m" class="cin" type="number" inputmode="numeric" min="0" max="1440" placeholder="Optional" value="${esc(f.m==null?"":f.m)}" oninput="pe.f.m=this.value"></div></div><p class="tag" style="margin:4px 0 0">This meeting shows in your CPD log too. Add the minutes and they count towards your CPD hours.</p>`+preMtMore(f)+
  `<label class="cfl" for="pm-rv">Part of a review? <span style="font-weight:500;color:var(--mute)">(optional)</span></label><select id="pm-rv" class="cin pmsel" onchange="pe.f.rv=this.value"><option value="">No, a meeting on its own</option>${rvs.map(x=>`<option value="${esc(x.id)}"${f.rv===x.id?" selected":""}>${esc(x.n)}</option>`).join("")}</select>`+
  `<label class="cfl" for="pm-n">What did you discuss?</label><textarea id="pm-n" class="cin" rows="5" maxlength="2000" oninput="pe.f.n=this.value">${esc(f.n)}</textarea>`+
- `<label class="cfl" for="pm-a">Actions agreed</label><div class="tag" style="margin:0 0 4px">One per line. Each one shows under Open actions on your preceptorship page, to tick off when it's done.</div><textarea id="pm-a" class="cin" rows="4" maxlength="1500" oninput="pe.f.ac=this.value">${esc(f.ac)}</textarea>`+
+ `<label class="cfl" for="pm-a">Actions agreed</label><div class="tag" style="margin:0 0 4px">One per line. Each one shows under To do on your preceptorship page, to tick off when it's done.</div><textarea id="pm-a" class="cin" rows="4" maxlength="1500" oninput="pe.f.ac=this.value">${esc(f.ac)}</textarea>`+
  `<div class="cfl">Evidence <span style="font-weight:500;color:var(--mute)">(optional)</span></div><p class="tag" style="margin:0 0 6px">A signed review form, your employer's paperwork or your notes. Photos and PDFs.</p>`+
  (ph.length?`<div class="phs">${ph.map(id=>isPdf(id)?`<button class="pht pdt" onclick="phView('${id}')" aria-label="View PDF"><span>📄</span><small data-pn="${id}">PDF</small></button>`:`<button class="pht" onclick="phView('${id}')" aria-label="View photo"><img alt="" data-ph="${id}"></button>`).join("")}</div>`:"")+
  (ph.length<12?`<div class="tabs"><label class="opt phb">📷 Take photo<input type="file" accept="image/*" capture="environment" onchange="mtPhAdd(this.files)"></label><label class="opt phb">📎 Choose files<input type="file" accept="image/*,application/pdf,.pdf" multiple onchange="mtPhAdd(this.files)"></label></div>`:"")+
@@ -8161,7 +8161,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
  }catch(e){console.error("v281",e)}
 
  /* ---------- v282: tester version: report a problem, feedback, welcome note ---------- */
- const RP_VER="v537";let rpCtx=null,rpCat=null;
+ const RP_VER="v538";let rpCtx=null,rpCat=null;
  function rpBtn(kind,id,i){return `<button class="rpb" onclick="rpOpen('${kind}','${id}',${i})">⚑ Report a problem with this card</button>`}
  function rpCtxFor(kind,id,i){try{
   if(kind==="c"){const c=LEARN[id][i],cd=typeof COND!=="undefined"&&COND.find(x=>x.id===id);return {kind:"card",layer:id,card:i,title:c.t,where:(cd?"Condition: "+cd.n:(typeof tn==="function"?tn(id):id))+" · card "+(i+1)+": "+c.t}}
@@ -10639,18 +10639,18 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
    {ch:"Portfolio",g:"cpd",rr:1,pre:async()=>{CPDRESET();if(pf!=="cpd"){await tapOn(()=>[...document.querySelectorAll("#app .nvlist button")].find(b=>/CPD log/.test(b.textContent)))}pf="cpd";cp.v="list";home();window.scrollTo(0,0)},s:()=>[document.querySelector("#app .go"),document.querySelector("#app .phb")].filter(Boolean),t:"CPD log",d:()=>"Add an entry, or snap a photo of a certificate or your notes and fill in the details later."},
    {ch:"Portfolio",g:"cpd",rr:1,pre:async()=>{if(!window._obCf){await tapOn(()=>[...document.querySelectorAll("#app .go")].find(b=>/Add entry/.test(b.textContent)));cpdNew();window._obCf=1}},s:()=>{const t=document.getElementById("cf-t");return t?[t.previousElementSibling,t,t.nextElementSibling].filter(Boolean):[]},t:"Add an entry",d:()=>"Give it a title, the date and how long it took. Never include patient details.",
     fr:[{w:900,act:tk=>typeIn("#cf-t","Recognising sepsis on the ward: in-service",tk)}]},
-   {ch:"Portfolio",g:"cpd",pre:()=>{if(!window._obCf){cpdNew();window._obCf=1}},s:()=>{const h=[...document.querySelectorAll("#app .cfl")].find(x=>/Photos/.test(x.textContent));if(!h)return[];const o=[h];let n=h.nextElementSibling;for(let i=0;i<2&&n;i++){o.push(n);n=n.nextElementSibling}return o},t:"Add a photo",d:()=>"Attach evidence: take a photo of a certificate, agenda or slides, or choose files. It stays on this device."},
    {ch:"Portfolio",g:"cpd",pre:()=>{if(!window._obCf){cpdNew();window._obCf=1}},s:()=>{const h=[...document.querySelectorAll("#app .cfl")].find(x=>/^Type/.test(x.textContent.trim()));return h?[h,h.nextElementSibling]:[]},t:"What kind of CPD",d:()=>"Choose the type. It sorts your log and fills in your HCPC audit pack.",
     fr:[{w:1400,act:()=>clickTxt("#app .chipw button",/In-service|teaching/i)}]},
-   {ch:"Portfolio",g:"cpd",pre:()=>{if(!window._obCf){cpdNew();window._obCf=1}},s:()=>{const h=[...document.querySelectorAll("#app .cfl")].find(x=>/Reflection model/.test(x.textContent));const t=document.getElementById("cf-l");return h?[h,h.nextElementSibling,t].filter(Boolean):[]},t:"Reflect",d:()=>"Choose a reflection model, then answer its prompts. A few lines is enough. Each box holds up to about 1,000 words.",
+   {ch:"Portfolio",g:"cpd",pre:()=>{if(!window._obCf){cpdNew();window._obCf=1}},s:()=>{const h=[...document.querySelectorAll("#app .cfl")].find(x=>/^Reflection/.test(x.textContent.trim()));const t=document.getElementById("cf-l");return h?[h,t].filter(Boolean):[]},t:"Reflect",d:()=>"Answer the prompts. A few lines is enough. Tap Change model for Gibbs, Kolb or What? So what? Now what? Each box holds up to about 1,000 words.",
     fr:[{w:1200,act:tk=>typeIn("#cf-l","How to spot early signs of sepsis and when to escalate.",tk)}]},
+   {ch:"Portfolio",g:"cpd",pre:()=>{if(!window._obCf){cpdNew();window._obCf=1}},s:()=>{const h=[...document.querySelectorAll("#app .cfl")].find(x=>/Photos/.test(x.textContent));if(!h)return[];const o=[h];let n=h.nextElementSibling;for(let i=0;i<2&&n;i++){o.push(n);n=n.nextElementSibling}return o},t:"Add a photo",d:()=>"Attach evidence: take a photo of a certificate, agenda or slides, or choose files. It stays on this device."},
    {ch:"Portfolio",g:"cpd",pre:()=>{if(!window._obCf){cpdNew();window._obCf=1}},s:()=>{const b=[...document.querySelectorAll("#app .go")].pop();return b},t:"Save",d:()=>"Save the entry. It goes into your log, counts towards your audit pack and can be exported. This example won't be saved."},
    {ch:"Portfolio",g:"cpd",rr:1,pre:()=>{CPDRESET();pf="home";cp.v="list";home();window.scrollTo(0,0)},s:()=>{const h=[...document.querySelectorAll("#app .sec")].find(x=>/^Your tools/.test(x.textContent.trim()));if(!h)return[];const o=[h];let n=h.nextElementSibling;while(n&&!n.matches(".sec")&&o.length<4){o.push(n);n=n.nextElementSibling}return o},pos:"top",t:"Your tools",d:()=>"The tools you've chosen sit together on Portfolio. Choose which ones show in Profile."},
    {ch:"Portfolio",g:"cpd",rr:1,pre:()=>{CPDRESET();openGr("fb")},s:()=>{const t=document.querySelector("#app .seg[role=tablist]");if(!t)return[];const o=[t];let n=t.nextElementSibling;while(n&&o.length<3){o.push(n);n=n.nextElementSibling}return o},pos:"top",t:"Feedback",d:()=>"Keep feedback from colleagues, or send them a link so they can write it themselves.",
     fr:[{w:2200,act:()=>grTab("sw"),c:"SWOC: where you're strong, where you're growing, and what could help or get in the way."},{w:2600,act:()=>grTab("pl"),c:"Plan: what you want to work on next, and how."},{w:2400,act:()=>grTab("fb"),c:"Feedback, SWOC and Plan together are what an appraisal asks for."}]},
    {ch:"Portfolio",g:"cpd",rr:1,pre:()=>{CPDRESET();apOpen()},s:()=>{const h=[...document.querySelectorAll("#app .sec,#app .cfl")].find(x=>/Which appraisal/.test(x.textContent));if(!h)return[];const o=[h];let n=h.nextElementSibling;while(n&&o.length<3){o.push(n);n=n.nextElementSibling}return o},pos:"top",t:"Appraisal pack",d:()=>"Your notes on the year and your record, put together in one document to share with your appraiser."},
    {ch:"Portfolio",g:"cpd",rr:1,on:()=>showHc(),pre:()=>{CPDRESET();openHc()},s:()=>{const h=document.querySelector("#app .sec");if(!h)return[];const o=[h];let n=h.nextElementSibling;while(n&&!n.matches(".sec")&&o.length<4){o.push(n);n=n.nextElementSibling}return o},pos:"top",t:"HCPC audit pack",d:()=>"If you're picked for HCPC audit, this puts your CPD profile together: your summary of practice, your activities, how they meet the standards, and your evidence."},
-   {ch:"Portfolio",g:"cpd",rr:1,on:()=>showPre(),pre:()=>{CPDRESET();tab="cpd";pf="pre";pe=null;home();window.scrollTo(0,0)},s:()=>{const h=document.querySelector("#app .sec")||document.querySelector("#app .cfl");if(!h)return[];const o=[h];let n=h.nextElementSibling;while(n&&o.length<3){o.push(n);n=n.nextElementSibling}return o},pos:"top",t:"Preceptorship",d:()=>"Your review points, meetings with your preceptor and sign-offs. When you start another one, say for a Band 6 post, the first is kept."},
+   {ch:"Portfolio",g:"cpd",rr:1,on:()=>showPre(),pre:()=>{CPDRESET();tab="cpd";pf="pre";pe=null;home();window.scrollTo(0,0)},s:()=>{const h=[...document.querySelectorAll("#app .sec")].find(x=>/^Review points/.test(x.textContent.trim()))||document.querySelector("#app .sec")||document.querySelector("#app .cfl");if(!h)return[];const o=[h];let n=h.nextElementSibling;while(n&&o.length<3){o.push(n);n=n.nextElementSibling}return o},pos:"top",t:"Preceptorship",d:()=>"Your review points, meetings with your preceptor and sign-offs. When you start another one, say for a Band 6 post, the first is kept."},
    {ch:"Portfolio",g:"cpd",rr:1,pre:()=>{CPDRESET();tab="cpd";pf="cpd";cp.x="cpd";cp.v="list";home();window.scrollTo(0,0)},s:()=>[...document.querySelectorAll("#app button")].filter(b=>/^(Export my log|Import existing)/.test(b.textContent.trim())),t:"Export and import",d:()=>"Export your log to share it or keep a copy. Bring in CPD you've kept elsewhere, from Excel, a CSV file or a pasted table."},
    {ch:"Quick ref",g:"cpd",on:()=>window.PZ_ONLY==="portfolio",pre:()=>{CPDRESET();pf="home";cp.v="list";home();window.scrollTo(0,0)},s:".tr .icb:not(.sq)",t:"Quick ref",d:()=>"Dermatomes, myotomes, reflexes, scales and medicines, at the top of every screen."},
    {ch:"Friends",g:"friends",pre:()=>{CPDRESET()},s:()=>{const b=document.querySelector(".fdbox button");return (b&&b.parentElement)||document.querySelector("#app .nvfl")},t:"Friends",d:()=>"Optional. Follow friends, swap fives and see the leaderboard."+(S.feedOn==null?" Nothing about you is shared until you say yes here.":" Turn sharing on or off in Profile.")},
@@ -13922,6 +13922,113 @@ function pzA11y(){try{const A=document.getElementById("app");if(!A)return;
  if(typeof cf!=="undefined"&&cf&&cp.v==="form"&&!pzFocused.has(cf)){pzFocused.add(cf);const eh=(A.querySelector(".dkr h1")||H[H.length-1]);if(eh){eh.setAttribute("tabindex","-1");setTimeout(()=>{try{const a=document.activeElement;if(!pzTopM()&&!(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)&&A.contains(a)))eh.focus({preventScroll:true})}catch(e){}},0)}}
 }catch(e){console.error("a11y",e)}}
 
+
+/* ---------- v538: calmer pages (declutter batch 1) ----------
+   The rearranging is done on the new HTML before it is morphed in (pz_motion.js), so the page and the new HTML always
+   share one order and the morph never reuses a control as a different one. A pass after each draw covers the first draw
+   (no morph); every step does nothing when it has already been done. */
+const pzTick='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+let cfFwO=null,hcOkOpen=false,hcHowOpen=false,prHowOpen=false,pzSwSess=false;
+const pzTx=e=>(e&&e.textContent||"").replace(/\s+/g," ").trim();
+const pzKids=R=>R?[...R.children]:[];
+function cfFwT(){cfFwO=cfFwO===cf?null:cf;cfRe()}
+function cpNfOn(){cp.nf=true;home();setTimeout(()=>{const b=document.getElementById("cpnfx");if(b)try{b.focus({preventScroll:true})}catch(e){}},0)}
+function cpNfOff(){cp.nf=false;home();setTimeout(()=>{const b=document.getElementById("cprm");if(b)try{b.focus({preventScroll:true})}catch(e){}},0)}
+/* a textarea grows to fit what's written, up to most of the screen */
+function cfGrow(t){if(!t||!t.isConnected||!t.matches||!t.matches("textarea.cfgr"))return;try{t.style.height="auto";t.style.height=(t.scrollHeight+2)+"px"}catch(e){}}
+{const w0=typeof cpWc==="function"?cpWc:null;if(w0)cpWc=function(el){const r=w0.apply(this,arguments);try{const sm=document.querySelector('small.cfwc[data-wc="'+el.id+'"]');if(sm)sm.hidden=!String(el.value||"").trim();cfGrow(el)}catch(e){}return r}}
+/* CPD entry: the reflection after the basics, then the optional extras */
+function cfCalm(R){const t=R.querySelector("#cf-t");if(!t||!cf)return;const C=t.parentNode,K=pzKids(C);
+ const R1=K.find(e=>e.matches("div.cfl")&&/^Reflection model/.test(pzTx(e))),sv=K.find(e=>e.matches("button.go")&&e.getAttribute("onclick")==="cpdSave()"||e.matches(".dkbt")&&e.querySelector('button.go[onclick="cpdSave()"]'));
+ const tm=C.querySelector("#cf-tm"),st0=tm&&tm.closest(".cr"),st=st0&&st0.parentNode===C?st0:null;
+ if(R1&&sv&&st&&K.indexOf(st)<K.indexOf(R1)&&K.indexOf(R1)<K.indexOf(sv)){
+  const mid=K.slice(K.indexOf(st),K.indexOf(R1)),T=mid.find(e=>e.matches("div.cfl")&&/^Type/.test(pzTx(e)));let tg=[];
+  if(T){tg=[T];let n=T.nextElementSibling;while(n&&n!==R1&&!n.matches("div.cfl,label.cfl,.aphr,.tgadd,.tabs,.phs,.ock")){tg.push(n);n=n.nextElementSibling}}
+  const refl=K.slice(K.indexOf(R1),K.indexOf(sv));
+  tg.forEach(e=>C.insertBefore(e,st));refl.forEach(e=>C.insertBefore(e,st));
+  if(mid.some(e=>!tg.includes(e))){const h=document.createElement("div");h.className="sec cfmore";h.id="cfmore";h.textContent="More about this entry";C.insertBefore(h,st)}}
+ /* the reflection model folds to one line */
+ if(R1){const ch=R1.nextElementSibling&&R1.nextElementSibling.matches(".chipw")?R1.nextElementSibling:null,ds=ch&&ch.nextElementSibling&&ch.nextElementSibling.matches("p.tag")?ch.nextElementSibling:null;
+  if(ch){const on=ch.querySelector(".chipb.on"),nm=on?pzTx(on):"",op=cfFwO===cf;
+   R1.classList.add("cffwh");R1.innerHTML=`Reflection${nm?` <span class="cffwv">· ${esc(nm)}</span>`:""}<button id="cffwb" class="lnk cffwb" aria-expanded="${op}" aria-controls="cffwc" onclick="cfFwT()">${op?"Done":"Change model"}</button>`;
+   ch.id="cffwc";ch.hidden=!op;if(ds)ds.hidden=!op;ch.setAttribute("role","group");ch.setAttribute("aria-label","Reflection model")}}
+ /* word counts once there's something to count; boxes keep the height they had, then grow */
+ C.querySelectorAll("textarea.cin[id^='cf-']").forEach(x=>{const sm=C.querySelector('small.cfwc[data-wc="'+x.id+'"]');if(!sm)return;sm.hidden=!String(x.value||"").trim();x.classList.add("cfgr");x.setAttribute("rows","2");
+  const lv=document.getElementById(x.id);if(lv&&lv!==x&&lv.style.height)x.style.height=lv.style.height;else cfGrow(x)});
+ /* rare actions apart from Save */
+ const K2=pzKids(C),del=K2.find(e=>e.matches("button")&&e.getAttribute("onclick")==="cpdDel()"),sw=K2.find(e=>e.matches("button")&&e.getAttribute("onclick")==="grFromCpd()"),dc=K2.find(e=>e.matches(".cfdisc,.dkbt"));
+ if((del||sw)&&dc&&!K2.some(e=>e.matches(".cfrare"))){const g=document.createElement("div");g.className="cfrare";g.id="cfrare";dc.after(g);if(sw)g.appendChild(sw);if(del){del.classList.add("cfdel");if(cf&&cf.del)del.classList.add("cfdel2");g.appendChild(del)}}}
+/* CPD log */
+function cpLogCalm(R){const L=R.querySelector(".dk2:not(.hcs):not(.duo)>.dkl")||R;const K=pzKids(L);
+ const ad=K.find(e=>e.matches("button.go")&&e.getAttribute("onclick")==="cpdNew()"),ph=K.find(e=>e.matches("label.phb"));
+ if(!ad||!ph)return;
+ const w=document.createElement("div");w.className="cpa2";ad.before(w);w.appendChild(ad);w.appendChild(ph);
+ const nt=K.find(e=>e.matches(".note")&&e.querySelector('button[onclick="cp.nf=!cp.nf;home()"]'));
+ if(nt&&cp.nf){const x=nt.querySelector('button[onclick="cp.nf=!cp.nf;home()"]');if(x){x.id="cpnfx";x.setAttribute("onclick","cpNfOff()")}}
+ if(nt&&!cp.nf){const m=/^(\d+)\s+(entry needs|entries need) a reflection/.exec(pzTx(nt));if(m){const b=document.createElement("button");b.className="opt cprm";b.id="cprm";b.setAttribute("onclick","cpNfOn()");b.innerHTML=`<span>${m[1]} ${m[2]} a reflection</span><span aria-hidden="true">›</span>`;nt.replaceWith(b)}}
+ const sh=K.find(e=>e.matches("p.tag")&&/^Swipe left on an entry to delete it/.test(pzTx(e)));
+ if(sh){if(!S.swTip){S.swTip=isoD(new Date());pzSwSess=true;setTimeout(()=>{try{save()}catch(e){}},0)}if(!pzSwSess)sh.remove()}}
+/* a quiet tick for reflected entries; Preceptorship as a grey label */
+function pzQuiet(R){R.querySelectorAll(".bd.t").forEach(b=>{const t=pzTx(b);
+ if(t==="Reflected"){const s=document.createElement("span");s.className="cprf";s.setAttribute("role","img");s.setAttribute("aria-label","Reflected");s.title="Reflected";s.innerHTML=pzTick;b.replaceWith(s)}
+ else if(t==="Preceptorship"){b.className="cppm"}})}
+/* Preceptorship home: one-line header, To do second, rare jobs in More at the end */
+function preCalm(R){const P=S.pre;if(!P||!P.start)return;
+ const L=R.querySelector(".dk2.pres>.dkl")||R,A=L,K=()=>pzKids(A),box0=K().find(e=>e.matches(".prmore"));
+ const h1=K().find(e=>e.matches("h1"))||A.querySelector(".nvband h1");if(!h1||pzTx(h1)!=="Preceptorship")return;
+ const tg=h1.nextElementSibling&&h1.nextElementSibling.matches("p.tag")?h1.nextElementSibling:null,secOf=n=>K().find(e=>e.matches("div.sec")&&pzTx(e)===n);
+ if(!secOf("Review points"))return;
+ const run=h=>{const o=[];let n=h.nextElementSibling;while(n&&!n.matches("div.sec,.pzfoot")){o.push(n);n=n.nextElementSibling}return o};
+ const rows=[],d=daysTo(P.start);
+ if(tg&&!tg.dataset.calm){tg.dataset.calm="1";const mo=d>0?0:Math.min(P.len,Math.floor(-d/30.44)+1);let c=null,pv=[];try{c=preCur()}catch(e){}try{pv=prePrev()}catch(e){}
+  const bar=tg.querySelector(".prgb"),add=[...tg.querySelectorAll("button")].find(b=>/Add your preceptor/.test(b.textContent));
+  tg.innerHTML=(d>0?"Starts "+esc(dFmt(P.start)):"Month "+mo+" of "+P.len)+(c&&c.n?" · with "+esc(c.n):"");
+  if(add){tg.appendChild(document.createTextNode(" · "));tg.appendChild(add)}if(bar)tg.appendChild(bar);
+  const sub=[(d>0?"Starts ":"Started ")+dFmt(P.start)];if(c)sub.push(prTxt(c));if(pv.length)sub.push("Previously: "+pv.map(x=>x.n+(x.t?" (to "+dFmt(x.t)+")":"")).join(", "));
+  rows.push(["prm-set","Change dates or preceptor",sub.join(" · "),"pe={v:'setup'};home()"])}
+ const td=secOf("To do"),rv=secOf("Review points");
+ if(td&&rv){[td].concat(run(td)).forEach(e=>A.insertBefore(e,rv))}
+ const er=K().find(e=>e.matches("button.prvl"));if(er){rows.push(["prm-rv","Edit review points","Names and dates of your reviews",er.getAttribute("onclick")]);er.remove()}
+ const xs=secOf("Export");let last=null;
+ if(xs){const g=run(xs),xb=g.find(e=>e.matches("button")&&/preXpOpen/.test(e.getAttribute("onclick")||""));last=g.find(e=>e.matches("p.tag")&&/^Not an official record/.test(pzTx(e)));
+  if(xb){rows.push(["prm-xp","Export my preceptorship record","PDF, Excel or text",xb.getAttribute("onclick")]);xb.remove()}xs.remove();g.forEach(e=>{if(e!==last&&e.matches("p.tag"))e.remove()})}
+ const std=K().find(e=>e.matches("p.prstd"));let stdTxt="";if(std&&(P.mt||[]).length){stdTxt=pzTx(std);std.remove()}
+ const an=secOf("Starting another preceptorship?");
+ if(an){let i=0;run(an).forEach(e=>{if(e.matches("button,a")){const t=pzTx(e);rows.push(["prm-an"+(i++),t,/^Start a new preceptorship/.test(t)?"This one is kept, under Earlier preceptorships":"",e.getAttribute("onclick")]);e.remove()}else if(e.matches("p.tag"))e.remove()});an.remove()}
+ if(!rows.length&&!stdTxt)return;
+ const rowH=r=>`<button class="pzrow" id="${r[0]}" onclick="${esc(r[3]||"")}"><span>${esc(r[1])}${r[2]?`<small>${esc(r[2])}</small>`:""}</span><span class="chv" aria-hidden="true">›</span></button>`;
+ if(box0){const dt=box0.querySelector("details");rows.forEach(r=>{if(!box0.querySelector("#"+r[0])){const t=document.createElement("template");t.innerHTML=rowH(r);box0.insertBefore(t.content.firstChild,dt)}});return}
+ const foot=K().find(e=>e.matches(".pzfoot"))||null,h=document.createElement("div");h.className="sec";h.textContent="More";
+ const box=document.createElement("div");box.className="prmore";box.id="prmore";box.setAttribute("role","group");box.setAttribute("aria-label","More");
+ box.innerHTML=rows.map(rowH).join("")+
+  (stdTxt?`<details id="prhowd"${prHowOpen?" open":""} ontoggle="prHowOpen=this.open"><summary class="pzrow" id="prhow"><span>How often should we meet?</span><span class="chv" aria-hidden="true">›</span></summary><p>${esc(stdTxt)}</p></details>`:"");
+ A.insertBefore(h,foot);A.insertBefore(box,foot);if(last){last.classList.add("prlast");A.insertBefore(last,foot)}}
+/* one-line headers */
+function pzHdCalm(R){R.querySelectorAll("h1").forEach(h=>{const p=h.nextElementSibling&&h.nextElementSibling.matches("p.tag")?h.nextElementSibling:null;if(!p||p.dataset.calm)return;const t=pzTx(h);
+ if(t==="Feedback and SWOC"){p.textContent="Feedback, your own view of your practice, and your plan. Private to you.";p.dataset.calm="1"}
+ else if(t==="Appraisal pack"){p.textContent="Your year in one document, for your appraisal or PADR.";p.dataset.calm="1"}
+ else if(t==="HCPC audit pack"){const full=p.innerHTML;p.dataset.calm="1";
+  p.innerHTML=`Build your CPD profile here, in case you're picked for audit. <button id="hdmore" class="hdmore" aria-expanded="${hcHowOpen}" aria-controls="hdmx" onclick="hcHowOpen=!hcHowOpen;home()">${hcHowOpen?"Hide how the audit works":"How the audit works"}</button>`+(hcHowOpen?`<span class="hdmx" id="hdmx">${full}</span>`:"")}})}
+/* HCPC audit pack: checks that need attention; the passed ones fold away */
+function hcCalm(R){const ok=[...R.querySelectorAll(".hck.ok")],all=[...R.querySelectorAll(".hck")];if(!ok.length||R.querySelector(".hcokt"))return;
+ const n=ok.length,b=document.createElement("button");b.className="opt hcokt";b.id="hcokt";b.setAttribute("aria-expanded",String(hcOkOpen));
+ b.innerHTML=`<span>${n===all.length?"All "+n+" checks passed":n+" "+(n===1?"check":"checks")+" passed"}</span><span class="chv" aria-hidden="true">›</span>`;b.setAttribute("onclick","hcOkOpen=!hcOkOpen;home()");
+ all[all.length-1].after(b);if(hcOkOpen){let at=b;ok.forEach(e=>{at.after(e);at=e})}else ok.forEach(e=>{e.hidden=true})}
+/* soft "Yes, that's right" */
+function hcEvCalm(R){R.querySelectorAll(".hcq button.go").forEach(b=>{if(/^Yes, that's right/.test(pzTx(b))){b.classList.remove("go");b.classList.add("opt")}})}
+function pzCalm(R){if(!R||!(window.CL&&CL())||typeof tab==="undefined"||tab!=="cpd")return;
+ const f=[cfCalm,cpLogCalm,preCalm,hcCalm,hcEvCalm,pzQuiet,pzHdCalm];f.forEach(fn=>{try{fn(R)}catch(e){console.error("v538",fn.name,e)}})}
+/* before the morph: the new HTML is rearranged first */
+(function(){let m0=window.pzMorph||null;const wrap=f=>function(root,html){try{if(root&&typeof html==="string"&&(root.id==="app"||root.closest&&root.closest("#app"))&&window.CL&&CL()&&tab==="cpd"){
+   const tp=document.createElement("template");tp.innerHTML=html;pzCalm(tp.content);html=tp.innerHTML}}catch(e){console.error("v538m",e)}return f.call(this,root,html)};
+ let cur=m0?wrap(m0):undefined;
+ try{Object.defineProperty(window,"pzMorph",{configurable:true,get(){return cur},set(f){cur=typeof f==="function"?wrap(f):f}})}catch(e){}})();
+/* ticking a To do action moves it to Completed: focus goes to the next open action, not the top of the page */
+{const a0=typeof preAct==="function"?preAct:null;if(a0)preAct=function(mid,aid){const Q='#app button.ock[onclick^="preAct"]:not(.on)',L=[...document.querySelectorAll(Q)],i=L.findIndex(b=>b.getAttribute("onclick")===`preAct('${mid}','${aid}')`),ae=document.activeElement,had=!!(ae&&ae.getAttribute&&/^preAct/.test(ae.getAttribute("onclick")||""));
+ const r=a0.apply(this,arguments);if(had)setTimeout(()=>{const a=document.activeElement;if(a&&a.isConnected&&a.getClientRects().length&&a.matches&&a.matches(Q))return;const N=[...document.querySelectorAll(Q)];const t=N[Math.min(Math.max(i,0),N.length-1)]||document.querySelector("#app details.pdn>summary");if(t)try{t.focus({preventScroll:true})}catch(e){}},0);return r}}
+/* after each draw: the first draw has no morph; the grown boxes are measured on the page */
+{const h0=home;home=function(){const r=h0.apply(this,arguments);try{const A=document.getElementById("app");pzCalm(A);A.querySelectorAll("textarea.cfgr").forEach(cfGrow)}catch(e){console.error("v538",e)}return r}}
+
 /* focus stays on the control just used when the screen redraws (PRO-09) */
 function pzFKey(el){if(!el||el===document.body)return null;const A=document.getElementById("app");if(!A||!A.contains(el))return null;
  if(el.id)return {id:el.id};const o=el.getAttribute&&el.getAttribute("onclick");if(o){const same=[...A.querySelectorAll("[onclick]")].filter(x=>x.getAttribute("onclick")===o);return {o,i:same.indexOf(el)}}return null}
@@ -15471,7 +15578,9 @@ try{(function(){
    html.pzo #app .dkstep .dknext.dkhot{background:var(--pri);border-color:var(--pri);color:var(--pri-ink)}html.pzo #app .dkstep .dkhot small,html.pzo #app .dkstep .dkhot svg{color:inherit;opacity:.9}
    html.pzo #app .dkbt{display:flex;gap:12px;align-items:stretch}html.pzo #app .dkbt .go{flex:1;margin-top:8px}html.pzo #app .dkbt .dkcx{flex:0 0 auto;width:auto;min-width:120px;margin-top:8px;text-align:center}
   }
-  @media (min-width:900px) and (max-width:1439px){html.pzo #app .dkr{top:84px;max-height:calc(100vh - 108px)}}
+  /* v538: the pane stops short of the page's bottom padding, so at the foot of a short page it doesn't slide up under the
+     Quick ref and message buttons */
+  @media (min-width:900px) and (max-width:1439px){html.pzo #app .dkr{top:84px;max-height:calc(100vh - 172px)}}
   /* v513 (R11): the medium layout, 900 to 1279 px (unfolded iPhone Duo, iPads in landscape, small laptop windows): a narrow
      rail instead of the sidebar, and the CPD list and entry side by side */
   @media (min-width:900px) and (max-width:1279px){
