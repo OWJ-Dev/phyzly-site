@@ -8161,7 +8161,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
  }catch(e){console.error("v281",e)}
 
  /* ---------- v282: tester version: report a problem, feedback, welcome note ---------- */
- const RP_VER="v536";let rpCtx=null,rpCat=null;
+ const RP_VER="v537";let rpCtx=null,rpCat=null;
  function rpBtn(kind,id,i){return `<button class="rpb" onclick="rpOpen('${kind}','${id}',${i})">⚑ Report a problem with this card</button>`}
  function rpCtxFor(kind,id,i){try{
   if(kind==="c"){const c=LEARN[id][i],cd=typeof COND!=="undefined"&&COND.find(x=>x.id===id);return {kind:"card",layer:id,card:i,title:c.t,where:(cd?"Condition: "+cd.n:(typeof tn==="function"?tn(id):id))+" · card "+(i+1)+": "+c.t}}
@@ -12907,7 +12907,7 @@ async function grAskMake(){const a=gv.a;if(!a||a.busy||!grAskOn())return;const c
 /* the link, to send */
 function grAskRq(){const G=grS();return G.rq.find(r=>r.id===gv.id)||null}
 function grAskUrl(r){const tk=S.rqT&&typeof S.rqT==="object"?S.rqT[r.id]:"";return /^[0-9a-f]{64}$/.test(String(tk||""))?GRFB_BASE()+"#t="+tk:""}
-function grAskMsg(r,url){const fn=r.fn||String((S.acct&&S.acct.name)||"").slice(0,40);return "Hi,\n\nCould you give me some feedback on my practice"+(r.ctx?" ("+r.ctx+")":"")+"? It takes a few minutes and you don't need an account:\n\n"+url+"\n\nThe link works once, until "+dFmt(r.x)+".\n\nThank you"+(fn?",\n"+fn:"")}
+function grAskMsg(r,url){const fn=r.fn||String((S.acct&&S.acct.name)||"").slice(0,40);return "Hi,\n\nI'm building my CPD portfolio and would really value your feedback. Could you please share a few thoughts on my practice"+(r.ctx?" ("+r.ctx+")":"")+"? It should only take a few minutes, and you don't need an account:\n\n"+url+"\n\nThe link can be used once, until "+dFmt(r.x)+".\n\nThank you for your time"+(fn?",\n"+fn:"")}
 function grAskLink(){const r=grAskRq();if(!r)return grGo("home",{tab:"fb"});const url=grAskUrl(r),ex=r.x<isoD(new Date()),canShare=!!navigator.share;
  app.innerHTML=head()+tabs()+bk("grGo('home',{tab:'fb'})","Feedback")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">${gv.isNew?"Your link is ready":"Feedback request"}</h1><p class="tag" style="margin:0 0 10px">${r.who?"For "+esc(r.who)+". ":""}${r.ctx?esc(r.ctx)+". ":""}${ex?"This link has expired.":"Works once, until "+esc(dFmt(r.x))+"."}</p>`+
  (ex?`<div class="note">Nobody answered before it expired. Cancel it, then make a new link if you still want their feedback.</div>`:
@@ -13356,7 +13356,7 @@ function grAskBtns(canShare){const B=(f,l,go)=>`<button class="${go?"go":"opt"}"
  if(grAskPhone())return B("grAskCopy","Copy link",1)+(canShare?B("grAskShare","Share…"):"")+B("grAskMail","Email it")+B("grAskCopyMsg","Copy message");
  return B("grAskCopyMsg","Copy message",1)+B("grAskOwa","Outlook on the web")+B("grAskMail","Email it")+B("grAskCopy","Copy link")+
   `<p class="tag" style="margin:10px 0 0">Using email in your browser? Copy the message and paste it into a new email.</p>`}
-function grAskSubj(r){const fn=r.fn||String((S.acct&&S.acct.name)||"");return "Could you give me some feedback?"+(fn?" ("+fn+")":"")}
+function grAskSubj(r){const fn=r.fn||String((S.acct&&S.acct.name)||"");return "Request for feedback for my portfolio"+(fn?" ("+fn+")":"")}
 async function grAskCopyMsg(){const r=grAskRq(),url=r&&grAskUrl(r);if(!url)return;const t=grAskMsg(r,url),done=()=>grMsg("Message copied. Paste it into a new email or message.");
  try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(t);return done()}}catch(e){}
  try{const a=document.createElement("textarea");a.value=t;a.setAttribute("readonly","");a.style.cssText="position:fixed;top:-1000px;opacity:0";document.body.appendChild(a);a.select();const ok=document.execCommand("copy");a.remove();if(ok)return done()}catch(e){}
@@ -14317,8 +14317,9 @@ async function soMake(){const f=pe&&pe.f;if(!f||f.busy||!soOn())return;const cl=
 /* the link, to send */
 function soRq(){const id=pe&&pe.id;return soL().find(q=>q.id===id)||soO().find(q=>q.id===id)||null}
 function soUrl(q){const tk=S.soT&&typeof S.soT==="object"?S.soT[q.id]:"";return /^[0-9a-f]{64}$/.test(String(tk||""))?SO_BASE()+"#t="+tk:""}
-function soMsg(q,url){const x=preRvL().find(r=>r.id===q.rv),n=x?x.n.charAt(0).toLowerCase()+x.n.slice(1):"review";
- return "Hi,\n\nCould you confirm my "+n+" for my preceptorship record? It takes a minute and you don't need an account:\n\n"+url+"\n\nThe link works once, until "+dFmt(q.x)+".\n\nThank you"+(q.fn?",\n"+q.fn:"")}
+function soRvNm(q){const x=preRvL().find(r=>r.id===q.rv);return x?x.n.charAt(0).toLowerCase()+x.n.slice(1):"review"}
+function soMsg(q,url){const n=soRvNm(q);
+ return "Hi,\n\nCould you please confirm my "+n+" for my preceptorship record? It should only take a minute, and you don't need an account:\n\n"+url+"\n\nThe link can be used once, until "+dFmt(q.x)+".\n\nThank you for your help"+(q.fn?",\n"+q.fn:"")}
 function soShow(id){pe={v:"sol",id};preEd=null;home();window.scrollTo(0,0)}
 function soLinkScr(){const q=soRq();if(!q){pe=null;return home()}const url=soUrl(q),x=preRvL().find(r=>r.id===q.rv),ex=q.x<isoD(new Date());
  const B=(f,l,go)=>`<button class="${go?"go":"opt"}" style="text-align:center${go?"":";margin-top:10px"}" onclick="${f}()">${l}</button>`;
@@ -14371,7 +14372,7 @@ function rcRe(){const w=document.getElementById("rcw");if(!w)return;const a=docu
  try{if(t){if(t.id==="rch")t.setAttribute("tabindex","-1");t.focus({preventScroll:true})}}catch(e){}}
 function rcTyping(){const a=document.activeElement,w=document.getElementById("rcw");return !!(a&&w&&w.contains(a)&&/^(INPUT|TEXTAREA)$/.test(a.tagName)&&!a.readOnly)}
 function rcUrl(id){const T=rcTk(id);return T&&/^[0-9a-f]{64}$/.test(String(T.tk||""))?RC_BASE()+"#t="+T.tk:""}
-function rcMsg(r,url){return "Hi,\n\nCould you read a reflection from my CPD log and give me some comments? It takes a few minutes and you don't need an account:\n\n"+url+"\n\nThe link works once, until "+dFmt(r.x)+".\n\nThank you"+(r.fn?",\n"+r.fn:"")}
+function rcMsg(r,url){return "Hi,\n\nI'd really value your thoughts on a reflection from my CPD log. Could you please read it and leave a short comment? It should only take a few minutes, and you don't need an account:\n\n"+url+"\n\nThe link can be used once, until "+dFmt(r.x)+".\n\nThank you for your time"+(r.fn?",\n"+r.fn:"")}
 /* the comments and links for the entry that's open */
 function rcH(){if(!cf||!cf.id||!rcOn())return "";const V=rcV(),id=cf.id,td=isoD(new Date()),R=V.rq.filter(r=>r.e===id),C=V.l.filter(a=>R.some(r=>r.id===a.rq)).sort((a,b)=>b.at.localeCompare(a.at));
  const wait=R.filter(r=>!r.a&&r.x>=td&&!C.some(a=>a.rq===r.id));let h=`<div class="cfl" id="rch" tabindex="-1">Comments on this reflection</div>`;
@@ -14425,7 +14426,7 @@ async function rcMake(){const f=rc.f,e=rcSaved();if(!f||!e||rc.busy||!rcOn())ret
   rc.err=/5 links are already waiting/.test(m)?"You already have 5 comment links waiting. Cancel one you don't need first.":/20 links made/.test(m)?"You've made a lot of comment links this month. Try again in a few days.":/web and email addresses/.test(m)?"Take out any web or email addresses from your name and the note.":/could not be read/.test(m)?"This reflection couldn't be shared. Check it has some reflection written, save it, then try again.":/does not exist|schema cache|PGRST20|42P01|permission denied/i.test(m)?"Asking for comments by link isn't switched on yet.":(PZ.nice?PZ.nice(err):"That didn't work. Check your connection and try again.");
   rcRe()}}
 function rcLinkH(r){const url=rcUrl(r.id),T=rcTk(r.id),B=(f,l,go)=>`<button class="${go?"go":"opt"}" onclick="${f}('${r.id}')">${l}</button>`;
- return `<div class="rcpn" role="group" aria-label="Your comment link">`+(url?`<label class="cfl" for="rc-u">Your link${T&&T.who?" for "+esc(T.who):""}</label><input id="rc-u" class="cin" readonly value="${esc(url)}" onfocus="this.select()"><div class="rcbt">${B("rcCopyMsg","Copy message",1)}${B("rcMail","Email it")}${navigator.share?B("rcShare","Share…"):""}${B("rcCopy","Copy link")}</div><p id="rcm" class="tag" role="status"></p><p class="tag" style="margin:4px 0 0">Works once, until ${esc(dFmt(r.x))}. Anyone who has the link can comment, so send it straight to the person.</p>`
+ return `<div class="rcpn" role="group" aria-label="Your comment link">`+(url?`<label class="cfl" for="rc-u">Your link${T&&T.who?" for "+esc(T.who):""}</label><input id="rc-u" class="cin" readonly value="${esc(url)}" onfocus="this.select()"><div class="rcbt rc4">${grAskPhone()?B("rcCopy","Copy link",1)+(navigator.share?B("rcShare","Share…"):"")+B("rcMail","Email it")+B("rcCopyMsg","Copy message"):B("rcCopyMsg","Copy message",1)+B("rcOwa","Outlook on the web")+B("rcMail","Email it")+B("rcCopy","Copy link")}</div><p id="rcm" class="tag" role="status"></p>${grAskPhone()?"":`<p class="tag" style="margin:4px 0 0">Using email in your browser? Copy the message and paste it into a new email.</p>`}<p class="tag" style="margin:4px 0 0">Works once, until ${esc(dFmt(r.x))}. Anyone who has the link can comment, so send it straight to the person.</p>`
   :`<p class="tag" style="margin:0">This link was made on another device, so it can't be shown here. Open the entry there, or cancel it and make a new one.</p>`)+
  `<div class="rcbt">`+(rc.cx===r.id?`<button class="opt" style="color:var(--bad)" onclick="rcCancel('${r.id}')">Yes, cancel the link</button><button class="opt" onclick="rc.cx=null;rcRe()">Keep it</button>`:`<button class="opt" onclick="rc.show=null;rcRe()">Done</button><button class="opt" style="color:var(--bad)" onclick="rc.cx='${r.id}';rcRe()">Cancel this link</button>`)+`</div></div>`}
 function rcSay(m){const e=document.getElementById("rcm");if(e)e.textContent=m}
@@ -14433,7 +14434,12 @@ function rcRq(id){return rcV().rq.find(r=>r.id===id)||null}
 function rcCopyTxt(t,ok){try{navigator.clipboard.writeText(t).then(()=>rcSay(ok),()=>rcSay("Press and hold the link to copy it."))}catch(e){rcSay("Press and hold the link to copy it.")}}
 function rcCopy(id){const u=rcUrl(id);if(u)rcCopyTxt(u,"Copied.")}
 function rcCopyMsg(id){const r=rcRq(id),u=rcUrl(id);if(r&&u)rcCopyTxt(rcMsg(r,u),"Message copied. Paste it into a new email or message.")}
-function rcMail(id){const r=rcRq(id),u=rcUrl(id);if(!r||!u)return;location.href="mailto:?subject="+encodeURIComponent("Could you comment on my reflection?"+(r.fn?" ("+r.fn+")":""))+"&body="+encodeURIComponent(rcMsg(r,u))}
+function rcSubj(r){return "Request for a comment on my reflection"+(r.fn?" ("+r.fn+")":"")}
+function rcMail(id){const r=rcRq(id),u=rcUrl(id);if(!r||!u)return;pzMail(rcSubj(r),rcMsg(r,u))}
+function rcOwa(id){const r=rcRq(id),u=rcUrl(id);if(!r||!u)return;
+ const w="https://outlook.office.com/mail/deeplink/compose?subject="+encodeURIComponent(rcSubj(r))+"&body="+encodeURIComponent(rcMsg(r,u));
+ try{const a=document.createElement("a");a.href=w;a.target="_blank";a.rel="noopener noreferrer";document.body.appendChild(a);a.click();a.remove()}catch(e){}
+ rcSay("Opening Outlook on the web. If it doesn't open, use Copy message.")}
 function rcShare(id){const r=rcRq(id),u=rcUrl(id);if(!r||!u||!navigator.share)return;navigator.share({title:"Comment on my reflection",text:rcMsg(r,u).replace(u,"").replace(/\n{3,}/g,"\n\n"),url:u}).catch(()=>{})}
 function rcForget(id){if(S.rcV&&Array.isArray(S.rcV.rq))S.rcV.rq=S.rcV.rq.filter(r=>r.id!==id);if(S.rcV&&Array.isArray(S.rcV.l))S.rcV.l=S.rcV.l.filter(a=>a.rq!==id);if(S.rcT)delete S.rcT[id];save()}
 async function rcCancel(id){if(!rcOn())return;const uid=PZ.user.id;
@@ -14483,7 +14489,7 @@ function upGo(k,id){pzlPg=null;if(k==="rc"&&id){tab="cpd";pf="cpd";cp.v="list";c
 function upOpen(){pzlGo("updates");setTimeout(()=>{try{upBill()}catch(e){}try{rcSync(true)}catch(e){}try{if(typeof soSync==="function")soSync(true)}catch(e){}try{if(typeof grAskSync==="function")grAskSync(true)}catch(e){}},0)}
 {const a0=pzlAfter;pzlAfter=function(){const r=a0.apply(this,arguments);try{const A=document.getElementById("app");
   if(A&&tab==="me"&&!pzlPg&&A.querySelector(".mgrp")&&!A.querySelector(".pzup")){const h=[...A.querySelectorAll(".mgh")].find(e=>e.textContent.trim()==="Help")||[...A.querySelectorAll(".mgh.pzlg")][0];if(h){const ch=(A.querySelector(".mrow .mchv")||{}).outerHTML||"";
-   h.insertAdjacentHTML("beforebegin",`<div class="mgh pzup">Updates</div><div class="mgrp"><button class="mrow" onclick="upOpen()"><span class="msq" style="background:#1A6BFF"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg></span><span class="mtx"><span class="mlb">Updates</span><span class="msb">Feedback, sign-offs, comments and your plan</span></span>${ch}</button></div>`)}}}catch(e){}return r}}
+   h.insertAdjacentHTML("beforebegin",`<div class="mgh pzup">Updates</div><div class="mgrp"><button class="mrow" onclick="upOpen()"><span class="msq" style="background:#1A6BFF"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg></span><span class="mtx"><span class="mlb">Updates</span></span>${ch}</button></div>`)}}}catch(e){}return r}}
 
 /* ---------- v516: owner's review of v515 ---------- */
 function apPortSt(){try{const A=S.ap;const k=A&&AP_K.find(x=>x[0]===A.k);return k?k[1]:"Start"}catch(e){return "Start"}}
@@ -14622,7 +14628,7 @@ async function apSoMake(){const f=apSo&&apSo.v==="so"&&apSo.f;if(!f||f.busy||!so
   f.err=/5 links are already waiting/.test(m)?"You already have 5 sign-off links waiting for an answer. Cancel one you don't need first.":/20 links made/.test(m)?"You've made a lot of sign-off links this month. Try again in a few days.":/web and email addresses/.test(m)?"Take out any web or email addresses from your name and the note.":/check the date/.test(m)?"Check your appraisal date, then try again.":/kind|does not exist|schema cache|PGRST20|42P01|42703|permission denied/i.test(m)?"Asking your appraiser by link isn't switched on yet.":(PZ.nice?PZ.nice(e):"That didn't work. Check your connection and try again.");
   if(apSo&&apSo.v==="so")home()}}
 function apSoRq(){const id=apSo&&apSo.id;return apSoL().find(q=>q.id===id)||null}
-function apSoMsg(q,url){return "Hi,\n\nCould you confirm my "+apNm((S.ap||{}).k)+" on "+dFmt(q.h,{day:"numeric",month:"long",year:"numeric"})+" for my portfolio? It takes a minute and you don't need an account:\n\n"+url+"\n\nThe link works once, until "+dFmt(q.x)+".\n\nThank you"+(q.fn?",\n"+q.fn:"")}
+function apSoMsg(q,url){return "Hi,\n\nCould you please confirm my "+apNm((S.ap||{}).k)+" on "+dFmt(q.h,{day:"numeric",month:"long",year:"numeric"})+" for my portfolio? It should only take a minute, and you don't need an account:\n\n"+url+"\n\nThe link can be used once, until "+dFmt(q.x)+".\n\nThank you for your help"+(q.fn?",\n"+q.fn:"")}
 function apSoShow(id){apSo={v:"sol",id};home();window.scrollTo(0,0)}
 function apSoLinkScr(){const q=apSoRq();if(!q){apSo=null;return home()}const url=soUrl(q),ex=q.x<isoD(new Date());
  const B=(f,l,go)=>`<button class="${go?"go":"opt"}" style="text-align:center${go?"":";margin-top:10px"}" onclick="${f}()">${l}</button>`;
@@ -14982,9 +14988,9 @@ function pzMail(sub,body){sub=String(sub||"");body=String(body||"");const e=enco
   `<p class="tag" style="margin:10px 0 0">Subject: ${esc(sub)}</p>`,"Send by email")}
 function pzMailCopy(){const m=t=>{const x=document.getElementById("pzmlm");if(x)x.textContent=t};
  try{navigator.clipboard.writeText(pzMailB).then(()=>m("Message copied. Paste it into a new email."),()=>m("Copying didn't work here. Select the text in your email app instead."))}catch(e){m("Copying didn't work here.")}}
-grAskMail=function(){const r=grAskRq(),url=r&&grAskUrl(r);if(!url)return;const fn=r.fn||String((S.acct&&S.acct.name)||"");pzMail("Could you give me some feedback?"+(fn?" ("+fn+")":""),grAskMsg(r,url))};
-soMail=function(){const q=soRq(),u=q&&soUrl(q);if(!u)return;pzMail("Could you confirm my review?"+(q.fn?" ("+q.fn+")":""),soMsg(q,u))};
-apSoMail=function(){const q=apSoRq(),u=q&&soUrl(q);if(!u)return;pzMail("Could you confirm my "+apNm((S.ap||{}).k)+"?"+(q.fn?" ("+q.fn+")":""),apSoMsg(q,u))};
+grAskMail=function(){const r=grAskRq(),url=r&&grAskUrl(r);if(!url)return;const fn=r.fn||String((S.acct&&S.acct.name)||"");pzMail(grAskSubj(r),grAskMsg(r,url))};
+soMail=function(){const q=soRq(),u=q&&soUrl(q);if(!u)return;pzMail("Request to confirm my "+soRvNm(q)+(q.fn?" ("+q.fn+")":""),soMsg(q,u))};
+apSoMail=function(){const q=apSoRq(),u=q&&soUrl(q);if(!u)return;pzMail("Request to confirm my "+apNm((S.ap||{}).k)+(q.fn?" ("+q.fn+")":""),apSoMsg(q,u))};
 apShMail=function(){const u=apShUrl(),h=apShCur();if(!u)return;pzMail("My "+apNm((S.ap||{}).k)+" pack"+(h.fn?" ("+h.fn+")":""),apShMsg(u))};
 pzAbMail=function(){pzMail("Have you seen Phyzly?",pzAbMsg())};
 
@@ -15500,6 +15506,13 @@ try{(function(){
    html.pzo body:has(#app :is(input:not([type=checkbox]):not([type=radio]):not([type=file]),textarea,select):focus) #nav{display:none!important}
   }`;document.body.appendChild(ds);
  let dkK=null;
+ /* v537 (owner, 24 Nov: the CPD log had no header band on a computer, unlike the other pages): the same dark band as on a
+    phone, with the back link, title and the three figures, at the top of the list column */
+ const dkBand=()=>{const L=app.querySelector(":scope>.dk2:not(.hcs):not(.duo)>.dkl");if(!L||L.querySelector(":scope>.nvband"))return;
+  const h=L.querySelector(":scope>h1");if(!h)return;const pv=h.previousElementSibling,bk=pv&&pv.matches("button.lnk")?pv:null,nx=h.nextElementSibling,tg=nx&&nx.matches("p.tag")?nx:null,sl=L.querySelector(":scope>.cpsl"),st=L.querySelector(":scope>.stats");
+  const b=document.createElement("div");b.className="nvband nvtab nvcpd dkband";(bk||h).before(b);[bk,h,tg,sl].forEach(n=>{if(n)b.appendChild(n)});
+  if(st){const cs=[...st.querySelectorAll(".stat")].map(x=>{const v=x.querySelector("strong"),l=(x.textContent||"").replace(v?v.textContent:"","").trim();return `<span class="cs"><b>${esc(v?v.textContent:"")}</b><small>${esc(l)}</small></span>`}).join("");
+   b.insertAdjacentHTML("beforeend",`<div class="cstrip cpst" role="group" aria-label="CPD in the last 12 months">${cs}</div>`);st.remove()}};
  /* v509 (CPD-12): a Cancel button beside Save in the computer editor; it goes through the same unsaved-changes question */
  const dkCancel=p=>{if(!p||p.querySelector(".dkcx")||p.querySelector(".cfdisc"))return;const sv=p.querySelector('.go[onclick="cpdSave()"]');if(!sv)return;
   const w=document.createElement("div");w.className="dkbt";sv.replaceWith(w);w.appendChild(sv);
@@ -15526,6 +15539,7 @@ try{(function(){
   const left=app.innerHTML;
   app.innerHTML=`<div class="dk2"><section class="dkl" aria-label="CPD entries">${left}</section><section class="dkr" aria-label="${cp.v==="form"?"Entry":"Details"}">${right}</section></div>`;
   dkK=K;
+  try{dkBand()}catch(e){console.error("dkBand",e)}
   try{if(cp.v==="form")dkCancel(app.querySelector(":scope>.dk2>.dkr"))}catch(e){}
   try{if(cp.v==="form"&&cf&&cf.id)document.querySelectorAll(".dkl [onclick*=\"'"+cf.id+"'\"]").forEach(b=>b.classList.add("dksel"))}catch(e){}
   try{if(cp.v==="form")setTimeout(phFill,0)}catch(e){}
