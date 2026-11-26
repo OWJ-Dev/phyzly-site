@@ -1488,7 +1488,7 @@ const ACH={
  nerve:{d:"Finish Foundations: Nerve basics",ok:()=>!!(S.learn||{}).fdnerve},
  found:{d:"Finish the Foundations track",ok:()=>!!(S.trkC||{}).found},
  cpd10:{d:"Log 10 CPD entries of your own",ok:()=>(S.cpd||[]).filter(e=>!e.auto).length>=10},
- audit:{d:"Pass every HCPC audit check",ok:()=>{try{return showHc()&&hcChecks().every(c=>c[0])}catch(e){return false}}},
+ audit:{d:"Meet every check in your HCPC audit pack",ok:()=>{try{return showHc()&&hcChecks().every(c=>c[0])}catch(e){return false}}},
  stars10:{d:"Earn 10 Beat the bleep stars",ok:()=>bbTot()>=10},
  rapid:{d:"Get 3 stars on every Foundations layer",ok:()=>RGL.found.ls.every(i=>bbStars(i)>=3)},
  bb3:{d:"Get 3 stars on a Beat the bleep",ok:()=>Object.values(bbS()).some(x=>(x.st||0)>=3)},
@@ -1503,7 +1503,7 @@ const KIT=[
  {id:"t_gold",s:"top",n:"Gold tunic",lv:20,svg:KT("#F5C542")},
  {id:"n_lan",s:"neck",n:"Lanyard and ID badge",lv:2,svg:`<path d="M37 84 L46 99 M63 84 L54 99" stroke="#1A6BFF" stroke-width="3.5" stroke-linecap="round"/><rect x="42" y="96" width="16" height="11" rx="2" fill="#fff" stroke="#0B2E6B" stroke-width="2"/><rect x="45" y="99" width="5" height="5" fill="#9FC2FF"/>`},
  {id:"n_steth",s:"neck",n:"Stethoscope",ach:"resp",svg:`<path d="M28 82 Q50 108 72 82" fill="none" stroke="#263244" stroke-width="4" stroke-linecap="round"/><path d="M66 92 L66 99" stroke="#263244" stroke-width="3"/><circle cx="66" cy="102" r="5" fill="#C9D1DC" stroke="#263244" stroke-width="2.5"/>`},
- {id:"n_ros",s:"neck",n:"Audit-ready rosette",ach:"audit",svg:`<path d="M28 98 L24 108 L29 105 L31 110 L33 99Z" fill="#1A6BFF"/><circle cx="30" cy="95" r="7" fill="#F5C542" stroke="#8A5A00" stroke-width="2"/><circle cx="30" cy="95" r="3" fill="#fff"/>`},
+ {id:"n_ros",s:"neck",n:"Audit pack rosette",ach:"audit",svg:`<path d="M28 98 L24 108 L29 105 L31 110 L33 99Z" fill="#1A6BFF"/><circle cx="30" cy="95" r="7" fill="#F5C542" stroke="#8A5A00" stroke-width="2"/><circle cx="30" cy="95" r="3" fill="#fff"/>`},
  {id:"h_band",s:"head",n:"Sports sweatband",lv:5,svg:`<path d="M20 44 Q50 30 80 44" stroke="#E8590C" stroke-width="8" fill="none" stroke-linecap="round"/><path d="M20 44 Q50 30 80 44" stroke="#fff" stroke-width="2" fill="none" stroke-dasharray="3 5" opacity=".7"/>`},
  {id:"h_cap",s:"head",n:"Theatre cap",lv:8,svg:`<path d="M19 47 Q19 17 50 17 Q81 17 81 47 Q50 38 19 47Z" fill="#2FA4A0" stroke="#0B2E6B" stroke-width="3" stroke-linejoin="round"/><circle cx="36" cy="30" r="2" fill="#fff" opacity=".7"/><circle cx="52" cy="25" r="2" fill="#fff" opacity=".7"/><circle cx="66" cy="33" r="2" fill="#fff" opacity=".7"/>`},
  {id:"h_grad",s:"head",n:"Graduation cap",ach:"found",svg:`<rect x="35" y="25" width="30" height="11" rx="2" fill="#12303B"/><polygon points="50,12 86,24 50,36 14,24" fill="#12303B" stroke="#0B2E6B" stroke-width="1.5"/><path d="M82 25 L84 42" stroke="#F5C542" stroke-width="2.5"/><circle cx="84" cy="44" r="3" fill="#F5C542"/>`},
@@ -2510,7 +2510,7 @@ function preScreen(){
  
  preNextH()+`<div class="sec">Review points</div><p class="tag" style="margin:0 0 6px">${Array.isArray(P.rv)&&P.rv.length?"Your review points.":"Suggested points. Edit them to match your programme."}</p>`+
  preRvL().map(x=>{const due=preDue(x),dd=daysTo(due),done=!!ms[x.id],mtg=preMtFor(x.id),bg=done?`<span class="bd t">Done</span>`:dd<0?`<span class="bd s">Past date</span>`:dd<=14?`<span class="bd s">Due soon</span>`:"";const hd=typeof ms[x.id]==="string"?ms[x.id]:"",ed=preEd===x.id;
-  const sm=(done&&hd?"Held "+esc(dFmt(hd))+(hd!==due?" · suggested "+esc(dFmt(due,{day:"numeric",month:"short"})):""):(done?"Done · suggested ":"Due ")+esc(dFmt(due)))+(done&&soConf(x.id)?" · Confirmed by link: "+esc(soConf(x.id).nm)+", "+esc(dFmt(soConf(x.id).d,{day:"numeric",month:"short"})):done&&preSo(x.id)?" · Signed off by "+esc(preSo(x.id).by)+" on "+esc(dFmt(preSo(x.id).d,{day:"numeric",month:"short"})):"")+(done&&!soConf(x.id)&&soWait(x.id)?" · Waiting for confirmation":"");
+  const sm=(done&&hd?"Held "+esc(dFmt(hd))+(hd!==due?" · suggested "+esc(dFmt(due,{day:"numeric",month:"short"})):""):(done?"Done · suggested ":dd<0?"Was due ":"Due ")+esc(dFmt(due)))+(done&&soConf(x.id)?" · Confirmed by link: "+esc(soConf(x.id).nm)+", "+esc(dFmt(soConf(x.id).d,{day:"numeric",month:"short"})):done&&preSo(x.id)?" · Signed off by "+esc(preSo(x.id).by)+" on "+esc(dFmt(preSo(x.id).d,{day:"numeric",month:"short"})):"")+(done&&!soConf(x.id)&&soWait(x.id)?" · Waiting for confirmation":"");
   return (mtg?`<div class="ock prv${done?" on":""}"><button class="prvhit" role="checkbox" aria-checked="${done}" aria-expanded="${ed}" aria-label="${esc(x.n)}: ${sm}" onclick="preMs('${esc(x.id)}')"></button><i aria-hidden="true">${done?"✓":""}</i><span><b>${esc(x.n)}</b><br><small style="color:var(--mute)">${sm}<br><button class="prvn" onclick="preMtEdit('${esc(mtg.id)}')">Meeting notes logged</button></small></span><span style="margin-left:auto">${bg}</span></div>`
    :`<button class="ock${done?" on":""}" role="checkbox" aria-checked="${done}" aria-expanded="${ed}" onclick="preMs('${esc(x.id)}')"><i>${done?"✓":""}</i><span><b>${esc(x.n)}</b><br><small style="color:var(--mute)">${sm}</small></span><span style="margin-left:auto">${bg}</span></button>`)+
   (ed?`<div class="pmd"><label class="cfl" for="pm-d" style="margin-top:0">When was it held?</label><input id="pm-d" class="cin" type="date" max="${isoD(new Date())}" value="${esc(hd||(dd<=0?isoD(new Date()):due>isoD(new Date())?isoD(new Date()):due))}">${preSoH(x.id)}<div class="tabs" style="margin-top:8px">${done?`<button class="opt" style="text-align:center;margin:0;color:var(--bad)" onclick="preMsSet('${esc(x.id)}',null)">Not done</button>`:`<button class="opt" style="text-align:center;margin:0" onclick="preEd=null;home()">Cancel</button>`}<button class="go" style="margin:0" onclick="preMsSet('${esc(x.id)}',document.getElementById('pm-d').value)">${done?"Save date":"Mark as done"}</button></div></div>`:"")+
@@ -6988,7 +6988,7 @@ function hcHome(){const H=hcS(),C=hcChecks(),ok=C.filter(c=>c[0]).length,ne=hcEv
  const step=(n,ic,t,s,v)=>{const d=hcIsDone(v),nx=hc.nx===v&&!d;return `<button class="opt hcst${d?" done":""}${nx?" hcnext":""}" onclick="openHc('${v}')"><div class="row"><b>${n}. ${window.CL&&CL()?"":ic+" "}${t}</b><span class="hcsr">, </span><span>${d?HCTICK+"Done":s} ›</span></div>${nx?`<small class="hcnx">Up next</small>`:""}</button>`};
  return `<button class="lnk" onclick="pf='home';home()">‹ Portfolio</button><h1 style="font-size:1.6rem;margin:6px 0 2px">HCPC audit pack</h1><p class="tag" style="margin:0 0 10px">If you're picked for a CPD audit, you send your profile through the HCPC's online service. It has four parts: a summary of your recent work, a list of your activities, a personal statement and 4 to 12 pieces of evidence. Build each part here from your CPD log.</p>`+
  (hcUndoable()?`<div class="note">${hcLastClr.k==="fin"?"Pack finished. A copy is in Past audit packs, under More options.":"Your pack was cleared."} <button class="lnk" style="padding:0;text-decoration:underline" onclick="hcClrUndo()">Undo</button></div>`:"")+
- (hcNew()?`<div class="note">The HCPC only audits people who have been registered for two years or more, so you can't be picked yet. You can still build your profile as you go.</div>`:"")+(!H.setUp?`<div class="note">Check <b>Registration and audit period</b> first: when you registered, where your Phyzly log starts, and whether you have an earlier log. <button class="lnk" style="padding:0;text-decoration:underline" onclick="hcS().setUp=1;save();openHc('det')">Set it up</button></div>`:"")+`<div class="stats"><div class="stat"><strong>${ok}/${C.length}</strong>checks passed</div><div class="stat"><strong>${hcIn().length}</strong>activities</div></div>`+
+ (hcNew()?`<div class="note">The HCPC only audits people who have been registered for two years or more, so you can't be picked yet. You can still build your profile as you go.</div>`:"")+(!H.setUp?`<div class="note">Check <b>Registration and audit period</b> first: when you registered, where your Phyzly log starts, and whether you have an earlier log. <button class="lnk" style="padding:0;text-decoration:underline" onclick="hcS().setUp=1;save();openHc('det')">Set it up</button></div>`:"")+`<div class="stats"><div class="stat"><strong>${ok}/${C.length}</strong>checks met</div><div class="stat"><strong>${hcIn().length}</strong>activities</div></div>`+
  `<div class="sec">Build your profile</div><p class="tag" style="margin:-4px 0 8px">${dn} of 6 marked as done</p>`+
  step(1,"🪪","Registration and audit period",esc(String(H.from||"").slice(0,4))+" to "+esc(String(H.to||"").slice(0,4)),"det")+
  step(2,"📝","Summary of recent work",wc(H.hist)+" of 500","hist")+
@@ -6997,7 +6997,7 @@ function hcHome(){const H=hcS(),C=hcChecks(),ok=C.filter(c=>c[0]).length,ne=hcEv
  step(5,"📎","Evidence",ne+(ne===1?" file":" files"),"ev")+
  step(6,"📅","List of activities",hcGaps().some(x=>!(H.gap[x.k]||"").trim())?"Explain gaps":"Ready","list")+
  `<button class="go${hc.nx==="exp"?" hcnext":""}" onclick="openHc('exp')">Get ready to submit</button>`+
- `<div class="sec">Audit checks</div>`+C.map(c=>`<button class="hck${c[0]?" ok":""}" onclick="hcGo('${c[3]}')"><span>${c[0]?"✅":"⚠️"}</span><span><b>${c[1]}</b><small>${c[2]}</small></span></button>`).join("")+
+ `<div class="sec">Checks before you submit</div>`+C.map(c=>`<button class="hck${c[0]?" ok":""}" onclick="hcGo('${c[3]}')"><span>${c[0]?"✅":"⚠️"}</span><span><b>${c[1]}</b><small>${c[2]}</small></span></button>`).join("")+
  `<div class="note">Set out to match the HCPC's online service for CPD audits. Check their current guidance and your audit letter before you submit, as requirements can change.</div>`+hcMoreH()}
 function hcDet(){const H=hcS();if(!H.setUp){H.setUp=1;save()}const rd=hcRegD();
  return hcBack("home","Audit pack")+`<h1 style="font-size:1.5rem;margin:6px 0 10px">Registration and audit period</h1>`+
@@ -7186,7 +7186,7 @@ function hcListS(){const H=hcS(),L=hcList(),g=hcGaps();
 function hcExp(){const C=hcChecks(),bad=C.filter(c=>!c[0]),H=hcS(),ne=hcEv().length,L=hcList();
  const part=(n,t,body)=>`<div class="hcsub"><div class="cfl" style="margin-top:0">${n}. ${t}</div>${body}</div>`;
  return hcBack("home","Audit pack")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">Get ready to submit</h1><p class="tag" style="margin:0 0 8px">The HCPC's online service has four parts. Here's what goes in each, ready to copy or download.</p>`+
- (bad.length?`<div class="note"><b>${bad.length} ${bad.length===1?"check needs":"checks need"} attention</b><div class="hcat">${bad.map(c=>`<button class="hcatb" onclick="hcGo('${c[3]}')"><span><b>${c[1]}</b><small>${c[2].replace(/<[^>]+>/g,"")}</small></span><span class="hcgo">Go to it ›</span></button>`).join("")}</div>You can still copy and download drafts.</div>`:`<div class="fb ok"><b>All checks passed</b>Read it all through once more before you submit.</div>`)+
+ (bad.length?`<div class="note"><b>${bad.length} ${bad.length===1?"check needs":"checks need"} attention</b><div class="hcat">${bad.map(c=>`<button class="hcatb" onclick="hcGo('${c[3]}')"><span><b>${c[1]}</b><small>${c[2].replace(/<[^>]+>/g,"")}</small></span><span class="hcgo">Go to it ›</span></button>`).join("")}</div>You can still copy and download drafts.</div>`:`<div class="fb ok"><b>All checks met</b>Read it all through once more before you submit.</div>`)+
  (hcIdTxt()?`<div class="note">Your name or registration number is in your summary or statement. Take it out if you want to be assessed anonymously.</div>`:"")+
  part(1,"Summary",`<p class="tag" style="margin:0 0 6px">Your summary of recent work, ${wc(H.hist)} of 500 words. Paste it into the summary box.</p><button class="opt" style="text-align:center" ${String(H.hist||"").trim()?"":"disabled"} onclick="hcCopy('hist')">Copy summary</button>`)+
  part(2,"Activities",`<p class="tag" style="margin:0 0 6px">Your list of activities, ${L.length} ${L.length===1?"line":"lines"}. Upload the spreadsheet on the Activities tab, or type each activity in.</p><button class="opt" style="text-align:center" ${L.length?"":"disabled"} onclick="hcGoList()">Download activity list (Excel)</button>`)+
@@ -8161,7 +8161,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
  }catch(e){console.error("v281",e)}
 
  /* ---------- v282: tester version: report a problem, feedback, welcome note ---------- */
- const RP_VER="v542";let rpCtx=null,rpCat=null;
+ const RP_VER="v543";let rpCtx=null,rpCat=null;
  function rpBtn(kind,id,i){return `<button class="rpb" onclick="rpOpen('${kind}','${id}',${i})">⚑ Report a problem with this card</button>`}
  function rpCtxFor(kind,id,i){try{
   if(kind==="c"){const c=LEARN[id][i],cd=typeof COND!=="undefined"&&COND.find(x=>x.id===id);return {kind:"card",layer:id,card:i,title:c.t,where:(cd?"Condition: "+cd.n:(typeof tn==="function"?tn(id):id))+" · card "+(i+1)+": "+c.t}}
@@ -12708,7 +12708,7 @@ function grScreen(){
   `<div class="seg" role="tablist">${[["fb","Feedback"+(grFbAll().length?" ("+grFbAll().length+")":"")],["sw","SWOC"],["pl","Plan"]].map(([k,l])=>`<button role="tab" aria-selected="${T===k}" class="${T===k?"on":""}" onclick="grTab('${k}')">${l}</button>`).join("")}</div>`;
  app.innerHTML=h+(T==="pl"?grPlH(G):sw?grSwocH(G):grFbH(G))}
 
-function grItemH(x){const n=grBacked(x);return `<button class="gri" onclick="grItem('${esc(x.id)}')"><b>${esc(x.t)}</b><small>${x.pil?esc(grPn(x.pil))+" · ":""}${n?"Backed by "+n+(n===1?" piece":" pieces")+" of evidence":"Your view only"}${(()=>{const g=grGl().filter(z=>z.sw.includes(x.id)&&!z.done).length;return g?" · "+g+(g===1?" goal":" goals"):""})()}</small></button>`}
+function grItemH(x){const n=grBacked(x);return `<button class="gri" onclick="grItem('${esc(x.id)}')"><b>${esc(x.t)}</b><small>${x.pil?esc(grPn(x.pil))+" · ":""}${n?"Backed by "+n+(n===1?" piece":" pieces")+" of evidence":"Your own view"}${(()=>{const g=grGl().filter(z=>z.sw.includes(x.id)&&!z.done).length;return g?" · "+g+(g===1?" goal":" goals"):""})()}</small></button>`}
 function grSwocH(G){
  let h=G.sw.length?"":`<div class="note">A SWOC is a picture of you as a clinician: your strengths, weaknesses, opportunities and challenges. Start with your own view, then back it up with feedback and reflections as they come.</div>`;
  h+=`<div class="grm">`+GRQ.map(q=>{const L=G.sw.filter(x=>x.q===q[0]);return `<section class="grq" aria-label="${q[1]}"><div class="grh" role="heading" aria-level="2">${q[1]}</div><small>${q[2]}</small>${L.map(grItemH).join("")}<button class="lnk gra" onclick="grItem(null,'${q[0]}')">+ Add ${q[0]==="o"?"an":"a"} ${q[3]}</button></section>`}).join("")+`</div>`;
@@ -12796,7 +12796,7 @@ function grSnapSave(){const G=grS(),n=String(gv.n||"").replace(/\s+/g," ").trim(
  const it=G.sw.map(x=>({q:x.q,t:x.t,pil:x.pil,ev:grBacked(x)}));if(!grRoom(JSON.stringify(it).length+200)){gv.err="There isn't room for another snapshot. Delete an older one first.";return home()}grS().sn.push({id:cpId(),d:isoD(new Date()),n,it});save();try{toast("Snapshot saved")}catch(e){}grGo("home")}
 function grSnapView(){const G=grS(),s=G.sn.find(x=>x.id===gv.id);if(!s)return grGo("home");
  app.innerHTML=head()+tabs()+bk("grGo('home')","SWOC")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">${esc(s.n||"Snapshot")}</h1><p class="tag" style="margin:0 0 10px">Your SWOC on ${esc(dFmt(s.d))}.</p><div class="grm">`+
- GRQ.map(q=>{const L=s.it.filter(x=>x.q===q[0]);return `<section class="grq" aria-label="${q[1]}"><div class="grh" role="heading" aria-level="2">${q[1]}</div>${L.length?L.map(x=>`<div class="gri"><b>${esc(x.t)}</b><small>${x.pil?esc(grPn(x.pil))+" · ":""}${x.ev?"Backed by "+x.ev+(x.ev===1?" piece":" pieces")+" of evidence":"Your view only"}</small></div>`).join(""):`<small>This box was empty.</small>`}</section>`}).join("")+`</div>`+
+ GRQ.map(q=>{const L=s.it.filter(x=>x.q===q[0]);return `<section class="grq" aria-label="${q[1]}"><div class="grh" role="heading" aria-level="2">${q[1]}</div>${L.length?L.map(x=>`<div class="gri"><b>${esc(x.t)}</b><small>${x.pil?esc(grPn(x.pil))+" · ":""}${x.ev?"Backed by "+x.ev+(x.ev===1?" piece":" pieces")+" of evidence":"Your own view"}</small></div>`).join(""):`<small>This box was empty.</small>`}</section>`}).join("")+`</div>`+
  `<button class="opt" style="text-align:center;margin-top:12px;${gv.del?"border-color:var(--bad);color:var(--bad)":""}" onclick="grSnapDel()">${gv.del?"Yes, delete":"Delete snapshot"}</button>`}
 function grSnapDel(){if(!gv.del){gv.del=true;if(armTap(/^Delete snapshot$/,"Yes, delete"))return;return home()}const G=grS();G.sn=G.sn.filter(x=>x.id!==gv.id);save();grGo("home")}
 
@@ -14009,10 +14009,10 @@ function pzHdCalm(R){R.querySelectorAll("h1").forEach(h=>{const p=h.nextElementS
  else if(t==="Appraisal pack"){p.textContent="Your year in one document, for your appraisal or PADR.";p.dataset.calm="1"}
  else if(t==="HCPC audit pack"){const full=p.innerHTML;p.dataset.calm="1";
   p.innerHTML=`Build your CPD profile here, in case you're picked for audit. <button id="hdmore" class="hdmore" aria-expanded="${hcHowOpen}" aria-controls="hdmx" onclick="hcHowOpen=!hcHowOpen;home()">${hcHowOpen?"Hide how the audit works":"How the audit works"}</button>`+(hcHowOpen?`<span class="hdmx" id="hdmx">${full}</span>`:"")}})}
-/* HCPC audit pack: checks that need attention; the passed ones fold away */
+/* HCPC audit pack: checks that need attention; the ones met fold away */
 function hcCalm(R){const ok=[...R.querySelectorAll(".hck.ok")],all=[...R.querySelectorAll(".hck")];if(!ok.length||R.querySelector(".hcokt"))return;
  const n=ok.length,b=document.createElement("button");b.className="opt hcokt";b.id="hcokt";b.setAttribute("aria-expanded",String(hcOkOpen));
- b.innerHTML=`<span>${n===all.length?"All "+n+" checks passed":n+" "+(n===1?"check":"checks")+" passed"}</span><span class="chv" aria-hidden="true">›</span>`;b.setAttribute("onclick","hcOkOpen=!hcOkOpen;home()");
+ b.innerHTML=`<span>${n===all.length?"All "+n+" checks met":n+" "+(n===1?"check":"checks")+" met"}</span><span class="chv" aria-hidden="true">›</span>`;b.setAttribute("onclick","hcOkOpen=!hcOkOpen;home()");
  all[all.length-1].after(b);if(hcOkOpen){let at=b;ok.forEach(e=>{at.after(e);at=e})}else ok.forEach(e=>{e.hidden=true})}
 /* soft "Yes, that's right" */
 function hcEvCalm(R){R.querySelectorAll(".hcq button.go").forEach(b=>{if(/^Yes, that's right/.test(pzTx(b))){b.classList.remove("go");b.classList.add("opt")}})}
@@ -14205,7 +14205,7 @@ const pzCut=(v,n)=>{const f=String(v||"").trim().split("\n")[0].trim();return f.
 function pzTogRow(b){const id=b.getAttribute("aria-controls"),g=id&&document.getElementById(id);if(!g)return;const op=g.hidden;g.hidden=!op;b.setAttribute("aria-expanded",String(op));
  const k=b.dataset.k;if(k)pzOpenS[k]=op;if(!op&&b.dataset.u&&typeof window[b.dataset.u]==="function")try{window[b.dataset.u](b)}catch(e){}
  if(b.dataset.f){const ta=g.querySelector("textarea");if(ta){if(op){try{ta.focus({preventScroll:true})}catch(e){}try{g.scrollIntoView({block:"nearest"})}catch(e){}}
-   else{const sm=b.querySelector("small"),v=pzCut(ta.value,48)||"Not started";if(sm)sm.textContent=v;b.setAttribute("aria-label",(b.dataset.l||"")+", "+v)}}}}
+   else{const sm=b.querySelector("small"),v=pzCut(ta.value,48)||"No note yet";if(sm)sm.textContent=v;b.setAttribute("aria-label",(b.dataset.l||"")+", "+v)}}}}
 /* a sheet from a header menu or a row: focus goes back to what opened it */
 function pzSheet(html,lab,back){infoSheet(html,lab);const bg=[...document.querySelectorAll(".ifbg")].pop();if(!bg||!back)return;
  const ret=()=>setTimeout(()=>{const b=document.getElementById(back);if(b&&!document.querySelector(".ifbg"))try{b.focus({preventScroll:true})}catch(e){}},260);
@@ -14225,7 +14225,7 @@ function pfHomeCalm(R){if(typeof pf==="undefined"||pf!=="home")return;const h=[.
 
 /* ----- Appraisal pack ----- */
 let apKH="",apFmtH="";
-function apNoteSync(ta){const g=ta.parentNode,b=g&&document.querySelector(`[aria-controls="${g.id}"]`);if(!b)return;const v=pzCut(ta.value,48)||"Not started",sm=b.querySelector("small");if(sm&&sm.textContent!==v){sm.textContent=v;b.setAttribute("aria-label",(b.dataset.l||"")+", "+v)}}
+function apNoteSync(ta){const g=ta.parentNode,b=g&&document.querySelector(`[aria-controls="${g.id}"]`);if(!b)return;const v=pzCut(ta.value,48)||"No note yet",sm=b.querySelector("small");if(sm&&sm.textContent!==v){sm.textContent=v;b.setAttribute("aria-label",(b.dataset.l||"")+", "+v)}}
 function apKSheet(){if(!apKH)return;pzSheet(`<h2 style="margin:6px 0 4px;font-size:1.25rem">Which appraisal?</h2><p class="tag" style="margin:0 0 6px">It sets the wording of your pack and the pay progression notes.</p><div class="cftyl" role="group" aria-label="Which appraisal?">${apKH}</div>`,"Which appraisal?","apr-k")}
 function apFmtSheet(){if(!apFmtH)return;pzSheet(`<h2 style="margin:6px 0 4px;font-size:1.25rem">Format</h2><div class="cftyl" role="group" aria-label="Format">${apFmtH}</div>`,"Format","apfmt")}
 const apOptH=(fx,back)=>[...fx.querySelectorAll("button.xpf")].map(b=>{const o=b.getAttribute("onclick")||"",on=b.classList.contains("on"),t=b.querySelector("b"),sm=b.querySelector("small");
@@ -14240,7 +14240,7 @@ function apCalm(R){if(typeof apS!=="function"||typeof AP_Q==="undefined")return;
  if(!R.querySelector("#apnotes")&&R.querySelector("textarea#ap-"+AP_Q[0][0])){const box=document.createElement("div");box.className="cfopt";box.id="apnotes";box.setAttribute("role","group");box.setAttribute("aria-label","Your notes");
   AP_Q.forEach(([k,q])=>{const ta=R.querySelector("textarea#ap-"+k);if(!ta)return;const lb=R.querySelector(`label[for="ap-${k}"]`);let hn=lb&&lb.nextElementSibling;if(!(hn&&hn.matches("div.tag")))hn=null;
    if(!box.parentNode){if(lb)lb.before(box);else ta.before(box)}
-   const v=pzCut(A[k],48)||"Not started",op=!!pzOpenS["ap-"+k];
+   const v=pzCut(A[k],48)||"No note yet",op=!!pzOpenS["ap-"+k];
    const b=pzRowEl("apr-"+k,esc(q),esc(v),"pzTogRow(this)",`aria-expanded="${op}" aria-controls="apg-${k}" data-k="ap-${k}" data-f="1" data-l="${esc(q)}"`);box.appendChild(b);
    const g=document.createElement("div");g.className="cfgrp";g.id="apg-"+k;g.hidden=!op;if(hn){const p=document.createElement("p");p.className="tag";p.innerHTML=hn.innerHTML;g.appendChild(p);hn.remove()}
    ta.setAttribute("aria-label",q);ta.setAttribute("oninput",(ta.getAttribute("oninput")||"")+";apNoteSync(this)");g.appendChild(ta);box.appendChild(g);if(lb)lb.remove()})}
@@ -14259,7 +14259,7 @@ let hcMoreSh="";
 function hcMoreSheet(){if(!hcMoreSh)return;pzSheet(`<h2 style="margin:6px 0 4px;font-size:1.25rem">Your audit pack</h2><div class="cpms pzms">${hcMoreSh}</div>`,"More options for your audit pack","hcmore")}
 function hcCalm4(R){if(typeof pf==="undefined"||pf!=="hc")return;
  /* the figure tiles become one line */
- const st=R.querySelector(".stats");if(st&&/checks passed/.test(pzTx(st))){const S2=[...st.querySelectorAll(".stat strong")].map(pzTx),m=/^(\d+)\/(\d+)$/.exec(S2[0]||"");
+ const st=R.querySelector(".stats");if(st&&/checks (passed|met)/.test(pzTx(st))){const S2=[...st.querySelectorAll(".stat strong")].map(pzTx),m=/^(\d+)\/(\d+)$/.exec(S2[0]||"");
   if(m){const p=document.createElement("p");p.className="tag hcsum";p.id="hcsum";const a=+S2[1]||0;p.textContent=m[1]+" of "+m[2]+" checks met · "+a+(a===1?" activity":" activities")+" in your audit period";st.replaceWith(p)}}
  /* This pack and Past audit packs: into the menu */
  const tp=[...R.querySelectorAll("div.sec")].find(e=>pzTx(e)==="This pack");
