@@ -2451,7 +2451,7 @@ function portHome(){
  const card=(ic,t,s,go)=>`<button class="opt" onclick="${go}"><div class="row"><b>${ic} ${t}</b><span>${s}</span></div></button>`;
  app.innerHTML=head()+tabs()+`<h1 style="font-size:1.6rem;margin:6px 0 2px">Portfolio</h1><p class="tag" style="margin:0 0 10px">Your learning, competencies and career in one place.</p>`+
  card("📒","CPD log",n+(n===1?" entry":" entries"),"pf='cpd';cp.v='list';home()")+(showPlc()?card("🏥","Placements",esc((()=>{const L=plcL(),n=L.find(x=>plcStat(x)==="now"),u=L.filter(x=>plcStat(x)==="up").sort((a,b)=>a.st.localeCompare(b.st))[0];return n?"Day "+(1-daysTo(n.st)):u?"Starts in "+daysTo(u.st)+" days":fmtHr(plcTot())+"h logged"})()),"pl.stg=null;openPlc('list')"):"")+(showPre()?card("🧭","Preceptorship",esc(ps),"pf='pre';pe=null;home()"):"")+(S.qualAt&&!showPlc()&&(plcL().length||(S.otj||[]).length||Object.keys(S.ksb||{}).length)?`<div class="sec">Pre-registration record</div>`+(plcL().length?card("🏥","Placements",fmtHr(plcTot())+"h logged","pl.stg=null;openPlc('list')"):"")+(!showApp()&&((S.otj||[]).length||Object.keys(S.ksb||{}).length)?card("🧾","Off-the-job log and KSBs","kept","pf='otj';kz=null;home()"):""):"")+card("✅","Competencies",ind+" of "+cs.length,"pf='comp';cmf=null;home()")+(showApp()?card("🧾","Off-the-job log and KSBs",esc(fmtH(otjEnt(isoD(new Date()).slice(0,7)).reduce((a,e)=>a+(e.m||0),0)))+" this month","pf='otj';kz=null;home()"):"")+
- (showHc()?`<div class="sec">Registration</div>`+card("🛡️","HCPC audit pack",(()=>{const H=S.hc;const go=!!H&&!!(H.setUp||String(H.name||"").trim()||String(H.hist||"").trim()||String(H.stmt||"").trim()||(H.pick||[]).length||Object.keys(H.ev||{}).length||H.reg||String(H.no||"").trim());if(!go)return "Start";const C=hcChecks();return C.every(c=>c[0])?"Ready":"In progress"})(),"openHc()"):"")+(showIv()?`<div class="sec">Career</div>`+card("💼","Interview prep",esc(ivPortSt()),"openIv()"):"")+`${card("📄","Appraisal pack",esc(apPortAl()),"apOpen()","Your year in one document, for your appraisal or PADR")}<button class="opt" style="text-align:center;margin-top:14px" ${n||P||Object.keys(V).length?"":"disabled"} onclick="cp.x='all';cp.v='export';pf='cpd';home()">Export everything</button><div class="note">Your own tracker. Your trust's records are the official ones, and sign-off has to come from a supervisor.</div><p class="tag">${showApp()&&showPre()&&showIv()?"":"Looking for "+[showApp()?"":"the off-the-job log",showPre()?"":"preceptorship",showIv()?"":"interview prep"].filter(Boolean).join(" or ")+"? Turn it on in Profile, under Portfolio tools."}</p><p class="tag">Saved on this device only. Export a copy now and then.</p>`;
+ (showHc()?`<div class="sec">Registration</div>`+card("🛡️","HCPC audit pack",(()=>{const H=S.hc;const go=!!H&&!!(H.setUp||String(H.name||"").trim()||String(H.hist||"").trim()||String(H.stmt||"").trim()||(H.pick||[]).length||Object.keys(H.ev||{}).length||H.reg||String(H.no||"").trim());if(!go)return "Start";const C=hcChecks();return C.every(c=>c[0])?"Ready":"In progress"})(),"openHc()"):"")+(showIv()?`<div class="sec">Career</div>`+card("💼","Interview prep",esc(ivPortSt()),"openIv()"):"")+`${card("📄","Appraisal pack",esc(apPortAl()||apPortN()),"apOpen()","Your year in one document, for your appraisal or PADR")}<button class="opt" style="text-align:center;margin-top:14px" ${n||P||Object.keys(V).length?"":"disabled"} onclick="cp.x='all';cp.v='export';pf='cpd';home()">Export everything</button><div class="note">Your own tracker. Your trust's records are the official ones, and sign-off has to come from a supervisor.</div><p class="tag">${showApp()&&showPre()&&showIv()?"":"Looking for "+[showApp()?"":"the off-the-job log",showPre()?"":"preceptorship",showIv()?"":"interview prep"].filter(Boolean).join(" or ")+"? Turn it on in Profile, under Portfolio tools."}</p><p class="tag">Saved on this device only. Export a copy now and then.</p>`;
 }
 /* preceptorship */
 const preReviewPts=L=>{const a=[["w1","Initial meeting (first week)",0],["m1","4-week review",1],["m3","3-month review",3],["m6","6-month review",6],["m9","9-month review",9]].filter(x=>x[2]<L);a.push(["fin","Final review",L]);return a};
@@ -6987,7 +6987,7 @@ function hcScreen(){const f={det:hcDet,hist:hcHist,pick:hcPick,stmt:hcStmt,ev:hc
 function hcHome(){const H=hcS(),C=hcChecks(),ok=C.filter(c=>c[0]).length,ne=hcEv().length,dn=HCSTEPS.filter(x=>hcIsDone(x[0])).length;
  const step=(n,ic,t,s,v)=>{const d=hcIsDone(v),nx=hc.nx===v&&!d;return `<button class="opt hcst${d?" done":""}${nx?" hcnext":""}" onclick="openHc('${v}')"><div class="row"><b>${n}. ${window.CL&&CL()?"":ic+" "}${t}</b><span class="hcsr">, </span><span>${d?HCTICK+"Done":s} ›</span></div>${nx?`<small class="hcnx">Up next</small>`:""}</button>`};
  return `<button class="lnk" onclick="pf='home';home()">‹ Portfolio</button><h1 style="font-size:1.6rem;margin:6px 0 2px">HCPC audit pack</h1><p class="tag" style="margin:0 0 10px">If you're picked for a CPD audit, you send your profile through the HCPC's online service. It has four parts: a summary of your recent work, a list of your activities, a personal statement and 4 to 12 pieces of evidence. Build each part here from your CPD log.</p>`+
- (hcUndoable()?`<div class="note">${hcLastClr.k==="fin"?"Pack finished. A copy is in Past audit packs.":"Your pack was cleared."} <button class="lnk" style="padding:0;text-decoration:underline" onclick="hcClrUndo()">Undo</button></div>`:"")+
+ (hcUndoable()?`<div class="note">${hcLastClr.k==="fin"?"Pack finished. A copy is in Past audit packs, under More options.":"Your pack was cleared."} <button class="lnk" style="padding:0;text-decoration:underline" onclick="hcClrUndo()">Undo</button></div>`:"")+
  (hcNew()?`<div class="note">The HCPC only audits people who have been registered for two years or more, so you can't be picked yet. You can still build your profile as you go.</div>`:"")+(!H.setUp?`<div class="note">Check <b>Registration and audit period</b> first: when you registered, where your Phyzly log starts, and whether you have an earlier log. <button class="lnk" style="padding:0;text-decoration:underline" onclick="hcS().setUp=1;save();openHc('det')">Set it up</button></div>`:"")+`<div class="stats"><div class="stat"><strong>${ok}/${C.length}</strong>checks passed</div><div class="stat"><strong>${hcIn().length}</strong>activities</div></div>`+
  `<div class="sec">Build your profile</div><p class="tag" style="margin:-4px 0 8px">${dn} of 6 marked as done</p>`+
  step(1,"🪪","Registration and audit period",esc(String(H.from||"").slice(0,4))+" to "+esc(String(H.to||"").slice(0,4)),"det")+
@@ -7063,7 +7063,7 @@ function hcPick(){const H=hcS(),all=hcIn(),P=H.pick.map(id=>cpdAll().find(e=>e.i
  (sug.length?`<div class="sec">Suggested</div><p class="tag" style="margin:-4px 0 8px">Picked from your reflections, evidence and the mix of types. Check each one fits what you want to write about.</p>`+sug.map(x=>row(x.e,x.why)).join(""):"")+
  `<div class="sec">All activities in this period (${all.length})</div>`+
  (all.length>8?`<input class="cin" type="search" id="hc-pq" placeholder="Search by title" aria-label="Search your activities" value="${esc(hc.pq||"")}" oninput="hc.pq=this.value;hcPickF()"><div class="hcpf" role="group" aria-label="Filter">`+[["","All types"]].concat(types.map(t=>[t,hcTyS(t)])).map(([k,l])=>`<button class="chipb${(hc.pt||"")===k?" on":""}" aria-pressed="${(hc.pt||"")===k}" onclick="hc.pt='${esc(k)}';cfRe()">${esc(l)}</button>`).join("")+`<button class="chipb${hc.pr?" on":""}" aria-pressed="${!!hc.pr}" onclick="hc.pr=!hc.pr;cfRe()">With a reflection</button></div>`:"")+
- (all.length?ys.map((y,i)=>{const vis=yrs[y].some(hcPickM);return `<details class="hcyr" data-y="${y}"${fl||(hc.py&&y in hc.py?hc.py[y]:i===0)?" open":""}${vis?"":" hidden"} ontoggle="hcYrT(this)"><summary><b>${y}</b><span>${yrs[y].length} ${yrs[y].length===1?"activity":"activities"}</span></summary>${yrs[y].map(e=>row(e,"",1)).join("")}</details>`}).join("")+`<p class="tag hcnone"${all.some(hcPickM)?" hidden":""}>No activities match.</p>`:`<p class="tag">No activities in your audit period yet.</p>`)+
+ (all.length?ys.map((y,i)=>{const vis=yrs[y].some(hcPickM);return `<details class="hcyr" data-y="${y}"${fl||(hc.py&&y in hc.py?hc.py[y]:false)?" open":""}${vis?"":" hidden"} ontoggle="hcYrT(this)"><summary><b>${y}</b><span>${yrs[y].length} ${yrs[y].length===1?"activity":"activities"}</span></summary>${yrs[y].map(e=>row(e,"",1)).join("")}</details>`}).join("")+`<p class="tag hcnone"${all.some(hcPickM)?" hidden":""}>No activities match.</p>`:`<p class="tag">No activities in your audit period yet.</p>`)+
  hcDoneBtn("pick")}
 /* v535: short type names for filters, the filter, and suggestions */
 function hcTyS(t){return String(cptn(t)).replace(/ \(.*\)$/,"").split(" or ")[0]}
@@ -7141,7 +7141,7 @@ function hcMoreH(onExp){const H=hcS(),P=Array.isArray(H.past)?H.past:[];
  (P.length&&!onExp?`<div class="sec">Past audit packs</div><div class="hcpast">${P.map(p=>`<button class="opt" onclick="hc.pid='${esc(p.id)}';hcGoV('past')"><div class="row"><b>${esc(dFmt(p.from))} to ${esc(dFmt(p.to))}</b><span>›</span></div><small style="color:var(--mute)">Finished ${esc(dFmt(p.at))} · ${(p.acts||[]).length} activities</small></button>`).join("")}</div>`:"")}
 function hcFinS(){const H=hcS(),P=Array.isArray(H.past)?H.past:[];
  return hcBack("home","Audit pack")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">Finish this pack</h1><p class="tag" style="margin:0 0 10px">For when you've submitted your profile, or the audit is over.</p>`+
- `<div class="note"><b>What happens</b>${ivUl(["Phyzly keeps a copy of your summary, personal statement, chosen activities and evidence list under Past audit packs, to read or copy later."+(P.length>=5?" It keeps your last 5, so your oldest copy will go.":""),"A new pack starts for the two years from "+dFmt(hcFinFrom())+" to "+dFmt(hcFinTo(hcFinFrom()))+", with your registration details kept and everything else blank. You can change the dates in Registration and audit period.","Your CPD log, photos and documents aren't changed."])}</div>`+
+ `<div class="note"><b>What happens</b>${ivUl(["Phyzly keeps a copy of your summary, personal statement, chosen activities and evidence list under Past audit packs (in More options on the audit pack), to read or copy later."+(P.length>=5?" It keeps your last 5, so your oldest copy will go.":""),"A new pack starts for the two years from "+dFmt(hcFinFrom())+" to "+dFmt(hcFinTo(hcFinFrom()))+", with your registration details kept and everything else blank. You can change the dates in Registration and audit period.","Your CPD log, photos and documents aren't changed."])}</div>`+
  `<div class="note"><b>Download your own copy first</b><p style="margin:6px 0 0">The copy Phyzly keeps is text only. For a copy with your evidence, download the PDF now.</p></div><button class="opt" style="text-align:center" onclick="hcGoPdf()">Download PDF</button><p id="hcm" class="tag" role="status">${esc(hc.msg)}</p><div id="xprw">${xpReadyHtml("hc")}</div>`+
  `<button class="go" onclick="hcFinGo()">Finish and start a new pack</button><button class="opt" style="text-align:center;margin-top:8px" onclick="openHc()">Not yet</button>`}
 function hcFinTo(f){const x=new Date(f+"T12:00:00");x.setFullYear(x.getFullYear()+2);x.setDate(x.getDate()-1);return isoD(x)}
@@ -7151,7 +7151,7 @@ function hcFinGo(){const H=hcS(),past=(Array.isArray(H.past)?H.past:[]).slice();
   acts:H.pick.map(id=>cpdAll().find(e=>e.id===id)).filter(Boolean).map(e=>({t:String(e.t||""),d:e.d,ty:cpTy(e)})),ev:hcEv().map(x=>({n:x.n,d:String(x.d||""),st:x.st.slice()}))};
  past.unshift(rec);while(past.length>5||(past.length>1&&JSON.stringify(past).length>120000))past.pop();
  const nf=hcFinFrom(),prev=JSON.parse(JSON.stringify(H));S.hc={prof:H.prof,no:"",from:nf,to:hcFinTo(nf),hist:"",stmt:"",pick:[],ev:{},gap:{},done:{},regFrom:H.regFrom,reg:H.reg,lsk:H.lsk,ls:H.ls,prior:false,setUp:H.setUp,past};
- hcUn.hist.length=0;hcUn.stmt.length=0;XP.ready=null;save();hcLastClr={k:"fin",prev,sig:hcStable(S.hc)};hc.nx=null;hc.v="home";hc.msg="";home();window.scrollTo(0,0);hcSay("Pack finished. A copy is in Past audit packs.")}
+ hcUn.hist.length=0;hcUn.stmt.length=0;XP.ready=null;save();hcLastClr={k:"fin",prev,sig:hcStable(S.hc)};hc.nx=null;hc.v="home";hc.msg="";home();window.scrollTo(0,0);hcSay("Pack finished. A copy is in Past audit packs, under More options.")}
 function hcClrS(){
  return hcBack("home","Audit pack")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">Start this pack again</h1>`+
  `<div class="hcwarn"><b>This clears this pack</b>${ivUl(["Your summary of recent work and personal statement","The activities you chose, and your evidence checks","Your gap explanations and the sections marked as done"])}<p style="margin:6px 0 0">Your registration details, audit period, past packs and CPD log stay as they are.</p></div>`+
@@ -8161,7 +8161,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
  }catch(e){console.error("v281",e)}
 
  /* ---------- v282: tester version: report a problem, feedback, welcome note ---------- */
- const RP_VER="v540";let rpCtx=null,rpCat=null;
+ const RP_VER="v541";let rpCtx=null,rpCat=null;
  function rpBtn(kind,id,i){return `<button class="rpb" onclick="rpOpen('${kind}','${id}',${i})">⚑ Report a problem with this card</button>`}
  function rpCtxFor(kind,id,i){try{
   if(kind==="c"){const c=LEARN[id][i],cd=typeof COND!=="undefined"&&COND.find(x=>x.id===id);return {kind:"card",layer:id,card:i,title:c.t,where:(cd?"Condition: "+cd.n:(typeof tn==="function"?tn(id):id))+" · card "+(i+1)+": "+c.t}}
@@ -10648,7 +10648,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
    {ch:"Portfolio",g:"cpd",rr:1,pre:()=>{CPDRESET();pf="home";cp.v="list";home();window.scrollTo(0,0)},s:()=>{const h=[...document.querySelectorAll("#app .sec")].find(x=>/^Your tools/.test(x.textContent.trim()));if(!h)return[];const o=[h];let n=h.nextElementSibling;while(n&&!n.matches(".sec")&&o.length<4){o.push(n);n=n.nextElementSibling}return o},pos:"top",t:"Your tools",d:()=>"The tools you've chosen sit together on Portfolio. Choose which ones show in Profile."},
    {ch:"Portfolio",g:"cpd",rr:1,pre:()=>{CPDRESET();openGr("fb")},s:()=>{const t=document.querySelector("#app .seg[role=tablist]");if(!t)return[];const o=[t];let n=t.nextElementSibling;while(n&&o.length<3){o.push(n);n=n.nextElementSibling}return o},pos:"top",t:"Feedback",d:()=>"Keep feedback from colleagues, or send them a link so they can write it themselves.",
     fr:[{w:2200,act:()=>grTab("sw"),c:"SWOC: where you're strong, where you're growing, and what could help or get in the way."},{w:2600,act:()=>grTab("pl"),c:"Plan: what you want to work on next, and how."},{w:2400,act:()=>grTab("fb"),c:"Feedback, SWOC and Plan together are what an appraisal asks for."}]},
-   {ch:"Portfolio",g:"cpd",rr:1,pre:()=>{CPDRESET();apOpen()},s:()=>{const h=[...document.querySelectorAll("#app .sec,#app .cfl")].find(x=>/Which appraisal/.test(x.textContent));if(!h)return[];const o=[h];let n=h.nextElementSibling;while(n&&o.length<3){o.push(n);n=n.nextElementSibling}return o},pos:"top",t:"Appraisal pack",d:()=>"Your notes on the year and your record, put together in one document to share with your appraiser."},
+   {ch:"Portfolio",g:"cpd",rr:1,pre:()=>{CPDRESET();apOpen()},s:()=>{const r=document.getElementById("apr-k");if(r)return [r.parentNode];const h=[...document.querySelectorAll("#app .sec,#app .cfl")].find(x=>/Which appraisal/.test(x.textContent));if(!h)return[];const o=[h];let n=h.nextElementSibling;while(n&&o.length<3){o.push(n);n=n.nextElementSibling}return o},pos:"top",t:"Appraisal pack",d:()=>"Your notes on the year and your record, put together in one document to share with your appraiser."},
    {ch:"Portfolio",g:"cpd",rr:1,on:()=>showHc(),pre:()=>{CPDRESET();openHc()},s:()=>{const h=document.querySelector("#app .sec");if(!h)return[];const o=[h];let n=h.nextElementSibling;while(n&&!n.matches(".sec")&&o.length<4){o.push(n);n=n.nextElementSibling}return o},pos:"top",t:"HCPC audit pack",d:()=>"If you're picked for HCPC audit, this puts your CPD profile together: your summary of practice, your activities, how they meet the standards, and your evidence."},
    {ch:"Portfolio",g:"cpd",rr:1,on:()=>showPre(),pre:()=>{CPDRESET();tab="cpd";pf="pre";pe=null;home();window.scrollTo(0,0)},s:()=>{const h=[...document.querySelectorAll("#app .sec")].find(x=>/^Review points/.test(x.textContent.trim()))||document.querySelector("#app .sec")||document.querySelector("#app .cfl");if(!h)return[];const o=[h];let n=h.nextElementSibling;while(n&&o.length<3){o.push(n);n=n.nextElementSibling}return o},pos:"top",t:"Preceptorship",d:()=>"Your review points, meetings with your preceptor and sign-offs. When you start another one, say for a Band 6 post, the first is kept."},
    {ch:"Portfolio",g:"cpd",rr:1,pre:()=>{CPDRESET();tab="cpd";pf="cpd";cp.x="cpd";cp.v="list";home();window.scrollTo(0,0)},s:()=>{const m=document.getElementById("cpmore");if(m)return [m];return [...document.querySelectorAll("#app button")].filter(b=>/^(Export my log|Import existing)/.test(b.textContent.trim()))},t:"Export and import",d:()=>"Export your log to share it or keep a copy, or bring in CPD you've kept elsewhere, from Excel, a CSV file or a pasted table. Both are in this menu."},
@@ -12629,12 +12629,12 @@ function portHome(){
   (showPlc()?card("🏥","Placements",esc((()=>{const L=plcL(),n=L.find(x=>plcStat(x)==="now"),u=L.filter(x=>plcStat(x)==="up").sort((a,b)=>a.st.localeCompare(b.st))[0];return n?"Day "+(1-daysTo(n.st)):u?"Starts in "+daysTo(u.st)+" days":fmtHr(plcTot())+"h logged"})()),"pl.stg=null;openPlc('list')","Dates, hours and sign-offs"):"")+
   (showApp()?card("🧾","Off-the-job log",esc(fmtH(otjEnt(isoD(new Date()).slice(0,7)).reduce((a,e)=>a+(e.m||0),0)))+" this month","pf='otj';kz=null;home()","Your apprenticeship hours and KSBs"):"")+
   (!web?card("✅","Competencies",ind+" of "+cs.length,"pf='comp';cmf=null;home()","Rate yourself and link evidence"):"")+
-  (showHc()?card("🛡️","HCPC audit pack","","openHc()","Build your CPD profile if you're picked for audit"):"")+
-  card("🎯","Feedback and SWOC",esc(grPortAl()),"openGr()","Feedback from colleagues, and your own view of your strengths")+(showIv()?card("💼","Interview prep",esc(ivPortSt()),"openIv()","Band 5 and band 6 interviews"):"")+
+  (showHc()?card("🛡️","HCPC audit pack",esc(hcPortN()),"openHc()","Build your CPD profile if you're picked for audit"):"")+
+  card("🎯","Feedback and SWOC",esc(grPortAl()||grPortN()),"openGr()","Feedback from colleagues, and your own view of your strengths")+(showIv()?card("💼","Interview prep",esc(ivPortSt()),"openIv()","Band 5 and band 6 interviews"):"")+
   (S.qualAt&&!showPlc()&&(plcL().length||(S.otj||[]).length||Object.keys(S.ksb||{}).length)?(plcL().length?card("🏥","Placements",fmtHr(plcTot())+"h logged","pl.stg=null;openPlc('list')","Kept from your training"):"")+(!showApp()&&((S.otj||[]).length||Object.keys(S.ksb||{}).length)?card("🧾","Off-the-job log and KSBs","kept","pf='otj';kz=null;home()","Kept from your apprenticeship"):""):"");
  app.innerHTML=head()+tabs()+`<h1 style="font-size:1.6rem;margin:6px 0 2px">Portfolio</h1><p class="tag" style="margin:0 0 10px">Your learning, competencies and career in one place.</p>`+pfStrip()+pfHero()+
  (tools?`<div class="sec">Your tools</div>`+tools:"")+
- `${card("📄","Appraisal pack",esc(apPortAl()),"apOpen()","Your year in one document, for your appraisal or PADR")}<button class="opt" style="text-align:center;margin-top:14px" ${n||P||Object.keys(V).length?"":"disabled"} onclick="cp.x='all';cp.v='export';pf='cpd';home()">Export everything</button><div class="note">Your own tracker. Your trust's records are the official ones, and sign-off has to come from a supervisor.</div><p class="tag">${showApp()&&showPre()&&showIv()?"":"Looking for "+[showApp()?"":"the off-the-job log",showPre()?"":"preceptorship",showIv()?"":"interview prep"].filter(Boolean).join(" or ")+"? Turn it on in Profile, under Portfolio tools."}</p><p class="tag">Saved on this device only. Export a copy now and then.</p>`;
+ `${card("📄","Appraisal pack",esc(apPortAl()||apPortN()),"apOpen()","Your year in one document, for your appraisal or PADR")}<button class="opt" style="text-align:center;margin-top:14px" ${n||P||Object.keys(V).length?"":"disabled"} onclick="cp.x='all';cp.v='export';pf='cpd';home()">Export everything</button><div class="note">Your own tracker. Your trust's records are the official ones, and sign-off has to come from a supervisor.</div><p class="tag">${showApp()&&showPre()&&showIv()?"":"Looking for "+[showApp()?"":"the off-the-job log",showPre()?"":"preceptorship",showIv()?"":"interview prep"].filter(Boolean).join(" or ")+"? Turn it on in Profile, under Portfolio tools."}</p><p class="tag">Saved on this device only. Export a copy now and then.</p>`;
 }
 /* how XP works (web Portfolio) */
 function pfXpScreen(){const X=pfXp(),bar=window.segBar?segBar(Array.from({length:10},(_,j)=>Math.max(0,Math.min(1,X.f*10-j)))):"";
@@ -12708,7 +12708,7 @@ function grScreen(){
   `<div class="seg" role="tablist">${[["fb","Feedback"+(grFbAll().length?" ("+grFbAll().length+")":"")],["sw","SWOC"],["pl","Plan"]].map(([k,l])=>`<button role="tab" aria-selected="${T===k}" class="${T===k?"on":""}" onclick="grTab('${k}')">${l}</button>`).join("")}</div>`;
  app.innerHTML=h+(T==="pl"?grPlH(G):sw?grSwocH(G):grFbH(G))}
 
-function grItemH(x){const n=grBacked(x);return `<button class="gri" onclick="grItem('${esc(x.id)}')"><b>${esc(x.t)}</b><small>${x.pil?esc(grPn(x.pil))+" · ":""}${n?"Backed by "+n+(n===1?" piece":" pieces")+" of evidence":"Your view only (no evidence yet)"}${(()=>{const g=grGl().filter(z=>z.sw.includes(x.id)&&!z.done).length;return g?" · "+g+(g===1?" goal":" goals"):""})()}</small></button>`}
+function grItemH(x){const n=grBacked(x);return `<button class="gri" onclick="grItem('${esc(x.id)}')"><b>${esc(x.t)}</b><small>${x.pil?esc(grPn(x.pil))+" · ":""}${n?"Backed by "+n+(n===1?" piece":" pieces")+" of evidence":"Your view only"}${(()=>{const g=grGl().filter(z=>z.sw.includes(x.id)&&!z.done).length;return g?" · "+g+(g===1?" goal":" goals"):""})()}</small></button>`}
 function grSwocH(G){
  let h=G.sw.length?"":`<div class="note">A SWOC is a picture of you as a clinician: your strengths, weaknesses, opportunities and challenges. Start with your own view, then back it up with feedback and reflections as they come.</div>`;
  h+=`<div class="grm">`+GRQ.map(q=>{const L=G.sw.filter(x=>x.q===q[0]);return `<section class="grq" aria-label="${q[1]}"><div class="grh" role="heading" aria-level="2">${q[1]}</div><small>${q[2]}</small>${L.map(grItemH).join("")}<button class="lnk gra" onclick="grItem(null,'${q[0]}')">+ Add ${q[0]==="o"?"an":"a"} ${q[3]}</button></section>`}).join("")+`</div>`;
@@ -12796,7 +12796,7 @@ function grSnapSave(){const G=grS(),n=String(gv.n||"").replace(/\s+/g," ").trim(
  const it=G.sw.map(x=>({q:x.q,t:x.t,pil:x.pil,ev:grBacked(x)}));if(!grRoom(JSON.stringify(it).length+200)){gv.err="There isn't room for another snapshot. Delete an older one first.";return home()}grS().sn.push({id:cpId(),d:isoD(new Date()),n,it});save();try{toast("Snapshot saved")}catch(e){}grGo("home")}
 function grSnapView(){const G=grS(),s=G.sn.find(x=>x.id===gv.id);if(!s)return grGo("home");
  app.innerHTML=head()+tabs()+bk("grGo('home')","SWOC")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">${esc(s.n||"Snapshot")}</h1><p class="tag" style="margin:0 0 10px">Your SWOC on ${esc(dFmt(s.d))}.</p><div class="grm">`+
- GRQ.map(q=>{const L=s.it.filter(x=>x.q===q[0]);return `<section class="grq" aria-label="${q[1]}"><div class="grh" role="heading" aria-level="2">${q[1]}</div>${L.length?L.map(x=>`<div class="gri"><b>${esc(x.t)}</b><small>${x.pil?esc(grPn(x.pil))+" · ":""}${x.ev?"Backed by "+x.ev+(x.ev===1?" piece":" pieces")+" of evidence":"Your view only (no evidence yet)"}</small></div>`).join(""):`<small>This box was empty.</small>`}</section>`}).join("")+`</div>`+
+ GRQ.map(q=>{const L=s.it.filter(x=>x.q===q[0]);return `<section class="grq" aria-label="${q[1]}"><div class="grh" role="heading" aria-level="2">${q[1]}</div>${L.length?L.map(x=>`<div class="gri"><b>${esc(x.t)}</b><small>${x.pil?esc(grPn(x.pil))+" · ":""}${x.ev?"Backed by "+x.ev+(x.ev===1?" piece":" pieces")+" of evidence":"Your view only"}</small></div>`).join(""):`<small>This box was empty.</small>`}</section>`}).join("")+`</div>`+
  `<button class="opt" style="text-align:center;margin-top:12px;${gv.del?"border-color:var(--bad);color:var(--bad)":""}" onclick="grSnapDel()">${gv.del?"Yes, delete":"Delete snapshot"}</button>`}
 function grSnapDel(){if(!gv.del){gv.del=true;if(armTap(/^Delete snapshot$/,"Yes, delete"))return;return home()}const G=grS();G.sn=G.sn.filter(x=>x.id!==gv.id);save();grGo("home")}
 
@@ -13249,7 +13249,7 @@ function grPlH(G){const t=isoD(new Date()),open=G.gl.filter(g=>!g.done).sort((a,
  if(!G.gl.length)h+=`<div class="note">Turn what you've learned about your practice into goals. Start from a point in your SWOC, or write your own. Only the goal itself is needed; add a date, steps and how you'll know you've done it when you're ready.</div>`;
  h+=open.map(g=>grGlRow(g,"pl")).join("");
  if(done.length)h+=`<div class="sec">Done</div>`+done.map(g=>grGlRow(g,"pl")).join("");
- if(G.gl.length)h+=`<div class="note">Your development plan, for supervision and appraisal. To export it, use Export on the SWOC tab.</div>`;
+ if(G.gl.length)h+=`<div class="note">Your development plan, for supervision and appraisal. To export it, use Export in More options, at the top of this page.</div>`;
  return h}
 /* goals linked to a SWOC point, shown on the point */
 function grGlForPt(id){const L=grGl().filter(g=>g.sw.includes(id));
@@ -13827,7 +13827,7 @@ function pzBack(){
  const ifb=q(".ifbg");if(ifb){const x=ifb.querySelector(".ifx");if(x)x.click();else ifb.remove();return true}
  if(q(".twov"))return true;                                 /* a question that needs an answer stays */
  const A=document.getElementById("app");if(!A)return false;
- if(A.querySelector(".prsheet")){preShClose();return true}const links=[...A.querySelectorAll("button.lnk")].filter(b=>/^\s*‹/.test(b.textContent||"")||b.getAttribute("onclick")==="cpdCancel()");
+ if(A.querySelector(".prsheet")){preShClose();return true}const links=[...A.querySelectorAll("button.lnk")].filter(b=>/^\s*‹/.test(b.textContent||"")||b.getAttribute("onclick")==="cpdCancel()"||b.classList.contains("pzcx"));
  const pick=links.find(b=>b.closest(".dkr")&&/cpdCancel/.test(b.getAttribute("onclick")||""))||links.find(b=>b.offsetParent!==null)||links[0];
  if(pick){pick.click();return true}
  const cl=A.querySelector('[aria-label="Close"],[aria-label="Leave"]');if(cl){cl.click();return true}
@@ -14195,6 +14195,164 @@ function preEarlier(R){if(typeof pf==="undefined"||pf!=="pre")return;const box=R
  [...R.querySelectorAll("div.sec")].filter(e=>/^Earlier preceptorships?/.test(pzTx(e))&&!e.dataset.moved).forEach(sec=>{let n=sec.nextElementSibling;const g=[];while(n&&!n.matches("div.sec,.pzfoot,.prcols")){g.push(n);n=n.nextElementSibling}sec.dataset.moved="1";mh.before(sec);let at=sec;g.forEach(e=>{at.after(e);at=e})})}
 {const pc0=pzCalm;pzCalm=function(R){pc0(R);if(!R||!(window.CL&&CL())||typeof tab==="undefined"||tab!=="cpd")return;[cpLog3,preCalm3,preStray,preEarlier].forEach(fn=>{try{fn(R)}catch(e){console.error("v540",fn.name,e)}})}}
 {const h0=home;home=function(){const r=h0.apply(this,arguments);try{cpLogHd()}catch(e){console.error("v540",e)}return r}}
+
+
+/* ---------- v541: calmer pages, batch 4 (packs, Feedback and SWOC, Portfolio home, held-over items) ---------- */
+let pzOpenS={};
+const pzRowEl=(id,lab,val,on,extra)=>{const t=document.createElement("template");t.innerHTML=pzRowH(id,lab,val,on,extra);const b=t.content.firstChild;const sm=b.querySelector("small");if(sm)sm.classList.add("pzv");return b};
+const pzCut=(v,n)=>{const f=String(v||"").trim().split("\n")[0].trim();return f.length>n?f.slice(0,n).trim()+"…":f};
+/* a row that opens what's under it in place, without redrawing the page */
+function pzTogRow(b){const id=b.getAttribute("aria-controls"),g=id&&document.getElementById(id);if(!g)return;const op=g.hidden;g.hidden=!op;b.setAttribute("aria-expanded",String(op));
+ const k=b.dataset.k;if(k)pzOpenS[k]=op;if(!op&&b.dataset.u&&typeof window[b.dataset.u]==="function")try{window[b.dataset.u](b)}catch(e){}
+ if(b.dataset.f){const ta=g.querySelector("textarea");if(ta){if(op){try{ta.focus({preventScroll:true})}catch(e){}try{g.scrollIntoView({block:"nearest"})}catch(e){}}
+   else{const sm=b.querySelector("small"),v=pzCut(ta.value,48)||"Not started";if(sm)sm.textContent=v;b.setAttribute("aria-label",(b.dataset.l||"")+", "+v)}}}}
+/* a sheet from a header menu or a row: focus goes back to what opened it */
+function pzSheet(html,lab,back){infoSheet(html,lab);const bg=[...document.querySelectorAll(".ifbg")].pop();if(!bg||!back)return;
+ const ret=()=>setTimeout(()=>{const b=document.getElementById(back);if(b&&!document.querySelector(".ifbg"))try{b.focus({preventScroll:true})}catch(e){}},260);
+ bg.addEventListener("click",e=>{if(e.target===bg||e.target.closest(".ifx,[data-close]"))ret()})}
+/* a "More options" button in a page's header */
+function pzHdMore(title,id,lab,fn){const A=document.getElementById("app");if(!A)return;const H=[...A.querySelectorAll(".nvband h1,.dkband h1,.dk2.hcs>.dkl h1")].find(h=>pzTx(h)===title);if(!H||H.closest(".cphd")||A.querySelector("#"+id))return;
+ const w=document.createElement("div");w.className="cphd";H.before(w);w.appendChild(H);const b=document.createElement("button");b.className="cpmore";b.id=id;b.setAttribute("aria-label",lab);b.setAttribute("aria-haspopup","dialog");b.setAttribute("onclick",fn);b.innerHTML=pzDots;if(!H.closest(".nvband,.dkband"))b.classList.add("lt");w.appendChild(b)}
+
+/* ----- Portfolio home: statuses and one grouped card ----- */
+function hcPortN(){try{const H=S.hc;const go=!!H&&!!(H.setUp||String(H.hist||"").trim()||String(H.stmt||"").trim()||(H.pick||[]).length||Object.keys(H.ev||{}).length);if(!go)return "Not started";const C=hcChecks();return C.filter(c=>c[0]).length+" of "+C.length+" checks met"}catch(e){return ""}}
+function apPortN(){try{const A=S.ap;if(!A||typeof A!=="object")return "Not started";const n=AP_Q.filter(q=>String(A[q[0]]||"").trim()).length;return n?n+" of "+AP_Q.length+" notes":A.k?"Started":"Not started"}catch(e){return ""}}
+function grPortN(){try{const G=S.gr;if(!G)return "Not started";const n=grFbAll().length+(G.sw||[]).length;return n?n+(n===1?" item":" items"):"Not started"}catch(e){return ""}}
+function pfHomeCalm(R){if(typeof pf==="undefined"||pf!=="home")return;const h=[...R.querySelectorAll("div.sec")].find(e=>/^Your tools/.test(pzTx(e)));if(!h||R.querySelector("#pftools"))return;
+ const g=[];let n=h.nextElementSibling;while(n&&n.matches("button.opt")){g.push(n);if(/^Export everything$/.test(pzTx(n)))break;n=n.nextElementSibling}if(g.length<2)return;
+ const box=document.createElement("div");box.className="pfgrp";box.id="pftools";box.setAttribute("role","group");box.setAttribute("aria-label","Your tools");h.after(box);g.forEach(e=>box.appendChild(e));
+ const x=g.find(e=>/^Export everything$/.test(pzTx(e)));if(x){x.removeAttribute("style");x.classList.add("pfx");x.innerHTML='<span>Export everything</span><span class="chv" aria-hidden="true">›</span>'}}
+
+/* ----- Appraisal pack ----- */
+let apKH="",apFmtH="";
+function apNoteSync(ta){const g=ta.parentNode,b=g&&document.querySelector(`[aria-controls="${g.id}"]`);if(!b)return;const v=pzCut(ta.value,48)||"Not started",sm=b.querySelector("small");if(sm&&sm.textContent!==v){sm.textContent=v;b.setAttribute("aria-label",(b.dataset.l||"")+", "+v)}}
+function apKSheet(){if(!apKH)return;pzSheet(`<h2 style="margin:6px 0 4px;font-size:1.25rem">Which appraisal?</h2><p class="tag" style="margin:0 0 6px">It sets the wording of your pack and the pay progression notes.</p><div class="cftyl" role="group" aria-label="Which appraisal?">${apKH}</div>`,"Which appraisal?","apr-k")}
+function apFmtSheet(){if(!apFmtH)return;pzSheet(`<h2 style="margin:6px 0 4px;font-size:1.25rem">Format</h2><div class="cftyl" role="group" aria-label="Format">${apFmtH}</div>`,"Format","apfmt")}
+const apOptH=(fx,back)=>[...fx.querySelectorAll("button.xpf")].map(b=>{const o=b.getAttribute("onclick")||"",on=b.classList.contains("on"),t=b.querySelector("b"),sm=b.querySelector("small");
+ return `<button class="opt"${on?' aria-current="true"':""} data-close onclick="${esc(o)}"><span><b>${t?t.innerHTML:""}</b>${sm?`<small style="display:block;color:var(--mute);font-weight:500">${sm.innerHTML}</small>`:""}</span>${on?'<span aria-hidden="true">✓</span>':""}</button>`}).join("");
+function apCalm(R){if(typeof apS!=="function"||typeof AP_Q==="undefined")return;/* the appraisal pack only: other export pages share its parts */if(typeof cp==="undefined"||cp.x!=="ap"||cp.v!=="export"||pf!=="cpd"||(typeof apSo!=="undefined"&&apSo))return;if(!R.querySelector('.xpfs[aria-label="Which appraisal?"],textarea#ap-'+AP_Q[0][0]+',button.go.xpgo'))return;let A;try{A=apS()}catch(e){return}if(!A)return;
+ /* which appraisal: one row once chosen */
+ const xs=R.querySelector('.xpfs[aria-label="Which appraisal?"]');
+ if(xs&&A.k&&!R.querySelector("#apr-k")){const cur=xs.querySelector("button.xpf.on");apKH=apOptH(xs);
+  const w=document.createElement("div");w.className="cftyr";w.appendChild(pzRowEl("apr-k","Which appraisal?",cur?esc(pzTx(cur.querySelector("b"))+", "+pzTx(cur.querySelector("small"))):"Choose","apKSheet()",'aria-haspopup="dialog"'));
+  const lab=xs.previousElementSibling;if(lab&&lab.matches("div.cfl")&&/^Which appraisal/.test(pzTx(lab)))lab.remove();xs.replaceWith(w)}
+ /* your notes: seven rows */
+ if(!R.querySelector("#apnotes")&&R.querySelector("textarea#ap-"+AP_Q[0][0])){const box=document.createElement("div");box.className="cfopt";box.id="apnotes";box.setAttribute("role","group");box.setAttribute("aria-label","Your notes");
+  AP_Q.forEach(([k,q])=>{const ta=R.querySelector("textarea#ap-"+k);if(!ta)return;const lb=R.querySelector(`label[for="ap-${k}"]`);let hn=lb&&lb.nextElementSibling;if(!(hn&&hn.matches("div.tag")))hn=null;
+   if(!box.parentNode){if(lb)lb.before(box);else ta.before(box)}
+   const v=pzCut(A[k],48)||"Not started",op=!!pzOpenS["ap-"+k];
+   const b=pzRowEl("apr-"+k,esc(q),esc(v),"pzTogRow(this)",`aria-expanded="${op}" aria-controls="apg-${k}" data-k="ap-${k}" data-f="1" data-l="${esc(q)}"`);box.appendChild(b);
+   const g=document.createElement("div");g.className="cfgrp";g.id="apg-"+k;g.hidden=!op;if(hn){const p=document.createElement("p");p.className="tag";p.innerHTML=hn.innerHTML;g.appendChild(p);hn.remove()}
+   ta.setAttribute("aria-label",q);ta.setAttribute("oninput",(ta.getAttribute("oninput")||"")+";apNoteSync(this)");g.appendChild(ta);box.appendChild(g);if(lb)lb.remove()})}
+ /* Create PDF: a bar at the bottom, with the format beside it */
+ const go=R.querySelector("button.go.xpgo");
+ if(go&&!go.closest(".pzsave")&&/^(Create PDF|Copy text)$/.test(pzTx(go))){const fx=R.querySelector('.xpfs[aria-label="Format"]');const txt=A.fmt==="txt";
+  if(fx){apFmtH=apOptH(fx);const fl=fx.previousElementSibling;if(fl&&fl.matches("div.cfl")&&pzTx(fl)==="Format")fl.remove();fx.remove()}
+  const P=go.parentNode,nt=[...P.children].reverse().find(e=>e.matches(".note")&&/official record/.test(pzTx(e)));
+  const bar=document.createElement("div");bar.className="pzsave apbar";bar.id="apbar";
+  const fb=document.createElement("button");fb.className="opt apfmt";fb.id="apfmt";fb.setAttribute("aria-haspopup","dialog");fb.setAttribute("aria-label","Format: "+(txt?"Copy as text":"PDF document")+". Change");fb.setAttribute("onclick","apFmtSheet()");fb.innerHTML=`<span>${txt?"Text":"PDF"}</span><small>Change</small>`;
+  const st=R.querySelector("#cpm"),rw=R.querySelector("#xprw");
+  if(nt){[st,rw].forEach(e=>{if(e&&e.parentNode===P)nt.before(e)});nt.after(bar)}else go.before(bar);bar.appendChild(fb);bar.appendChild(go)}}
+
+/* ----- HCPC audit pack ----- */
+let hcMoreSh="";
+function hcMoreSheet(){if(!hcMoreSh)return;pzSheet(`<h2 style="margin:6px 0 4px;font-size:1.25rem">Your audit pack</h2><div class="cpms pzms">${hcMoreSh}</div>`,"More options for your audit pack","hcmore")}
+function hcCalm4(R){if(typeof pf==="undefined"||pf!=="hc")return;
+ /* the figure tiles become one line */
+ const st=R.querySelector(".stats");if(st&&/checks passed/.test(pzTx(st))){const S2=[...st.querySelectorAll(".stat strong")].map(pzTx),m=/^(\d+)\/(\d+)$/.exec(S2[0]||"");
+  if(m){const p=document.createElement("p");p.className="tag hcsum";p.id="hcsum";const a=+S2[1]||0;p.textContent=m[1]+" of "+m[2]+" checks met · "+a+(a===1?" activity":" activities")+" in your audit period";st.replaceWith(p)}}
+ /* This pack and Past audit packs: into the menu */
+ const tp=[...R.querySelectorAll("div.sec")].find(e=>pzTx(e)==="This pack");
+ if(tp){const g=[tp];let n=tp.nextElementSibling;while(n&&!n.matches(".pzfoot")&&!(n.matches("div.sec")&&pzTx(n)!=="Past audit packs")){g.push(n);n=n.nextElementSibling}
+  const help=g.find(e=>e.matches("p.tag")),fin=g.find(e=>e.matches("button")&&/hcGoV\('fin'\)/.test(e.getAttribute("onclick")||"")),clr=g.find(e=>e.matches("button")&&/hcGoV\('clr'\)/.test(e.getAttribute("onclick")||"")),past=g.find(e=>e.matches(".hcpast"));
+  hcMoreSh=(fin?pzRowH("hcm-fin","Finish this pack and start a new one",esc("Keep a copy for your next audit"),"hcGoV('fin')","data-close"):"")+(clr?pzRowH("hcm-clr","Start this pack again",esc("Clear this one"),"hcGoV('clr')","data-close"):"")+
+   (help?`<p class="tag" style="margin:10px 0 0">${help.innerHTML}</p>`:"")+
+   (past?`<div class="sec">Past audit packs</div>`+[...past.querySelectorAll("button")].map((b,i)=>{const t=pzTx(b.querySelector("b")),sm=pzTx(b.querySelector("small"));return pzRowH("hcm-p"+i,esc(t),esc(sm),esc(b.getAttribute("onclick")||""),"data-close")}).join(""):"");
+  g.forEach(e=>e.remove())}
+ /* What this step is for: the first sentence, then More about this step */
+ R.querySelectorAll(".note").forEach(nt=>{const b=nt.firstElementChild;if(!b||b.tagName!=="B"||!/^What (this step is|these are) for$/.test(pzTx(b))||nt.querySelector(".hcmorb"))return;
+  const ps=[...nt.querySelectorAll(":scope>p")];if(!ps.length)return;const m=/^([\s\S]*?[.!?])\s+([\s\S]+)$/.exec(ps[0].innerHTML);if(!m&&ps.length<2)return;
+  const v=(typeof hc!=="undefined"&&hc.v)||"x",k="hc-more-"+v,op=!!pzOpenS[k],id="hcmor-"+v;
+  const rest=document.createElement("div");rest.className="hcmor";rest.id=id;rest.hidden=!op;
+  if(m){ps[0].innerHTML=m[1];const p=document.createElement("p");p.style.margin="6px 0 0";p.innerHTML=m[2];rest.appendChild(p)}const keep=ps.slice(1).filter(p=>/Yes, that's right/.test(pzTx(p)));ps.slice(1).forEach(p=>{if(!keep.includes(p))rest.appendChild(p)});
+  const t=document.createElement("button");t.className="lnk hcmorb";t.setAttribute("aria-expanded",String(op));t.setAttribute("aria-controls",id);t.dataset.k=k;t.setAttribute("onclick","pzTogRow(this)");t.textContent="More about this step";
+  ps[0].after(t);t.after(rest);keep.forEach(p=>{nt.appendChild(p)})});
+ /* Mark as done: a bar at the bottom of the step */
+ const done=[...R.querySelectorAll("button.go")].find(b=>/^hcMark\(/.test(b.getAttribute("onclick")||"")&&!b.closest(".pzsave")),dn=R.querySelector(".hcdn");
+ const el=done||(dn&&!dn.closest(".pzsave")?dn:null);
+ if(el){const bar=document.createElement("div");bar.className="pzsave hcbar";bar.id="hcbar";el.before(bar);bar.appendChild(el);
+  if(dn&&el===dn){const nx=bar.nextElementSibling;if(nx&&nx.matches("button.go")&&nx.getAttribute("onclick")==="openHc()")bar.appendChild(nx)}}}
+
+/* ----- Feedback and SWOC ----- */
+function grMoreSheet(){let G;try{G=grS()}catch(e){return}const nf=grFbAll().length,sn=(G.sn||[]).slice().sort((a,b)=>b.d.localeCompare(a.d)),cs=G.sw.length&&G.sn.length<24,cx=G.sw.length||nf;
+ const h=pzRowH("grm-s","Save a snapshot",esc(cs?"A copy of your SWOC to look back on":G.sw.length?"You've saved 24, the most there can be":"Add a point to your SWOC first"),"grGo('snf')","data-close"+(cs?"":" disabled"))+
+  pzRowH("grm-x","Export",esc(cx?"Your SWOC, plan and feedback, as text":"Add feedback or a SWOC point first"),"grGo('exp')","data-close"+(cx?"":" disabled"))+
+  `<p class="tag" style="margin:10px 0 0">Save a snapshot at the end of a rotation, so you can look back at how you've grown.</p>`+
+  (sn.length?`<div class="sec">Snapshots</div>`+sn.map((x,i)=>pzRowH("grm-n"+i,esc(x.n||"Snapshot"),esc(dFmt(x.d)+" · "+x.it.length+(x.it.length===1?" item":" items")),`grGo('snap',{id:'${esc(String(x.id).replace(/[^A-Za-z0-9_-]/g,""))}'})`,"data-close")).join(""):"");
+ pzSheet(`<h2 style="margin:6px 0 4px;font-size:1.25rem">Feedback and SWOC</h2><div class="cpms pzms">${h}</div>`,"More options for Feedback and SWOC","grmore")}
+function grLkF(i){const w=i.parentNode,q=i.value.trim().toLowerCase(),B=[...w.querySelectorAll(":scope>button:not(.grlm)")],m=w.querySelector(":scope>.grlm"),no=w.querySelector(":scope>.grln");let n=0,shown=0;
+ B.forEach(b=>{const ok=!q||pzTx(b).toLowerCase().includes(q);const vis=ok&&(!!q||!!w.dataset.all||n<5);if(ok)n++;b.hidden=!vis;if(vis)shown++});if(m)m.hidden=!!q||!!w.dataset.all;if(no)no.hidden=shown>0}
+function grLkAll(m){const w=m.parentNode;w.dataset.all="1";const i=w.querySelector(":scope>.grlq");if(i)i.value="";w.querySelectorAll(":scope>button").forEach(b=>b.hidden=false);m.hidden=true}
+function grCalm4(R){if(typeof pf==="undefined"||pf!=="gr")return;
+ /* Across the four pillars: one row */
+ const ps=[...R.querySelectorAll("div.sec")].find(e=>pzTx(e)==="Across the four pillars");
+ if(ps){const g=[];let n=ps.nextElementSibling;while(n&&!n.matches("div.sec,.note,.pzfoot")){g.push(n);n=n.nextElementSibling}
+  const on=[...R.querySelectorAll(".grpp .grpr")].filter(r=>!/Nothing yet$/.test(pzTx(r))).map(r=>pzTx(r.querySelector("b")));const op=!!pzOpenS["gr-pp"];
+  const box=document.createElement("div");box.className="cfopt";box.id="grppw";box.appendChild(pzRowEl("grppr","Across the four pillars",esc(on.join(", ")||"Nothing yet"),"pzTogRow(this)",`aria-expanded="${op}" aria-controls="grppg" data-k="gr-pp"`));
+  const gg=document.createElement("div");gg.className="cfgrp";gg.id="grppg";gg.hidden=!op;g.forEach(x=>gg.appendChild(x));box.appendChild(gg);ps.replaceWith(box)}
+ /* Snapshots and Export: into the menu */
+ const sp=[...R.querySelectorAll("div.sec")].find(e=>pzTx(e)==="Snapshots");
+ if(sp){const g=[sp];let n=sp.nextElementSibling;while(n&&!n.matches(".note,div.sec,.pzfoot")){g.push(n);n=n.nextElementSibling}const at=n;g.forEach(e=>e.remove());
+  if(at&&!R.querySelector("#grsnp")){const q=document.createElement("p");q.className="tag";q.id="grsnp";q.style.margin="10px 0 0";q.textContent="Snapshots and export are in More options, at the top of the page.";at.before(q)}}
+ /* link lists: five, a search box and Show all */
+ R.querySelectorAll("details.grd").forEach((d,i)=>{const w=d.querySelector(":scope>div");if(!w||w.querySelector(":scope>.grlq"))return;const B=[...w.querySelectorAll(":scope>button")];if(B.length<=5)return;
+  const what=pzTx(d.querySelector("summary")).replace(/^Link (a |an )?/,"");
+  const inp=document.createElement("input");inp.type="search";inp.className="cin grlq";inp.id="grlq"+i;inp.placeholder="Search";inp.setAttribute("aria-label","Search "+what);inp.setAttribute("oninput","grLkF(this)");w.prepend(inp);
+  B.forEach((b,j)=>{if(j>=5)b.hidden=true});const no=document.createElement("p");no.className="tag grln";no.hidden=true;no.textContent="Nothing matches.";w.appendChild(no);
+  const mo=document.createElement("button");mo.className="lnk grlm";mo.textContent="Show all "+B.length;mo.setAttribute("onclick","grLkAll(this)");w.appendChild(mo)})}
+
+/* ----- held over ----- */
+/* apprentice extras as rows: start time, off-the-job, KSBs */
+function cfCalm4(R){const box=R.querySelector("#cfopt");if(!box||typeof cf==="undefined"||!cf)return;
+ const add=(k,lab,val,nodes,before)=>{const op=typeof cfOpenK==="function"&&cfOpenK(k);const b=pzRowEl("cfr-"+k,lab,esc(val),`cfRowT('${k}')`,`aria-expanded="${op}" aria-controls="cfg-${k}"`);
+  const g=document.createElement("div");g.className="cfgrp";g.id="cfg-"+k;g.hidden=!op;nodes.forEach(x=>g.appendChild(x));if(before){before.before(b);b.after(g)}else{box.appendChild(b);box.appendChild(g)}};
+ const tm=R.querySelector("#cf-tm"),tr=tm&&tm.closest(".cr");
+ if(tr&&!box.contains(tr)&&!box.querySelector("#cfr-tm")){const kids=[...tr.children],tmw=kids.find(e=>e.contains(tm)),oj=kids.find(e=>e!==tmw&&/^Off-the-job/.test(pzTx(e.querySelector(".cfl"))));
+  if(oj){const t=document.createElement("template");t.innerHTML=`<button class="pzrow" id="cfr-otj" role="switch" aria-checked="${!!cf.otj}" onclick="cf.otj=!cf.otj;cfRe()"><span>Off-the-job</span><span class="pzsw" aria-hidden="true"></span></button>`;box.prepend(t.content.firstChild);oj.remove()}
+  const ph=box.querySelector("#cfr-ph");const lb=tmw&&tmw.querySelector("label.cfl");const wrap=document.createElement("div");wrap.className="cr";if(tmw)wrap.appendChild(tmw);
+  add("tm",(cf.ss||[]).length?"First start time":"Start time",cf.tm||"Not set",[wrap],ph||null);tr.remove()}
+ const kl=[...R.querySelectorAll("div.cfl")].find(e=>pzTx(e)==="Map to your KSBs"),kw=R.querySelector("#ksw");
+ if(kl&&kw&&!box.contains(kw)){const g=[kl];let n=kl.nextElementSibling;while(n&&n!==kw){g.push(n);n=n.nextElementSibling}g.push(kw);const c=(cf.ks||[]).length;add("ks","KSBs",c?c+" selected":"None",g)}}
+/* Cancel at the top of the meeting, feedback and goal forms */
+function pzCancelHd(R){if(typeof tab==="undefined"||tab!=="cpd")return;const okPf=(pf==="pre"&&typeof pe!=="undefined"&&pe&&pe.v==="mt")||(pf==="gr"&&typeof grf!=="undefined"&&grf&&["fb","gl","sw"].includes(grf.k));if(!okPf)return;
+ if(!R.querySelector("#pzsave"))return;/* only the plain way back to the page the form belongs to; a link back to where you came from (your entry, the point) keeps its words */
+ const b=[...R.querySelectorAll("button.lnk")].find(x=>/^‹\s*(Preceptorship|Feedback|SWOC|Plan|Feedback and SWOC)$/.test(pzTx(x))&&!x.closest(".pzsave,.ifbg,.pmd,.dkl"));if(!b)return;
+ b.textContent="Cancel";b.removeAttribute("aria-label");b.classList.add("bkl","pzcx")}
+/* Preceptorship: sign-off details folded in the review sheet, the due date shown, "+ Add a goal" */
+function preCalm4(R){if(typeof pf==="undefined"||pf!=="pre")return;
+ const sh=R.querySelector(".pmd.prsheet");
+ if(sh&&preEd){const x=(()=>{try{return preRvL().find(r=>r.id===preEd)}catch(e){return null}})(),held=!!((S.pre||{}).ms||{})[preEd];
+  if(x&&!held&&!sh.querySelector("#prshdue")){const hd=sh.querySelector(".prshh");if(hd){const p=document.createElement("p");p.className="tag";p.id="prshdue";let d="";try{d=dFmt(preDue(x))}catch(e){}if(d){let past=false;try{past=preDue(x)<isoD(new Date())}catch(e){}p.textContent=(past?"Was due ":"Due ")+d;hd.after(p)}}}
+  const sb=sh.querySelector("#pm-sb");if(sb&&!sh.querySelector("#prsow")){const lb=sh.querySelector('label[for="pm-sb"]'),sd=sh.querySelector("#pm-sd");
+   if(lb&&sd){const g=[];let n=lb;while(n){g.push(n);if(n.contains(sd)){const h=n.nextElementSibling;if(h&&h.matches("p.tag"))g.push(h);break}n=n.nextElementSibling}
+    if(g.some(e=>e.contains(sd))){let so={};try{so=preSo(preEd)||{}}catch(e){}const val=so.by?so.by+(so.d?" · "+dFmt(so.d):""):"Not added";const k="pre-so-"+preEd,op=!!pzOpenS[k];
+     const w=document.createElement("div");w.className="cfopt";w.id="prsow";lb.before(w);w.appendChild(pzRowEl("prso","Sign-off (optional)",esc(val),"pzTogRow(this)",`aria-expanded="${op}" aria-controls="prsog" data-k="${k}" data-u="preSoRow" data-l="Sign-off (optional)"`));
+     const gg=document.createElement("div");gg.className="cfgrp";gg.id="prsog";gg.hidden=!op;g.forEach(e=>gg.appendChild(e));w.appendChild(gg);
+     const lb2=gg.querySelector('label[for="pm-sb"]');if(lb2)lb2.style.marginTop="0";
+     const hp=gg.querySelector("#pm-sbh");if(hp){w.after(hp);hp.style.margin="6px 0 0"}}}}}
+ const gl=R.querySelector("#prgl"),inp=gl&&gl.querySelector("#pg-t"),row=inp&&inp.closest(".grow");
+ if(row&&!gl.querySelector("#prgla")&&gl.querySelectorAll(".grow").length>1&&!String(inp.value||"").trim()){const op=!!pzOpenS["pre-gl"];row.id="prgladd";row.hidden=!op;
+  const t=document.createElement("template");t.innerHTML=`<button class="pzrow prgla" id="prgla" aria-expanded="${op}" aria-controls="prgladd" data-k="pre-gl" onclick="prGlAdd(this)"><span>+ Add a goal</span></button>`;row.before(t.content.firstChild);inp.setAttribute("onkeydown","if(event.key==='Enter'){event.preventDefault();preGoalAdd()}")}}
+function preSoRow(b){const sb=document.getElementById("pm-sb"),sd=document.getElementById("pm-sd");if(!sb)return;const by=String(sb.value||"").replace(/\s+/g," ").trim();let d="";try{d=sd&&/^\d{4}-\d{2}-\d{2}$/.test(sd.value)?dFmt(sd.value):""}catch(e){}
+ const v=by?by+(d?" · "+d:""):"Not added",sm=b.querySelector("small");if(sm)sm.textContent=v;b.setAttribute("aria-label","Sign-off (optional), "+v)}
+function prGlAdd(b){pzTogRow(b);if(b.getAttribute("aria-expanded")==="true"){const i=document.getElementById("pg-t");if(i)try{i.focus({preventScroll:true})}catch(e){}}}
+{const pc0=pzCalm;pzCalm=function(R){pc0(R);if(!R||!(window.CL&&CL())||typeof tab==="undefined"||tab!=="cpd")return;[pfHomeCalm,apCalm,hcCalm4,grCalm4,cfCalm4,pzCancelHd,preCalm4].forEach(fn=>{try{fn(R)}catch(e){console.error("v541",fn.name,e)}})}}
+/* header menus, after each draw */
+{const h0=home;home=function(){const r=h0.apply(this,arguments);try{if(window.CL&&CL()&&tab==="cpd"){
+  if(pf==="hc"&&hcMoreSh&&document.getElementById("hcsum"))pzHdMore("HCPC audit pack","hcmore","More options for your audit pack","hcMoreSheet()");
+  if(pf==="gr"&&!(typeof grf!=="undefined"&&grf)&&(!gv||!gv.v||gv.v==="home"))pzHdMore("Feedback and SWOC","grmore","More options for Feedback and SWOC","grMoreSheet()")}}catch(e){console.error("v541",e)}return r}}
+/* the CPD log's menu asks first when an entry you're writing hasn't been saved */
+{const l0=pzLeaves;pzLeaves=function(el){if(el&&el.closest&&el.closest(".cpms:not(.pzms)")&&el.matches(".pzrow"))return true;return l0.apply(this,arguments)}}
 
 /* focus stays on the control just used when the screen redraws (PRO-09) */
 function pzFKey(el){if(!el||el===document.body)return null;const A=document.getElementById("app");if(!A||!A.contains(el))return null;
@@ -15748,6 +15906,8 @@ try{(function(){
   /* v538: the pane stops short of the page's bottom padding, so at the foot of a short page it doesn't slide up under the
      Quick ref and message buttons */
   @media (min-width:900px) and (max-width:1439px){html.pzo #app .dkr{top:84px;max-height:calc(100vh - 172px)}}
+  /* v541: on a wide screen too, the pane sticks below the Quick ref and message buttons, so nothing scrolls under them */
+  @media (min-width:1440px){html.pzo #app .dkr{top:84px;max-height:calc(100vh - 172px)}}
   /* v513 (R11): the medium layout, 900 to 1279 px (unfolded iPhone Duo, iPads in landscape, small laptop windows): a narrow
      rail instead of the sidebar, and the CPD list and entry side by side */
   @media (min-width:900px) and (max-width:1279px){
