@@ -2565,7 +2565,7 @@ function preGoalX(id){const G=grS();G.gl=G.gl.filter(x=>x.id!==id);save();home()
 function preGoalAdd(){const e=document.getElementById("pg-t"),t=e?e.value.replace(/\s+/g," ").trim():"";if(!t)return;const G=grS();if(G.gl.length>=GL_MAX||!grRoom(800)){try{toast("Your plan is full. Delete a goal you don't need first.")}catch(x){}return}G.gl.push({id:cpId(),t:t.slice(0,200),m:"",by:"",st:[],hp:"",sw:[],ev:[],pre:true,done:false,dn:"",oc:"",d:isoD(new Date())});save();home()}
 function preMtNew(rv){const h=rv&&(S.pre.ms||{})[rv];pe={v:"mt",f:{id:null,d:typeof h==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(h)?h:isoD(new Date()),n:"",ac:"",rv:rv||"",ph:[]}};preAsk=null;home();window.scrollTo(0,0)}
 function preMtEdit(id){const m=(S.pre.mt||[]).find(x=>x.id===id);if(!m)return;pe={v:"mt",f:{id:m.id,d:m.d,n:m.n||"",ac:(m.ac||[]).map(a=>a.t).join("\n"),rv:m.rv||"",ph:(m.ph||[]).slice(),m:Math.round(+m.m||0)||""}};home();window.scrollTo(0,0)}
-function mtRead(){const f=pe.f,g=k=>document.getElementById(k);if(g("pm-d")&&/^\d{4}-\d{2}-\d{2}$/.test(g("pm-d").value))f.d=g("pm-d").value;if(g("pm-n"))f.n=g("pm-n").value;if(g("pm-a"))f.ac=g("pm-a").value;if(g("pm-rv"))f.rv=g("pm-rv").value;if(g("pm-m"))f.m=g("pm-m").value}
+function mtRead(){const f=pe.f,g=k=>{const n=document.getElementById("pm-n"),r=n&&n.closest(".dkr");return r?r.querySelector("#"+k):document.getElementById(k)};if(g("pm-d")&&/^\d{4}-\d{2}-\d{2}$/.test(g("pm-d").value))f.d=g("pm-d").value;if(g("pm-n"))f.n=g("pm-n").value;if(g("pm-a"))f.ac=g("pm-a").value;if(g("pm-rv"))f.rv=g("pm-rv").value;if(g("pm-m"))f.m=g("pm-m").value}
 async function mtPhAdd(files){if(!pe||pe.v!=="mt"||!files||!files.length)return;mtRead();const f=pe.f;f.ph=f.ph||[];f.phMsg="Adding…";cfRe();let n=0;
  for(const x of Array.from(files).slice(0,12-f.ph.length)){try{if(x.type==="application/pdf"||/\.pdf$/i.test(x.name||"")){if(x.size>15e6){f.phMsg="That PDF is over 15 MB. Try a smaller copy.";continue}const id="pd"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);await phPut(id,x);f.ph.push(id);n++;continue}const b=await phShrink(x),id="ph"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);await phPut(id,b);f.ph.push(id);n++}catch(e){}}
  f.phMsg=n?"":f.phMsg&&f.phMsg!=="Adding…"?f.phMsg:"That file couldn't be added. Try a photo or a PDF.";cfRe();hap("tap")}
@@ -8161,7 +8161,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
  }catch(e){console.error("v281",e)}
 
  /* ---------- v282: tester version: report a problem, feedback, welcome note ---------- */
- const RP_VER="v541";let rpCtx=null,rpCat=null;
+ const RP_VER="v542";let rpCtx=null,rpCat=null;
  function rpBtn(kind,id,i){return `<button class="rpb" onclick="rpOpen('${kind}','${id}',${i})">⚑ Report a problem with this card</button>`}
  function rpCtxFor(kind,id,i){try{
   if(kind==="c"){const c=LEARN[id][i],cd=typeof COND!=="undefined"&&COND.find(x=>x.id===id);return {kind:"card",layer:id,card:i,title:c.t,where:(cd?"Condition: "+cd.n:(typeof tn==="function"?tn(id):id))+" · card "+(i+1)+": "+c.t}}
@@ -10604,7 +10604,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
   const closeSheet=()=>document.querySelectorAll(".ifbg").forEach(e=>e.remove());
   const scrollPar=e=>{let p=e&&e.parentElement;while(p&&p!==document.body){const cs=getComputedStyle(p);if(/(auto|scroll)/.test(cs.overflowY)&&p.scrollHeight>p.clientHeight+4)return p;p=p.parentElement}return null};
   function sScroll(E,pos,ms){return new Promise(res=>{if(!E.length)return res();const e=E[0],sp=scrollPar(e),vh=window.innerHeight;
-    const top=Math.min(...E.map(x=>x.getBoundingClientRect().top)),bot=Math.max(...E.map(x=>x.getBoundingClientRect().bottom));
+    const R0=E.map(x=>x.getBoundingClientRect()),R1=R0.filter(r=>r.width>0||r.height>0),RR=R1.length?R1:R0,top=Math.min(...RR.map(r=>r.top)),bot=Math.max(...RR.map(r=>r.bottom));
     let from,to,set;if(sp){const pr=sp.getBoundingClientRect();from=sp.scrollTop;to=Math.max(0,Math.min(sp.scrollHeight-sp.clientHeight,from+top-pr.top-12));set=v=>{sp.scrollTop=v}}
     else{from=window.scrollY;const want=pos==="top"?top-90:top-Math.max(90,(vh-(bot-top))/2-120);to=Math.max(0,Math.min(document.documentElement.scrollHeight-vh,from+want));set=v=>window.scrollTo(0,v)}
     if(Math.abs(to-from)<4||RM()){set(to);return res()}const d=ms||Math.min(1400,Math.max(700,Math.abs(to-from)*1.2)),t0=performance.now();
@@ -14353,6 +14353,31 @@ function prGlAdd(b){pzTogRow(b);if(b.getAttribute("aria-expanded")==="true"){con
   if(pf==="gr"&&!(typeof grf!=="undefined"&&grf)&&(!gv||!gv.v||gv.v==="home"))pzHdMore("Feedback and SWOC","grmore","More options for Feedback and SWOC","grMoreSheet()")}}catch(e){console.error("v541",e)}return r}}
 /* the CPD log's menu asks first when an entry you're writing hasn't been saved */
 {const l0=pzLeaves;pzLeaves=function(el){if(el&&el.closest&&el.closest(".cpms:not(.pzms)")&&el.matches(".pzrow"))return true;return l0.apply(this,arguments)}}
+
+/* ---------- v542: the preceptorship meeting form asks before typed work is lost ---------- */
+function pzMtOpen(){return typeof pe!=="undefined"&&!!pe&&pe.v==="mt"&&!!pe.f&&!!document.getElementById("pm-n")}
+/* the fields you can change, read the same way however they were filled in (an empty box is "", never missing) */
+/* a link to a review point that has since been removed reads as no link, as the form's list shows it */
+const pzMtRv=f=>{try{return f.rv&&preRvL().some(x=>x.id===f.rv)?f.rv:""}catch(e){return f.rv||""}};
+const pzMtSnap=new WeakMap(),pzMtSer=f=>JSON.stringify([f.d||"",String(f.m==null?"":f.m).trim(),f.n||"",f.ac||"",pzMtRv(f),f.wi||"",f.nx||"",(f.ph||[]).join(",")]);
+/* what the form held when it was first drawn (after its defaults are filled in) */
+{const f0=preMtForm;preMtForm=function(){const r=f0.apply(this,arguments);try{if(typeof pe!=="undefined"&&pe&&pe.v==="mt"&&pe.f&&!pzMtSnap.has(pe.f))pzMtSnap.set(pe.f,pzMtSer(pe.f))}catch(e){}return r}}
+function pzMtDirty(){try{if(!pzMtOpen()||!pzMtSnap.has(pe.f))return false;if(document.getElementById("pm-n"))mtRead();return pzMtSnap.get(pe.f)!==pzMtSer(pe.f)}catch(e){return false}}
+{const d0=pzDirtyForm;pzDirtyForm=function(){return d0.apply(this,arguments)||pzMtDirty()}}
+/* ways out of the meeting form: Cancel and Back (pe=null, pmBack), opening another preceptorship page or form */
+{const l0=pzLeaves;pzLeaves=function(el){if(l0.apply(this,arguments))return true;if(!el||!el.getAttribute||!pzMtOpen())return false;if(el.closest("#pzdisc,.twov,.ifbg,#rpov,.xpv"))return false;
+  return /\bpe=(null|\{)|\b(preMtNew|preMtEdit|preRvEdit|preXpOpen|pmBack|grGlOpen)\(/.test(el.getAttribute("onclick")||"")}}
+/* the question names the meeting */
+{const a0=pzDiscAsk;pzDiscAsk=function(el){a0.apply(this,arguments);try{if(!pzMtDirty()||pzCfDirty())return;const d=document.getElementById("pzdisc");if(!d)return;const ed=!!pe.f.id;
+  const h=d.querySelector("#pzdisc-h"),p=d.querySelector("#pzdisc-p"),o=d.querySelector("button.opt");
+  if(h)h.textContent=ed?"Discard your changes?":"Discard this meeting?";if(p)p.textContent=ed?"Your changes to this meeting haven't been saved. The meeting stays as it was.":"What you've typed hasn't been saved.";if(o)o.textContent=ed?"Discard changes":"Discard"}catch(e){console.error("v542",e)}}}
+/* Discard: the meeting form closes, then the tap that asked goes ahead */
+{const g0=pzDiscGo;pzDiscGo=function(){try{
+  /* the screen redrew while the question was up: the same control, as it is now */
+  if(pzDisc&&!document.contains(pzDisc)){const on=pzDisc.getAttribute("onclick")||"";const alt=on&&[...document.querySelectorAll("[onclick]")].find(x=>x.getAttribute("onclick")===on&&!x.closest("#pzdisc"));if(alt)pzDisc=alt}
+  if(pzMtOpen()&&pzMtSnap.has(pe.f)){const on=pzDisc?(pzDisc.getAttribute("onclick")||""):"";pzMtSnap.set(pe.f,pzMtSer(pe.f));if(!/pmBack\(|\bpe=null/.test(on))pe=null}}catch(e){console.error("v542",e)}return g0.apply(this,arguments)}}
+/* a CPD entry taken to "Record it in Preceptorship" keeps what it held when opened, so coming back still asks */
+{const v0=svToPre;svToPre=function(){const c=typeof cf!=="undefined"?cf:null,s0=c&&pzSnap.has(c)?pzSnap.get(c):null;const r=v0.apply(this,arguments);try{if(s0!=null&&pe&&pe.f&&pe.f.keep)pzSnap.set(pe.f.keep,s0)}catch(e){}return r}}
 
 /* focus stays on the control just used when the screen redraws (PRO-09) */
 function pzFKey(el){if(!el||el===document.body)return null;const A=document.getElementById("app");if(!A||!A.contains(el))return null;
