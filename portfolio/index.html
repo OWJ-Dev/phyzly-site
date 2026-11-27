@@ -1004,6 +1004,38 @@ body.pznonet #nav{display:none!important}
 .pzpwt{margin-top:12px;font-size:.85rem;color:var(--mute);line-height:1.5}.pzpwt p{margin:0 0 6px}
 .pzpwf{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-top:12px}.pzpwf>.opt{width:auto;flex:0 0 auto;margin:0;padding-left:22px;padding-right:22px}
 .pzpw .pzaif{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.pzpw .pzaif>button{flex:1 1 140px;margin:0}
+
+/* v547 (f2784) onboarding tidy-up */
+html.clin #app .obband .plbk{min-height:44px;padding:10px 12px 10px 0}
+html.clin .obband .plnv{min-height:44px}
+.obtc .obtb .lnk{min-height:44px;padding:8px 10px 8px 0;white-space:nowrap}
+html .obtc .obtb .go,html .obtc .obprev{white-space:nowrap}
+html .obtc .obprev{min-height:44px}
+html #app.obpg .lnk,html .auf>.lnk{min-height:44px}
+html .auf p .aul,html .auf #au-rs .aul,html .auh .aulf .aul,html .auh .auinw .aul{display:inline-block;padding:12px 0;margin:-12px 0;line-height:20px;vertical-align:baseline}
+html #app .aubk{display:block;width:fit-content;margin:0 max(0px,calc((100% - 440px)/2));text-align:left;min-height:44px;padding:8px 8px 8px 0}
+html .auh .aulf,html .auh .auinw{text-align:center;margin:10px 0 0}
+html .auh .auinw{margin-top:14px}
+html .auf .aufe{margin:6px 0 10px}
+html .auf .aubad{border-color:var(--bad)!important;box-shadow:0 0 0 3px rgba(194,65,59,.14)}
+html.clin #app.obpg .ock.on,html.clin .auf .ock.on{border-color:var(--blue,#1A6BFF);background:var(--tint)}
+html.clin .auf .ock.on i,html.clin #app.obpg .ock.on i{background:var(--blue,#1A6BFF);border-color:var(--blue,#1A6BFF);color:#fff}
+html.clin #app.obpg .ock small{font-size:var(--ft-sub,15px)!important;line-height:1.4}
+html.clin #app.obpg .opt.on{border:2px solid var(--blue,#1A6BFF);box-shadow:0 0 0 3px rgba(26,107,255,.12)}
+html.clin #app.obpg.obnh .opt:hover:not(:disabled):not(.on){border-color:var(--line)}
+html.clin #app.obpg .plh1:focus{outline:none}
+html.clin #app .obbr i{color:#FF6B57}
+@media (min-width:900px){html.clin #app.obpg>.nvband.obband{margin-bottom:18px!important;padding-top:18px!important}}
+html .pfh-im{margin:-6px 16px 6px;padding:10px 0;min-height:44px;text-align:left}
+@media (prefers-reduced-motion:no-preference){
+ html .pzsg i{animation:pzsgo0 4.2s ease-out 1 forwards}
+ html .pzsg span:nth-child(2) i{animation-name:pzsgo1}html .pzsg span:nth-child(3) i{animation-name:pzsgo2}
+ html .pzsg span:nth-child(4) i{animation-name:pzsgo3}html .pzsg span:nth-child(5) i{animation-name:pzsgo4}}
+@keyframes pzsgo0{0%{transform:translateX(-101%)}23%,100%{transform:translateX(0)}}
+@keyframes pzsgo1{0%,23%{transform:translateX(-101%)}31%,100%{transform:translateX(0)}}
+@keyframes pzsgo2{0%,31%{transform:translateX(-101%)}69%,100%{transform:translateX(0)}}
+@keyframes pzsgo3{0%,69%{transform:translateX(-101%)}85%,100%{transform:translateX(0)}}
+@keyframes pzsgo4{0%,85%{transform:translateX(-101%)}100%{transform:translateX(0)}}
 </style>
 <style>
 .cpsl{font-size:.78rem;font-weight:600;color:var(--mute);margin:4px 0 6px}
@@ -1015,7 +1047,7 @@ body.pznonet #nav{display:none!important}
 <body>
 <main id="app"><div id="pzsh"><span class="wm">Phy<i>z</i>ly</span><span class="sub">Portfolio</span><span class="vh">Loading</span><noscript><p>Phyzly Portfolio needs JavaScript switched on in your browser.</p></noscript></div></main>
 <script>window.PZ_ONLY="portfolio";window.PZ_CFG={url:"https://lrbxghrhxabnqvfgxrad.supabase.co",key:"sb_publishable_XjivnIAnqcuxpwN5j18Bpw_HnaazWPf",providers:{apple:true,google:false},invite:true};window.PZ_FB_LINKS=true;window.PZ_SO_LINKS=true;window.PZ_RC_LINKS=true;window.PZ_PK_LINKS=true;window.PZ_AI=true;window.PZ_PAY=true;</script><script defer src="/vendor/supabase-js-2.118.0.js"></script>
-<script defer src="main.768c4521b8.js"></script>
+<script defer src="main.b32d5f8339.js"></script>
 <style id="clinical">
 html.clin{--bg:#FFFFFF;--line:#DCE4F0;--cta:#0A1F3D;--cta-ink:#FFFFFF;--soft:#F4F7FB;--tint:#EAF1FF}
 @media (prefers-color-scheme:dark){
