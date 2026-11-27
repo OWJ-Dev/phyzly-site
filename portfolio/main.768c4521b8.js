@@ -7418,7 +7418,7 @@ function regionHome(){
 }
 const head=()=>`<div class="top"><div class="brand">${mascot(38)}<span>Phy<i>z</i>ly</span></div><div class="tr">${typeof isPlus==="function"&&isPlus()?`<button class="plusb on" onclick="openSub()" aria-label="Phyzly Plus: you are subscribed">${(window.CL&&!CL())?"✨ ":""}Plus</button>`:`<button class="plusb" onclick="openSub()" aria-label="Phyzly Plus">${(window.CL&&!CL())?"✨ ":""}Plus</button>`}<button class="icb" onclick="qrOpen()" aria-label="Quick reference: dermatomes, myotomes, reflexes and scales"><span>${(window.CL&&!CL())?"📌":ICN.pin}</span><small>Quick ref</small></button><button class="icb sq" onclick="rpOpen('g')" aria-label="Message Phyzly" title="Message Phyzly">${(window.CL&&!CL())?"💬":ICN.msg}</button></div></div>`; const tabs=()=>"";
 const foot=()=>(window.PZ_ONLY==="portfolio"||(typeof tab!=="undefined"&&tab==="cpd"))?"":rs?`<div class="fb bad"><b>Reset all progress?</b>This clears your scores, ticks and completed layers.</div><div class="tabs"><button class="opt" style="text-align:center" onclick="rs=false;home()">Cancel</button><button class="go" onclick="S={};save();rs=false;curPack=null;tab='found';home()">Yes, reset</button></div>`:`<button class="lnk" onclick="rs=true;home()">Reset progress</button><button class="lnk" onclick="S.role=null;save();home()">Change my focus</button>`;
-function home(){LES=null;lsClose();setTimeout(()=>{try{twShow()}catch(e){}},700);try{setTimeout(topChk,0)}catch(e){}if(!window._alDone){window._alDone=1;try{alApply()}catch(e){}}setTimeout(()=>{if(S.trkP&&RGL[S.trkP]&&!document.querySelector(".cpc,.lvc,.achov,.stkov")&&!LES&&!(typeof queue!=="undefined"&&queue.length))return trkCeleb(S.trkP,()=>lvCheck());if(stkPending()&&!document.querySelector(".cpc,.lvc,.achov,.stkov")&&!LES&&!(typeof queue!=="undefined"&&queue.length)&&!document.getElementById("fb"))stkShow(()=>lvCheck());else lvCheck()},450);if(PRET)setTimeout(pathRestore,0);
+function home(){LES=null;lsClose();try{setTimeout(topChk,0)}catch(e){}if(!window._alDone){window._alDone=1;try{alApply()}catch(e){}}setTimeout(()=>{if(S.trkP&&RGL[S.trkP]&&!document.querySelector(".cpc,.lvc,.achov,.stkov")&&!LES&&!(typeof queue!=="undefined"&&queue.length))return trkCeleb(S.trkP,()=>lvCheck());if(stkPending()&&!document.querySelector(".cpc,.lvc,.achov,.stkov")&&!LES&&!(typeof queue!=="undefined"&&queue.length)&&!document.getElementById("fb"))stkShow(()=>lvCheck());else lvCheck()},450);if(PRET)setTimeout(pathRestore,0);
  if(tab==="rev")return revScreen();
  if(tab==="onc")return oncScreen();
  if(tab==="cpd"&&S.role)return portScreen();
@@ -7505,7 +7505,7 @@ function auVerify(){if(au.v!=="code"||au.code.length!==6)return;auDone({method:"
 function auSso(m){auDone({method:m,email:"",name:(S.acct&&S.acct.name)||""})}
 function auGuest(){S.acct={guest:1,at:Date.now()};delete S.signedOut;save();au.v="land";if(S.role)home();else welcome();window.scrollTo(0,0)}
 function auDone(a){const wasUp=au.mode==="up";S.acct=Object.assign({at:Date.now()},a);delete S.signedOut;save();au.v="land";au.code="";
- if(S.role){celebrate(wasUp?"Account created":"Welcome back"+(S.acct.name?", "+S.acct.name:""));home()}else{welcome();if(wasUp)setTimeout(()=>celebrate("Account created"),100)}window.scrollTo(0,0)}
+ if(S.role){toast(wasUp?"Account created":"Welcome back"+(S.acct.name?", "+S.acct.name:""));home()}else welcome();window.scrollTo(0,0)}
 function auOut(){if(!au.oc){au.oc=1;meScreen();return}au.oc=0;delete S.acct;S.signedOut=1;save();au.v="land";tab="found";welcome();window.scrollTo(0,0)}
 function auMe(){const a=S.acct;
  if(!a||a.guest)return `<div class="sec">Account</div><div class="note"><b>You're using Phyzly without an account.</b> Create one to back up your progress and use it on other devices.</div><button class="go" style="margin-top:0" onclick="au.v='form';au.mode='up';delete S.acct;S.acctLater=1;save();welcome()">Create an account</button><button class="opt" style="text-align:center;margin-top:8px" onclick="au.v='form';au.mode='in';delete S.acct;save();welcome()">Sign in</button>`;
@@ -8161,7 +8161,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
  }catch(e){console.error("v281",e)}
 
  /* ---------- v282: tester version: report a problem, feedback, welcome note ---------- */
- const RP_VER="v545";let rpCtx=null,rpCat=null;
+ const RP_VER="v546";let rpCtx=null,rpCat=null;
  function rpBtn(kind,id,i){return `<button class="rpb" onclick="rpOpen('${kind}','${id}',${i})">⚑ Report a problem with this card</button>`}
  function rpCtxFor(kind,id,i){try{
   if(kind==="c"){const c=LEARN[id][i],cd=typeof COND!=="undefined"&&COND.find(x=>x.id===id);return {kind:"card",layer:id,card:i,title:c.t,where:(cd?"Condition: "+cd.n:(typeof tn==="function"?tn(id):id))+" · card "+(i+1)+": "+c.t}}
@@ -8185,7 +8185,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
  /* report link under the answer feedback after every question */
  try{new MutationObserver(()=>{const fb=document.getElementById("fb");if(fb&&fb.textContent.trim()&&!fb.querySelector(".rpb")&&typeof queue!=="undefined"&&queue&&queue[0]){const b=document.createElement("button");b.className="rpb";b.textContent="⚑ Report a problem with this question";b.onclick=()=>rpOpen("q");fb.appendChild(b)}}).observe(document.documentElement,{childList:true,subtree:true})}catch(e){}
  /* one-time welcome note for testers */
- function twShow(){try{if(S.tw3||S.obFlow||document.getElementById("twov"))return;if(!S.role)return;const d=document.createElement("div");d.className="twov";d.id="twov";d.setAttribute("role","dialog");d.setAttribute("aria-modal","true");d.setAttribute("aria-label","Welcome, tester");
+ function twShow(){if(!S.tw3){S.tw2=1;S.tw3=1;save()}return;try{if(S.tw3||S.obFlow||document.getElementById("twov"))return;if(!S.role)return;const d=document.createElement("div");d.className="twov";d.id="twov";d.setAttribute("role","dialog");d.setAttribute("aria-modal","true");d.setAttribute("aria-label","Welcome, tester");
   d.innerHTML=`<div class="twbx"><h2>Thanks for testing Phyzly</h2><p style="margin:0">This is an early version. The content is a draft and has not yet been checked by a specialist clinician, so please don't rely on it for practice.</p><p style="margin:10px 0 0"><b>Please test:</b></p><ul><li><b>Foundations</b> and the <b>Shoulder</b> (in Anatomy)</li><li>anything else that's open, if you have time</li></ul><p style="margin:0 0 6px">Spot something wrong or unclear? Tap <b>⚑ Report a problem</b> under any card or answer. For anything else, tap <b>💬</b> at the top of the home screen. Reports are sent with your name.</p><p style="margin:0 0 10px;padding:8px 10px;border-radius:10px;background:var(--bg);font-size:.9rem"><b>Confidential.</b> Phyzly, its content and design are © Oliver Jones 2026. Please don't copy, duplicate, remix, screenshot to share, or pass on the link or any part of the app.</p><button class="go" onclick="S.tw2=1;S.tw3=1;save();document.getElementById('twov').remove();window.obTourGo&&obTourGo()">I agree, start testing</button></div>`;
   document.body.appendChild(d)}catch(e){}}
  window.twShow=twShow;
@@ -10071,7 +10071,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
    const subB=take("Subscription").find(e=>e.matches("button")),feedB=take("Activity feed").find(e=>e.matches("button"));
    group(A,"Account",[acct&&subRow("Account","user",C.navy,"Account",signed?"Signed in":"Not signed in"),subB&&asRow(subB,"plus",C.gold,"Phyzly Plus",{val:/Free/.test(subB.textContent)?"Free plan":"Active"}),ch["Friends profile"]&&subRow("Friends profile","friends",C.blue,"Friends profile",""),feedB&&asRow(feedB,"feed",C.green,"Share activity with friends",{desc:false})]);
    const fb=take("Feedback").find(e=>e.matches("button")),cr=take("For the team").find(e=>e.matches("button")),ab=take("About").find(e=>e.matches("button"));
-   group(A,"Help",[(()=>{const t=document.createElement("button");t.setAttribute("onclick","obTourAgain()");return asRow(t,"plan",C.navy,"Take the quick tour",{desc:false,val:""})})(),(window.PZ_ONLY==="portfolio"?(()=>{const t=document.createElement("button");t.setAttribute("onclick","rpOpen('g')");return asRow(t,"msg",C.blue,"Message Phyzly",{desc:false,val:""})})():fb&&asRow(fb,"msg",C.blue,"Message Phyzly",{desc:false,val:""})),cr&&asRow(cr,"shield",C.teal,"Content review",{desc:false,val:""}),ab&&asRow(ab,"img",C.grey,"Image credits",{val:""})]);
+   group(A,"Help",[(()=>{const t=document.createElement("button");t.setAttribute("onclick","obTourAgain()");return asRow(t,"plan",C.navy,"Take the full tour",{desc:false,val:""})})(),(window.PZ_ONLY==="portfolio"?(()=>{const t=document.createElement("button");t.setAttribute("onclick","rpOpen('g')");return asRow(t,"msg",C.blue,"Message Phyzly",{desc:false,val:""})})():fb&&asRow(fb,"msg",C.blue,"Message Phyzly",{desc:false,val:""})),cr&&asRow(cr,"shield",C.teal,"Content review",{desc:false,val:""}),ab&&asRow(ab,"img",C.grey,"Image credits",{val:""})]);
    /* anything else (role-specific sections) as its own group, as it was */
    Object.keys(ch).forEach(t=>{if(["Profile picture","Knowledge freshness","Daily goal","How Phyzly looks","Account","Friends profile","Settings"].includes(t))return;const v=ch[t];if(!v.length)return;A.insertAdjacentHTML("beforeend",`<div class="mgh">${esc(t)}</div>`);const g=document.createElement("div");g.className="mgrp mraw";v.forEach(n=>g.appendChild(n));A.appendChild(g)});
    const left=(ch["Settings"]||[]).filter(e=>!/^\s*(Sound|Vibration|Apprenticeship tools|HCPC audit pack|Interview prep|Placements|Preceptorship)/.test(e.textContent));if(left.length){const g=document.createElement("div");g.className="mgrp mraw";left.forEach(n=>g.appendChild(n));A.appendChild(g)}
@@ -10524,8 +10524,9 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
  /* ---------- v438: getting started (Clinical setup pages, three steps, quick tour) ---------- */
  try{
   try{if(typeof ICN!=="undefined"&&!ICN["🚑"])ICN["🚑"]='<path d="M3 7h11v9H3zM14 10h4l3 3v3h-7M9 9v5M6.5 11.5h5"/><circle cx="7" cy="17.5" r="1.5"/><circle cx="17" cy="17.5" r="1.5"/>'}catch(e){}
-  const STG=["About you","Your goals","Quick tour"];
-  const obN=window.obN=()=>window.PZ_ONLY==="portfolio"&&(S.role==="stu"||S.role==="app")?2:3;
+  const PFO=()=>window.PZ_ONLY==="portfolio";
+  const STGL=()=>PFO()?((S.role==="stu"||S.role==="app")?["About you","Quick tour"]:["About you","Your tools","Quick tour"]):["About you","Your plan","Your tools","Daily time","Quick tour"];
+  const obN=window.obN=()=>STGL().length;
   const segs=st=>{const n=obN();return `<div class="plsg" style="grid-template-columns:repeat(${n},1fr)" role="img" aria-label="Step ${st} of ${n}">${[...Array(n)].map((_,j)=>j+1).map(i=>`<span><i style="width:${i<st?100:i===st?50:0}%"></i></span>`).join("")}</div>`};
   const BANDS=[["5n","Band 5, newly qualified","In your first year since qualifying."],["5","Band 5",""],["6","Band 6",""],["7","Band 7",""],["8","Band 8a or above",""],["nb","Not on NHS bands","Private practice, sport, education, abroad or other."]];
   const OTHS=[["sw","Physio assistant or support worker",""],["edu","Educator, lecturer or researcher",""],["ahp","Another profession","OT, nursing, medicine or another allied health profession."],["else","Something else",""]];
@@ -10583,13 +10584,13 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
 
   window.obGoalBack=function(){welcome("tools")};
   function obBand(step){const a=document.getElementById("app");if(!a||a.querySelector(".obband"))return;
-   const st=!step?1:({course:1,cov:1,band:1,oth:1,start:2,prot:2,tools:2,goal:2})[step];if(!st)return;
+   const st=!step?1:({course:1,cov:1,band:1,oth:1,start:2,prot:2,tools:PFO()?2:3,goal:PFO()?2:4})[step];if(!st)return;
    const kids=[...a.children],bk=kids[0]&&kids[0].matches("button.lnk")?kids[0]:null;
    const hero=kids.find(e=>e.matches(".hero")||(e.tagName==="DIV"&&e.style.textAlign==="center"&&e.querySelector("svg")&&!e.querySelector("button")));
    const h=a.querySelector(":scope > h1, :scope > h2");if(!h)return;
    let p=h.nextElementSibling;if(!(p&&p.tagName==="P"))p=null;
    const band=document.createElement("div");band.className="nvband nvpl obband";
-   band.innerHTML=`<div class="plnv"><span class="obbk"></span><span class="obbr">Phy<i>z</i>ly</span></div><div class="pley">Step ${st} of ${obN()} · ${STG[st-1]}</div><h1 class="plh1">${h.innerHTML}</h1>${p?`<p class="obsub">${p.innerHTML}</p>`:""}${segs(st)}`;
+   band.innerHTML=`<div class="plnv"><span class="obbk"></span><span class="obbr">Phy<i>z</i>ly</span></div><div class="pley">Step ${st} of ${obN()} · ${STGL()[st-1]}</div><h1 class="plh1">${h.innerHTML}</h1>${p?`<p class="obsub">${p.innerHTML}</p>`:""}${segs(st)}`;
    if(bk){const b=document.createElement("button");b.className="plbk";b.setAttribute("onclick",bk.getAttribute("onclick"));b.textContent=bk.textContent;band.querySelector(".obbk").replaceWith(b)}
    [bk,hero,h,p].forEach(e=>e&&e.remove());a.insertBefore(band,a.firstChild);a.classList.add("obpg")}
   let obLive=0,obRz=0,obTc=0;const OBST={course:1,cov:1,band:1,oth:1,start:1,prot:1,tools:1,goal:1};
@@ -10600,9 +10601,9 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
 
   /* the end of setup: tester notice (once), then the tour */
   window.obFinish=function(){if(!S.obFlow)return;delete S.obFlow;delete S.obAt;delete S.obW;delete S.obT0;document.getElementById("app").classList.remove("obpg");if(!S.tourDone)S.obTour=1;save();
-   setTimeout(()=>{if(!S.tw3)twShow();else obTourGo()},800)};
+   obTourGo()};
   const gsB=goStart;goStart=function(){obLive=1;const r=gsB.apply(this,arguments);if(S.obFlow)obFinish();return r};
-  const psB=window.planSave;window.planSave=function(){const ob=S.obFlow;try{const d=S.planDraft;if(ob&&d&&d.name&&(S.role==="sta"||S.role==="oth"))d.name=d.name.replace(/ (placement|rotation)$/,"")}catch(e){}psB.apply(this,arguments);if(ob&&S.plan){tab="found";curPack=null;lv="map";home();window.scrollTo(0,0);obFinish()}};
+  const psB=window.planSave;window.planSave=function(){const ob=S.obFlow;try{const d=S.planDraft;if(ob&&d&&d.name&&(S.role==="sta"||S.role==="oth"))d.name=d.name.replace(/ (placement|rotation)$/,"")}catch(e){}const tB=toast;if(ob)toast=()=>{};try{psB.apply(this,arguments)}finally{if(ob)toast=tB}if(ob&&S.plan){tab="found";curPack=null;lv="map";home();window.scrollTo(0,0);obFinish()}};
   const lhB=learnHome;learnHome=function(){const r=lhB.apply(this,arguments);try{document.getElementById("app").classList.remove("obpg")}catch(e){}return r};
   /* v545 (f2782): setup that was interrupted opens again at the step it stopped on; a tour offer that was never
      answered comes back once */
@@ -10613,7 +10614,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
   window.obReArm=()=>{obLive=0};
   const hmR=home;home=function(){const on=S.role&&!(S.signedOut&&!S.acct);
    if(on&&!obLive&&!obRz&&S.obFlow){obRz=1;try{return welcome(obRes())}finally{obRz=0}}
-   if(on&&!obTc){obTc=1;if(S.obTour&&!S.tourDone&&!S.obFlow)setTimeout(()=>{try{if(!S.obFlow&&S.obTour&&!S.tourDone){if(!S.tw3)twShow();else obTourGo()}}catch(e){}},800)}
+   if(on&&!obTc){obTc=1;if(S.obTour&&!S.tourDone&&!S.obFlow)requestAnimationFrame(()=>{try{if(!S.obFlow&&S.obTour&&!S.tourDone)obTourGo()}catch(e){}})}
    return hmR.apply(this,arguments)};
 
   /* quick tour: guided demos across the real screens, with Back and Next */
@@ -10635,7 +10636,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
   const clickTxt=(sel,re)=>{const b=[...document.querySelectorAll(sel)].find(x=>re.test(x.textContent));if(b)b.click()};
   const ONCRESET=()=>{try{oc.sc=null;oc.p=0;oc.ck={}}catch(e){}};
   const CPDRESET=()=>{try{if(window._obCf){cf=null;cp.v="list";window._obCf=0}}catch(e){}};
-  const pfD=()=>{if(window.PZ_ONLY==="portfolio")return "Your CPD log, and tools like Preceptorship and the HCPC audit pack. Choose which tools to show in Profile.";const r=S.role,x=showApp()?", apprenticeship tools":"",y=showPre()?", preceptorship":"",z=showPlc()?", placements":"";
+  const pfD=()=>{if(window.PZ_ONLY==="portfolio")return S.role==="stu"||S.role==="app"?"Your CPD log, with feedback and SWOC, and your appraisal pack.":"Your CPD log, and tools like Preceptorship and the HCPC audit pack. Choose which tools to show in Profile.";const r=S.role,x=showApp()?", apprenticeship tools":"",y=showPre()?", preceptorship":"",z=showPlc()?", placements":"";
    return "Your CPD log and competencies"+x+y+z+(showIv()?", interview prep":"")+", ready for "+(r==="stu"||r==="app"?"sign-offs and reviews":"appraisal and HCPC audit")+". Choose which tools show in Profile."};
   const learnAt=v=>{if(tab!==v&&lv==="map"&&!curPack&&!window.spV&&(tab==="found"||tab==="packs")){const y=window.scrollY;lnGo(v);window.scrollTo({top:y,behavior:"auto"});requestAnimationFrame(()=>window.scrollTo({top:y,behavior:"auto"}));setTimeout(()=>window.scrollTo({top:y,behavior:"auto"}),60)}else if(tab!==v){S.lnView=v;tab=v;curPack=null;lv="map";window.spV=null;home()}else if(lv!=="map"||curPack||window.spV){curPack=null;lv="map";window.spV=null;home()}};
   const TOUR=[
@@ -10674,12 +10675,15 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
    {ch:"Portfolio",g:"cpd",rr:1,pre:()=>{CPDRESET();tab="cpd";pf="cpd";cp.x="cpd";cp.v="list";home();window.scrollTo(0,0)},s:()=>{const m=document.getElementById("cpmore");if(m)return [m];return [...document.querySelectorAll("#app button")].filter(b=>/^(Export my log|Import existing)/.test(b.textContent.trim()))},t:"Export and import",d:()=>"Export your log to share it or keep a copy, or bring in CPD you've kept elsewhere, from Excel, a CSV file or a pasted table. Both are in this menu."},
    {ch:"Quick ref",g:"cpd",on:()=>window.PZ_ONLY==="portfolio",pre:()=>{CPDRESET();pf="home";cp.v="list";home();window.scrollTo(0,0)},s:".tr .icb:not(.sq)",t:"Quick ref",d:()=>"Dermatomes, myotomes, reflexes, scales and medicines, at the top of every screen."},
    {ch:"Friends",g:"friends",pre:()=>{CPDRESET()},s:()=>{const b=document.querySelector(".fdbox button");return (b&&b.parentElement)||document.querySelector("#app .nvfl")},t:"Friends",d:()=>"Optional. Follow friends, swap fives and see the leaderboard."+(S.feedOn==null?" Nothing about you is shared until you say yes here.":" Turn sharing on or off in Profile.")},
-   {ch:"Profile",g:"me",s:()=>{const h=[...document.querySelectorAll("#app .mgh")].find(x=>/Learning/.test(x.textContent));return h?h.nextElementSibling:document.querySelector("#app .nvfl")},t:"Profile",d:()=>"Your plan, daily time and role, plus settings and the Classic look. Help has this tour if you want it again."}];
+   {ch:"Profile",g:"me",s:()=>{const h=[...document.querySelectorAll("#app .mgh")].find(x=>/Learning/.test(x.textContent));return h?h.nextElementSibling:document.querySelector("#app .nvfl")},t:"Profile",d:()=>"Your plan, daily time and role, plus settings and the Classic look. "+(SHORT?"Help has the full tour, with every screen and tool.":"You can take this tour again from Help.")}];
   if(window.PZ_ONLY==="portfolio"){for(let i=TOUR.length-1;i>=0;i--)if(TOUR[i].g!=="cpd"&&TOUR[i].g!=="me")TOUR.splice(i,1);
    /* v505: the Profile step points at About you, with Portfolio wording */
-   const P=TOUR.find(x=>x.g==="me");if(P){P.s=()=>{const h=document.querySelector("#app .abg");return h?[h,h.nextElementSibling].filter(Boolean):(document.querySelector("#app .mgrp")||[])};P.d=()=>"Your details and career history, which Portfolio tools are on, your account and help. You can take this tour again from Help."}}
+   const P=TOUR.find(x=>x.g==="me");if(P){P.s=()=>{const h=document.querySelector("#app .abg");return h?[h,h.nextElementSibling].filter(Boolean):(document.querySelector("#app .mgrp")||[])};P.d=()=>"Your details and career history, which Portfolio tools are on, your account and help. "+(SHORT?"Help has the full tour, with every tool.":"You can take this tour again from Help.")}}
   /* v526d: steps for tools that are switched off aren't counted */
-  const TALL=TOUR.slice(),reTour=()=>{TOUR.length=0;TALL.forEach(x=>{let k=1;try{k=!x.on||x.on()}catch(e){}if(k)TOUR.push(x)})};
+  /* v546 (f2783): after setup, a short tour; Help has the full one */
+  {const y=TOUR.find(x=>x.t==="Your plan");if(y)y.on=()=>!!S.plan}
+  let SHORT=false;const SHT=window.PZ_ONLY==="portfolio"?["Portfolio","Add an entry","Reflect","Your tools","Profile"]:["Your plan","Daily review","Search and the library","On call","Portfolio","Profile"];
+  const TALL=TOUR.slice(),reTour=()=>{TOUR.length=0;TALL.forEach(x=>{let k=1;try{k=!x.on||x.on()}catch(e){}if(k&&SHORT)k=SHT.includes(x.t);if(k)TOUR.push(x)})};
   let cur="",tok=0,TI=-1,TS=null,lv0=null,FR=null,navSeen=0,HC=null,CSd=null,BAR=false,NAVRES=null;
   window.obNavGo=()=>{if(NAVRES){const f=NAVRES;NAVRES=null;f()}};
   /* the bottom bar: a hole shaped round the bar and the raised On call button */
@@ -10698,9 +10702,9 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
   async function closeQR(tk,c,p){const sh=document.querySelector(".ifbg");if(!sh)return;TS=".ifx";if(p)p.textContent="First, close Quick ref.";place();await wait(800);if(tk!==tok)return;await tap();sh.style.transition="opacity .3s";sh.style.opacity="0";await wait(320);closeSheet();TS=null;place()}
   async function navAnim(k,tk,c){c.style.visibility="hidden";
    if(document.querySelector(".ifbg")){await closeQR(tk,c);if(tk!==tok)return;await wait(200)}
-   const first=!navSeen;c.innerHTML=`<div class="obtn">${first?"Getting around":"Next stop"}</div><h3 id="obtt">${NM[k]}</h3><p id="obtd"></p><div class="obtb"><button class="lnk" onclick="obTourEnd()">Skip tour</button><span class="obtbr"><button class="obprev" onclick="obTour(${TI-1})"${TI<1?" disabled":""} aria-label="Previous step">‹ Back</button><button class="go" onclick="obNavGo()">Next</button></span></div>`;const p=c.querySelector("#obtd");
+   const first=!navSeen||SHORT;c.innerHTML=`<div class="obtn">${first?"Getting around":"Next stop"} · ${pos(TI)-1} of ${TOT()}</div><h3 id="obtt">${NM[k]}</h3><p id="obtd"></p><div class="obtb"><button class="lnk" onclick="obTourEnd()">Skip tour</button><span class="obtbr"><button class="obprev" onclick="obTour(${TI-1})"${TI<1?" disabled":""} aria-label="Previous step">‹ Back</button><button class="go" onclick="obNavGo()">Next</button></span></div>`;const p=c.querySelector("#obtd");
    {const hid=!!document.querySelector("#nav.hid")||document.body.classList.contains("navhid");try{if(window.navReveal)navReveal()}catch(e){}await wait(hid?560:60)}
-   p.innerHTML=first?`${window.PZ_ONLY==="portfolio"?"The bar at the bottom takes you between Portfolio and Profile.":"The bar at the bottom takes you round the app: Learn, Friends, On call, Portfolio and Profile."} Tap <b>${NM[k]}</b> to go there.`:`Tap <b>${NM[k]}</b> in the bar below, or press Next.`;
+   p.innerHTML=first?`${window.PZ_ONLY==="portfolio"?"The bar at the bottom takes you between Portfolio and Profile.":"The bar at the bottom takes you round the app: Learn, Friends, On call, Portfolio and Profile."} Tap <b>${NM[k]}</b> to go there.`:(matchMedia("(min-width:900px)").matches?`Choose <b>${NM[k]}</b>, or press Next.`:`Tap <b>${NM[k]}</b> in the bar below, or press Next.`);
    if(HC&&!HC.z){TS=null;place();await wait(300);if(tk!==tok)return}
    CSd=null;BAR=true;TS=["#nav .row","#nav .oc i"];place();await barOn();if(tk!==tok){BAR=false;return}c.style.visibility="";place();obReady(c);
    {const b=document.querySelector(`#nav [data-k=${k}]`);if(b){const r0=b.getBoundingClientRect(),ct=document.createElement("button");ct.className="obcatch";ct.setAttribute("aria-label","Go to "+NM[k]);ct.style.cssText=`left:${r0.left}px;top:${r0.top}px;width:${r0.width}px;height:${r0.height}px`;ct.onclick=()=>obNavGo();document.getElementById("obtr").appendChild(ct)}}
@@ -10708,7 +10712,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
    c.style.visibility="hidden";await barOff();BAR=false;if(tk!==tok)return;TS=`#nav [data-k=${k}]`;place();await wait(750);if(tk!==tok)return;await tap();if(tk!==tok)return;
    TS=null;place();await wait(300);if(tk!==tok)return;goT(k);await wait(450)}
   const goT=k=>{if(k===cur)return;cur=k;if(k==="learn"){curPack=null;lv="map";window.spV=null;tab=S.lnView==="packs"?"packs":"found";home()}else navGo(k,document.querySelector(`[data-k=${k}]`));window.scrollTo(0,0)};
-  window.obTourGo=function(){if(!S.obTour||document.getElementById("obtr")||document.getElementById("twov"))return;cur="";navSeen=0;lv0=S.lnView||"found";if(window.PZ_ONLY==="portfolio"){cur="cpd";tab="cpd";pf="home";cp.v="list";curPack=null;home();window.scrollTo(0,0)}else goT("learn");obTour(-1)};
+  window.obTourGo=function(){if(!S.obTour||document.getElementById("obtr")||document.getElementById("twov"))return;SHORT=!window._obAgain;cur="";navSeen=0;lv0=S.lnView||"found";if(window.PZ_ONLY==="portfolio"){cur="cpd";tab="cpd";pf="home";cp.v="list";curPack=null;home();window.scrollTo(0,0)}else goT("learn");obTour(-1)};
   function place(){const ov=document.getElementById("obtr");if(!ov)return;const hl=ov.querySelector(".obhl"),c=ov.querySelector(".obtc"),vh=window.innerHeight;
    if(TI<0){hl.classList.add("shut");HC={z:1};c.style.top="";c.style.bottom="";c.classList.add("mid");return}
    if(!TS){if(HC&&!HC.z){hl.classList.add("shut");HC.z=1}return}
@@ -10721,7 +10725,14 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
    const okB=t+ht+pd+12+c.offsetHeight<vh-16,okA=t-pd-12-c.offsetHeight>8;let sd=CSd&&((CSd==="b"&&okB)||(CSd==="a"&&okA))?CSd:okB?"b":okA?"a":"f";if(c.style.visibility!=="hidden"&&!CSd)CSd=sd;
    if(sd==="b"){c.style.top=(t+ht+pd+12)+"px";c.style.bottom=""}else if(sd==="a"){c.style.top="";c.style.bottom=(vh-t+pd+12)+"px"}else{c.style.top="";c.style.bottom="16px"}}
   const N=()=>TOUR.length;
-  const card=(i,txt)=>{const x=TOUR[i],last=i===N()-1;return `<div class="obtn">${x.ch} · ${i+1} of ${N()}</div><h3 id="obtt">${x.t}</h3><p id="obtd">${txt}</p><div class="obtb"><button class="lnk" onclick="obTourEnd()">${last?"":"Skip tour"}</button><span class="obtbr"><button class="obprev" onclick="obTour(${i-1})"${i<1?" disabled":""} aria-label="Previous step">‹ Back</button><button class="go" onclick="obNext(${i+1})">${last?"Done":"Next"}</button></span></div>`};
+  const offT=()=>{const P=window.PZ_ONLY==="portfolio",n=TOT();
+   if(SHORT)return P?`A quick look round your Portfolio: adding a CPD entry, your tools and Profile. ${n} short steps; skip any time.`:`A quick look round ${S.plan?"your plan, daily review":"daily review"}, the library, On call, Portfolio and Profile. ${n} short steps; skip any time.`;
+   return P?`Every part of your Portfolio and Profile: adding a CPD entry, feedback, your appraisal and audit packs, and the rest of your tools. ${n} steps; skip any time.`:`Learn, Quick ref, On call, Portfolio, Friends and Profile, with short demos. ${n} steps; skip any time.`};
+  /* a "Getting around" or "Next stop" card comes before a step on another tab (the short tour has only the first) */
+  const nvAt=i=>{if(i<=0||i>=N()||RM()||TOUR[i].g===TOUR[i-1].g)return false;if(!SHORT)return true;for(let j=1;j<i;j++)if(TOUR[j].g!==TOUR[j-1].g)return false;return true};
+  const pos=i=>{let n=i+1;for(let j=1;j<=i;j++)if(nvAt(j))n++;return n};
+  const TOT=()=>pos(N()-1);
+  const card=(i,txt)=>{const x=TOUR[i],last=i===N()-1;return `<div class="obtn">${x.ch} · ${pos(i)} of ${TOT()}</div><h3 id="obtt">${x.t}</h3><p id="obtd">${txt}</p><div class="obtb"><button class="lnk" onclick="obTourEnd()">${last?"":"Skip tour"}</button><span class="obtbr"><button class="obprev" onclick="obTour(${i-1})"${i<1?" disabled":""} aria-label="Previous step">‹ Back</button><button class="go" onclick="obNext(${i+1})">${last?"Done":"Next"}</button></span></div>`};
   window.obNext=function(i){const g=document.querySelector("#obtr .obtc .go");if(g&&g.classList.contains("obwait"))return;obTour(i)};
   const obWait=c=>{const g=c&&c.querySelector(".go");if(!g)return;g.classList.remove("obgo");g.classList.add("obwait");g.setAttribute("aria-disabled","true");try{c.querySelector("#obtt").setAttribute("tabindex","-1");c.querySelector("#obtt").focus({preventScroll:true})}catch(e){}};
   const obReady=c=>{const g=c&&c.querySelector(".go");if(!g)return;g.classList.remove("obwait","obgo");g.removeAttribute("aria-disabled");void g.offsetWidth;if(!RM())g.classList.add("obgo");try{g.focus({preventScroll:true})}catch(e){}};
@@ -10732,12 +10743,12 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
    if(!ov){ov=document.createElement("div");ov.id="obtr";ov.className="obtr";ov.innerHTML=`<div class="obhl"></div><div class="obtc" role="dialog" aria-modal="true" aria-labelledby="obtt" aria-describedby="obtd" aria-live="polite"></div>`;document.body.appendChild(ov);
     document.addEventListener("keydown",obKey);window.addEventListener("resize",place);window.addEventListener("scroll",place,{passive:true});
     ov.addEventListener("touchmove",obNoScroll,{passive:false});ov.addEventListener("wheel",obNoScroll,{passive:false});document.addEventListener("keydown",obNoKeys);document.documentElement.classList.add("obon")}
-   TI=i;const c=ov.querySelector(".obtc");
-   if(i<0){TS=null;c.innerHTML=`<div class="obtn">${window._obAgain?"Quick tour":"Step "+obN()+" of "+obN()+" · Quick tour"}</div><h3 id="obtt">${window._obAgain?"Where everything is":"You're set up"}</h3><p id="obtd">${window.PZ_ONLY==="portfolio"?"A quick look round your Portfolio and Profile: adding a CPD entry, then feedback, your appraisal and audit packs, and the rest of your tools. About two minutes; skip any time.":"A guided look round Learn, Quick ref, On call, Portfolio, Friends and Profile, with a few short demos. Skip any time."}</p><div class="obtb"><button class="lnk" onclick="obTourEnd()">Skip</button><button class="go" onclick="obTour(0)">Show me</button></div>`;requestAnimationFrame(()=>{place();c.querySelector(".go").focus()});return}
+   const back=i<TI;TI=i;const c=ov.querySelector(".obtc");
+   if(i<0){TS=null;c.innerHTML=`<div class="obtn">${window._obAgain?"Full tour":"Step "+obN()+" of "+obN()+" · Quick tour"}</div><h3 id="obtt">${window._obAgain?"Where everything is":"You're set up"}</h3><p id="obtd">${offT()}</p><div class="obtb"><button class="lnk" onclick="obTourEnd()">Skip</button><button class="go" onclick="obTour(0)">Show me</button></div>`;place();requestAnimationFrame(()=>{place();c.querySelector(".go").focus()});return}
    const x=TOUR[i];NAVRES=null;document.querySelectorAll(".obcatch").forEach(e=>e.remove());c.style.visibility="hidden";if(BAR){BAR=false;const sv=ov.querySelector(".obsv");if(sv)sv.style.display="none";ov.querySelector(".obhl").style.visibility=""}if(!x.fix&&!x.frz)FR=null;document.body.classList.toggle("obpad",!!(x.fix||x.frz||x.pad));
    if(x.g!=="cpd")CPDRESET();if(x.g!=="onc")ONCRESET();
    const moved=x.g!==cur;
-   if(moved&&cur&&!RM()){await navAnim(x.g,tk,c);if(tk!==tok)return}else if(moved){closeSheet();goT(x.g);await wait(380)}
+   if(moved&&cur&&!back&&nvAt(i)){await navAnim(x.g,tk,c);if(tk!==tok)return}else if(moved){closeSheet();goT(x.g);await wait(380)}
    if(tk!==tok)return;
    if(!x.sheet&&document.querySelector(".ifbg")){c.style.visibility="hidden";await closeQR(tk,c);if(tk!==tok)return}
    const cl=moved||x.rr;const wasOpen=HC&&!HC.z;TS=cl?null:x.s;if(cl){place();if(wasOpen)await wait(300);if(tk!==tok)return}
@@ -10761,7 +10772,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
 
   /* Me (Classic): replay the tour */
   const meB=meScreen;meScreen=function(){const r=meB.apply(this,arguments);try{if(typeof meV==="undefined"||meV!=="kit"){const a=[...document.querySelectorAll("#app .sec")].find(x=>x.textContent.trim()==="About");
-   if(a&&!document.querySelector(".obrp"))a.insertAdjacentHTML("beforebegin",`<div class="sec">Getting started</div><button class="opt obrp" onclick="obTourAgain()"><div class="row"><b>Take the quick tour</b><span>›</span></div><small style="color:var(--mute)">Where everything lives, in about a minute.</small></button>`)}}catch(e){console.error("v438 me",e)}return r};
+   if(a&&!document.querySelector(".obrp"))a.insertAdjacentHTML("beforebegin",`<div class="sec">Getting started</div><button class="opt obrp" onclick="obTourAgain()"><div class="row"><b>Take the full tour</b><span>›</span></div><small style="color:var(--mute)">Every screen and tool, with short demos.</small></button>`)}}catch(e){console.error("v438 me",e)}return r};
  }catch(e){console.error("v438",e)}
 
  /* ---------- v446: real accounts and sync ---------- */
@@ -11058,7 +11069,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
     clearInterval(au.iv);au.iv=setInterval(()=>{const r=document.getElementById("au-rs");if(!r||au.v!=="code"){clearInterval(au.iv);return}const left=Math.max(0,30-Math.floor((Date.now()-au.t)/1000));if(left)r.textContent="Resend code in "+left+"s";else{clearInterval(au.iv);welcome()}},1000)};
    auVerify=async function(){if(au.v!=="code"||au.code.length!==6||au.busy)return;au.busy=true;const b=document.querySelector(".auf .go");if(b){b.disabled=true;b.textContent="Checking…"}
     try{const u=await PZ.verify(au.email.trim().toLowerCase(),au.code);const wasUp=au.mode==="up";await PZ.adopt(u,{name:wasUp?au.name.trim():"",news:wasUp?!!au.news:null});au.busy=false;au.v="land";au.code="";
-     if(S.role){celebrate(wasUp?"Account created":"Welcome back"+(S.acct.name?", "+S.acct.name:""));home()}else{welcome();if(wasUp)setTimeout(()=>celebrate("Account created"),100)}window.scrollTo(0,0)}
+     if(S.role){toast(wasUp?"Account created":"Welcome back"+(S.acct.name?", "+S.acct.name:""));home()}else welcome();window.scrollTo(0,0)}
     catch(e){au.busy=false;au.err=nice(e);au.code="";welcome();setTimeout(()=>{const i=document.getElementById("au-c");if(i)i.focus()},60)}};
    auSso=async function(m){if(au.v==="form"&&au.mode==="up"&&!au.agree){au.err="Please confirm you're 18 or over and agree to the Terms first.";welcome();return}unfence();const P=(CFG.providers||{});if(!P[m]){au.err=(m==="apple"?"Sign in with Apple":"Google sign-in")+" is coming soon. Use your email for now.";welcome();return}
     try{await PZ.oauth(m)}catch(e){au.err=nice(e);welcome()}};
