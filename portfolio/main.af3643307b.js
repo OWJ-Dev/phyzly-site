@@ -7513,7 +7513,7 @@ function auMe(){const a=S.acct;
  return `<div class="sec">Account</div><div class="lr me"><span class="av">${esc((a.name||"🙂").slice(0,1).toUpperCase())}</span><div class="nm">${esc(a.name||"Your account")}<small>${esc(a.email||how)}${a.email?" · "+how:""}</small></div></div>`+
  `${pzOutWarn()}<button class="opt" style="text-align:center;margin-top:8px;${(au.oc||pzOutOn())?"border-color:var(--bad);color:var(--bad)":""}" onclick="auOut()">${au.oc?"Yes, sign out":"Sign out"}</button><p class="tag">In this prototype your progress stays on this device when you sign out.</p>`}
 
-function setRole(id){S.role=id;S.obFlow=1;delete S.band;delete S.nq;delete S.oth;if(!S.style)S.style="clinical";save();if(id==="stu"||id==="app"){delete S.crs;delete S.yr;delete S.cov;welcome("course")}else welcome(id==="oth"?"oth":id==="sta"||id==="rot"?"band":"start")}
+function setRole(id){S.role=id;if(!S.obFlow)S.obT0={hc:S.hcTools,pre:S.preTools,plc:S.plcTools,app:S.appTools,iv:S.ivTools};S.obFlow=1;delete S.band;delete S.nq;delete S.oth;if(!S.style)S.style="clinical";save();if(id==="stu"||id==="app"){delete S.crs;delete S.yr;delete S.cov;welcome("course")}else welcome(id==="oth"?"oth":id==="sta"||id==="rot"?"band":"start")}
 const CRS=[["bsc3","3-year degree","BSc in England, Wales or Northern Ireland",3],["bsc4","4-year degree","BSc in Scotland",4],["msc","2-year master's","Pre-registration MSc",2]];
 const COVL=[["anat","Anatomy and movement basics","Terms, planes, bones, joints and muscles"],["msk","MSK assessment","Taking a history and examining joints"],["resp","Respiratory","Chest assessment and treatment"],["neuro","Neuro","Nervous system and neurological rehab"],["plc","Been on placement","At least one clinical placement"]];
 function crsFirst(){const y=S.yr||1;if(S.crs==="msc")return false;if(S.crs==="bsc4")return y<=2;return y<=1}
@@ -8161,7 +8161,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
  }catch(e){console.error("v281",e)}
 
  /* ---------- v282: tester version: report a problem, feedback, welcome note ---------- */
- const RP_VER="v544";let rpCtx=null,rpCat=null;
+ const RP_VER="v545";let rpCtx=null,rpCat=null;
  function rpBtn(kind,id,i){return `<button class="rpb" onclick="rpOpen('${kind}','${id}',${i})">⚑ Report a problem with this card</button>`}
  function rpCtxFor(kind,id,i){try{
   if(kind==="c"){const c=LEARN[id][i],cd=typeof COND!=="undefined"&&COND.find(x=>x.id===id);return {kind:"card",layer:id,card:i,title:c.t,where:(cd?"Condition: "+cd.n:(typeof tn==="function"?tn(id):id))+" · card "+(i+1)+": "+c.t}}
@@ -10525,11 +10525,12 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
  try{
   try{if(typeof ICN!=="undefined"&&!ICN["🚑"])ICN["🚑"]='<path d="M3 7h11v9H3zM14 10h4l3 3v3h-7M9 9v5M6.5 11.5h5"/><circle cx="7" cy="17.5" r="1.5"/><circle cx="17" cy="17.5" r="1.5"/>'}catch(e){}
   const STG=["About you","Your goals","Quick tour"];
-  const segs=st=>`<div class="plsg" style="grid-template-columns:1fr 1fr 1fr" role="img" aria-label="Step ${st} of 3">${[1,2,3].map(i=>`<span><i style="width:${i<st?100:i===st?50:0}%"></i></span>`).join("")}</div>`;
+  const obN=window.obN=()=>window.PZ_ONLY==="portfolio"&&(S.role==="stu"||S.role==="app")?2:3;
+  const segs=st=>{const n=obN();return `<div class="plsg" style="grid-template-columns:repeat(${n},1fr)" role="img" aria-label="Step ${st} of ${n}">${[...Array(n)].map((_,j)=>j+1).map(i=>`<span><i style="width:${i<st?100:i===st?50:0}%"></i></span>`).join("")}</div>`};
   const BANDS=[["5n","Band 5, newly qualified","In your first year since qualifying."],["5","Band 5",""],["6","Band 6",""],["7","Band 7",""],["8","Band 8a or above",""],["nb","Not on NHS bands","Private practice, sport, education, abroad or other."]];
   const OTHS=[["sw","Physio assistant or support worker",""],["edu","Educator, lecturer or researcher",""],["ahp","Another profession","OT, nursing, medicine or another allied health profession."],["else","Something else",""]];
   window.roleLbl=function(r){const b=S.band==="nb"?"Not on NHS bands":S.band?"Band "+(S.band===8?"8a+":S.band):"";
-   if(r==="rot")return b?(S.nq?"Band 5, newly qualified":b)+" · rotational":"Band 5 on rotation";
+   if(r==="rot")return b?(S.nq?"Band 5, newly qualified":b)+" · rotational":"Qualified physio · rotational";
    if(r==="sta")return b?(S.nq?"Band 5, newly qualified":b)+" · static":"Qualified physio";
    if(r==="oth"){const o=OTHS.find(x=>x[0]===S.oth);return o?o[1]:"Another role"}return ""};
   const opt=(on,ic,n,d,rec)=>`<button class="opt" onclick="${on}"><b>${ic?ic+" ":""}${n}${rec?' <span class="chip" style="font-size:.75rem;padding:0 8px">Recommended</span>':""}</b>${d?`<br><span style="color:var(--mute)">${d}</span>`:""}</button>`;
@@ -10550,11 +10551,16 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
    ["app","Apprenticeship tools","Off-the-job hours and your apprenticeship log.",()=>showApp(),v=>S.appTools=v],
    ["iv","Interview prep","Band 5 and band 6 interviews: questions, prioritisation and presentations.",()=>showIv(),v=>S.ivTools=v]];
   const toolsFor=r=>r==="stu"?["plc","iv"]:r==="app"?["app","plc","iv"]:r==="oth"?["hc","iv"]:["pre","hc","iv"];
-  let wSel=null,wT=null;
+  let wSel=null,wT=null,wTK="",wTouch=0;
+  const TF={hc:"hcTools",pre:"preTools",plc:"plcTools",app:"appTools",iv:"ivTools"};
+  const obDef=k=>{const v=(S.obT0||{})[k];if(v!=null)return !!v;const r=S.role;
+   if(k==="pre")return !!S.nq||r==="ng";
+   if(k==="iv")return r==="stu"||r==="app"||r==="ng"||S.band===5;
+   const t=TOOLS.find(x=>x[0]===k);try{return !!t[3]()}catch(e){return false}};
   window.obWsel=function(k){wSel=k;const y=window.scrollY;welcome("start");window.scrollTo(0,y)};
-  window.obWtg=function(k){wT[k]=!wT[k];const y=window.scrollY;welcome("tools");window.scrollTo(0,y)};
+  window.obWtg=function(k){wT[k]=!wT[k];wTouch=1;S.obW={t:wT,k:wTK,u:1};save();const y=window.scrollY;welcome("tools");window.scrollTo(0,y)};
   window.obWgo=function(k){const pick=k||wSel;if(!pick)return;wSel=null;save();obPick(pick)};
-  window.obTgo=function(){TOOLS.forEach(t=>{if(wT&&t[0] in wT)t[4](!!wT[t[0]])});wT=null;save();welcome("goal")};
+  window.obTgo=function(){obLive=1;TOOLS.forEach(t=>{if(wT&&t[0] in wT)t[4](!!wT[t[0]])});save();welcome("goal")};
   function obWhy(){const r=S.role,b5=S.band===5||(!S.band&&(r==="rot"||r==="ng")),sp=(r==="rot"||r==="sta"||r==="ng"||r==="exp")&&b5?"b5":"pl";
    const spD=sp==="b5"?"Its staple conditions, skills and medicines, plus screening, caseload, prioritisation, MDT and documentation.":"Its staple conditions, skills and medicines.";
    const SH=["sharp","🔁","Keeping sharp","No plan. Daily review keeps what you know fresh, and the library is there when you need it."];
@@ -10567,7 +10573,8 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
    app.innerHTML=bk(`welcome('${whyBack()}')`)+hd("What brings you to Phyzly?","Pick one to shape your first plan. Everything else stays open in the library, and you can change it any time.")+
     L.map(x=>`<button class="opt obw${wSel===x[0]?" on":""}" role="radio" aria-checked="${wSel===x[0]}" onclick="obWsel('${x[0]}')"><b>${x[1]} ${x[2]}${x[0]===rc?' <span class="chip" style="font-size:.75rem;padding:0 8px">Recommended</span>':""}</b><br><span style="color:var(--mute)">${x[3]}</span></button>`).join("")+
     `<button class="go" onclick="obWgo()">Continue</button><button class="lnk" style="width:100%" onclick="obWgo('look')">Just looking: no plan for now</button>`}
-  window.obTools=function(){const r=S.role,ids=toolsFor(r);if(!wT){wT={};ids.forEach(k=>{const t=TOOLS.find(x=>x[0]===k);try{wT[k]=!!t[3]()}catch(e){wT[k]=false}})}
+  window.obTools=function(){const r=S.role,ids=toolsFor(r),key=[r,S.band,S.nq?1:0,S.oth||""].join("|"),W=S.obW||{};wT=W.t||null;wTK=W.k||"";wTouch=W.u||0;
+   if(!wT||(key!==wTK&&!wTouch)){wT={};ids.forEach(k=>{wT[k]=obDef(k)})}else ids.forEach(k=>{if(!(k in wT))wT[k]=obDef(k)});wTK=key;S.obW={t:wT,k:wTK,u:wTouch};save();
    const ck=(on,n,d,cl,lock)=>`<button class="ock${on?" on":""}${lock?" oblk":""}" role="checkbox" aria-checked="${on}"${lock?' aria-disabled="true"':""} onclick="${cl}"><i>${on?"✓":""}</i><span><b>${n}</b><br><small style="color:var(--mute)">${d}</small></span></button>`;
    app.innerHTML=bk(`welcome('${S.obK==="pl"||S.obK==="b5"?"prot":"start"}')`)+hd("Your Portfolio","These tools sit alongside your plan. We've ticked the ones that usually fit your role. Change them any time in Profile.")+
     ck(true,"CPD log","Always on: courses, reading, teaching and supervision, with photos and reflections.","",true)+
@@ -10582,19 +10589,32 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
    const h=a.querySelector(":scope > h1, :scope > h2");if(!h)return;
    let p=h.nextElementSibling;if(!(p&&p.tagName==="P"))p=null;
    const band=document.createElement("div");band.className="nvband nvpl obband";
-   band.innerHTML=`<div class="plnv"><span class="obbk"></span><span class="obbr">Phy<i>z</i>ly</span></div><div class="pley">Step ${st} of 3 · ${STG[st-1]}</div><h1 class="plh1">${h.innerHTML}</h1>${p?`<p class="obsub">${p.innerHTML}</p>`:""}${segs(st)}`;
+   band.innerHTML=`<div class="plnv"><span class="obbk"></span><span class="obbr">Phy<i>z</i>ly</span></div><div class="pley">Step ${st} of ${obN()} · ${STG[st-1]}</div><h1 class="plh1">${h.innerHTML}</h1>${p?`<p class="obsub">${p.innerHTML}</p>`:""}${segs(st)}`;
    if(bk){const b=document.createElement("button");b.className="plbk";b.setAttribute("onclick",bk.getAttribute("onclick"));b.textContent=bk.textContent;band.querySelector(".obbk").replaceWith(b)}
    [bk,hero,h,p].forEach(e=>e&&e.remove());a.insertBefore(band,a.firstChild);a.classList.add("obpg")}
+  let obLive=0,obRz=0,obTc=0;const OBST={course:1,cov:1,band:1,oth:1,start:1,prot:1,tools:1,goal:1};
   const wB=welcome;welcome=function(step){if(step==="look")step="goal";document.getElementById("app").classList.remove("obpg");let r;
+   if(OBST[step]){if(!obRz)obLive=1;if(S.obFlow&&S.obAt!==step){S.obAt=step;save()}}
    if(!step&&S.acct)r=obRole();else if(step==="band")r=obBandQ();else if(step==="oth")r=obOth();else if(step==="start")r=obWhy();else if(step==="tools")r=obTools();else r=wB.call(this,step);
    try{if(window.CL&&CL()&&S.acct&&!document.querySelector("#app .auh,#app .auf"))obBand(step)}catch(e){console.error("v438 band",e)}if(S.acct)window.scrollTo(0,0);return r};
 
   /* the end of setup: tester notice (once), then the tour */
-  window.obFinish=function(){if(!S.obFlow)return;delete S.obFlow;document.getElementById("app").classList.remove("obpg");if(!S.tourDone)S.obTour=1;save();
+  window.obFinish=function(){if(!S.obFlow)return;delete S.obFlow;delete S.obAt;delete S.obW;delete S.obT0;document.getElementById("app").classList.remove("obpg");if(!S.tourDone)S.obTour=1;save();
    setTimeout(()=>{if(!S.tw3)twShow();else obTourGo()},800)};
-  const gsB=goStart;goStart=function(){const r=gsB.apply(this,arguments);if(S.obFlow)obFinish();return r};
+  const gsB=goStart;goStart=function(){obLive=1;const r=gsB.apply(this,arguments);if(S.obFlow)obFinish();return r};
   const psB=window.planSave;window.planSave=function(){const ob=S.obFlow;try{const d=S.planDraft;if(ob&&d&&d.name&&(S.role==="sta"||S.role==="oth"))d.name=d.name.replace(/ (placement|rotation)$/,"")}catch(e){}psB.apply(this,arguments);if(ob&&S.plan){tab="found";curPack=null;lv="map";home();window.scrollTo(0,0);obFinish()}};
   const lhB=learnHome;learnHome=function(){const r=lhB.apply(this,arguments);try{document.getElementById("app").classList.remove("obpg")}catch(e){}return r};
+  /* v545 (f2782): setup that was interrupted opens again at the step it stopped on; a tour offer that was never
+     answered comes back once */
+  const obRes=()=>{const a=S.obAt;if(a&&OBST[a])return a;const r=S.role;if(r==="stu"||r==="app")return "course";
+   if((r==="sta"||r==="rot")&&S.band==null)return "band";if(r==="oth"&&!S.oth)return "oth";return "start"};
+  /* every home() before the person answers a step shows the step again (start-up draws home more than once);
+     obRz stops the step's own calls looping back here */
+  window.obReArm=()=>{obLive=0};
+  const hmR=home;home=function(){const on=S.role&&!(S.signedOut&&!S.acct);
+   if(on&&!obLive&&!obRz&&S.obFlow){obRz=1;try{return welcome(obRes())}finally{obRz=0}}
+   if(on&&!obTc){obTc=1;if(S.obTour&&!S.tourDone&&!S.obFlow)setTimeout(()=>{try{if(!S.obFlow&&S.obTour&&!S.tourDone){if(!S.tw3)twShow();else obTourGo()}}catch(e){}},800)}
+   return hmR.apply(this,arguments)};
 
   /* quick tour: guided demos across the real screens, with Back and Next */
   const q=s=>{if(typeof s==="function")return s();if(Array.isArray(s))return s.map(x=>document.querySelector(x)).filter(Boolean);return document.querySelector(s)};
@@ -10713,7 +10733,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
     document.addEventListener("keydown",obKey);window.addEventListener("resize",place);window.addEventListener("scroll",place,{passive:true});
     ov.addEventListener("touchmove",obNoScroll,{passive:false});ov.addEventListener("wheel",obNoScroll,{passive:false});document.addEventListener("keydown",obNoKeys);document.documentElement.classList.add("obon")}
    TI=i;const c=ov.querySelector(".obtc");
-   if(i<0){TS=null;c.innerHTML=`<div class="obtn">${window._obAgain?"Quick tour":"Step 3 of 3 · Quick tour"}</div><h3 id="obtt">${window._obAgain?"Where everything is":"You're set up"}</h3><p id="obtd">${window.PZ_ONLY==="portfolio"?"A quick look round your Portfolio and Profile: adding a CPD entry, then feedback, your appraisal and audit packs, and the rest of your tools. About two minutes; skip any time.":"A guided look round Learn, Quick ref, On call, Portfolio, Friends and Profile, with a few short demos. Skip any time."}</p><div class="obtb"><button class="lnk" onclick="obTourEnd()">Skip</button><button class="go" onclick="obTour(0)">Show me</button></div>`;requestAnimationFrame(()=>{place();c.querySelector(".go").focus()});return}
+   if(i<0){TS=null;c.innerHTML=`<div class="obtn">${window._obAgain?"Quick tour":"Step "+obN()+" of "+obN()+" · Quick tour"}</div><h3 id="obtt">${window._obAgain?"Where everything is":"You're set up"}</h3><p id="obtd">${window.PZ_ONLY==="portfolio"?"A quick look round your Portfolio and Profile: adding a CPD entry, then feedback, your appraisal and audit packs, and the rest of your tools. About two minutes; skip any time.":"A guided look round Learn, Quick ref, On call, Portfolio, Friends and Profile, with a few short demos. Skip any time."}</p><div class="obtb"><button class="lnk" onclick="obTourEnd()">Skip</button><button class="go" onclick="obTour(0)">Show me</button></div>`;requestAnimationFrame(()=>{place();c.querySelector(".go").focus()});return}
    const x=TOUR[i];NAVRES=null;document.querySelectorAll(".obcatch").forEach(e=>e.remove());c.style.visibility="hidden";if(BAR){BAR=false;const sv=ov.querySelector(".obsv");if(sv)sv.style.display="none";ov.querySelector(".obhl").style.visibility=""}if(!x.fix&&!x.frz)FR=null;document.body.classList.toggle("obpad",!!(x.fix||x.frz||x.pad));
    if(x.g!=="cpd")CPDRESET();if(x.g!=="onc")ONCRESET();
    const moved=x.g!==cur;
@@ -10840,7 +10860,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
 
   /* profile */
   const profRow=()=>({first_name:((S.acct&&S.acct.name)||"").slice(0,40)||null,role:S.role||null,band:S.band!=null?String(S.band):null,newly_qualified:!!S.nq,other_role:S.oth||null,course:S.crs||null,course_year:S.yr||null,marketing_opt_in:!!(S.acct&&S.acct.news),marketing_opt_in_at:S.acct&&S.acct.news?(S.acct.newsAt||new Date().toISOString()):null});
-  const applyProf=p=>{if(!p)return;if(!S.role&&p.role){S.role=p.role;if(p.band)S.band=p.band==="nb"?"nb":+p.band;S.nq=!!p.newly_qualified;if(p.other_role)S.oth=p.other_role;if(p.course)S.crs=p.course;if(p.course_year)S.yr=p.course_year}if(S.acct&&!S.acct.name&&p.first_name)S.acct.name=p.first_name;if(S.acct&&S.acct.news==null&&p.marketing_opt_in!=null){S.acct.news=!!p.marketing_opt_in;S.acct.newsAt=p.marketing_opt_in?(p.marketing_opt_in_at||new Date().toISOString()):null}};
+  const applyProf=p=>{if(!p)return;if(!S.role&&p.role){S.role=p.role;if(p.band)S.band=p.band==="nb"?"nb":+p.band;S.nq=!!p.newly_qualified;if(p.other_role)S.oth=p.other_role;if(p.course)S.crs=p.course;if(p.course_year)S.yr=p.course_year;if(((S.role==="sta"||S.role==="rot")&&S.band==null)||(S.role==="oth"&&!S.oth)){S.obFlow=1;try{window.obReArm&&obReArm()}catch(e){}}}if(S.acct&&!S.acct.name&&p.first_name)S.acct.name=p.first_name;if(S.acct&&S.acct.news==null&&p.marketing_opt_in!=null){S.acct.news=!!p.marketing_opt_in;S.acct.newsAt=p.marketing_opt_in?(p.marketing_opt_in_at||new Date().toISOString()):null}};
 
   /* v455: photos of entries kept on this phone only, or still waiting for "Add to my account?", stay on the phone */
   const askSet=sy=>S.pzAsk?new Set(S.pzAskIds||(S.cpd||[]).filter(e=>e&&!sy.ent[e.id]).map(e=>e.id)):null;
@@ -15808,7 +15828,9 @@ try{(function(){
   if(step==="goal"){if(!S.goal)S.goal=15;save();goPf();home();window.scrollTo(0,0);try{obFinish()}catch(e){}return}
   const r=wP.call(this,step);
   try{if(step==="tools"){document.querySelectorAll("#app .ock").forEach(b=>{if(NOPE.test((b.querySelector("b")||b).textContent.trim()))b.remove();else if(/Goals, meetings and competencies/.test(b.innerHTML))b.innerHTML=b.innerHTML.replace("Goals, meetings and competencies for your first year.","Review points, meetings, goals and programme sessions for your first year.")});
-    const bk=document.querySelector("#app .obband .plbk");if(bk)bk.setAttribute("onclick",S.role==="stu"||S.role==="app"?"welcome('course')":S.role==="oth"?"welcome('oth')":"welcome('band')");}
+    const bk=document.querySelector("#app .obband .plbk");if(bk)bk.setAttribute("onclick",S.role==="stu"||S.role==="app"?"welcome('course')":S.role==="oth"?"welcome('oth')":"welcome('band')");
+    /* v545 (f2782): nothing to choose (students and apprentices) means no tools step */
+    if(!document.querySelector("#app .ock:not(.oblk)")){obTgo();return}}
    const ey=document.querySelector("#app .obband .pley");if(ey)ey.textContent=ey.textContent.replace("Your goals","Your Portfolio");
    if(step==="course"){const sk=[...document.querySelectorAll("#app .lnk")].find(b=>/Skip this/.test(b.textContent));if(sk)sk.setAttribute("onclick","S.crs=null;S.yr=null;save();welcome('tools')")}}catch(e){}
   return r};
