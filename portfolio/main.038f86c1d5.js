@@ -2208,12 +2208,12 @@ function cpdSave(){
  if(!cf.t.trim()&&cf.ty==="mentor")cf.t=svClean(cf.sv).k||"Supervision";if(!cf.t.trim()){cf.err="Add a title.";return home()}
  if(cf.mErr){cf.err=cf.mErr;return home()}if(Math.round(+cf.m||0)>1440){cf.err=CF_MAXT;return home()}const m=Math.max(0,Math.min(1440,Math.round(+cf.m||0)));if(!/^\d{4}-\d{2}-\d{2}$/.test(cf.d)){cf.err="Choose a date.";return home()}
  S.cpd=S.cpd||[];const r={};Object.keys(FW).forEach(k=>FW[k].f.forEach(x=>{const v=cf.r[x[0]];if(v&&String(v).trim())r[x[0]]=String(v).slice(0,6000)}));
- const e={id:cf.id||cpId(),d:cf.d,t:cf.t.trim().slice(0,120),ty:cf.ty,m,fw:FW[cf.fw]?cf.fw:"std",r,tm:/^\d{2}:\d{2}$/.test(cf.tm||"")?cf.tm:"",otj:!!cf.otj,ks:(cf.ks||[]).slice(0,60)};if((cf.ph||[]).length)e.ph=cf.ph.slice(0,12);if(cf.auto)e.auto=1;if((cf.ss||[]).length)e.ss=cf.ss.slice(0,50);if(cf.pre)e.pre=1;if(e.ty==="mentor"&&cf.sv)e.sv=svClean(cf.sv);if(cf.ns)e.ns=1;{const rf=String(cf.ref||"").replace(/\r/g,"").trim();if(rf)e.ref=rf.slice(0,2000)}{const tg=tgClean(cf.tg);if(tg.length)e.tg=tg}if(Array.isArray(cf.pp)){const pp=ppClean(cf.pp);if(pp.length||ppOf({tg:e.tg}).length)e.pp=pp}
- const i=S.cpd.findIndex(x=>x.id===e.id),old=i>=0?S.cpd[i]:null;if(i>=0)S.cpd[i]=e;else S.cpd.unshift(e);try{if(!old&&!e.auto&&!e.ns)fdPost("📒","Logged CPD: "+cptn(e.ty)+" · "+fmtH(e.m||0),"cpd:"+e.id)}catch(er){}try{const ci=cpdXpCalc(old,e);if(ci){S.xpT=(S.xpT||0)+ci.xp;S.xpW=(S.xpW||0)+ci.xp;save();setTimeout(()=>cpdCelebrate(ci),60)}}catch(er){}const fr=cf.from;if(fr==="cm"){const nid=e.id;S.cpd=S.cpd||[];const i2=S.cpd.findIndex(x=>x.id===e.id);if(i2>=0)S.cpd[i2]=e;else S.cpd.unshift(e);save();cf=null;return cmBack(nid)}if(fr==="hc"){pf="hc";hc.v="ev"}if(fr==="pre"){tab="cpd";pf="pre";pe=null}(cf.phGone||[]).forEach(id=>phDel(id).catch(()=>{}));if(e.otj)om=String(e.d).slice(0,7);save();cf=null;cp.v="list";if(fr==="otj")pf="otj";if(fr==="hc"){tab="cpd";pf="hc";hc.v="ev"}if(fr==="hcr")hcRfWhere(e);if(fr==="pre"){tab="cpd";pf="pre";pe=null}home();window.scrollTo(0,0)}
+ const e={id:cf.id||cpId(),d:cf.d,t:cf.t.trim().slice(0,120),ty:cf.ty,m,fw:FW[cf.fw]?cf.fw:"std",r,tm:/^\d{2}:\d{2}$/.test(cf.tm||"")?cf.tm:"",otj:!!cf.otj,ks:(cf.ks||[]).slice(0,60)};if((cf.ph||[]).length)e.ph=cf.ph.slice(0,12);if(cf.auto)e.auto=1;if((cf.ss||[]).length)e.ss=cf.ss.slice(0,50);if(cf.pre)e.pre=1;if(e.ty==="mentor"&&cf.sv)e.sv=svClean(cf.sv);if(cf.ns)e.ns=1;{const rf=String(cf.ref||"").replace(/\r/g,"").trim();if(rf)e.ref=rf.slice(0,2000)}{const rd=rdClean(cf.rd);if(rd.length)e.rd=rd}{const fu=rdFu(cf.fu);if(fu)e.fu=fu}{const tg=tgClean(cf.tg);if(tg.length)e.tg=tg}if(Array.isArray(cf.pp)){const pp=ppClean(cf.pp);if(pp.length||ppOf({tg:e.tg}).length)e.pp=pp}
+ const i=S.cpd.findIndex(x=>x.id===e.id),old=i>=0?S.cpd[i]:null;if(i>=0)S.cpd[i]=e;else S.cpd.unshift(e);try{if(!old&&!e.auto&&!e.ns)fdPost("📒","Logged CPD: "+cptn(e.ty)+" · "+fmtH(e.m||0),"cpd:"+e.id)}catch(er){}try{const ci=cpdXpCalc(old,e);if(ci){S.xpT=(S.xpT||0)+ci.xp;S.xpW=(S.xpW||0)+ci.xp;save();setTimeout(()=>cpdCelebrate(ci),60)}}catch(er){}rdMark(e);const fr=cf.from;if(fr==="cm"){const nid=e.id;S.cpd=S.cpd||[];const i2=S.cpd.findIndex(x=>x.id===e.id);if(i2>=0)S.cpd[i2]=e;else S.cpd.unshift(e);save();cf=null;return cmBack(nid)}if(fr==="hc"){pf="hc";hc.v="ev"}if(fr==="pre"){tab="cpd";pf="pre";pe=null}(cf.phGone||[]).forEach(id=>phDel(id).catch(()=>{}));if(e.otj)om=String(e.d).slice(0,7);save();cf=null;cp.v="list";if(fr==="otj")pf="otj";if(fr==="hc"){tab="cpd";pf="hc";hc.v="ev"}if(fr==="hcr")hcRfWhere(e);if(fr==="rd")rdWhere(e.fu?"log":"");if(fr==="pre"){tab="cpd";pf="pre";pe=null}home();window.scrollTo(0,0)}
 function armTap(re,lab){const b=[...document.querySelectorAll("#app button")].find(x=>re.test(x.textContent.trim()));if(!b)return false;b.textContent=lab;b.style.borderColor="var(--bad)";b.style.color="var(--bad)";return true}
-function cpdDel(){if(cf&&cf.from==="hcr"&&cf.del){const r=cpdDel0();if(!cf){hcRfWhere(null,"del");home();window.scrollTo(0,0)}return r}return cpdDel0()}
+function cpdDel(){if(cf&&cf.from==="hcr"&&cf.del){const r=cpdDel0();if(!cf){hcRfWhere(null,"del");home();window.scrollTo(0,0)}return r}if(cf&&cf.from==="rd"&&cf.del){const r=cpdDel0();if(!cf){rdWhere("del");home();window.scrollTo(0,0)}return r}return cpdDel0()}
 function cpdDel0(){if(!cf.del){cf.del=true;if(armTap(/^Delete entry$/,"Yes, delete"))return;return home()}(cf.ph||[]).concat(cf.phGone||[]).forEach(id=>phDel(id).catch(()=>{}));S.cpd=(S.cpd||[]).filter(x=>x.id!==cf.id);save();cf=null;cp.v="list";home();window.scrollTo(0,0)}
-function cpdCancel(){const f=cf&&cf.from;cf=null;cp.v="list";if(f==="onc")return oncBack();if(f==="cm")return cmBack(null);if(f==="hc")return openHc("ev");if(f==="hcr"){hcRfWhere();home();return window.scrollTo(0,0)}if(f==="pre"){tab="cpd";pf="pre";pe=null;home();return window.scrollTo(0,0)}if(f==="otj")pf="otj";home();window.scrollTo(0,0)}
+function cpdCancel(){const f=cf&&cf.from;cf=null;cp.v="list";if(f==="onc")return oncBack();if(f==="cm")return cmBack(null);if(f==="hc")return openHc("ev");if(f==="hcr"){hcRfWhere();home();return window.scrollTo(0,0)}if(f==="rd"){rdWhere();home();return window.scrollTo(0,0)}if(f==="pre"){tab="cpd";pf="pre";pe=null;home();return window.scrollTo(0,0)}if(f==="otj")pf="otj";home();window.scrollTo(0,0)}
 
 /* ---------- v457: tags on CPD entries ---------- */
 const TGP=["MSK","Neuro","Respiratory","Cardiac","Critical care","Paediatrics","Older people","Pelvic health","Mental health","Community"];
@@ -2237,7 +2237,7 @@ const tgPills=e=>(e.tg||[]).length?`<span class="tgps">${e.tg.map(t=>`<span clas
 .tgf .chipb span{font-weight:500}`;document.head.appendChild(st)})();
 function cpdForm(){
  const F=fwOf(cf);
- app.innerHTML=head()+`<button class="lnk" onclick="cpdCancel()">‹ ${cf.from==="onc"?"Skip for now":cf.from==="cm"?"Competency":cf.from==="hc"?"Evidence":cf.from==="hcr"?(hc.rn>1?"Reflections to write":hc.rb==="exp"?"Get ready to submit":"Audit pack"):cf.from==="pre"?"Preceptorship":"CPD log"}</button><h1 style="font-size:1.5rem;margin:6px 0 2px">${cf.id?"Edit entry":"New entry"}</h1>`+
+ app.innerHTML=head()+`<button class="lnk" onclick="cpdCancel()">‹ ${cf.from==="onc"?"Skip for now":cf.from==="cm"?"Competency":cf.from==="hc"?"Evidence":cf.from==="hcr"?(hc.rn>1?"Reflections to write":hc.rb==="exp"?"Get ready to submit":"Audit pack"):cf.from==="pre"?"Preceptorship":cf.from==="rd"?"Reading list":"CPD log"}</button><h1 style="font-size:1.5rem;margin:6px 0 2px">${cf.id?"Edit entry":"New entry"}</h1>`+rdFromH()+
  (cf.from==="onc"?`<div class="note">Quick reflection while it is fresh. Two minutes is plenty.</div>`:"")+(cf.from==="hcr"?`<div class="note hcrfn" id="hcrfn"><b>${esc(String(cf.t||"").trim()||"This entry")}</b> needs a reflection for your audit pack. Write a line or two in each box.</div>`:"")+
  `<div class="note"><b>No patient details.</b> Don't include names, dates of birth, NHS numbers or anything that could identify a patient.</div>`+
  (cf.err?`<div class="fb bad" id="cf-err" role="alert" tabindex="-1"><b>${esc(cf.err)}</b></div>`:"")+
@@ -2332,13 +2332,14 @@ function svPreNote(){const v=cf&&cf.sv;if(!v||v.o||svKey(v.k)!=="preceptorship m
 (function(){const st=document.createElement("style");st.textContent=`.svp{margin:10px 0 0}.svp .go{margin:10px 0 4px}.svp small{display:block;color:var(--mute);text-align:center}
 .swp .pmr{width:100%}`;document.head.appendChild(st)})();
 function cpdScreen(){
- if(cp.v==="form"&&cf)return cpdForm();if(cp.v==="export")return cpdExport();if(cp.v==="import")return imScreen();cp.v="list";
+ if(cp.v==="form"&&cf)return cpdForm();if(cp.v==="export")return cpdExport();if(cp.v==="import")return imScreen();if(cp.v==="rd")return rdScreen();cp.v="list";
  const all=cpdAll().slice().sort((a,b)=>b.d.localeCompare(a.d)||b.id.localeCompare(a.id)),y=isoD(new Date(Date.now()-365*864e5)),yr=all.filter(e=>e.d>=y);
  const mins=yr.reduce((a,e)=>a+(e.m||0),0),hrs=Math.round(mins/6)/10,rf=yr.filter(cpHas).length,todo=all.filter(e=>!cpHas(e)).length;
  let h=head()+tabs()+`<button class="lnk" onclick="pf='home';home()">‹ Portfolio</button><h1 style="font-size:1.6rem;margin:6px 0 2px">CPD log</h1><p class="tag" style="margin:0 0 10px">${window.PZ_ONLY==="portfolio"?"Your CPD, with reflections and evidence, ready to export.":"Your learning, with reflections you can export. Phyzly adds entries for you."}</p>`+
  cpdNudge()+`<div class="cpsl">Last 12 months</div><div class="stats"><div class="stat"><strong>${yr.length}</strong>${yr.length===1?"entry":"entries"}</div><div class="stat"><strong>${stN(mins)}</strong>${stL(mins)}</div><div class="stat"><strong>${rf}</strong>reflected</div></div>`+
  `<button class="go" onclick="cpdNew()">+ Add entry</button><label class="opt phb" style="margin-top:10px">📷 Add a photo<small>Notes, a certificate or other evidence. Write it up later</small><input type="file" accept="image/*" capture="environment" onchange="cpdSnap(this.files)"></label><button class="opt" style="text-align:center;margin-top:10px" onclick="cp.x='cpd';cp.v='export';home()" ${all.length?"":"disabled"}>Export my log</button><button class="opt" style="text-align:center;margin-top:10px" onclick="imOpen()">Import existing CPD<small style="display:block;color:var(--mute);font-size:.8rem;font-weight:500">From Excel, CSV or a pasted table</small></button>`;
  if(todo)h+=`<div class="note">${todo} ${todo===1?"entry needs":"entries need"} a reflection. The HCPC asks how your CPD helped your practice and the people you treat. A couple of lines is enough. <button class="lnk" style="padding:0;text-decoration:underline" onclick="cp.nf=!cp.nf;home()">${cp.nf?"Show all entries":"Show only these"}</button></div>`;
+ {const n=rdAll().length;if(n)h+=`<button class="opt cprm" id="cprd" aria-label="Reading list, ${rdN(n)}" onclick="rdOpen('cpd')"><span>Reading list · ${rdN(n)}</span><span aria-hidden="true">›</span></button>`}
  if(!all.length)h+=`<div class="note">${window.PZ_ONLY==="portfolio"?"Nothing logged yet. Add a course, an in-service, some reading, supervision or anything else you've learned from.":"Nothing here yet. Finish a quiz or a bleep guide and an entry appears. Add courses, reading and shadowing yourself."}<br><br>Already keep a CPD log in a spreadsheet? <button class="lnk" style="padding:0;text-decoration:underline" onclick="imOpen()">Import it</button></div>`;
  if(all.length)h+=cpSearch(all.length)+tgFilter();if(all.some(e=>!e.pm))h+=`<p class="tag" style="margin:8px 0 0">Swipe left on an entry to delete it.</p>`;
  const lst=(cp.nf?all.filter(e=>!cpHas(e)):all).filter(e=>!cp.tf||(e.tg||[]).includes(cp.tf)).filter(cpQm),ad={};if(cp.q&&String(cp.q).trim())h+=cpQCount(lst.length);lst.forEach(e=>{if(e.auto)ad[e.d]=(ad[e.d]||[]).concat([e])});cp.og=cp.og||{};
@@ -8181,7 +8182,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
  }catch(e){console.error("v281",e)}
 
  /* ---------- v282: tester version: report a problem, feedback, welcome note ---------- */
- const RP_VER="v548";let rpCtx=null,rpCat=null;
+ const RP_VER="v549";let rpCtx=null,rpCat=null;
  function rpBtn(kind,id,i){return `<button class="rpb" onclick="rpOpen('${kind}','${id}',${i})">⚑ Report a problem with this card</button>`}
  function rpCtxFor(kind,id,i){try{
   if(kind==="c"){const c=LEARN[id][i],cd=typeof COND!=="undefined"&&COND.find(x=>x.id===id);return {kind:"card",layer:id,card:i,title:c.t,where:(cd?"Condition: "+cd.n:(typeof tn==="function"?tn(id):id))+" · card "+(i+1)+": "+c.t}}
@@ -12710,6 +12711,7 @@ function pfHero(){const all=cpdAll().filter(e=>e&&e.id).slice().sort((a,b)=>Stri
  const mins=yr.reduce((a,e)=>a+(+e.m||0),0),todo=all.filter(e=>!cpHas(e)).length,rec=all.filter(e=>String(e.d)<=isoD(new Date())).slice(0,3);
  let h=`<div class="nvfl pfhero"><button class="pfh-t" onclick="pf='cpd';cp.v='list';cp.nf=false;home();window.scrollTo(0,0)"><span><b>CPD log</b><small>${yr.length?`${yr.length} ${yr.length===1?"entry":"entries"} · ${esc(fmtH(mins))} in the last 12 months`:all.length?"No entries in the last 12 months":"Your CPD, with reflections and evidence, ready to export"}</small></span><span class="pfh-go" aria-hidden="true">›</span></button>`;
  if(todo)h+=`<button class="pfh-n" onclick="pf='cpd';cp.v='list';cp.nf=true;home();window.scrollTo(0,0)">${todo} ${todo===1?"entry needs":"entries need"} a reflection<span aria-hidden="true">›</span></button>`;
+ {const n=rdAll().length;if(n)h+=`<button class="pfh-n" id="pfrd" aria-label="Reading list, ${rdN(n)}" onclick="rdOpen('home')">Reading list · ${rdN(n)}<span aria-hidden="true">›</span></button>`}
  if(rec.length)h+=`<div class="pfh-l">`+rec.map(e=>`<button class="pfh-e" onclick="cpdEdit('${esc(e.id)}')"><span><b>${esc(e.t)}</b><small>${esc(pfShortD(e.d))} · ${esc(fmtH(+e.m||0))}</small></span>${e.pm?`<span class="bd t">Preceptorship</span>`:cpHas(e)?`<span class="bd t">Reflected</span>`:`<span class="bd s">Add reflection</span>`}</button>`).join("")+`</div>`;
  else h+=`<p class="pfh-0">Nothing logged yet. Add what you've been learning: courses, reading, in-service training, supervision.</p>`;
  h+=`<div class="pfh-a"><button class="go" onclick="cpdNew()">+ Add entry</button><label class="opt phb pfh-ph">📷 Add a photo<input type="file" accept="image/*" capture="environment" onchange="cpdSnap(this.files)"></label></div>`;
@@ -13888,7 +13890,7 @@ function pzDraftNote(){const d=S.cfDraft;if(!d||!d.cf)return "";const t=String(d
 {const d0=cpdDel;cpdDel=function(){let r;pzSaving=true;try{r=d0.apply(this,arguments)}finally{pzSaving=false}if(!cf)pzDraftClear();return r}}
 
 /* asking before discarding */
-const PZ_LEAVE=/\b(cpdCancel|cpdEdit|cpdNew|swTap|navGo|openSub|openHc|openGr|grGo|grGlBack|grItemBack|grUseBack|pzlGo|abGo|crGo|openPlc|openIv|ivGo|imOpen|planGo|openMe|meScreen|welcome)\(|grf=null|pf='home'|tab=prevTab/;
+const PZ_LEAVE=/\b(rdOpen|rdBack|rdLog|rdRm|cpdCancel|cpdEdit|cpdNew|swTap|navGo|openSub|openHc|openGr|grGo|grGlBack|grItemBack|grUseBack|pzlGo|abGo|crGo|openPlc|openIv|ivGo|imOpen|planGo|openMe|meScreen|welcome)\(|grf=null|pf='home'|tab=prevTab/;
 let pzDisc=null,pzDiscarding=false,pzInBack=false;
 function pzLeaves(el){if(!el)return false;if(el.closest("#nav"))return true;if(el.closest("#pzdisc,.twov,.ifbg,#rpov,.xpv"))return false;
  const on=el.getAttribute("onclick")||"";return PZ_LEAVE.test(on)}
@@ -14131,12 +14133,66 @@ function pzCalm(R){if(!R||!(window.CL&&CL())||typeof tab==="undefined"||tab!=="c
 {const h0=home;home=function(){const r=h0.apply(this,arguments);try{const A=document.getElementById("app");pzCalm(A);A.querySelectorAll("textarea.cfgr").forEach(cfGrow)}catch(e){console.error("v538",e)}return r}}
 
 
+/* ---------- v549: a reading list (f2787) ---------- */
+let rdArm=null;
+const rdN=n=>n+" to read";
+const rdId=()=>"i"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+function rdIds(){return new Set((S.cpd||[]).map(e=>e&&e.id))}
+/* everything still to read, newest entry first; an item counts as logged only while the entry it was logged as exists */
+function rdAll(){const ids=rdIds(),o=[];(S.cpd||[]).forEach(e=>{if(e&&Array.isArray(e.rd))e.rd.forEach(it=>{if(it&&it.t&&!(it.lg&&ids.has(it.lg)))o.push({e,it})})});
+ return o.sort((a,b)=>String(b.e.d).localeCompare(String(a.e.d))||String(b.e.id).localeCompare(String(a.e.id)))}
+function rdClean(a){const ids=rdIds(),seen={},o=[];(Array.isArray(a)?a:[]).forEach(x=>{if(!x||typeof x.t!=="string")return;const t=x.t.replace(/\s+/g," ").trim().slice(0,300),k=t.toLowerCase();
+ if(!t||seen[k]||o.length>=30)return;seen[k]=1;const y={i:String(x.i||"").replace(/[^A-Za-z0-9_-]/g,"").slice(0,24)||rdId(),t};if(x.lg&&ids.has(x.lg))y.lg=String(x.lg);o.push(y)});return o}
+/* the title for an entry logged from an item: a web address alone leaves it for you to write; a long item is cut at a word */
+function rdTitle(t){t=String(t||"").trim();if(/^(https?:\/\/|www\.)\S+$/i.test(t))return "";if(t.length<=120)return t;let c=t.slice(0,118);const sp=c.lastIndexOf(" ");if(sp>60)c=c.slice(0,sp);return c.replace(/[\s.,;:!?(\-–]+$/,"")+"…"}
+const rdFu=f=>f&&typeof f==="object"&&f.e?{e:String(f.e).slice(0,40),i:String(f.i||"").replace(/[^A-Za-z0-9_-]/g,"").slice(0,24)}:null;
+/* typing in To read later: one item a line; an item keeps its id while its text is the same; logged items stay as they are */
+function rdIn(v){if(!cf)return;const ids=rdIds(),old=Array.isArray(cf.rd)?cf.rd:[],dn=old.filter(x=>x&&x.lg&&ids.has(x.lg)),op=old.filter(x=>x&&!dn.includes(x));
+ const nw=String(v||"").split("\n").map(x=>x.replace(/\s+/g," ").trim()).filter(Boolean).map(t=>{const m=op.find(x=>x.t===t);return {i:m?m.i:rdId(),t}});
+ const all=nw.concat(dn);if(all.length)cf.rd=all;else delete cf.rd}
+/* saving an entry logged from the list ticks the item off on the entry it came from */
+function rdMark(e){const f=e&&e.fu;if(!f)return;const o=(S.cpd||[]).find(x=>x.id===f.e);if(!o||!Array.isArray(o.rd))return;const it=o.rd.find(x=>x.i===f.i);if(it)it.lg=e.id}
+function rdFromH(){const f=cf&&cf.fu,o=f&&(S.cpd||[]).find(x=>x.id===f.e);return o?`<p class="tag cffu" id="cffu">Followed up from <b>${esc(String(o.t||"").trim()||"an entry")}</b>, ${esc(dFmt(o.d))}</p>`:""}
+function rdOpen(from){cp.rdb=from==="home"?"home":"cpd";cp.rdI=0;rdArm=null;cf=null;tab="cpd";pf="cpd";cp.v="rd";home();window.scrollTo(0,0)}
+function rdBack(){rdArm=null;cp.v="list";pf=cp.rdb==="home"?"home":"cpd";home();window.scrollTo(0,0)}
+function rdLog(eid,iid){const o=(S.cpd||[]).find(x=>x.id===eid),it=o&&Array.isArray(o.rd)?o.rd.find(x=>x.i===iid):null;if(!it)return;rdArm=null;cp.rdI=Math.max(0,rdAll().findIndex(x=>x.it.i===iid));
+ const t=String(it.t);cf={id:null,d:isoD(new Date()),t:rdTitle(t),ty:"read",m:60,tm:"",otj:false,ks:[],r:{l:"",c:"",b:""},ref:t.slice(0,2000),fu:{e:o.id,i:it.i},from:"rd"};
+ cp.v="form";tab="cpd";pf="cpd";home();window.scrollTo(0,0);if(!cf.t)setTimeout(()=>{const x=document.getElementById("cf-t");if(x)try{x.focus({preventScroll:true})}catch(e){}},60)}
+function rdRm(eid,iid){const k=eid+"|"+iid;if(rdArm!==k){rdArm=k;home();setTimeout(()=>{const b=document.getElementById("rdrm-"+iid);if(b)try{b.focus({preventScroll:true})}catch(e){}},0);return}
+ rdArm=null;cf=null;cp.rdI=Math.max(0,rdAll().findIndex(x=>x.it.i===iid));const o=(S.cpd||[]).find(x=>x.id===eid);if(o&&Array.isArray(o.rd)){o.rd=o.rd.filter(x=>x.i!==iid);if(!o.rd.length)delete o.rd;save()}rdWhere("rm");home()}
+/* after Log it, Remove, Cancel or Delete: the list while anything is left, otherwise where you came from */
+function rdWhere(how){const n=rdAll().length;tab="cpd";let m="";
+ if(how==="log")m="Logged. "+(n?n+" left to read.":"Nothing left to read.");else if(how==="rm")m="Removed. "+(n?n+" left to read.":"Nothing left to read.");else if(how==="del")m="Entry deleted."+(n?" "+n+" left to read.":"");
+ if(n){pf="cpd";cp.v="rd"}else{pf=cp.rdb==="home"?"home":"cpd";cp.v="list"}const v=cp.v,p=pf;
+ setTimeout(()=>{try{if(m)hcSay(m);const B=[...document.querySelectorAll("#app .rdl .rdlg")],t=v==="rd"?B[Math.min(cp.rdI||0,B.length-1)]:p==="home"?document.querySelector("#app .pfh-t"):document.querySelector("#app h1");
+  if(t){if(t.tagName==="H1")t.setAttribute("tabindex","-1");if(v==="rd")try{t.closest("li").scrollIntoView({block:how==="rm"?"nearest":"center"})}catch(e){}t.focus({preventScroll:true})}}catch(e){}},120)}
+const rdLink=t=>esc(t).replace(/\b(?:https?:\/\/|www\.)[^\s<]*[^\s<.,;:!?)\]'"]/gi,u=>`<a href="${/^www\./i.test(u)?"https://"+u:u}" target="_blank" rel="noopener noreferrer">${u}</a>`);
+function rdScreen(){const L=rdAll(),bk=cp.rdb==="home"?"Portfolio":"CPD log";
+ let h=head()+tabs()+`<button class="lnk" onclick="rdBack()">‹ ${bk}</button><h1 style="font-size:1.5rem;margin:6px 0 2px">Reading list</h1><p class="tag" style="margin:0 0 10px">${L.length?"Things you noted to read later. When you've read one, log it as a new entry. "+(L.length===1?"It stays":"Each one stays")+" here until you log it or remove it.":"Nothing to read. On any entry, add things under To read later, in More about this entry."}</p>`;
+ if(L.length)h+=`<ul class="rdl" role="list">`+L.map(({e,it})=>{const ar=rdArm===e.id+"|"+it.i,ii=esc(it.i),ei=esc(e.id),sh=esc(it.t.length>60?it.t.slice(0,60)+"…":it.t);
+  return `<li><p class="rdt">${rdLink(it.t)}</p><small class="rdf">From ${esc(String(e.t||"").trim()||"an entry")} · ${esc(dFmt(e.d))}</small><div class="rdb"><button class="opt rdrm${ar?" on":""}" id="rdrm-${ii}" aria-label="${ar?"Yes, remove":"Remove"}: ${sh}" onclick="rdRm('${ei}','${ii}')">${ar?"Yes, remove":"Remove"}</button><button class="go rdlg" aria-label="Log it: ${sh}" onclick="rdLog('${ei}','${ii}')">Log it</button></div></li>`}).join("")+`</ul>`;
+ app.innerHTML=h}
+(function(){const st=document.createElement("style");st.textContent=`#app .rdl{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+#app .rdl>li{margin:0;padding:14px 16px;border:1px solid var(--line);border-radius:16px;background:var(--card)}
+#app .rdt{margin:0 0 4px;font-weight:600;color:var(--ink);overflow-wrap:anywhere}
+#app .rdt a{color:var(--pzlink,var(--ink));text-decoration:underline}
+#app .rdf{display:block;color:var(--mute);font-size:.85rem;overflow-wrap:anywhere}
+#app .rdb{display:flex;gap:8px;margin-top:12px}
+#app .rdb>button{flex:1;width:auto;margin:0;min-height:44px;text-align:center;justify-content:center}
+#app .rdrm.on{border-color:var(--bad);color:var(--bad)}
+@media (min-width:700px){#app .rdb{justify-content:flex-end}#app .rdb>button{flex:0 0 160px}}
+#app .rdfu{list-style:none;margin:10px 0 0;padding:0}
+#app .rdfu>li{margin:0;padding:8px 0;border-top:1px solid var(--line)}
+#app .rdfu>li>span{display:block;overflow-wrap:anywhere}
+#app .rdfu>li>small{display:block;color:var(--mute)}
+#app .cffu{margin:2px 0 8px}
+#app .pfh-n{min-height:44px}`;document.head.appendChild(st)})();
 /* ---------- v539: calmer pages, batch 2 (form frame, Type sheet, extras as rows, References, review sheet) ---------- */
 const pzShield='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6z"/></svg>';
 let cfOpenM={o:null,s:{}},cfTyH="";
 function cfOpenK(k){return cfOpenM.o===cf&&!!cfOpenM.s[k]}
 function cfRowT(k){if(cfOpenM.o!==cf)cfOpenM={o:cf,s:{}};cfOpenM.s[k]=!cfOpenM.s[k];const op=cfOpenM.s[k];cfRe();
- if(op)setTimeout(()=>{const g=document.getElementById("cfg-"+k);if(!g)return;try{g.scrollIntoView({block:"nearest",behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"})}catch(e){}if(k==="ref"){const t=document.getElementById("cf-ref");if(t)try{t.focus({preventScroll:true})}catch(e){}}},30)}
+ if(op)setTimeout(()=>{const g=document.getElementById("cfg-"+k);if(!g)return;try{g.scrollIntoView({block:"nearest",behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"})}catch(e){}if(k==="ref"||k==="rd"){const t=document.getElementById("cf-"+k);if(t)try{t.focus({preventScroll:true})}catch(e){}}},30)}
 function cfTySheet(){if(!cf||!cfTyH)return;infoSheet(`<h2 style="margin:6px 0 4px;font-size:1.25rem">Type</h2><p class="tag" style="margin:0 0 6px">It sorts your log and fills in your HCPC audit pack.</p><div class="cftyl" role="group" aria-label="Type">${cfTyH}</div>`,"Type")}
 function cfTyBack(){setTimeout(()=>{const r=document.getElementById("cfr-ty");if(r)try{r.focus({preventScroll:true})}catch(e){}},260)}
 const pzRowH=(id,lab,val,on,extra)=>`<button class="pzrow" id="${id}" aria-label="${lab}${val!=null?", "+val:""}" ${extra||""} onclick="${on}"><span>${lab}${val!=null?`<small>${val}</small>`:""}</span><span class="chv" aria-hidden="true">›</span></button>`;
@@ -14177,6 +14233,11 @@ function cfCalm2(R){const t=R.querySelector("#cf-t");if(!t||!cf)return;const C=t
    w.innerHTML=`<p class="tag" style="margin:0 0 6px">A webpage, book, journal article or guideline you learned from. One per line, in any style.</p><textarea id="cf-ref" class="cin" rows="2" maxlength="2000" aria-label="References" placeholder="e.g. Resuscitation Council UK (2021) The ABCDE approach. resus.org.uk" oninput="if(this.value)cf.ref=this.value;else delete cf.ref;cfGrow(this)">${esc(rv)}</textarea>`;
    const first=rv.split("\n").map(x=>x.trim()).filter(Boolean),val=first.length?(first[0].length>40?first[0].slice(0,40)+"…":first[0])+(first.length>1?" and "+(first.length-1)+" more":""):"None";
    add("ref","References",val,[...w.content.childNodes].filter(x=>x.nodeType===1));const ta=box.querySelector("#cf-ref");if(ta)ta.classList.add("cfgr")}
+  {const w=document.createElement("template"),ids=new Set((S.cpd||[]).map(e=>e.id)),L=Array.isArray(cf.rd)?cf.rd:[],dn=L.filter(x=>x&&x.lg&&ids.has(x.lg)),op=L.filter(x=>x&&!dn.includes(x));
+   w.innerHTML=`<p class="tag" style="margin:0 0 6px">Things you came across and want to read more about, one per line. Each stays on your Reading list until you log it or remove it.</p><textarea id="cf-rd" class="cin" rows="2" maxlength="4000" aria-label="To read later" placeholder="e.g. Cochrane review on early mobilisation after hip fracture" oninput="rdIn(this.value);cfGrow(this)">${esc(op.map(x=>x.t).join("\n"))}</textarea>`+
+    (dn.length?`<ul class="rdfu" role="list" aria-label="Followed up">${dn.map(x=>{const f=(S.cpd||[]).find(e=>e.id===x.lg);return `<li><span>${esc(x.t)}</span><small>Followed up: ${f&&String(f.t).trim()&&String(f.t).trim()!==x.t&&String(f.t).trim()!==rdTitle(x.t)?esc(f.t)+", ":"logged "}${f?esc(dFmt(f.d)):""}</small></li>`}).join("")}</ul>`:"");
+   const val=op.length?(op[0].t.length>40?op[0].t.slice(0,40)+"…":op[0].t)+(op.length>1?" and "+(op.length-1)+" more":""):dn.length?dn.length+" followed up":"None";
+   add("rd","To read later",val,[...w.content.childNodes].filter(x=>x.nodeType===1));const ta=box.querySelector("#cf-rd");if(ta)ta.classList.add("cfgr")}
   if(box.children.length)mh.after(box)}
  /* the form frame: Save at the bottom, Cancel */
  K=pzKids(C);const sv=K.find(e=>e.matches("button.go")&&e.getAttribute("onclick")==="cpdSave()");
@@ -16098,10 +16159,10 @@ try{(function(){
     try{setTimeout(phFill,0)}catch(e){}
     return}
    dkK=null;return cpdScreen.apply(this,arguments)}
-  if(cp.v==="form"){cs0.apply(this,arguments);right=app.innerHTML;cp.v="list";cs0.apply(this,arguments);cp.v="form"}
+  if(cp.v==="form"){cs0.apply(this,arguments);right=app.innerHTML;cp.v=cf&&cf.from==="rd"&&typeof rdAll==="function"&&rdAll().length?"rd":"list";cs0.apply(this,arguments);cp.v="form"}
   else{cs0.apply(this,arguments);right=`<div class="dkempty"><b>${(S.cpd||[]).length?"Open an entry to read, edit or delete it":"Your CPD log is empty"}</b><p style="margin:0">${(S.cpd||[]).length?"Or add something new you've learned.":"Add a course, an in-service, some reading or anything else you've learned from."}</p><button class="go" onclick="cpdNew()">Add entry</button></div>`}
   const left=app.innerHTML;
-  app.innerHTML=`<div class="dk2"><section class="dkl" aria-label="CPD entries">${left}</section><section class="dkr" aria-label="${cp.v==="form"?"Entry":"Details"}">${right}</section></div>`;
+  app.innerHTML=`<div class="dk2"><section class="dkl" aria-label="${cp.v==="form"&&cf&&cf.from==="rd"?"Reading list":"CPD entries"}">${left}</section><section class="dkr" aria-label="${cp.v==="form"?"Entry":"Details"}">${right}</section></div>`;
   dkK=K;
   try{dkBand()}catch(e){console.error("dkBand",e)}
   try{if(cp.v==="form")dkCancel(app.querySelector(":scope>.dk2>.dkr"))}catch(e){}
