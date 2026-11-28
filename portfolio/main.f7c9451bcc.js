@@ -2209,10 +2209,11 @@ function cpdSave(){
  if(cf.mErr){cf.err=cf.mErr;return home()}if(Math.round(+cf.m||0)>1440){cf.err=CF_MAXT;return home()}const m=Math.max(0,Math.min(1440,Math.round(+cf.m||0)));if(!/^\d{4}-\d{2}-\d{2}$/.test(cf.d)){cf.err="Choose a date.";return home()}
  S.cpd=S.cpd||[];const r={};Object.keys(FW).forEach(k=>FW[k].f.forEach(x=>{const v=cf.r[x[0]];if(v&&String(v).trim())r[x[0]]=String(v).slice(0,6000)}));
  const e={id:cf.id||cpId(),d:cf.d,t:cf.t.trim().slice(0,120),ty:cf.ty,m,fw:FW[cf.fw]?cf.fw:"std",r,tm:/^\d{2}:\d{2}$/.test(cf.tm||"")?cf.tm:"",otj:!!cf.otj,ks:(cf.ks||[]).slice(0,60)};if((cf.ph||[]).length)e.ph=cf.ph.slice(0,12);if(cf.auto)e.auto=1;if((cf.ss||[]).length)e.ss=cf.ss.slice(0,50);if(cf.pre)e.pre=1;if(e.ty==="mentor"&&cf.sv)e.sv=svClean(cf.sv);if(cf.ns)e.ns=1;{const rf=String(cf.ref||"").replace(/\r/g,"").trim();if(rf)e.ref=rf.slice(0,2000)}{const tg=tgClean(cf.tg);if(tg.length)e.tg=tg}if(Array.isArray(cf.pp)){const pp=ppClean(cf.pp);if(pp.length||ppOf({tg:e.tg}).length)e.pp=pp}
- const i=S.cpd.findIndex(x=>x.id===e.id),old=i>=0?S.cpd[i]:null;if(i>=0)S.cpd[i]=e;else S.cpd.unshift(e);try{if(!old&&!e.auto&&!e.ns)fdPost("📒","Logged CPD: "+cptn(e.ty)+" · "+fmtH(e.m||0),"cpd:"+e.id)}catch(er){}try{const ci=cpdXpCalc(old,e);if(ci){S.xpT=(S.xpT||0)+ci.xp;S.xpW=(S.xpW||0)+ci.xp;save();setTimeout(()=>cpdCelebrate(ci),60)}}catch(er){}const fr=cf.from;if(fr==="cm"){const nid=e.id;S.cpd=S.cpd||[];const i2=S.cpd.findIndex(x=>x.id===e.id);if(i2>=0)S.cpd[i2]=e;else S.cpd.unshift(e);save();cf=null;return cmBack(nid)}if(fr==="hc"){pf="hc";hc.v="ev"}if(fr==="pre"){tab="cpd";pf="pre";pe=null}(cf.phGone||[]).forEach(id=>phDel(id).catch(()=>{}));if(e.otj)om=String(e.d).slice(0,7);save();cf=null;cp.v="list";if(fr==="otj")pf="otj";if(fr==="hc"){tab="cpd";pf="hc";hc.v="ev"}if(fr==="pre"){tab="cpd";pf="pre";pe=null}home();window.scrollTo(0,0)}
+ const i=S.cpd.findIndex(x=>x.id===e.id),old=i>=0?S.cpd[i]:null;if(i>=0)S.cpd[i]=e;else S.cpd.unshift(e);try{if(!old&&!e.auto&&!e.ns)fdPost("📒","Logged CPD: "+cptn(e.ty)+" · "+fmtH(e.m||0),"cpd:"+e.id)}catch(er){}try{const ci=cpdXpCalc(old,e);if(ci){S.xpT=(S.xpT||0)+ci.xp;S.xpW=(S.xpW||0)+ci.xp;save();setTimeout(()=>cpdCelebrate(ci),60)}}catch(er){}const fr=cf.from;if(fr==="cm"){const nid=e.id;S.cpd=S.cpd||[];const i2=S.cpd.findIndex(x=>x.id===e.id);if(i2>=0)S.cpd[i2]=e;else S.cpd.unshift(e);save();cf=null;return cmBack(nid)}if(fr==="hc"){pf="hc";hc.v="ev"}if(fr==="pre"){tab="cpd";pf="pre";pe=null}(cf.phGone||[]).forEach(id=>phDel(id).catch(()=>{}));if(e.otj)om=String(e.d).slice(0,7);save();cf=null;cp.v="list";if(fr==="otj")pf="otj";if(fr==="hc"){tab="cpd";pf="hc";hc.v="ev"}if(fr==="hcr")hcRfWhere(e);if(fr==="pre"){tab="cpd";pf="pre";pe=null}home();window.scrollTo(0,0)}
 function armTap(re,lab){const b=[...document.querySelectorAll("#app button")].find(x=>re.test(x.textContent.trim()));if(!b)return false;b.textContent=lab;b.style.borderColor="var(--bad)";b.style.color="var(--bad)";return true}
-function cpdDel(){if(!cf.del){cf.del=true;if(armTap(/^Delete entry$/,"Yes, delete"))return;return home()}(cf.ph||[]).concat(cf.phGone||[]).forEach(id=>phDel(id).catch(()=>{}));S.cpd=(S.cpd||[]).filter(x=>x.id!==cf.id);save();cf=null;cp.v="list";home();window.scrollTo(0,0)}
-function cpdCancel(){const f=cf&&cf.from;cf=null;cp.v="list";if(f==="onc")return oncBack();if(f==="cm")return cmBack(null);if(f==="hc")return openHc("ev");if(f==="pre"){tab="cpd";pf="pre";pe=null;home();return window.scrollTo(0,0)}if(f==="otj")pf="otj";home();window.scrollTo(0,0)}
+function cpdDel(){if(cf&&cf.from==="hcr"&&cf.del){const r=cpdDel0();if(!cf){hcRfWhere(null,"del");home();window.scrollTo(0,0)}return r}return cpdDel0()}
+function cpdDel0(){if(!cf.del){cf.del=true;if(armTap(/^Delete entry$/,"Yes, delete"))return;return home()}(cf.ph||[]).concat(cf.phGone||[]).forEach(id=>phDel(id).catch(()=>{}));S.cpd=(S.cpd||[]).filter(x=>x.id!==cf.id);save();cf=null;cp.v="list";home();window.scrollTo(0,0)}
+function cpdCancel(){const f=cf&&cf.from;cf=null;cp.v="list";if(f==="onc")return oncBack();if(f==="cm")return cmBack(null);if(f==="hc")return openHc("ev");if(f==="hcr"){hcRfWhere();home();return window.scrollTo(0,0)}if(f==="pre"){tab="cpd";pf="pre";pe=null;home();return window.scrollTo(0,0)}if(f==="otj")pf="otj";home();window.scrollTo(0,0)}
 
 /* ---------- v457: tags on CPD entries ---------- */
 const TGP=["MSK","Neuro","Respiratory","Cardiac","Critical care","Paediatrics","Older people","Pelvic health","Mental health","Community"];
@@ -2236,8 +2237,8 @@ const tgPills=e=>(e.tg||[]).length?`<span class="tgps">${e.tg.map(t=>`<span clas
 .tgf .chipb span{font-weight:500}`;document.head.appendChild(st)})();
 function cpdForm(){
  const F=fwOf(cf);
- app.innerHTML=head()+`<button class="lnk" onclick="cpdCancel()">‹ ${cf.from==="onc"?"Skip for now":cf.from==="cm"?"Competency":cf.from==="hc"?"Evidence":cf.from==="pre"?"Preceptorship":"CPD log"}</button><h1 style="font-size:1.5rem;margin:6px 0 2px">${cf.id?"Edit entry":"New entry"}</h1>`+
- (cf.from==="onc"?`<div class="note">Quick reflection while it is fresh. Two minutes is plenty.</div>`:"")+
+ app.innerHTML=head()+`<button class="lnk" onclick="cpdCancel()">‹ ${cf.from==="onc"?"Skip for now":cf.from==="cm"?"Competency":cf.from==="hc"?"Evidence":cf.from==="hcr"?(hc.rn>1?"Reflections to write":hc.rb==="exp"?"Get ready to submit":"Audit pack"):cf.from==="pre"?"Preceptorship":"CPD log"}</button><h1 style="font-size:1.5rem;margin:6px 0 2px">${cf.id?"Edit entry":"New entry"}</h1>`+
+ (cf.from==="onc"?`<div class="note">Quick reflection while it is fresh. Two minutes is plenty.</div>`:"")+(cf.from==="hcr"?`<div class="note hcrfn" id="hcrfn"><b>${esc(String(cf.t||"").trim()||"This entry")}</b> needs a reflection for your audit pack. Write a line or two in each box.</div>`:"")+
  `<div class="note"><b>No patient details.</b> Don't include names, dates of birth, NHS numbers or anything that could identify a patient.</div>`+
  (cf.err?`<div class="fb bad" id="cf-err" role="alert" tabindex="-1"><b>${esc(cf.err)}</b></div>`:"")+
  `<label class="cfl" for="cf-t">Title</label><input id="cf-t" class="cin" maxlength="120" value="${esc(cf.t)}" oninput="cf.t=this.value" placeholder="e.g. Respiratory study day">`+
@@ -6983,11 +6984,11 @@ function hcChecks(){const H=hcS(),E=hcIn(),ty=new Set(E.map(e=>e.ty)),nr=E.filte
   [!pid,"No patient details",pid?"Something looks like a name, NHS number, date of birth or bed. Check and remove it":"Nothing obvious found","stmt"]]}
 function openHc(v){tab="cpd";pf="hc";hc.v=v||"home";if(v&&v!=="home")hc.nx=null;try{if(!document.getElementById("hclive")){const r=document.createElement("div");r.id="hclive";r.className="hcsr";r.setAttribute("aria-live","polite");r.setAttribute("role","status");document.body.appendChild(r)}}catch(e){}hc.err="";hc.msg="";hcS();home();window.scrollTo(0,0)}
 const hcBack=(to,l)=>`<button class="lnk" onclick="hc.v='${to}';hc.err='';hc.msg='';home();window.scrollTo(0,0)">‹ ${l}</button>`;
-function hcScreen(){const f={det:hcDet,hist:hcHist,pick:hcPick,stmt:hcStmt,ev:hcEvS,list:hcListS,exp:hcExp,fin:hcFinS,clr:hcClrS,past:hcPastS}[hc.v]||hcHome;app.innerHTML=head()+tabs()+f()+foot()}
+function hcScreen(){const f={det:hcDet,hist:hcHist,pick:hcPick,stmt:hcStmt,ev:hcEvS,list:hcListS,exp:hcExp,fin:hcFinS,clr:hcClrS,past:hcPastS,rf:hcRfS}[hc.v]||hcHome;app.innerHTML=head()+tabs()+f()+foot()}
 function hcHome(){const H=hcS(),C=hcChecks(),ok=C.filter(c=>c[0]).length,ne=hcEv().length,dn=HCSTEPS.filter(x=>hcIsDone(x[0])).length;
  const step=(n,ic,t,s,v)=>{const d=hcIsDone(v),nx=hc.nx===v&&!d;return `<button class="opt hcst${d?" done":""}${nx?" hcnext":""}" onclick="openHc('${v}')"><div class="row"><b>${n}. ${window.CL&&CL()?"":ic+" "}${t}</b><span class="hcsr">, </span><span>${d?HCTICK+"Done":s} ›</span></div>${nx?`<small class="hcnx">Up next</small>`:""}</button>`};
  return `<button class="lnk" onclick="pf='home';home()">‹ Portfolio</button><h1 style="font-size:1.6rem;margin:6px 0 2px">HCPC audit pack</h1><p class="tag" style="margin:0 0 10px">If you're picked for a CPD audit, you send your profile through the HCPC's online service. It has four parts: a summary of your recent work, a list of your activities, a personal statement and 4 to 12 pieces of evidence. Build each part here from your CPD log.</p>`+
- (hcUndoable()?`<div class="note">${hcLastClr.k==="fin"?"Pack finished. A copy is in Past audit packs, under More options.":"Your pack was cleared."} <button class="lnk" style="padding:0;text-decoration:underline" onclick="hcClrUndo()">Undo</button></div>`:"")+
+ (hcUndoable()?`<div class="note">${hcLastClr.k==="fin"?"Pack filed. A copy is in Past audit packs, under More options.":"Your pack was cleared."} <button class="lnk" style="padding:0;text-decoration:underline" onclick="hcClrUndo()">Undo</button></div>`:"")+
  (hcNew()?`<div class="note">The HCPC only audits people who have been registered for two years or more, so you can't be picked yet. You can still build your profile as you go.</div>`:"")+(!H.setUp?`<div class="note">Check <b>Registration and audit period</b> first: when you registered, where your Phyzly log starts, and whether you have an earlier log. <button class="lnk" style="padding:0;text-decoration:underline" onclick="hcS().setUp=1;save();openHc('det')">Set it up</button></div>`:"")+`<div class="stats"><div class="stat"><strong>${ok}/${C.length}</strong>checks met</div><div class="stat"><strong>${hcIn().length}</strong>activities</div></div>`+
  `<div class="sec">Build your profile</div><p class="tag" style="margin:-4px 0 8px">${dn} of 6 marked as done</p>`+
  step(1,"🪪","Registration and audit period",esc(String(H.from||"").slice(0,4))+" to "+esc(String(H.to||"").slice(0,4)),"det")+
@@ -7028,8 +7029,27 @@ function hcMark(v){const H=hcS();H.done=H.done&&typeof H.done==="object"?H.done:
 /* one live region for the audit pack, so screen readers hear what happened */
 function hcSay(m){try{toast(m)}catch(e){}try{let r=document.getElementById("hclive");if(!r){r=document.createElement("div");r.id="hclive";r.className="hcsr";r.setAttribute("aria-live","polite");r.setAttribute("role","status");document.body.appendChild(r)}r.textContent="";setTimeout(()=>{r.textContent=m},30)}catch(e){}}
 function hcDoneBtn(v){return hcIsDone(v)?`<div class="hcdn" role="status">${HCTICK}<span><b>Marked as done</b><small>It shows as done in Build your profile.</small></span><button class="lnk" onclick="hcMark('${v}')">Undo</button></div>`+(hcSplit()?"":`<button class="go" onclick="openHc()">Back to audit pack</button>`):`<button class="go" onclick="hcMark('${v}')">Mark as done</button>`}
-function hcGo(k){if(k==="log"){tab="cpd";pf="cpd";cp.v="list";cp.nf=true;home();window.scrollTo(0,0);return}
+function hcGo(k){if(k==="log"){const L=hcRfL();if(hc.v!=="rf")hc.rb=hc.v||"home";hc.rn=L.length;if(L.length===1)return hcRfOpen(L[0].id);if(L.length>1)return hcGoV("rf");tab="cpd";pf="cpd";cp.v="list";cp.nf=true;home();window.scrollTo(0,0);return}
  if(k==="we"){openHc("stmt");setTimeout(()=>{const n=document.getElementById("hcwe");if(n)try{n.scrollIntoView({block:"center",behavior:"smooth"})}catch(e){}},80);return}openHc(k)}
+/* v548: the entries the Reflections written check counts, and the way to them */
+function hcRfL(){try{return hcIn().filter(e=>!e.auto&&!cpHas(e))}catch(e){return []}}
+/* the note sits just above the Reflection heading, so it is on screen with the boxes */
+function hcRfNote(){const n=document.getElementById("hcrfn"),b=document.getElementById("cffwb"),h=b&&b.parentElement;if(n&&h&&h.parentElement&&n.nextElementSibling!==h)h.before(n);return n}
+let hcRfMo=null;
+function hcRfOpen(id){try{if(!hcRfMo){hcRfMo=new MutationObserver(()=>{if(typeof cf!=="undefined"&&cf&&cf.from==="hcr")hcRfNote()});hcRfMo.observe(document.getElementById("app"),{childList:true,subtree:true})}}catch(e){}
+ cpdEdit(id,"hcr");setTimeout(()=>{try{if(!cf)return;const n=hcRfNote(),F=fwOf(cf).f,x=F.find(y=>!String((cf.r||{})[y[0]]||"").trim())||F[0],t=document.getElementById("cf-"+x[0]);
+ if(n)n.scrollIntoView({block:"start"});else if(t)t.scrollIntoView({block:"center"});if(t)t.focus({preventScroll:true})}catch(e){}},120)}
+function hcRfWhere(e,how){const L=hcRfL();tab="cpd";pf="hc";hc.err="";hc.msg="";let m="";
+ if(e&&!cpHas(e)){const k=fwOf(e).f.filter(x=>!String((e.r||{})[x[0]]||"").trim()).length;m="Saved. This entry still has "+k+" empty reflection "+(k===1?"box":"boxes")+"."}
+ else if(e&&L.length)m="Reflection saved. "+L.length+" left to write.";
+ else if(how==="del"&&L.length)m="Entry deleted. "+L.length+" left to write.";
+ else if(!L.length)m="All your entries have a reflection.";
+ if(L.length&&hc.rn>1)hc.v="rf";else hc.v=hc.rb&&hc.rb!=="rf"?hc.rb:"home";
+ const v=hc.v;setTimeout(()=>{try{if(m)hcSay(m);const t=v==="rf"?document.querySelector("#app .hcrf button"):document.querySelector("#app h1");if(t){if(t.tagName==="H1")t.setAttribute("tabindex","-1");t.focus({preventScroll:v!=="rf"})}}catch(er){}},120)}
+function hcRfS(){const L=hcRfL(),rb=hc.rb&&hc.rb!=="rf"?hc.rb:"home";
+ if(!L.length){hc.v=rb;return ({exp:hcExp}[rb]||hcHome)()}
+ return hcBack(rb,rb==="exp"?"Get ready to submit":"Audit pack")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">Reflections to write</h1><p class="tag" style="margin:0 0 10px">${L.length} ${L.length===1?"entry":"entries"} in your audit period ${L.length===1?"has":"have"} no reflection yet. The HCPC asks how your CPD helped your practice and the people you treat. A line or two in each box is enough.</p>`+
+ `<ul class="hcrf" role="list">${L.map(e=>`<li><button class="opt" onclick="hcRfOpen('${esc(e.id)}')"><div class="row"><b>${esc(String(e.t||"").trim()||"Untitled entry")}</b><span aria-hidden="true">›</span></div><small style="color:var(--mute)">${esc(dFmt(e.d))} · ${esc(cpTy(e))}</small></button></li>`).join("")}</ul>`}
 function hcGoV(v){hc.v=v;hc.err="";hc.msg="";hc.cf=null;home();window.scrollTo(0,0)}
 function hcSnap(key){const v=hcS()[key]||"";const a=hcUn[key];if(a[a.length-1]!==v){a.push(v);if(a.length>20)a.shift()}}
 function hcUndo(key){const a=hcUn[key];if(!a.length)return;hcS()[key]=a.pop();save();hc.clr=null;toast("Undone");cfRe()}
@@ -7137,13 +7157,13 @@ function hcEvS(){const all=hcEvAll(),ev=all.filter(x=>!x.out),cov=hcCov(),todo=e
  (todo>1?`<button class="opt" style="text-align:center" onclick="hc.ed=null;hcEv().forEach(x=>{if(!x.ok){hcEvSet(x.k,'st',x.st);hcEvSet(x.k,'ok',true)}});cfRe()">Accept all suggestions</button>`:"")+
  `<p class="tag">To add certificates, notes or PDFs, open the entry and add them there. They appear here as extra evidence.</p><details class="note"><summary><b>The five HCPC CPD standards</b></summary>${ivUl(HCS.map(s=>s[0]+". "+s[1]))}</details>`+hcDoneBtn("ev")}
 function hcMoreH(onExp){const H=hcS(),P=Array.isArray(H.past)?H.past:[];
- return `<div class="sec">${onExp?"When you've submitted":"This pack"}</div><p class="tag" style="margin:-4px 0 8px">Keep a copy and start a new pack for your next audit, or clear this one and start again. Your CPD log isn't changed.</p><button class="opt" style="text-align:center" onclick="hcGoV('fin')">Finish this pack and start a new one</button><button class="opt" style="text-align:center;margin-top:8px" onclick="hcGoV('clr')">Start this pack again</button>`+
- (P.length&&!onExp?`<div class="sec">Past audit packs</div><div class="hcpast">${P.map(p=>`<button class="opt" onclick="hc.pid='${esc(p.id)}';hcGoV('past')"><div class="row"><b>${esc(dFmt(p.from))} to ${esc(dFmt(p.to))}</b><span>›</span></div><small style="color:var(--mute)">Finished ${esc(dFmt(p.at))} · ${(p.acts||[]).length} activities</small></button>`).join("")}</div>`:"")}
+ return `<div class="sec">${onExp?"When you've submitted":"This pack"}</div><p class="tag" style="margin:-4px 0 8px">Once you've submitted, file this pack so a copy is kept under Past audit packs. Or clear it and start again. Your CPD log isn't changed.</p><button class="opt" style="text-align:center" onclick="hcGoV('fin')">Finish and file this pack</button><button class="opt" style="text-align:center;margin-top:8px" onclick="hcGoV('clr')">Start this pack again</button>`+
+ (P.length&&!onExp?`<div class="sec">Past audit packs</div><div class="hcpast">${P.map(p=>`<button class="opt" onclick="hc.pid='${esc(p.id)}';hcGoV('past')"><div class="row"><b>${esc(dFmt(p.from))} to ${esc(dFmt(p.to))}</b><span>›</span></div><small style="color:var(--mute)">Filed ${esc(dFmt(p.at))} · ${(p.acts||[]).length} activities</small></button>`).join("")}</div>`:"")}
 function hcFinS(){const H=hcS(),P=Array.isArray(H.past)?H.past:[];
- return hcBack("home","Audit pack")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">Finish this pack</h1><p class="tag" style="margin:0 0 10px">For when you've submitted your profile, or the audit is over.</p>`+
- `<div class="note"><b>What happens</b>${ivUl(["Phyzly keeps a copy of your summary, personal statement, chosen activities and evidence list under Past audit packs (in More options on the audit pack), to read or copy later."+(P.length>=5?" It keeps your last 5, so your oldest copy will go.":""),"A new pack starts for the two years from "+dFmt(hcFinFrom())+" to "+dFmt(hcFinTo(hcFinFrom()))+", with your registration details kept and everything else blank. You can change the dates in Registration and audit period.","Your CPD log, photos and documents aren't changed."])}</div>`+
+ return hcBack("home","Audit pack")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">Finish and file this pack</h1><p class="tag" style="margin:0 0 10px">For when you've submitted your profile, or the audit is over.</p>`+
+ `<div class="note"><b>What happens</b>${ivUl(["Phyzly keeps a copy of your summary, personal statement, chosen activities and evidence list under Past audit packs (in More options on the audit pack), to read or copy later."+(P.length>=5?" It keeps your last 5, so your oldest copy will go.":""),"The pack then empties and its audit period moves on to "+dFmt(hcFinFrom())+" to "+dFmt(hcFinTo(hcFinFrom()))+", so it's ready whenever you're next picked. Your registration details are kept. You can change the dates in Registration and audit period.","Your CPD log, photos and documents aren't changed."])}</div>`+
  `<div class="note"><b>Download your own copy first</b><p style="margin:6px 0 0">The copy Phyzly keeps is text only. For a copy with your evidence, download the PDF now.</p></div><button class="opt" style="text-align:center" onclick="hcGoPdf()">Download PDF</button><p id="hcm" class="tag" role="status">${esc(hc.msg)}</p><div id="xprw">${xpReadyHtml("hc")}</div>`+
- `<button class="go" onclick="hcFinGo()">Finish and start a new pack</button><button class="opt" style="text-align:center;margin-top:8px" onclick="openHc()">Not yet</button>`}
+ `<button class="go" onclick="hcFinGo()">Finish and file</button><button class="opt" style="text-align:center;margin-top:8px" onclick="openHc()">Not yet</button>`}
 function hcFinTo(f){const x=new Date(f+"T12:00:00");x.setFullYear(x.getFullYear()+2);x.setDate(x.getDate()-1);return isoD(x)}
 function hcFinFrom(){const H=hcS(),t=isoD(new Date()),f=hcDay(H.to,1);return f>t?t:f}
 function hcFinGo(){const H=hcS(),past=(Array.isArray(H.past)?H.past:[]).slice();
@@ -7151,7 +7171,7 @@ function hcFinGo(){const H=hcS(),past=(Array.isArray(H.past)?H.past:[]).slice();
   acts:H.pick.map(id=>cpdAll().find(e=>e.id===id)).filter(Boolean).map(e=>({t:String(e.t||""),d:e.d,ty:cpTy(e)})),ev:hcEv().map(x=>({n:x.n,d:String(x.d||""),st:x.st.slice()}))};
  past.unshift(rec);while(past.length>5||(past.length>1&&JSON.stringify(past).length>120000))past.pop();
  const nf=hcFinFrom(),prev=JSON.parse(JSON.stringify(H));S.hc={prof:H.prof,no:"",from:nf,to:hcFinTo(nf),hist:"",stmt:"",pick:[],ev:{},gap:{},done:{},regFrom:H.regFrom,reg:H.reg,lsk:H.lsk,ls:H.ls,prior:false,setUp:H.setUp,past};
- hcUn.hist.length=0;hcUn.stmt.length=0;XP.ready=null;save();hcLastClr={k:"fin",prev,sig:hcStable(S.hc)};hc.nx=null;hc.v="home";hc.msg="";home();window.scrollTo(0,0);hcSay("Pack finished. A copy is in Past audit packs, under More options.")}
+ hcUn.hist.length=0;hcUn.stmt.length=0;XP.ready=null;save();hcLastClr={k:"fin",prev,sig:hcStable(S.hc)};hc.nx=null;hc.v="home";hc.msg="";home();window.scrollTo(0,0);hcSay("Pack filed. A copy is in Past audit packs, under More options.")}
 function hcClrS(){
  return hcBack("home","Audit pack")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">Start this pack again</h1>`+
  `<div class="hcwarn"><b>This clears this pack</b>${ivUl(["Your summary of recent work and personal statement","The activities you chose, and your evidence checks","Your gap explanations and the sections marked as done"])}<p style="margin:6px 0 0">Your registration details, audit period, past packs and CPD log stay as they are.</p></div>`+
@@ -7163,7 +7183,7 @@ function hcUndoable(){if(!hcLastClr)return false;try{if(hcStable(S.hc)===hcLastC
 function hcClrUndo(){if(!hcUndoable())return home();S.hc=hcLastClr.prev;hcLastClr=null;save();home();hcSay("Brought back.")}
 function hcPastS(){const H=hcS(),p=(Array.isArray(H.past)?H.past:[]).find(x=>x.id===hc.pid);if(!p){hc.v="home";return hcHome()}
  const para=t=>String(t||"").trim()?`<div class="hcpk">${esc(String(t).trim())}</div>`:`<p class="tag">Nothing written.</p>`;
- return hcBack("home","Audit pack")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">Past audit pack</h1><p class="tag" style="margin:0 0 10px">${esc(dFmt(p.from))} to ${esc(dFmt(p.to))}. Finished ${esc(dFmt(p.at))}. A copy of what you wrote; your entries are still in your CPD log.</p>`+
+ return hcBack("home","Audit pack")+`<h1 style="font-size:1.5rem;margin:6px 0 2px">Past audit pack</h1><p class="tag" style="margin:0 0 10px">${esc(dFmt(p.from))} to ${esc(dFmt(p.to))}. Filed ${esc(dFmt(p.at))}. A copy of what you wrote; your entries are still in your CPD log.</p>`+
  `<div class="sec">Summary of recent work</div>${para(p.hist)}${String(p.hist||"").trim()?`<button class="opt" style="text-align:center" onclick="hcPastCopy('hist')">Copy summary</button>`:""}`+
  `<div class="sec">Personal statement</div>${para(p.stmt)}${String(p.stmt||"").trim()?`<button class="opt" style="text-align:center" onclick="hcPastCopy('stmt')">Copy statement</button>`:""}`+
  `<div class="sec">Activities you wrote about</div>${(p.acts||[]).length?ivUl(p.acts.map(a=>a.t+" ("+dFmt(a.d)+", "+a.ty+")")):`<p class="tag">None chosen.</p>`}`+
@@ -8161,7 +8181,7 @@ Object.entries(QV).forEach(([k,v])=>v.forEach((a,i)=>{const o=B[k]&&B[k][i];if(o
  }catch(e){console.error("v281",e)}
 
  /* ---------- v282: tester version: report a problem, feedback, welcome note ---------- */
- const RP_VER="v547";let rpCtx=null,rpCat=null;
+ const RP_VER="v548";let rpCtx=null,rpCat=null;
  function rpBtn(kind,id,i){return `<button class="rpb" onclick="rpOpen('${kind}','${id}',${i})">⚑ Report a problem with this card</button>`}
  function rpCtxFor(kind,id,i){try{
   if(kind==="c"){const c=LEARN[id][i],cd=typeof COND!=="undefined"&&COND.find(x=>x.id===id);return {kind:"card",layer:id,card:i,title:c.t,where:(cd?"Condition: "+cd.n:(typeof tn==="function"?tn(id):id))+" · card "+(i+1)+": "+c.t}}
@@ -14010,7 +14030,13 @@ function cfFwT(){cfFwO=cfFwO===cf?null:cf;cfRe()}
 function cpNfOn(){cp.nf=true;home();setTimeout(()=>{const b=document.getElementById("cpnfx");if(b)try{b.focus({preventScroll:true})}catch(e){}},0)}
 function cpNfOff(){cp.nf=false;home();setTimeout(()=>{const b=document.getElementById("cprm");if(b)try{b.focus({preventScroll:true})}catch(e){}},0)}
 /* a textarea grows to fit what's written, up to most of the screen */
-function cfGrow(t){if(!t||!t.isConnected||!t.matches||!t.matches("textarea.cfgr"))return;try{t.style.height="auto";t.style.height=(t.scrollHeight+2)+"px"}catch(e){}}
+let cfGm=null;
+function cfGrow(t){if(!t||!t.isConnected||!t.matches||!t.matches("textarea.cfgr"))return;try{
+ if(!cfGm||!cfGm.isConnected){cfGm=document.createElement("textarea");cfGm.setAttribute("aria-hidden","true");cfGm.tabIndex=-1;cfGm.className="cfgm";document.body.appendChild(cfGm)}
+ const cs=getComputedStyle(t);["fontFamily","fontSize","fontWeight","fontStyle","lineHeight","letterSpacing","wordSpacing","textTransform","paddingTop","paddingBottom","paddingLeft","paddingRight","borderTopWidth","borderBottomWidth","borderLeftWidth","borderRightWidth","borderStyle","boxSizing","whiteSpace","wordBreak","overflowWrap","tabSize"].forEach(k=>{cfGm.style[k]=cs[k]});
+ cfGm.style.width=t.getBoundingClientRect().width+"px";cfGm.value=t.value;
+ const pd=parseFloat(cs.paddingTop)+parseFloat(cs.paddingBottom),lh=parseFloat(cs.lineHeight)||parseFloat(cs.fontSize)*1.4,mn=lh*(+t.getAttribute("rows")||2)+pd+2;
+ const h=Math.ceil(Math.max(mn,cfGm.scrollHeight+2));cfGm.value="";if(Math.abs(h-t.offsetHeight)>1)t.style.height=h+"px"}catch(e){}}
 {const w0=typeof cpWc==="function"?cpWc:null;if(w0)cpWc=function(el){const r=w0.apply(this,arguments);try{const sm=document.querySelector('small.cfwc[data-wc="'+el.id+'"]');if(sm)sm.hidden=!String(el.value||"").trim();cfGrow(el)}catch(e){}return r}}
 /* CPD entry: the reflection after the basics, then the optional extras */
 function cfCalm(R){const t=R.querySelector("#cf-t");if(!t||!cf)return;const C=t.parentNode,K=pzKids(C);
@@ -14340,7 +14366,7 @@ function hcCalm4(R){if(typeof pf==="undefined"||pf!=="hc")return;
  const tp=[...R.querySelectorAll("div.sec")].find(e=>pzTx(e)==="This pack");
  if(tp){const g=[tp];let n=tp.nextElementSibling;while(n&&!n.matches(".pzfoot")&&!(n.matches("div.sec")&&pzTx(n)!=="Past audit packs")){g.push(n);n=n.nextElementSibling}
   const help=g.find(e=>e.matches("p.tag")),fin=g.find(e=>e.matches("button")&&/hcGoV\('fin'\)/.test(e.getAttribute("onclick")||"")),clr=g.find(e=>e.matches("button")&&/hcGoV\('clr'\)/.test(e.getAttribute("onclick")||"")),past=g.find(e=>e.matches(".hcpast"));
-  hcMoreSh=(fin?pzRowH("hcm-fin","Finish this pack and start a new one",esc("Keep a copy for your next audit"),"hcGoV('fin')","data-close"):"")+(clr?pzRowH("hcm-clr","Start this pack again",esc("Clear this one"),"hcGoV('clr')","data-close"):"")+
+  hcMoreSh=(fin?pzRowH("hcm-fin","Finish and file this pack",esc("Keep a copy under Past audit packs"),"hcGoV('fin')","data-close"):"")+(clr?pzRowH("hcm-clr","Start this pack again",esc("Clear this one"),"hcGoV('clr')","data-close"):"")+
    (help?`<p class="tag" style="margin:10px 0 0">${help.innerHTML}</p>`:"")+
    (past?`<div class="sec">Past audit packs</div>`+[...past.querySelectorAll("button")].map((b,i)=>{const t=pzTx(b.querySelector("b")),sm=pzTx(b.querySelector("small"));return pzRowH("hcm-p"+i,esc(t),esc(sm),esc(b.getAttribute("onclick")||""),"data-close")}).join(""):"");
   g.forEach(e=>e.remove())}
@@ -16097,7 +16123,7 @@ try{(function(){
   const self=this,args=arguments,cap=()=>{let out="";const pd=Object.getOwnPropertyDescriptor(app,"innerHTML");
    try{Object.defineProperty(app,"innerHTML",{configurable:true,get(){return out},set(w){out=w}});hs0.apply(self,args)}finally{if(pd)Object.defineProperty(app,"innerHTML",pd);else delete app.innerHTML}return out};
   const right=cap();const v=hc.v;hc.v="home";let left="";try{left=cap()}finally{hc.v=v}
-  const nm=({det:"Your details",hist:"Summary of recent work",pick:"Choose activities",stmt:"Personal statement",ev:"Evidence",list:"List of activities",exp:"Get ready to submit",fin:"Finish this pack",clr:"Start this pack again",past:"Past audit pack"})[v]||"Section";
+  const nm=({det:"Your details",hist:"Summary of recent work",pick:"Choose activities",stmt:"Personal statement",ev:"Evidence",list:"List of activities",exp:"Get ready to submit",fin:"Finish and file this pack",rf:"Reflections to write",clr:"Start this pack again",past:"Past audit pack"})[v]||"Section";
   const x=`<button class="dkx" onclick="hc.v='home';hc.err='';hc.msg='';home()" aria-label="Close ${nm}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>`;
   if(had&&window.pzMorph){/* already side by side: redraw both sides in place */
    const L=had.querySelector(":scope>.dkl"),R=had.querySelector(":scope>.dkr");pzMorph(L,left);pzMorph(R,x+right);R.setAttribute("aria-label",nm);had.setAttribute("data-v",v);
